@@ -1,5 +1,5 @@
 import { RootState } from "@/app/store";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSelector } from "react-redux";
 
 export default function () {

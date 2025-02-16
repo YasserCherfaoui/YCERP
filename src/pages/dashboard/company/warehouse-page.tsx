@@ -7,6 +7,6 @@ export default function() {
 
     return <div className="flex flex-col p-4">
         <WarehouseAppBar selectedRow={selectedRow} setSelectedRow={setSelectedRow} />
-        <WarehouseTable setSelectedRow={setSelectedRow} />
+        <WarehouseTable />
     </div>
 }

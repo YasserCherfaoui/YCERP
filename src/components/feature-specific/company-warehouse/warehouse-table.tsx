@@ -29,14 +29,12 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-interface Props {
-  setSelectedRow: Dispatch<SetStateAction<number | null>>;
-}
 
-export default function ({ setSelectedRow }: Props) {
+
+export default function () {
   const company = useSelector((state: RootState) => state.company.company);
   const [inventory, setInventory] = useState<Inventory | null>();
   const [loading, setLoading] = useState(false);

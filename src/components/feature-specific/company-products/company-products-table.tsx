@@ -127,13 +127,6 @@ export default function ({ selectedRow, setSelectedRow }: Props) {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  function handleGetSelectedRowIds(): number[] {
-    const selectedRows = table.getSelectedRowModel().rows;
-    const selectedIds = selectedRows.map((row) => row.original.ID);
-    console.log("Selected row IDs:", selectedIds);
-    // Here you can return, use, or do something with 'selectedIds'
-    return selectedIds;
-  }
 
   if (!company) return;
   return (
