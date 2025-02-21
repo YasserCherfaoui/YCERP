@@ -1,3 +1,5 @@
+import { useAppDispatch } from "@/app/hooks";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -5,27 +7,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { LoginFormSchema, loginSchema } from "@/schemas/auth";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Form,
   FormControl,
   FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  Form,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Helmet } from "react-helmet-async";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "@/services/auth-service";
-import { useAppDispatch } from "@/app/hooks";
+import { Input } from "@/components/ui/input";
 import { login } from "@/features/auth/auth-slice";
+import { useToast } from "@/hooks/use-toast";
+import { LoginFormSchema, loginSchema } from "@/schemas/auth";
+import { loginUser } from "@/services/auth-service";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 export default function () {
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ export default function () {
         });
         localStorage.setItem("authToken", response.data.token);
         dispatch(login(response.data.user));
-        navigate("/dashboard", { replace: true });
+        navigate("/menu", { replace: true });
       } else {
         toast({
           title: "Error logging in",
