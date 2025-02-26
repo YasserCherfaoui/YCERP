@@ -1,4 +1,5 @@
 import { Company } from "./company.model";
+import { Franchise } from "./franchise.model";
 
 export interface Administrator {
     id: number;
@@ -17,6 +18,7 @@ export interface Administrator {
     DeletedAt: string | null;
     administrator_id: number;
     franchise_id: number;
+    franchise?: Franchise;
     full_name: string;
     email: string;
   }
