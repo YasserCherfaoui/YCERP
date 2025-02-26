@@ -1,4 +1,4 @@
-import { Administrator } from "./administrator.model";
+import { Administrator, FranchiseAdministrator } from "./administrator.model";
 
 export interface Franchise {
     ID: number;
@@ -10,4 +10,5 @@ export interface Franchise {
     city: string;
     state: string;
     administrators: Administrator[];
+    franchise_administrators: FranchiseAdministrator[];
 }

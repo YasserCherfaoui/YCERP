@@ -9,3 +9,14 @@ export interface Administrator {
     email: string;
     companies: Company[];
   }
+
+  export interface FranchiseAdministrator {
+    id: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt: string | null;
+    administrator_id: number;
+    franchise_id: number;
+    full_name: string;
+    email: string;
+  }
