@@ -30,9 +30,8 @@ import {
 } from "@tanstack/react-table";
 import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import Barcode from "react-barcode";
 import { useSelector } from "react-redux";
-
-
 
 export default function () {
   const company = useSelector((state: RootState) => state.company.company);
@@ -82,6 +81,11 @@ export default function () {
     {
       header: "Quantity",
       accessorKey: "quantity",
+    },
+    {
+      header: "QR Code",
+      accessorKey: "product_variant.qr_code",
+      cell: ({ getValue }: any) => <Barcode value={getValue()} height={20} />,
     },
   ];
   //   ANCHOR: TABLE
