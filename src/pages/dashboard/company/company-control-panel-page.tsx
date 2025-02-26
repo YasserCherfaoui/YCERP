@@ -2,20 +2,22 @@ import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import { Button } from "@/components/ui/button";
-import { Apple, ArrowLeft, Store, Warehouse } from "lucide-react";
+import { Apple, ArrowLeft, ReceiptText, Store, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function () {
+  const {pathname} = useLocation();
   const navigate = useNavigate();
-  const company = useSelector((state:RootState) => state.company.company);
+  const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
+  const company = useSelector((state: RootState) => state.company.company);
   if (!company) {
     return null;
   }
   return (
     <div className="flex flex-col h-screen">
       <div className="flex p-4 justify-between items-center">
-        <Button onClick={() => navigate(-1)}>
+        <Button onClick={() => navigate(lastLocation)}>
           <ArrowLeft />
           Back to Companies
         </Button>
@@ -24,7 +26,7 @@ export default function () {
         <CompanyTile company={company} />
         <div className="flex flex-wrap justify-center gap-4 self-center">
           {quickMenu.map((item, index) => (
-            <WideButton key={index} item={item}  />
+            <WideButton key={index} item={item} />
           ))}
         </div>
       </div>
@@ -47,5 +49,10 @@ const quickMenu = [
     label: "Inventory",
     icon: Warehouse,
     href: "warehouse",
+  },
+  {
+    label: "Bills",
+    icon: ReceiptText,
+    href: "bills",
   },
 ];
