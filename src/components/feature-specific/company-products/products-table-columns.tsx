@@ -8,9 +8,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Product } from "@/models/data/product.model";
+import { deleteProducts } from "@/services/product-service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { Product } from "../../../models/data/product.model";
+import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -96,7 +98,15 @@ export const columns: ColumnDef<Product>[] = [
     id: "actions",
     cell: ({ row }) => {
       const product = row.original;
-
+      const queryClient = useQueryClient();
+      const { mutateAsync: removeProducts } = useMutation({
+        mutationFn: deleteProducts,
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["products"],
+          });
+        },
+      });
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -116,7 +126,14 @@ export const columns: ColumnDef<Product>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View product details</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async () => {
+                removeProducts([product.ID]);
+              }}
+              className="text-red-500"
+            >
+              <Trash2 /> Remove Product
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

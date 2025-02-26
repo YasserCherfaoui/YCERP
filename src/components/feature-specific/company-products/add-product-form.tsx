@@ -184,7 +184,7 @@ export default function () {
                         .split(",")
                         .map((size) =>
                           Number.isNaN(Number(size.trim()))
-                            ? null
+                            ? 0
                             : Number(size.trim())
                         );
                       const uniqueSizes = Array.from(new Set(inputList));
