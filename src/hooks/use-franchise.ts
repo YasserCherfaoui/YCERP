@@ -1,8 +1,8 @@
 import { useAppDispatch } from "@/app/hooks";
 import { RootState } from "@/app/store";
-import { login } from "@/features/auth/auth-slice";
+import { login } from "@/features/auth/franchise-slice";
 import { APIError } from "@/models/responses/api-response.model";
-import { fetchUser } from "@/services/auth-service";
+import { getMyAdminFranchise } from "@/services/franchise-service";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -24,7 +24,7 @@ const useFranchise = () => {
                 return;
             }
 
-            const response = await fetchUser(token);
+            const response = await getMyAdminFranchise(token);
 
             if (response.status === 'success' && response.data) {
                 dispatch(login(response.data));

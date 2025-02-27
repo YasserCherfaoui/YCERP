@@ -1,3 +1,4 @@
+import { useAppDispatch } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -15,6 +16,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { login } from "@/features/auth/franchise-slice";
 import { useToast } from "@/hooks/use-toast";
 import { LoginFormSchema, loginSchema } from "@/schemas/auth";
 import { loginMyFranchise } from "@/services/franchise-service";
@@ -30,14 +32,25 @@ export default function () {
   });
   const { toast } = useToast();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { mutate: loginMutate } = useMutation({
     mutationFn: loginMyFranchise,
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Success",
         description: "Login successful",
       });
-      navigate("/myFranchise/menu");
+      if (data.data) {
+        localStorage.setItem("my-franchise-user-token", data.data.token);
+        dispatch(login(data.data.user));
+        navigate("/myFranchise/menu");
+      } else {
+        toast({
+          title: "Error",
+          description: "Login failed",
+          variant: "destructive",
+        });
+      }
     },
     onError: (error) => {
       toast({
