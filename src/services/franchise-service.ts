@@ -1,4 +1,5 @@
 import { baseUrl } from "@/app/constants";
+import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { Franchise } from "@/models/data/franchise.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { MyFranchiseAuthResponse } from "@/models/responses/my-franchise-auth-response.model";
@@ -46,7 +47,7 @@ export const getMyCompanyFranchises = async (id: number): Promise<APIResponse<Ar
 }
 
 export const loginMyFranchise = async (data: LoginFormSchema): Promise<APIResponse<MyFranchiseAuthResponse>> => {
-    const response = await fetch(`${baseUrl}/franchises/login`, {
+    const response = await fetch(`${baseUrl}/franchise/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -60,6 +61,25 @@ export const loginMyFranchise = async (data: LoginFormSchema): Promise<APIRespon
     }
 
     const apiResponse: APIResponse<MyFranchiseAuthResponse> = await response.json();
+    return apiResponse;
+
+}
+
+export const getMyAdminFranchise = async (token:string) : Promise<APIResponse<FranchiseAdministrator>> => {
+    const response = await fetch(`${baseUrl}/franchise/admin`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise.");
+    }
+
+    const apiResponse: APIResponse<FranchiseAdministrator> = await response.json();
     return apiResponse;
 
 }

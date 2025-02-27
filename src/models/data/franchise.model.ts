@@ -1,4 +1,5 @@
 import { Administrator, FranchiseAdministrator } from "./administrator.model";
+import { Company } from "./company.model";
 
 export interface Franchise {
     ID: number;
@@ -11,4 +12,6 @@ export interface Franchise {
     state: string;
     administrators: Administrator[];
     franchise_administrators: FranchiseAdministrator[];
+    company_id:number;
+    company?:Company;
 }
