@@ -14,4 +14,4 @@ const example = {
 export type AlgerianCity = typeof example;
 
 export const algeriaCitiesList: AlgerianCity[] = algeriaCities;
-
+export const algeriaWilaya: string[] = [...(new Set(algeriaCities.map((city) => city.wilaya_name_ascii)))];
