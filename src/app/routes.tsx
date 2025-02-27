@@ -16,6 +16,8 @@ import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
 import FranchiseLoginPage from "@/pages/franchise/auth/franchise-login-page";
+import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
+import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import HomePage from "@/pages/home-page";
 import { Route, Routes } from "react-router-dom";
 
@@ -36,7 +38,8 @@ export default function AppRouter() {
           </Route>
           //! FRANCHISE PRIVATE ROUTES
           <Route element={<FranchisePrivateRoute />}>
-            <Route index element={<></>} />
+            <Route index element={<FranchiseMenuPage />} />
+            <Route path="sales" element={<FranchiseSalesPage />} />
           </Route>
         </Route>
         //! WARNING: PRIVATE ROUTES
