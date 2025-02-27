@@ -8,6 +8,6 @@ export default function () {
     if (isLoading) {
         return <div>Loading...</div>;
     }
-    return isAuthenticated ? <Navigate to="/dashboard" state={{ from: location }} replace /> : <Outlet />
+    return isAuthenticated ? <Navigate to="/menu" state={{ from: location }} replace /> : <Outlet />
 
 }
