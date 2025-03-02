@@ -16,6 +16,8 @@ import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
 import FranchiseLoginPage from "@/pages/franchise/auth/franchise-login-page";
+import FranchiseBillsPage from "@/pages/franchise/dashboard/franchise-bills-page";
+import FranchiseInventoryPage from "@/pages/franchise/dashboard/franchise-inventory-page";
 import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import HomePage from "@/pages/home-page";
@@ -40,6 +42,8 @@ export default function AppRouter() {
           <Route element={<FranchisePrivateRoute />}>
             <Route index element={<FranchiseMenuPage />} />
             <Route path="sales" element={<FranchiseSalesPage />} />
+            <Route path="bills" element={<FranchiseBillsPage />} />
+            <Route path="inventory" element={<FranchiseInventoryPage />} />
           </Route>
         </Route>
         //! WARNING: PRIVATE ROUTES

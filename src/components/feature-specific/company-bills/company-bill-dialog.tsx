@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ExitBill } from "@/models/data/bill.model";
-import { CircleX, Printer } from "lucide-react";
+import { CircleX, LucideTicket, Printer } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
@@ -20,7 +20,8 @@ export default function ({ bill }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={"ghost"} className="flex w-full justify-start">
+        <Button variant={"ghost"} className="flex w-full justify-start pl-2">
+          <LucideTicket />
           View bill
         </Button>
       </DialogTrigger>
@@ -41,7 +42,7 @@ export default function ({ bill }: Props) {
           </div>
           <div>
             {bill.bill_items.map((billItem) => (
-              <div className="flex justify-between">
+              <div key={`bill-item-${billItem.id}`} className="flex justify-between">
                 <span className="text-white">
                   {billItem.product_variant.product?.name}{" "}
                   {billItem.product_variant.color}{" "}

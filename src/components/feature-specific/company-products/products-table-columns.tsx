@@ -39,6 +39,7 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "name",
+    id:"product_name",
     header: ({ column }) => {
       return (
         <Button
