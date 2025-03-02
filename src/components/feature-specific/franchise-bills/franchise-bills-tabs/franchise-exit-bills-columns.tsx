@@ -1,21 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ExitBill } from "@/models/data/bill.model";
-import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
-import CompanyBillDialog from "./company-bill-dialog";
+import { ArrowUpDown, Clipboard, MoreHorizontal } from "lucide-react";
+import CompanyBillDialog from "../../company-bills/company-bill-dialog";
+import FranchiseEntryBillsForm from "./franchise-entry-bills-form";
 
-
-export const companyBillColumns: ColumnDef<ExitBill>[] = [
+export const franchiseExitBillsColumns: ColumnDef<ExitBill>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -39,36 +38,39 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "franchise.name",
-    id:"franchise_name",
+    accessorKey: "ID",
+    id: "bill_id",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Franchise
+          Bill ID
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
+    cell: ({ row }) => `EXB-${row.original.ID}`,
   },
   {
-    accessorKey: "cogs",
-    header: () => <div className="text-right">Benifits (DZD)</div>,
-    cell: ({ row }) => {
-      const price = parseInt(row.getValue("cogs"));
-      const formatted = new Intl.NumberFormat("en-DZ", {
-        style: "currency",
-        currency: "DZD",
-      }).format(price);
-
-      return <div className="text-right font-medium"> {formatted} </div>;
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created At
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
     },
+    accessorKey: "CreatedAt",
+    cell: ({ row }) => new Date(row.original.CreatedAt).toUTCString(),
   },
   {
     accessorKey: "franchise_total_amount",
-    header: () => <div className="text-right">Franchise Total</div>,
+    header: () => <div className="text-right">Total (DZD)</div>,
     cell: ({ row }) => {
       const price = parseInt(row.getValue("franchise_total_amount"));
       const formatted = new Intl.NumberFormat("en-DZ", {
@@ -79,39 +81,11 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
       return <div className="text-right font-medium"> {formatted} </div>;
     },
   },
-  {
-    accessorKey: "company_total_amount",
-    header: () => <div className="text-right">Company Total</div>,
-    cell: ({ row }) => {
-      const price = parseInt(row.getValue("company_total_amount"));
-      const formatted = new Intl.NumberFormat("en-DZ", {
-        style: "currency",
-        currency: "DZD",
-      }).format(price);
 
-      return <div className="text-right font-medium"> {formatted} </div>;
-    },
-  },
-  {
-    header:  ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Created At
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
-    accessorKey: "CreatedAt",
-    cell: ({row})=> new Date(row.original.CreatedAt).toUTCString()
-  },
   {
     id: "actions",
     cell: ({ row }) => {
       const exitBill = row.original;
-      const queryClient = useQueryClient();
 
       return (
         <DropdownMenu>
@@ -128,13 +102,12 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
                 navigator.clipboard.writeText(exitBill.ID.toString())
               }
             >
-              Copy product ID
+                <Clipboard />
+              Copy Bill ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <CompanyBillDialog bill={exitBill} />
-            <DropdownMenuItem onClick={async () => {}} className="text-red-500">
-              <Trash2 /> Remove Product
-            </DropdownMenuItem>
+            <FranchiseEntryBillsForm bill={exitBill} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

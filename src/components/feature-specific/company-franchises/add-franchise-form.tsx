@@ -52,10 +52,10 @@ export default function () {
         queryKey: ["franchises"],
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error creating franchise",
-        description: "Something went wrong",
+        description: error.message,
         variant: "destructive",
       });
     },

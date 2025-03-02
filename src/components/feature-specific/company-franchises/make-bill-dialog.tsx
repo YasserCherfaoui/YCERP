@@ -1,19 +1,19 @@
 import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,7 @@ import { Franchise } from "@/models/data/franchise.model";
 import { CreateExitBillSchema, createExitBillSchema } from "@/schemas/bill";
 import { createExitBill } from "@/services/bill-service";
 import { getCompanyInventory } from "@/services/inventory-service";
+import { processBarcode } from "@/utils/process-barcode";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AppleIcon, Barcode, ReceiptText, Scan } from "lucide-react";
@@ -39,11 +40,6 @@ export default function ({ franchise }: Props) {
   const [input, setInput] = useState("");
   const company = useSelector((state: RootState) => state.company.company);
   const [billItems, setBillItems] = useState<Array<BillItem>>([]);
-  const { data } = useQuery({
-    queryKey: ["inventory"],
-    enabled: !!company,
-    queryFn: () => getCompanyInventory(company?.ID ?? 0),
-  });
   const { toast } = useToast();
   const form = useForm<CreateExitBillSchema>({
     resolver: zodResolver(createExitBillSchema),
@@ -72,6 +68,13 @@ export default function ({ franchise }: Props) {
       });
     },
   });
+  const { data: inventory } = useQuery({
+    queryKey: ["inventory"],
+    enabled: !!company,
+    queryFn: () => getCompanyInventory(company?.ID ?? 0),
+  });
+
+
   const handleCreateExitBill = (data: CreateExitBillSchema) => {
     createExitBillMutation({
       ...data,
@@ -81,6 +84,18 @@ export default function ({ franchise }: Props) {
       })),
     });
   };
+  const barcodes:string[] =
+  inventory?.data?.items.map((item) => item.product_variant?.qr_code ?? "") ?? [];
+  const myProcessBarcode = () =>
+    processBarcode({
+      inventory: inventory!,
+      input,
+      billItems,
+      setBillItems,
+      toast,
+      setInput,
+      barcodes,
+    });
 
   useEffect(() => {
     let timeout;
@@ -90,7 +105,7 @@ export default function ({ franchise }: Props) {
       // Prevent default form submission on Enter
       if (e.key === "Enter") {
         e.preventDefault();
-        processBarcode();
+        myProcessBarcode();
       }
     };
 
@@ -100,7 +115,7 @@ export default function ({ franchise }: Props) {
     // to determine when the full barcode has been entered
     timeout = setTimeout(() => {
       if (input.length > 0) {
-        processBarcode();
+        myProcessBarcode();
       }
     }, 1000); // Adjust timeout based on your scanner's speed
 
@@ -109,57 +124,6 @@ export default function ({ franchise }: Props) {
       clearTimeout(timeout);
     };
   }, [input]);
-
-  const processBarcode = () => {
-    const barcodes =
-      data?.data?.items.map((item) => item.product_variant?.qr_code) ?? [];
-    if (barcodes.includes(input)) {
-      const item = data!.data!.items.find(
-        (item) => item.product_variant?.qr_code === input
-      );
-      if (item) {
-        const existingItemIndex = billItems.findIndex(
-          (billItem) => billItem.product_variant_id === item.product_variant?.ID
-        );
-        if (existingItemIndex !== -1) {
-          const updatedBillItems = [...billItems];
-          updatedBillItems[existingItemIndex].quantity += 1;
-          updatedBillItems[existingItemIndex].price +=
-            item.product?.franchise_price ?? 0;
-          setBillItems(updatedBillItems);
-        } else {
-          setBillItems([
-            ...billItems,
-            {
-              product_variant_id: item.product_variant?.ID ?? 0,
-              variant_name:
-                data?.data?.items.find(
-                  (e) => e.product_variant?.qr_code == input
-                )?.name ?? "",
-              quantity: 1,
-              qr_code: input,
-              price:
-                data?.data?.items.find(
-                  (e) => e.product_variant?.qr_code == input
-                )?.product?.franchise_price ?? 0,
-            },
-          ]);
-        }
-      }
-
-      toast({
-        title: "Product Added",
-        description: `Product has been added to the list`,
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Barcode Not Found",
-        description: "The scanned barcode is not recognized",
-      });
-    }
-    setInput(""); // Clear input after processing
-  };
 
   const handleInputChange = (e: any) => {
     setInput(e.target.value);
@@ -185,7 +149,7 @@ export default function ({ franchise }: Props) {
           </p>
 
           <p className="flex gap-2 items-center">
-            <AppleIcon /> Loaded Products: {data?.data?.items.length}{" "}
+            <AppleIcon /> Loaded Products: {inventory?.data?.items.length}{" "}
           </p>
           <Input
             value={input}
@@ -202,7 +166,7 @@ export default function ({ franchise }: Props) {
                   billItem={billItem}
                   billItems={billItems}
                   setBillItems={setBillItems}
-                  items={data?.data?.items ?? []}
+                  items={inventory?.data?.items ?? []}
                 />
               ))}
             </ul>

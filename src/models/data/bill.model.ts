@@ -16,9 +16,9 @@ export type ExitBill = {
     UpdatedAt: string;
     DeletedAt?: string;
     franchise_id: number;
-    franchise?:Franchise;
+    franchise?: Franchise;
     company_id: number;
-    company?:Company;
+    company?: Company;
     bill_items: Array<BillItemModel>;
     franchise_total_amount: number;
     company_total_amount: number;
@@ -32,7 +32,36 @@ export type BillItemModel = {
     DeletedAt?: string;
     exit_bill_id?: number;
     entry_bill_id?: number;
+    missing_bill_id?: number;
+    broken_bill_id?: number;
     product_variant: ProductVariant;
     product_variant_id: number;
     quantity: number;
+}
+
+export type EntryBill = {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt?: string;
+    franchise_id: number;
+    franchise?: Franchise;
+    company_id: number;
+    company?: Company;
+    exit_bill_id: number;
+    exit_bill?: ExitBill;
+    confirmed_bill_items: Array<BillItemModel>;
+
+}
+
+export type BillIssue = {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt?: string;
+    entry_bill_id: number;
+    entry_bill?: EntryBill;
+    missing_items: Array<BillItemModel>;
+    broken_items: Array<BillItemModel>;
+
 }
