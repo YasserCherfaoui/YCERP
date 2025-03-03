@@ -2,7 +2,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { Package, PackagePlus } from "lucide-react";
-import { useState } from "react";
 import FranchiseBillsExitBillsTab from "./franchise-bills-exit-bills-tab";
 
 interface Props {
@@ -10,13 +9,13 @@ interface Props {
   entryBills?: APIResponse<Array<EntryBill>>;
 }
 
-export default function ({ exitBills, entryBills }: Props) {
-  const [selectedTab, setSelectedTab] = useState("exit-bills");
+export default function ({ exitBills }: Props) {
+  // const [selectedTab, setSelectedTab] = useState("exit-bills");
   return (
     <Tabs
       defaultValue="exit-bills"
       className="w-full"
-      onValueChange={setSelectedTab}
+      // onValueChange={setSelectedTab}
     >
       <TabsList className="grid w-full grid-cols-2 md:w-auto">
         <TabsTrigger value="exit-bills" className="flex items-center gap-2">

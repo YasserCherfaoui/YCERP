@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ExitBill } from "@/models/data/bill.model";
-import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
 import CompanyBillDialog from "./company-bill-dialog";
@@ -111,7 +110,7 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
     id: "actions",
     cell: ({ row }) => {
       const exitBill = row.original;
-      const queryClient = useQueryClient();
+     
 
       return (
         <DropdownMenu>
