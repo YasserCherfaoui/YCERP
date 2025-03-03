@@ -9,4 +9,18 @@ export const createExitBillSchema = z.object({
     company_id: z.number(),
 })
 
+const ItemSchema = z.object({
+    product_variant_id: z.number(),
+    quantity: z.number(),
+});
+
+export const createEntryBillSchema = z.object({
+    exit_bill_id: z.number(),
+    bill_items: z.array(ItemSchema),
+    missing_items: z.array(ItemSchema).optional(),
+    broken_items: z.array(ItemSchema).optional(),
+    extra_items: z.array(ItemSchema).optional(),
+})
+
 export type CreateExitBillSchema = z.infer<typeof createExitBillSchema>
+export type CreateEntryBillSchema = z.infer<typeof createEntryBillSchema>
