@@ -1,27 +1,31 @@
 import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { BillItem, ExitBill } from "@/models/data/bill.model";
+import { CreateEntryBillSchema, createEntryBillSchema } from "@/schemas/bill";
 import { getFranchiseInventory } from "@/services/franchise-service";
 import { processBarcode } from "@/utils/process-barcode";
 import {
-    validateExtraEntryExitBill,
-    validateMissingEntryExitBill,
+  validateExtraEntryExitBill,
+  validateMissingEntryExitBill,
 } from "@/utils/validate-entry-exit-bill";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { AppleIcon, Barcode, PackageCheck, Scan } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import MakeBillTile from "../../company-franchises/make-bill-tile";
+import FranchiseExtraEntryBillDialog from "./franchise-extra-entry-bill-dialog";
 import FranchiseMissingEntryBillDialog from "./franchise-missing-entry-bill-dialog";
 
 interface Props {
@@ -36,6 +40,8 @@ export default function ({ bill }: Props) {
   const [open, setOpen] = useState(false);
   const [missingOpen, setMissingOpen] = useState(false);
   const [missingItems, setMissingItems] = useState<BillItem[]>([]);
+  const [extraOpen, setExtraOpen] = useState(false);
+  const [extraItems, setExtraItems] = useState<BillItem[]>([]);
   const [input, setInput] = useState("");
   const [billItems, setBillItems] = useState<Array<BillItem>>([]);
   const { toast } = useToast();
@@ -43,6 +49,16 @@ export default function ({ bill }: Props) {
     queryKey: ["inventory"],
     queryFn: () => getFranchiseInventory(franchise.ID),
     enabled: !!franchise,
+  });
+  const form = useForm<CreateEntryBillSchema>({
+    resolver: zodResolver(createEntryBillSchema),
+    defaultValues: {
+      exit_bill_id: bill.ID,
+      bill_items: [],
+      missing_items: [],
+      extra_items: [],
+      broken_items: [],
+    }
   });
   //! ENTRY BILL SHOULD ACCEPT ONLY BARCODES
   //! OF BILL'S VARAINTS
@@ -149,29 +165,60 @@ export default function ({ bill }: Props) {
           </Button>
           <Button
             onClick={() => {
+              form.setValue(
+                "bill_items",
+                billItems.map((item) => ({
+                  product_variant_id: item.product_variant_id,
+                  quantity: item.quantity,
+                }))
+              );
+
               let a = validateMissingEntryExitBill({
                 entryItems: billItems,
                 exitItems: bill.bill_items,
               });
-              if(a.length > 0){
-                setMissingItems(a)
-                setMissingOpen(true)
+              if (a.length > 0) {
+                setMissingItems(a);
+                setMissingOpen(true);
               }
-              
+
               let b = validateExtraEntryExitBill({
                 entryItems: billItems,
                 exitItems: bill.bill_items,
               });
+              if (b.length > 0) {
+                setExtraItems(b);
+                setExtraOpen(true);
+                form.setValue(
+                  "extra_items",
+                  b.map((item) => ({
+                    product_variant_id: item.product_variant_id,
+                    quantity: item.quantity,
+                  }))
+                );
+              }
 
-              console.log(a);
-              console.log(b);
+              //   console.log(a);
+              //   console.log(b);
+              console.log(form.getValues());
             }}
           >
             Save
           </Button>
         </DialogFooter>
       </DialogContent>
-      <FranchiseMissingEntryBillDialog missingItems={missingItems} open={missingOpen} setOpen={setMissingOpen} />
+      <FranchiseMissingEntryBillDialog
+        missingItems={missingItems}
+        open={missingOpen}
+        primaryForm={form}
+        setOpen={setMissingOpen}
+        setPrimaryFormOpen={setOpen}
+      />
+      <FranchiseExtraEntryBillDialog
+        extraItems={extraItems}
+        open={extraOpen}
+        setOpen={setExtraOpen}
+      />
     </Dialog>
   );
 }
