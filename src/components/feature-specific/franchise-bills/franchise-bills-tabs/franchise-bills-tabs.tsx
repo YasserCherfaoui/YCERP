@@ -2,6 +2,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { Package, PackagePlus } from "lucide-react";
+import FranchiseBillsEntryBillsTab from "./franchise-bills-entry-bills-tab";
 import FranchiseBillsExitBillsTab from "./franchise-bills-exit-bills-tab";
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
   entryBills?: APIResponse<Array<EntryBill>>;
 }
 
-export default function ({ exitBills }: Props) {
+export default function ({ exitBills, entryBills }: Props) {
   // const [selectedTab, setSelectedTab] = useState("exit-bills");
   return (
     <Tabs
@@ -28,6 +29,7 @@ export default function ({ exitBills }: Props) {
         </TabsTrigger>
       </TabsList>
       <FranchiseBillsExitBillsTab exitBills={exitBills?.data} />
+      <FranchiseBillsEntryBillsTab entryBills={entryBills?.data} />
     </Tabs>
   );
 }

@@ -23,6 +23,7 @@ export type ExitBill = {
     franchise_total_amount: number;
     company_total_amount: number;
     cogs: number;
+    status: string;
 }
 
 export type BillItemModel = {

@@ -6,6 +6,7 @@ import { Inventory } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { MyFranchiseAuthResponse } from "@/models/responses/my-franchise-auth-response.model";
 import { LoginFormSchema } from "@/schemas/auth";
+import { CreateEntryBillSchema } from "@/schemas/bill";
 import { CreateFranchiseSchema } from "@/schemas/franchise";
 
 
@@ -158,6 +159,26 @@ export const deleteFranchise = async (id: number): Promise<APIResponse<void>> =>
     }
 
     const apiResponse: APIResponse<void> = await response.json();
+    return apiResponse;
+
+}
+
+export const createFranchiseEntryBill = async (data: CreateEntryBillSchema): Promise<APIResponse<EntryBill>> => {
+    const response = await fetch(`${baseUrl}/franchise/bills/entry`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create entry bill.");
+    }
+
+    const apiResponse: APIResponse<EntryBill> = await response.json();
     return apiResponse;
 
 }
