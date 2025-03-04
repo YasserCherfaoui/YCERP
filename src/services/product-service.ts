@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { Product } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CreateProductSchema } from "@/schemas/product";
+import { CreateProductSchema, GenerateBarcodePDFSchema } from "@/schemas/product";
 
 export const createProduct = async (productData: CreateProductSchema): Promise<APIResponse<Product>> => {
     const response = await fetch(`${baseUrl}/products`, {
@@ -76,8 +76,48 @@ export const deleteProducts = async (productIds: number[]): Promise<APIResponse<
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to delete products.");
     }
-    
+
     const apiResponse: APIResponse<void> = await response.json();
     return apiResponse;
+
+}
+
+export const generateBarcodes = async (data: GenerateBarcodePDFSchema): Promise<void> => {
+    const response = await fetch(`${baseUrl}/products/barcodes`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to generate barcodes.");
+    }
+    // Get the blob from the response
+    const blob = await response.blob();
+
+    // Create a URL for the blob
+    const url = window.URL.createObjectURL(blob);
+
+    // Create a temporary anchor element
+    const link = document.createElement('a');
+    link.href = url;
+
+    // Try to get filename from Content-Disposition header, fallback to default
+    const filename = response.headers.get('Content-Disposition')
+        ?.split('filename=')[1] || 'download.pdf';
+
+    link.download = filename;
+
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Clean up the URL object
+    window.URL.revokeObjectURL(url);
 
 }

@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import AddProductForm from "./add-product-form";
-
+import PrintProductsLabelsDialog from "./print-products-labels-dialog";
 
 export default function () {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ export default function () {
       </div>
       <div className="flex gap-2">
         <AddProductForm />
+        <PrintProductsLabelsDialog />
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ export const createProductSchema = z.object({
     colors: z.array(z.string(), { message: "Color is required" }).optional(),
 })
 
+
 export const productDefaultValues = {
 
     name: "",
@@ -23,4 +24,32 @@ export const productDefaultValues = {
     sizes: [],
 }
 
+
 export type CreateProductSchema = z.infer<typeof createProductSchema>
+
+export const generateBarcodePDFSchema = z.object({
+    variants: z.array(
+        z.object({
+            product_variant_id: z.number(),
+            quantity: z.number(),
+        })
+    ),
+    width: z.number(),
+    height: z.number(),
+    margin: z.number(),
+    columns_per_page: z.number().int().min(1),
+    rows_per_page: z.number().int().min(1),
+});
+
+export const defaultPDFValues = {
+    variants: [],
+    width: 80,
+    height: 50,
+    margin: 1,
+    columns_per_page: 1,
+    rows_per_page: 4,
+}
+
+export type GenerateBarcodePDFSchema = z.infer<
+    typeof generateBarcodePDFSchema
+>;
