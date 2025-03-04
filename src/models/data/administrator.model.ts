@@ -2,7 +2,7 @@ import { Company } from "./company.model";
 import { Franchise } from "./franchise.model";
 
 export interface Administrator {
-    id: number;
+    ID: number;
     CreatedAt: string;
     UpdatedAt: string;
     DeletedAt: string | null;
@@ -12,7 +12,7 @@ export interface Administrator {
   }
 
   export interface FranchiseAdministrator {
-    id: number;
+    ID: number;
     CreatedAt: string;
     UpdatedAt: string;
     DeletedAt: string | null;

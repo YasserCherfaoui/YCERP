@@ -12,6 +12,7 @@ import CompanyControlPanelPage from "@/pages/dashboard/company/company-control-p
 import CompanyFranchisesPage from "@/pages/dashboard/company/company-franchises-page";
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
+import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
@@ -58,6 +59,7 @@ export default function AppRouter() {
               <Route path="warehouse" element={<WarehousePage />} />
               <Route path="products" element={<CompanyProductsPage />} />
               <Route path="bills" element={<CompanyBillsPage />} />
+              <Route path="suppliers" element={<CompanySuppliersPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />

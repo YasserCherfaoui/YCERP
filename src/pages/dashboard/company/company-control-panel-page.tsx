@@ -2,7 +2,7 @@ import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import { Button } from "@/components/ui/button";
-import { Apple, ArrowLeft, ReceiptText, Store, Warehouse } from "lucide-react";
+import { Apple, ArrowLeft, Handshake, ReceiptText, Store, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -54,5 +54,10 @@ const quickMenu = [
     label: "Bills",
     icon: ReceiptText,
     href: "bills",
+  },
+  {
+    label: "Suppliers",
+    icon: Handshake,
+    href: "suppliers",
   },
 ];
