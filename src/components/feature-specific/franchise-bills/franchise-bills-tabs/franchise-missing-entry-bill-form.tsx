@@ -19,13 +19,15 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { BillItem } from "@/models/data/bill.model";
+import { BillItem, EntryBill } from "@/models/data/bill.model";
+import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateEntryBillSchema } from "@/schemas/bill";
 import {
     MissingItemsFormSchema,
     MissingItemsSchema,
 } from "@/schemas/missing-items";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { UseMutateFunction } from "@tanstack/react-query";
 import { FieldErrors, UseFormReturn, useForm } from "react-hook-form";
 
 interface Props {
@@ -34,6 +36,12 @@ interface Props {
   products: Array<BillItem>;
   primaryForm: UseFormReturn<CreateEntryBillSchema>;
   setPrimaryFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  submitMutation?: UseMutateFunction<
+    APIResponse<EntryBill>,
+    Error,
+    CreateEntryBillSchema,
+    unknown
+  >;
 }
 
 export default function ({
@@ -41,6 +49,7 @@ export default function ({
   setOpen,
   primaryForm,
   setPrimaryFormOpen,
+  submitMutation,
 }: Props) {
   const defaultValues = {
     items: products.map((product) => ({
@@ -56,9 +65,9 @@ export default function ({
   });
 
   const { toast } = useToast();
-//   const {mutate:saveEntryBillMutation} = useMutation({
+  //   const {mutate:saveEntryBillMutation} = useMutation({
 
-//   });
+  //   });
   function handleError(
     errors: FieldErrors<{
       items: {
@@ -96,6 +105,9 @@ export default function ({
           quantity: item.broken,
         }))
     );
+    if (submitMutation) {
+      submitMutation(primaryForm.getValues());
+    }
     setOpen(false);
     console.log(primaryForm.getValues());
     setPrimaryFormOpen(false);

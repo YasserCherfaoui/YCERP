@@ -7,16 +7,42 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { BillItem } from "@/models/data/bill.model";
+import { BillItem, EntryBill } from "@/models/data/bill.model";
+import { APIResponse } from "@/models/responses/api-response.model";
+import { CreateEntryBillSchema } from "@/schemas/bill";
+import { UseMutateFunction } from "@tanstack/react-query";
 import { BadgeAlert } from "lucide-react";
+import { UseFormReturn } from "react-hook-form";
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setPrimaryFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  primaryForm: UseFormReturn<CreateEntryBillSchema>;
   extraItems: BillItem[];
+  submitMutation?: UseMutateFunction<
+    APIResponse<EntryBill>,
+    Error,
+    CreateEntryBillSchema,
+    unknown
+  >;
 }
 
-export default function ({ open, setOpen, extraItems }: Props) {
+export default function ({
+  open,
+  setOpen,
+  extraItems,
+  submitMutation,
+  setPrimaryFormOpen,
+  primaryForm,
+}: Props) {
+  const onSaveClicked = () => {
+    if (submitMutation) {
+      submitMutation(primaryForm.getValues());
+      setOpen(false);
+      setPrimaryFormOpen(false);
+    }
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -26,7 +52,8 @@ export default function ({ open, setOpen, extraItems }: Props) {
             Report Extra Products
           </DialogTitle>
           <DialogDescription>
-            These Products are extra products that were not in the original bill.
+            These Products are extra products that were not in the original
+            bill.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-2">
@@ -46,6 +73,7 @@ export default function ({ open, setOpen, extraItems }: Props) {
           >
             Close
           </Button>
+          {submitMutation && <Button onClick={onSaveClicked}>Save</Button>}
         </DialogFooter>
       </DialogContent>
     </Dialog>

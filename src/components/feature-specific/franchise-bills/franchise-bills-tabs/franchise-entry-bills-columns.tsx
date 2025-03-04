@@ -8,13 +8,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ExitBill } from "@/models/data/bill.model";
+import { EntryBill } from "@/models/data/bill.model";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Clipboard, MoreHorizontal } from "lucide-react";
-import FranchiseEntryBillsForm from "./franchise-entry-bills-form";
-import FranchiseExitBillDialog from "./franchise-exit-bill-dialog";
 
-export const franchiseExitBillsColumns: ColumnDef<ExitBill>[] = [
+export const franchiseEntryBillsColumns: ColumnDef<EntryBill>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -69,22 +67,6 @@ export const franchiseExitBillsColumns: ColumnDef<ExitBill>[] = [
     cell: ({ row }) => new Date(row.original.CreatedAt).toUTCString(),
   },
   {
-    accessorKey: "status",
-    id: "status",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Status
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => `EXB-${row.original.ID}`,
-  },
-  {
     accessorKey: "franchise_total_amount",
     header: () => <div className="text-right">Total (DZD)</div>,
     cell: ({ row }) => {
@@ -118,12 +100,12 @@ export const franchiseExitBillsColumns: ColumnDef<ExitBill>[] = [
                 navigator.clipboard.writeText(exitBill.ID.toString())
               }
             >
-              <Clipboard />
+                <Clipboard />
               Copy Bill ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <FranchiseExitBillDialog bill={exitBill} />
-            <FranchiseEntryBillsForm bill={exitBill} />
+            {/* <CompanyBillDialog bill={exitBill} />
+            <FranchiseEntryBillsForm bill={exitBill} /> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );

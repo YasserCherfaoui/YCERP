@@ -5,8 +5,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { BillItem } from "@/models/data/bill.model";
+import { BillItem, EntryBill } from "@/models/data/bill.model";
+import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateEntryBillSchema } from "@/schemas/bill";
+import { UseMutateFunction } from "@tanstack/react-query";
 import { BadgeAlert } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import FranchiseMissingEntryBillForm from "./franchise-missing-entry-bill-form";
@@ -17,9 +19,11 @@ interface Props {
   missingItems: BillItem[];
   primaryForm: UseFormReturn<CreateEntryBillSchema>;
   setPrimaryFormOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  submitMutation?: UseMutateFunction<APIResponse<EntryBill>,Error, CreateEntryBillSchema, unknown> ;
+
 }
 
-export default function ({ open, setOpen, missingItems, primaryForm,setPrimaryFormOpen }: Props) {
+export default function ({ open, setOpen, missingItems, primaryForm,setPrimaryFormOpen, submitMutation }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -38,6 +42,7 @@ export default function ({ open, setOpen, missingItems, primaryForm,setPrimaryFo
           setOpen={setOpen}
           products={missingItems}
           setPrimaryFormOpen={setPrimaryFormOpen}
+          submitMutation={submitMutation}
         />
       </DialogContent>
     </Dialog>

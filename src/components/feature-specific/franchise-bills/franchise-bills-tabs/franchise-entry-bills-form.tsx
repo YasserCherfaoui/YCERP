@@ -12,14 +12,17 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { BillItem, ExitBill } from "@/models/data/bill.model";
 import { CreateEntryBillSchema, createEntryBillSchema } from "@/schemas/bill";
-import { getFranchiseInventory } from "@/services/franchise-service";
+import {
+  createFranchiseEntryBill,
+  getFranchiseInventory,
+} from "@/services/franchise-service";
 import { processBarcode } from "@/utils/process-barcode";
 import {
   validateExtraEntryExitBill,
   validateMissingEntryExitBill,
 } from "@/utils/validate-entry-exit-bill";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppleIcon, Barcode, PackageCheck, Scan } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -50,6 +53,28 @@ export default function ({ bill }: Props) {
     queryFn: () => getFranchiseInventory(franchise.ID),
     enabled: !!franchise,
   });
+  const queryClient = useQueryClient();
+  const { mutate: createEntryBillMutation } = useMutation({
+    mutationFn: createFranchiseEntryBill,
+    onSuccess: () => {
+      toast({
+        title: "Entry Bill Created",
+        description: "Entry Bill was created successfully",
+      });
+      setOpen(false);
+      queryClient.invalidateQueries({
+        queryKey: ["inventory", "exit-bills", "entry-bills"],
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error creating entry bill",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const form = useForm<CreateEntryBillSchema>({
     resolver: zodResolver(createEntryBillSchema),
     defaultValues: {
@@ -58,7 +83,7 @@ export default function ({ bill }: Props) {
       missing_items: [],
       extra_items: [],
       broken_items: [],
-    }
+    },
   });
   //! ENTRY BILL SHOULD ACCEPT ONLY BARCODES
   //! OF BILL'S VARAINTS
@@ -197,10 +222,9 @@ export default function ({ bill }: Props) {
                   }))
                 );
               }
-
-              //   console.log(a);
-              //   console.log(b);
-              console.log(form.getValues());
+              if (a.length === 0 && b.length === 0) {
+                createEntryBillMutation(form.getValues());
+              }
             }}
           >
             Save
@@ -213,11 +237,15 @@ export default function ({ bill }: Props) {
         primaryForm={form}
         setOpen={setMissingOpen}
         setPrimaryFormOpen={setOpen}
+        submitMutation={createEntryBillMutation}
       />
       <FranchiseExtraEntryBillDialog
         extraItems={extraItems}
         open={extraOpen}
         setOpen={setExtraOpen}
+        setPrimaryFormOpen={setOpen}
+        primaryForm={form}
+        submitMutation={extraItems.length > 0 && missingItems.length == 0 ? createEntryBillMutation : undefined}
       />
     </Dialog>
   );
