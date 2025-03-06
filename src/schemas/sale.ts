@@ -2,7 +2,7 @@ import { z } from "zod";
 
 
 const saleItemSchema = z.object({
-    prodcut_variant_id: z.number(),
+    product_variant_id: z.number(),
     discount: z.number(),
     quantity: z.number()
 })

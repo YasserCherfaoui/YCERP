@@ -8,7 +8,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
     Table,
@@ -98,7 +104,7 @@ export default function () {
     form.setValue(
       "sale_items",
       saleItems.map((item) => ({
-        prodcut_variant_id: item.product_variant_id,
+        product_variant_id: item.product_variant_id,
         quantity: item.quantity,
         discount: item.discount,
       }))
@@ -218,6 +224,7 @@ export default function () {
                                 }
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -238,6 +245,7 @@ export default function () {
                                 }
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -277,8 +285,16 @@ export default function () {
                         className="w-20"
                         {...field}
                         value={Number.isNaN(field.value) ? 0 : field.value}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          form.setValue(
+                            "discount",
+                            Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
+                          );
+                        }}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
