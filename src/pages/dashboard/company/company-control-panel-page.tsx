@@ -2,7 +2,7 @@ import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import { Button } from "@/components/ui/button";
-import { Apple, ArrowLeft, Handshake, ReceiptText, Store, Warehouse } from "lucide-react";
+import { Apple, ArrowLeft, Handshake, ReceiptText, ShoppingCart, Store, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -24,7 +24,7 @@ export default function () {
       </div>
       <div className="flex flex-col gap-10 p-4 justify-center items-center">
         <CompanyTile company={company} />
-        <div className="flex flex-wrap justify-center gap-4 self-center">
+        <div className="grid grid-cols-3 gap-4">
           {quickMenu.map((item, index) => (
             <WideButton key={index} item={item} />
           ))}
@@ -56,8 +56,14 @@ const quickMenu = [
     href: "bills",
   },
   {
+    label: "Sales",
+    icon: ShoppingCart,
+    href: "sales",
+  },
+  {
     label: "Suppliers",
     icon: Handshake,
     href: "suppliers",
   },
+
 ];
