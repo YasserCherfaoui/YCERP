@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { Product } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CreateProductSchema, GenerateBarcodePDFSchema } from "@/schemas/product";
+import { CreateProductSchema, GenerateBarcodePDFSchema, UpdateProductSchema } from "@/schemas/product";
 
 export const createProduct = async (productData: CreateProductSchema): Promise<APIResponse<Product>> => {
     const response = await fetch(`${baseUrl}/products`, {
@@ -120,4 +120,23 @@ export const generateBarcodes = async (data: GenerateBarcodePDFSchema): Promise<
     // Clean up the URL object
     window.URL.revokeObjectURL(url);
 
+}
+
+export const updateProduct = async (productId: number, productData: UpdateProductSchema): Promise<APIResponse<Product>> => {
+    const response = await fetch(`${baseUrl}/products/${productId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(productData)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update product.");
+    }
+
+    const updatedProduct: APIResponse<Product> = await response.json();
+    return updatedProduct;
 }

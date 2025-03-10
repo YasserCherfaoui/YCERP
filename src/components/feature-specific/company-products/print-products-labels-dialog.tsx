@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import {
   GenerateBarcodePDFSchema,
@@ -96,54 +97,56 @@ export default function () {
         >
           Add Product
         </Button>
-        <Form {...form}>
-          {items.map((_, idx) => (
-            <div className="flex gap-2 items-baseline">
-              <FormField
-                name={`variants.${idx}.product_variant_id`}
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity</FormLabel>
-                    <FormControl>
-                      <ProductVariantCombobox
-                        variants={
-                          inventory?.data?.items.map(
-                            (item) => item.product_variant!
-                          ) ?? []
-                        }
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Select a variant..."
-                        disabled={field.disabled}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name={`variants.${idx}.quantity`}
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Quantity</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(Number(e.target.value));
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          ))}
-        </Form>
+        <ScrollArea className="max-h-[400px]">
+          <Form {...form}>
+            {items.map((_, idx) => (
+              <div className="flex gap-2 items-baseline">
+                <FormField
+                  name={`variants.${idx}.product_variant_id`}
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantity</FormLabel>
+                      <FormControl>
+                        <ProductVariantCombobox
+                          variants={
+                            inventory?.data?.items.map(
+                              (item) => item.product_variant!
+                            ) ?? []
+                          }
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select a variant..."
+                          disabled={field.disabled}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name={`variants.${idx}.quantity`}
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Quantity</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(Number(e.target.value));
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            ))}
+          </Form>
+        </ScrollArea>
         <DialogFooter>
           <Button variant={"outline"}>Cancel</Button>
           <Button onClick={form.handleSubmit(onSaveClicked, console.error)}>

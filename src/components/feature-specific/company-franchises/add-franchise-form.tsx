@@ -100,22 +100,24 @@ export default function () {
                 </FormItem>
               )}
             />
-            <Combobox
-              name="state"
-              label="Wilaya"
-              values={algeriaWilaya}
-              form={form}
-            />
-            <Combobox
-              name="city"
-              label="City"
-              values={algeriaCitiesList
-                .filter((c) => {
-                  return c.wilaya_name_ascii == form.watch("state");
-                })
-                .map((c) => c.commune_name_ascii)}
-              form={form}
-            />
+            <div className="flex gap-2">
+              <Combobox
+                name="state"
+                label="Wilaya"
+                values={algeriaWilaya}
+                form={form}
+              />
+              <Combobox
+                name="city"
+                label="City"
+                values={algeriaCitiesList
+                  .filter((c) => {
+                    return c.wilaya_name_ascii == form.watch("state");
+                  })
+                  .map((c) => c.commune_name_ascii)}
+                form={form}
+              />
+            </div>
             <FormField
               name="franchise_admin_name"
               control={form.control}

@@ -13,6 +13,7 @@ import { deleteProducts } from "@/services/product-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
+import UpdateProductForm from "./update-product-form";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -127,6 +128,7 @@ export const columns: ColumnDef<Product>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
+            <UpdateProductForm product={product} />
             <DropdownMenuItem
               onClick={async () => {
                 removeProducts([product.ID]);

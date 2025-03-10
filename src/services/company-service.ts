@@ -24,3 +24,40 @@ export const createCompany = async (data: CreateCompanySchema): Promise<APIRespo
     return apiResponse;
 
 }
+
+export const deleteCompany = async (companyId: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/companies/${companyId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete company.");
+    }
+
+    const apiResponse: APIResponse<void> = await response.json();
+    return apiResponse;
+
+}
+
+export const getMyCompanies = async (): Promise<APIResponse<Company[]>> => {
+    const response = await fetch(`${baseUrl}/companies/me`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch companies.");
+    }
+
+    const apiResponse: APIResponse<Company[]> = await response.json();
+    return apiResponse;
+}

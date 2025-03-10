@@ -10,6 +10,7 @@ import {
 import { Company } from "@/models/data/company.model";
 import { LayoutPanelLeft, Store, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import DeleteCompanyDialog from "./delete-company-dialog";
 
 interface Props {
   company: Company;
@@ -20,11 +21,14 @@ export default function ({ company, index }: Props) {
   const navigate = useNavigate();
   return (
     <Card key={index} className="flex flex-col justify-between w-fit p-3 gap-2">
-      <CardTitle className="flex items-center gap-2">
-        <Avatar>
-          <AvatarFallback>{company.company_name.charAt(0)}</AvatarFallback>
-        </Avatar>
-        {company.company_name}
+      <CardTitle className="flex items-center gap-2 justify-between">
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarFallback>{company.company_name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          {company.company_name}
+        </div>
+        <DeleteCompanyDialog company={company} />
       </CardTitle>
       <CardDescription className="w-64">{company.address}</CardDescription>
       <CardContent className="flex flex-col gap-2 items-start pl-0">
