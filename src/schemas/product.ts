@@ -53,3 +53,14 @@ export const defaultPDFValues = {
 export type GenerateBarcodePDFSchema = z.infer<
     typeof generateBarcodePDFSchema
 >;
+
+
+export const updateProductSchema = z.object({
+    name: z.string().min(1).optional(),
+    first_price: z.number().optional(),
+    franchise_price: z.number().optional(),
+    price: z.number().optional(),
+    description: z.string().optional(),
+});
+
+export type UpdateProductSchema = z.infer<typeof updateProductSchema>

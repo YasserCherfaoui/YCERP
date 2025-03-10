@@ -48,9 +48,11 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.5",
     "shadcn-ui": "^0.9.4",
+    "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.24.1"
+    "use-form-hooks": "^1.0.15",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

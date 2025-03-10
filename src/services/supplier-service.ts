@@ -61,3 +61,22 @@ export const createSupplierBill = async (data: CreateSupplierBillSchema): Promis
     return apiResponse;
 
 }
+
+export const removeSupplier = async (supplierID: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/suppliers/${supplierID}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to remove supplier.");
+    }
+
+    const apiResponse = await response.json();
+    return apiResponse;
+
+}
