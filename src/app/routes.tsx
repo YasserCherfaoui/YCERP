@@ -13,6 +13,7 @@ import CompanyFranchisesPage from "@/pages/dashboard/company/company-franchises-
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
 import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
+import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
@@ -62,6 +63,8 @@ export default function AppRouter() {
               <Route path="bills" element={<CompanyBillsPage />} />
               <Route path="suppliers" element={<CompanySuppliersPage />} />
               <Route path="sales" element={<CompanySalesPage />} />
+              <Route path="suppliers/:supplierID" element={<CompanySupplierPage />} />
+
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
