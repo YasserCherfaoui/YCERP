@@ -9,8 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Product } from "@/models/data/product.model";
-import { deleteProducts } from "@/services/product-service";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import RemoveProductActionDialog from "./remove-product-action-dialog";
@@ -101,15 +99,7 @@ export const columns: ColumnDef<Product>[] = [
     id: "actions",
     cell: ({ row }) => {
       const product = row.original;
-      const queryClient = useQueryClient();
-      const { mutateAsync: removeProducts } = useMutation({
-        mutationFn: deleteProducts,
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["products"],
-          });
-        },
-      });
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
