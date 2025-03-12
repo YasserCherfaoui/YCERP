@@ -27,7 +27,12 @@ export default function () {
   return (
     <div>
       <DataTable
-        data={data?.data ?? []}
+        data={
+          data?.data?.sort(
+            (a, b) =>
+              new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
+          ) ?? []
+        }
         columns={companySalesColumns}
         searchColumn="sale_id"
       />

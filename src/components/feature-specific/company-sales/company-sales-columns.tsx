@@ -1,5 +1,8 @@
+import { Button } from "@/components/ui/button";
 import { Sale } from "@/models/data/sale.model";
 import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
+import CompanySalesActionsDropdown from "./company-sales-actions-dropdown";
 
 export const companySalesColumns: ColumnDef<Sale>[] = [
   {
@@ -10,7 +13,15 @@ export const companySalesColumns: ColumnDef<Sale>[] = [
   },
   {
     accessorKey: "CreatedAt",
-    header: "Date",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Date
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => new Date(row.original.CreatedAt).toUTCString(),
   },
   {
@@ -39,5 +50,9 @@ export const companySalesColumns: ColumnDef<Sale>[] = [
         style: "currency",
         currency: "DZD",
       }).format(row.original.total),
+  },
+  {
+    header: "Actions",
+    cell: ({ row }) => <CompanySalesActionsDropdown sale={row.original} />,
   },
 ];
