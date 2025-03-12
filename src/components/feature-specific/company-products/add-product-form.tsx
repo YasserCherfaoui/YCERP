@@ -29,47 +29,46 @@ import {
 } from "@/schemas/product";
 import { createProduct } from "@/services/product-service";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 
 export default function () {
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const company = useSelector((state: RootState) => state.company.company);
+  if (!company) return;
+  const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const form = useForm<CreateProductSchema>({
     resolver: zodResolver(createProductSchema),
     defaultValues: {
-      company_id: company?.ID ?? 0,
+      company_id: company.ID,
       ...productDefaultValues,
+    },
+  });
+  const queryClient = useQueryClient();
+  const { mutate: createProductMutation, isPending: loading } = useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      toast({
+        title: "Product Created",
+        description: "Product was created successfully!",
+      });
+      setIsOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   const createProductHandler = async (data: CreateProductSchema) => {
-    setLoading(true);
-    try {
-      const response = await createProduct(data);
-      if (response.data) {
-        toast({
-          title: "Product Created",
-          description: "Product was created successfully!",
-        });
-        setIsOpen(false);
-      }
-      form.reset(productDefaultValues);
-    } catch (e: any) {
-      // toast({
-      //   title: "Error Creating Product",
-      //   description: e,
-      //   variant: "destructive",
-      // });
-      console.log(e);
-    } finally {
-      setLoading(false);
-      location.reload();
-    }
+    createProductMutation(data);
   };
 
   return (
