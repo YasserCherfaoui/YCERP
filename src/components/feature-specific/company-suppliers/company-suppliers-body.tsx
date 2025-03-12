@@ -12,7 +12,7 @@ export default function () {
     queryFn: () => getSuppliers(company.ID),
   });
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 w-[1000px]">
       {suppliers?.data?.map((supplier, idx) => (
         <SupplierCard key={idx} supplier={supplier} />
       ))}

@@ -33,3 +33,12 @@ export interface SupplierBill {
     paid: number;
     status: number;
 }
+
+export interface SupplierResponse {
+    supplier: Supplier;
+    totals: {
+        Due: number;
+        Paid: number;
+        Total: number;
+    }
+}

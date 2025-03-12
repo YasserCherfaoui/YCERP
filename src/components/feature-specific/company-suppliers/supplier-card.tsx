@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Supplier } from "@/models/data/supplier.model";
 import { Navigation } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import SupplierEntryBillDialog from "./supplier-entry-bill-dialog";
 import SupplierRemoveDialog from "./supplier-remove-dialog";
 
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default function ({ supplier }: Props) {
+  const navigate = useNavigate();
   return (
     <Card className="w-fit">
       <CardHeader>
@@ -36,7 +38,7 @@ export default function ({ supplier }: Props) {
 
       <CardFooter className="flex gap-2">
         <SupplierEntryBillDialog supplierID={supplier.ID} />
-        <Button>
+        <Button  onClick={()=> navigate(supplier.ID.toString())} >
           <Navigation />
           View
         </Button>
