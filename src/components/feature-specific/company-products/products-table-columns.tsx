@@ -12,7 +12,8 @@ import { Product } from "@/models/data/product.model";
 import { deleteProducts } from "@/services/product-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import RemoveProductActionDialog from "./remove-product-action-dialog";
 import UpdateProductForm from "./update-product-form";
 
 export const columns: ColumnDef<Product>[] = [
@@ -40,7 +41,7 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "name",
-    id:"product_name",
+    id: "product_name",
     header: ({ column }) => {
       return (
         <Button
@@ -129,14 +130,7 @@ export const columns: ColumnDef<Product>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
             <UpdateProductForm product={product} />
-            <DropdownMenuItem
-              onClick={async () => {
-                removeProducts([product.ID]);
-              }}
-              className="text-red-500"
-            >
-              <Trash2 /> Remove Product
-            </DropdownMenuItem>
+            <RemoveProductActionDialog product={product} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

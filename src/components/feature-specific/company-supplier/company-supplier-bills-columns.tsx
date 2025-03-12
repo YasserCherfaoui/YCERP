@@ -125,7 +125,7 @@ export const supplierBillsColumns: ColumnDef<SupplierBill>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(bill.ID.toString())}
             >
-              Copy product ID
+              Copy bill ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <SupplierBillDialog bill={bill} />

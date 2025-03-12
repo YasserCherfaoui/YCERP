@@ -39,3 +39,21 @@ export const getCompanySales = async (companyID: number): Promise<APIResponse<Sa
     const apiResponse: APIResponse<Sale[]> = await response.json();
     return apiResponse;
 }
+
+export const removeSale = async (saleID: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/sales/${saleID}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to remove sale.");
+    }
+
+    const apiResponse: APIResponse<void> = await response.json();
+    return apiResponse;
+}

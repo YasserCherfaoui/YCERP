@@ -17,7 +17,11 @@ export default function () {
   return (
     <div className="flex flex-col gap-4 p-4">
       <CompanyProductsAppBar />
-      {data?.data && <DataTable searchColumn="product_name" columns={columns} data={data?.data} />}
+      <DataTable
+        searchColumn="product_name"
+        columns={columns}
+        data={data?.data ?? []}
+      />
     </div>
   );
 }

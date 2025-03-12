@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -149,7 +150,10 @@ export default function () {
       form.reset();
       setSaleItems([]);
       queryClient.invalidateQueries({
-        queryKey: ["inventory", "sales"],
+        queryKey: ["inventory"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["sales"],
       });
     },
     onError: () => {
@@ -187,72 +191,77 @@ export default function () {
             onChange={(e) => setInput(e.target.value)}
             autoFocus
           />
+
           <Form {...form}>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Discount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {saleItems.map((saleItem, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>
-                      {
-                        inventory?.data?.items.find(
-                          (s) =>
-                            s.product_variant_id == saleItem.product_variant_id
-                        )?.name
-                      }
-                    </TableCell>
-                    <TableCell>
-                      <FormField
-                        name={`sale_items.${idx}.quantity`}
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                className="w-20"
-                                {...field}
-                                onChange={handleQuantityChange}
-                                value={
-                                  Number.isNaN(field.value) ? 0 : field.value
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <FormField
-                        name={`sale_items.${idx}.discount`}
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                className="w-20"
-                                {...field}
-                                onChange={handleDiscountChange}
-                                value={
-                                  Number.isNaN(field.value) ? 0 : field.value
-                                }
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </TableCell>
+            <ScrollArea className="max-h-[400px]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Discount</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {saleItems.map((saleItem, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>
+                        {
+                          inventory?.data?.items.find(
+                            (s) =>
+                              s.product_variant_id ==
+                              saleItem.product_variant_id
+                          )?.name
+                        }
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          name={`sale_items.${idx}.quantity`}
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  className="w-20"
+                                  {...field}
+                                  onChange={handleQuantityChange}
+                                  value={
+                                    Number.isNaN(field.value) ? 0 : field.value
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          name={`sale_items.${idx}.discount`}
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  className="w-20"
+                                  {...field}
+                                  onChange={handleDiscountChange}
+                                  value={
+                                    Number.isNaN(field.value) ? 0 : field.value
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+
             <div className="grid grid-cols-2 gap-2 w-fit self-end">
               <div className="text-lg">Amount: </div>
               <span className="text-lg font-bold">
