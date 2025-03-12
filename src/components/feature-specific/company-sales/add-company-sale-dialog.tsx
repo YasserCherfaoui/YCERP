@@ -1,28 +1,28 @@
 import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
@@ -30,7 +30,6 @@ import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { createCompanySale } from "@/services/sale-service";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
-import { DevTool } from "@hookform/devtools";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, ShoppingCart } from "lucide-react";
@@ -254,7 +253,6 @@ export default function () {
                 ))}
               </TableBody>
             </Table>
-            <DevTool control={form.control} />
             <div className="grid grid-cols-2 gap-2 w-fit self-end">
               <div className="text-lg">Amount: </div>
               <span className="text-lg font-bold">
