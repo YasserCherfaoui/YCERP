@@ -57,7 +57,7 @@ export default function ({ supplierID }: Props) {
       total: 0,
     },
   });
-  const { mutate: createSupplierBillMutation } = useMutation({
+  const { mutate: createSupplierBillMutation, isPending } = useMutation({
     mutationFn: createSupplierBill,
     onSuccess: () => {
       setOpen(false);
@@ -225,7 +225,9 @@ export default function ({ supplierID }: Props) {
           <Button variant={"outline"} onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={form.handleSubmit(onSaveClicked, console.error)}>
+          <Button
+          disabled={isPending}
+          onClick={form.handleSubmit(onSaveClicked, console.error)}>
             Save
           </Button>
         </DialogFooter>
