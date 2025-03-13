@@ -158,6 +158,25 @@ export default function ({ sale }: Props) {
                       ))}
                     </TableBody>
                   </Table>
+                  <FormField
+                    name={`cost`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Return Cost</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            onChange={(e) => {
+                              field.onChange(parseInt(e.target.value) ?? 0);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="exchanged-items">
