@@ -10,6 +10,7 @@ import { Sale } from "@/models/data/sale.model";
 import { MoreHorizontal } from "lucide-react";
 import CompanyRemoveSaleDialog from "./company-remove-sale-dialog";
 import CompanySaleDetailsDialog from "./company-sale-details-dialog";
+import CreateSaleReturnDialog from "./create-sale-return-dialog";
 
 interface Props {
   sale: Sale;
@@ -32,8 +33,10 @@ export default function ({ sale }: Props) {
           Copy sale ID
         </DropdownMenuItem>
         <CompanySaleDetailsDialog sale={sale} />
+        <CreateSaleReturnDialog sale={sale} />
         <CompanyRemoveSaleDialog sale={sale} />
       </DropdownMenuContent>
+
     </DropdownMenu>
   );
 }

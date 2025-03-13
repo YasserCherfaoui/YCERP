@@ -1,4 +1,5 @@
 import { Product, ProductVariant } from "./product.model";
+import { Return } from "./return.model";
 
 export interface Sale {
     ID: number;
@@ -12,6 +13,7 @@ export interface Sale {
     discount: number;
     total: number;
     sale_items: SaleItem[];
+    return?: Return;
 }
 
 export interface SaleItem {
