@@ -1,5 +1,5 @@
 import { baseUrl } from "@/app/constants";
-import { Supplier, SupplierBill, SupplierResponse } from "@/models/data/supplier.model";
+import { Supplier, SupplierBill, SupplierPayment, SupplierResponse } from "@/models/data/supplier.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateSupplierBillSchema, CreateSupplierSchema } from "@/schemas/supplier";
 
@@ -138,3 +138,22 @@ export const deleteSupplierBill = async (billID: number): Promise<APIResponse<vo
 
 }
 
+export const addSupplierPayment = async (data: any): Promise<APIResponse<SupplierPayment>> => {
+    const response = await fetch(`${baseUrl}/supplier-payments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add supplier payment.");
+    }
+
+    const apiResponse = await response.json();
+    return apiResponse;
+
+}

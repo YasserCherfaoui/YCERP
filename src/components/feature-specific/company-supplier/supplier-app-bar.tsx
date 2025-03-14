@@ -3,6 +3,7 @@ import AppBarBackButton from "@/components/common/app-bar-back-button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { SupplierResponse } from "@/models/data/supplier.model";
 import { useSelector } from "react-redux";
+import RecordPaymentDialog from "./record-payment-dialog";
 
 interface Props {
   supplier: SupplierResponse;
@@ -21,7 +22,9 @@ export default function ({ supplier }: Props) {
           </span>
         </div>
         {/* ANCHOR: ACTION BUTTONS */}
-        <div className="flex gap-4"></div>
+        <div className="flex gap-4">
+          <RecordPaymentDialog supplier={supplier} />
+        </div>
       </div>
       <div className="flex gap-2">
         <Card className="p-4 flex flex-col gap-3">
