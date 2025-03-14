@@ -20,5 +20,14 @@ export const createSupplierBillSchema = z.object({
     paid: z.number()
 })
 
+export const createSupplierPayment = z.object({
+    company_id: z.number(),
+    supplier_id: z.number().min(1),
+    administrator_id: z.number().min(1),
+    amount: z.number().min(1),
+    comment: z.string()
+})
+
 export type CreateSupplierSchema = z.infer<typeof createSupplierSchema>;
 export type CreateSupplierBillSchema = z.infer<typeof createSupplierBillSchema>;
+export type CreateSupplierPayment = z.infer<typeof createSupplierPayment>;

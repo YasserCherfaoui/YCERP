@@ -42,3 +42,18 @@ export interface SupplierResponse {
         Total: number;
     }
 }
+
+export interface SupplierPayment {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt?: string;
+    supplier_id: number;
+    supplier?: Supplier;
+    company_id: number;
+    company?: Company;
+    administrator_id: number;
+    administrator?: Administrator;
+    amount: number;
+    comment: string;
+}
