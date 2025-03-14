@@ -1,3 +1,4 @@
+import RemoveBillActionDialog from "@/components/feature-specific/company-bills/remove-bill-action-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ExitBill } from "@/models/data/bill.model";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Trash2 } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import CompanyBillDialog from "./company-bill-dialog";
 
 
@@ -131,9 +132,7 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <CompanyBillDialog bill={exitBill} />
-            <DropdownMenuItem onClick={async () => {}} className="text-red-500">
-              <Trash2 /> Remove Product
-            </DropdownMenuItem>
+            <RemoveBillActionDialog bill={exitBill} />
           </DropdownMenuContent>
         </DropdownMenu>
       );
