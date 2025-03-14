@@ -41,3 +41,22 @@ export const getCompanyExitBills = async (companyID: number): Promise<APIRespons
     return apiResponse;
 
 }
+
+export const removeExitBill = async (billID: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/bills/exit/${billID}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to remove exit bill.");
+    }
+
+    const apiResponse: APIResponse<void> = await response.json();
+    return apiResponse;
+
+}
