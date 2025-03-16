@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Franchise } from "@/models/data/franchise.model";
@@ -15,6 +15,7 @@ import { deleteFranchise } from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleUserRound, Inspect, MapPin, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MakeBillDialog from "./make-bill-dialog";
 
 interface Props {
@@ -25,6 +26,7 @@ export default function ({ franchise }: Props) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { mutate: deleteFranchiseMutation } = useMutation({
     mutationFn: deleteFranchise,
     onSuccess: () => {
@@ -96,7 +98,7 @@ export default function ({ franchise }: Props) {
       </CardContent>
       <CardFooter className="flex justify-end p-0 gap-2">
         <MakeBillDialog franchise={franchise} />
-        <Button>
+        <Button onClick={()=> navigate(franchise.ID.toString())}>
           <Inspect />
           Consult
         </Button>
