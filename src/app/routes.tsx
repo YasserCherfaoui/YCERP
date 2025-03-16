@@ -2,6 +2,7 @@ import FranchisePrivateRoute from "@/components/feature-specific/franchise-priva
 import FranchisePublicRoute from "@/components/feature-specific/franchise-public-route";
 import PrivateRoute from "@/components/feature-specific/private-route";
 import PublicRoute from "@/components/feature-specific/public-route";
+import SuperFranchiseRoute from "@/components/feature-specific/super-franchise-route";
 import CompanyLayout from "@/layouts/company-layout";
 import DashboardLayout from "@/layouts/dashboard-layout";
 import MainLayout from "@/layouts/main-layout";
@@ -9,6 +10,10 @@ import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
 import CompanyBillsPage from "@/pages/dashboard/company/company-bills-page";
 import CompanyControlPanelPage from "@/pages/dashboard/company/company-control-panel-page";
+import CompanyFranchiseBillsPage from "@/pages/dashboard/company/company-franchise-bills-page";
+import CompanyFranchiseInventoryPage from "@/pages/dashboard/company/company-franchise-inventory-page";
+import CompanyFranchisePage from "@/pages/dashboard/company/company-franchise-page";
+import CompanyFranchiseSalesPage from "@/pages/dashboard/company/company-franchise-sales-page";
 import CompanyFranchisesPage from "@/pages/dashboard/company/company-franchises-page";
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
@@ -57,14 +62,27 @@ export default function AppRouter() {
             <Route index element={<CompanyPage />} />
             <Route path=":companyID" element={<CompanyLayout />}>
               <Route index element={<CompanyControlPanelPage />} />
-              <Route path="franchises" element={<CompanyFranchisesPage />} />
+              <Route path="franchises">
+                <Route index element={<CompanyFranchisesPage />} />
+                <Route path=":franchiseID" element={<SuperFranchiseRoute />}>
+                  <Route index element={<CompanyFranchisePage />} />
+                  <Route path="sales" element={<CompanyFranchiseSalesPage />} />
+                  <Route path="bills" element={<CompanyFranchiseBillsPage />} />
+                  <Route
+                    path="inventory"
+                    element={<CompanyFranchiseInventoryPage />}
+                  />
+                </Route>
+              </Route>
               <Route path="warehouse" element={<WarehousePage />} />
               <Route path="products" element={<CompanyProductsPage />} />
               <Route path="bills" element={<CompanyBillsPage />} />
               <Route path="suppliers" element={<CompanySuppliersPage />} />
               <Route path="sales" element={<CompanySalesPage />} />
-              <Route path="suppliers/:supplierID" element={<CompanySupplierPage />} />
-
+              <Route
+                path="suppliers/:supplierID"
+                element={<CompanySupplierPage />}
+              />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />

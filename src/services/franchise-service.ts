@@ -3,6 +3,7 @@ import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { Franchise } from "@/models/data/franchise.model";
 import { Inventory } from "@/models/data/inventory.model";
+import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { MyFranchiseAuthResponse } from "@/models/responses/my-franchise-auth-response.model";
 import { LoginFormSchema } from "@/schemas/auth";
@@ -106,6 +107,25 @@ export const getFranchiseExitBills = async (id: number): Promise<APIResponse<Arr
 
 }
 
+export const getSuperFranchiseExitBills = async (id: number): Promise<APIResponse<Array<ExitBill>>> => {
+    const response = await fetch(`${baseUrl}/franchises/bills/exit/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise exit bills.");
+    }
+
+    const apiResponse: APIResponse<Array<ExitBill>> = await response.json();
+    return apiResponse;
+
+}
+
 export const getFranchiseEntryBills = async (id: number): Promise<APIResponse<Array<EntryBill>>> => {
     const response = await fetch(`${baseUrl}/franchise/bills/entry/${id}`, {
         method: 'GET',
@@ -125,12 +145,33 @@ export const getFranchiseEntryBills = async (id: number): Promise<APIResponse<Ar
 
 }
 
+export const getSuperFranchiseEntryBills = async (id: number): Promise<APIResponse<Array<EntryBill>>> => {
+    const response = await fetch(`${baseUrl}/franchises/bills/entry/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise entry bills.");
+    }
+
+    const apiResponse: APIResponse<Array<EntryBill>> = await response.json();
+    return apiResponse;
+
+}
+
 export const getFranchiseInventory = async (id: number): Promise<APIResponse<Inventory>> => {
+    const token = localStorage.getItem('my-franchise-user-token') ? localStorage.getItem('my-franchise-user-token') : localStorage.getItem('authToken');
+
     const response = await fetch(`${baseUrl}/franchises/inventory/${id}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${token}`
         }
     });
 
@@ -179,6 +220,25 @@ export const createFranchiseEntryBill = async (data: CreateEntryBillSchema): Pro
     }
 
     const apiResponse: APIResponse<EntryBill> = await response.json();
+    return apiResponse;
+
+}
+
+export const getCompanyFranchiseSales = async (franchiseID: number): Promise<APIResponse<Sale[]>> => {
+    const response = await fetch(`${baseUrl}/franchises/sales/${franchiseID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create entry bill.");
+    }
+
+    const apiResponse: APIResponse<Sale[]> = await response.json();
     return apiResponse;
 
 }
