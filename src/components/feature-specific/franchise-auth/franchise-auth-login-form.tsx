@@ -1,19 +1,19 @@
 import { useAppDispatch } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardTitle,
 } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { login } from "@/features/auth/franchise-slice";
@@ -33,7 +33,7 @@ export default function () {
   const { toast } = useToast();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { mutate: loginMutate } = useMutation({
+  const { mutate: loginMutate , isPending } = useMutation({
     mutationFn: loginMyFranchise,
     onSuccess: (data) => {
       toast({
@@ -99,7 +99,7 @@ export default function () {
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
         <Button variant={"outline"}>Request Access</Button>
-        <Button onClick={form.handleSubmit((data) => loginMutate(data))}>
+        <Button disabled={isPending} onClick={form.handleSubmit((data) => loginMutate(data))}>
           <Key />
           Login
         </Button>

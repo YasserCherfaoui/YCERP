@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Supplier } from "@/models/data/supplier.model";
@@ -23,7 +23,7 @@ export default function ({ supplier }: Props) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  const { mutate: removeSupplierMutation } = useMutation({
+  const { mutate: removeSupplierMutation, isPending } = useMutation({
     mutationFn: removeSupplier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
@@ -61,6 +61,7 @@ export default function ({ supplier }: Props) {
         <DialogFooter>
           <Button onClick={()=> setOpen(false)} variant={"outline"}>Cancel</Button>
           <Button
+            disabled={isPending}
             variant={"destructive"}
             onClick={() => {
               removeSupplierMutation(supplier.ID);

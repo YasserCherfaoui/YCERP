@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { SupplierBill } from "@/models/data/supplier.model";
@@ -19,7 +19,7 @@ export default function ({ bill }: Props) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { mutate: deleteSupplierBillMutation } = useMutation({
+  const { mutate: deleteSupplierBillMutation , isPending} = useMutation({
     mutationFn: deleteSupplierBill,
     onSuccess: () => {
       toast({
@@ -50,6 +50,7 @@ export default function ({ bill }: Props) {
         <div>Are you sure you want to remove this bill ?</div>
         <DialogFooter>
           <Button
+            disabled={isPending}
             variant={"destructive"}
             onClick={() => deleteSupplierBillMutation(bill.ID)}
           >

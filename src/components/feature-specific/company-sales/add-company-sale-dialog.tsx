@@ -139,7 +139,7 @@ export default function () {
     );
   }
   const queryClient = useQueryClient();
-  const { mutate: createCompanySaleMutation } = useMutation({
+  const { mutate: createCompanySaleMutation, isPending } = useMutation({
     mutationFn: createCompanySale,
     onSuccess: () => {
       setOpen(false);
@@ -330,7 +330,12 @@ export default function () {
           <Button variant="outline" onClick={() => setOpen(false)}>
             Close
           </Button>
-          <Button onClick={form.handleSubmit(handleCreateSale)}>Save</Button>
+          <Button
+            disabled={isPending}
+            onClick={form.handleSubmit(handleCreateSale)}
+          >
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
