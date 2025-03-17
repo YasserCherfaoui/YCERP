@@ -1,19 +1,19 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,7 +43,7 @@ export default function MyForm({ product }: Props) {
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { mutate: updateProductMutation } = useMutation({
+  const { mutate: updateProductMutation, isPending } = useMutation({
     mutationFn: (data: UpdateProductSchema) => updateProduct(product.ID, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -189,7 +189,9 @@ export default function MyForm({ product }: Props) {
           <Button onClick={() => setOpen(false)} variant={"outline"}>
             Cancel
           </Button>
-          <Button onClick={form.handleSubmit(onSubmit)}>Save</Button>
+          <Button disabled={isPending} onClick={form.handleSubmit(onSubmit)}>
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

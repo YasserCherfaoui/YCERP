@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Company } from "@/models/data/company.model";
@@ -23,7 +23,7 @@ export default function ({ company }: Props) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { mutate: deleteComapnyMutation } = useMutation({
+  const { mutate: deleteComapnyMutation, isPending } = useMutation({
     mutationFn: deleteCompany,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
@@ -66,6 +66,7 @@ export default function ({ company }: Props) {
             Cancel
           </Button>
           <Button
+            disabled={isPending}
             onClick={() => deleteComapnyMutation(company.ID)}
             variant={"destructive"}
           >

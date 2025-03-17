@@ -27,7 +27,7 @@ export default function ({ franchise }: Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { mutate: deleteFranchiseMutation } = useMutation({
+  const { mutate: deleteFranchiseMutation, isPending } = useMutation({
     mutationFn: deleteFranchise,
     onSuccess: () => {
       toast({
@@ -68,6 +68,7 @@ export default function ({ franchise }: Props) {
             </DialogHeader>
             <DialogFooter>
               <Button
+                disabled={isPending}
                 variant={"destructive"}
                 onClick={() => deleteFranchiseMutation(franchise.ID)}
               >

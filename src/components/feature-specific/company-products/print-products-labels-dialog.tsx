@@ -53,7 +53,7 @@ export default function () {
     queryFn: () => getCompanyInventory(company?.ID ?? 0),
   });
   const { toast } = useToast();
-  const { mutate: generateBarcodesMutation } = useMutation({
+  const { mutate: generateBarcodesMutation, isPending } = useMutation({
     mutationFn: generateBarcodes,
     onSuccess: () => {
       setIsOpen(false);
@@ -149,7 +149,10 @@ export default function () {
         </ScrollArea>
         <DialogFooter>
           <Button variant={"outline"}>Cancel</Button>
-          <Button onClick={form.handleSubmit(onSaveClicked, console.error)}>
+          <Button
+            disabled={isPending}
+            onClick={form.handleSubmit(onSaveClicked, console.error)}
+          >
             Save
           </Button>
         </DialogFooter>

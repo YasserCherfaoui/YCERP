@@ -54,7 +54,7 @@ export default function ({ bill }: Props) {
     enabled: !!franchise,
   });
   const queryClient = useQueryClient();
-  const { mutate: createEntryBillMutation } = useMutation({
+  const { mutate: createEntryBillMutation, isPending } = useMutation({
     mutationFn: createFranchiseEntryBill,
     onSuccess: () => {
       toast({
@@ -189,6 +189,7 @@ export default function ({ bill }: Props) {
             Cancel
           </Button>
           <Button
+            disabled={isPending}
             onClick={() => {
               form.setValue(
                 "bill_items",

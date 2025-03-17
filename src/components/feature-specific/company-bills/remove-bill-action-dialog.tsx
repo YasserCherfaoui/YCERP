@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
@@ -23,7 +23,7 @@ export default function ({ bill }: Props) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { mutate: removeExitBillMutation } = useMutation({
+  const { mutate: removeExitBillMutation, isPending } = useMutation({
     mutationFn: removeExitBill,
     onSuccess: () => {
       toast({
@@ -58,6 +58,7 @@ export default function ({ bill }: Props) {
           <Button
             variant="destructive"
             onClick={() => removeExitBillMutation(bill.ID)}
+            disabled={isPending}
           >
             Remove
           </Button>

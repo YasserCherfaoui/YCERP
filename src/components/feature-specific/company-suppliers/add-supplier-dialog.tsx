@@ -1,21 +1,21 @@
 import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -43,7 +43,7 @@ export default function () {
   });
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { mutate: createSupplierMutation } = useMutation({
+  const { mutate: createSupplierMutation, isPending } = useMutation({
     mutationFn: createSupplier,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
@@ -127,7 +127,7 @@ export default function () {
         </Form>
         <DialogFooter>
           <Button variant={"outline"}>Cancel</Button>
-          <Button onClick={form.handleSubmit(onSaveClicked, console.error)}>
+          <Button disabled={isPending} onClick={form.handleSubmit(onSaveClicked, console.error)}>
             Add
           </Button>
         </DialogFooter>
