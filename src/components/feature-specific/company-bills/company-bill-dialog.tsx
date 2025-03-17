@@ -7,6 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExitBill } from "@/models/data/bill.model";
 import { CircleX, LucideTicket, Printer } from "lucide-react";
 import { useState } from "react";
@@ -40,7 +41,7 @@ export default function ({ bill }: Props) {
             <span className="font-bold">Date:</span>
             <p className="text-white font-bold">{new Date(bill.franchise?.CreatedAt ?? "").toDateString()}</p>
           </div>
-          <div>
+          <ScrollArea className="max-h-[400px]">
             {bill.bill_items.map((billItem) => (
               <div key={`bill-item-${billItem.id}`} className="flex justify-between">
                 <span className="text-white">
@@ -51,7 +52,7 @@ export default function ({ bill }: Props) {
                 <span className="text-bold">Qty: {billItem.quantity}</span>
               </div>
             ))}
-          </div>
+          </ScrollArea>
           <div></div>
           <div>
             <div className="flex justify-between">

@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { BillItem } from "@/models/data/bill.model";
 import { Franchise } from "@/models/data/franchise.model";
@@ -74,7 +75,6 @@ export default function ({ franchise }: Props) {
     queryFn: () => getCompanyInventory(company?.ID ?? 0),
   });
 
-
   const handleCreateExitBill = (data: CreateExitBillSchema) => {
     createExitBillMutation({
       ...data,
@@ -84,8 +84,9 @@ export default function ({ franchise }: Props) {
       })),
     });
   };
-  const barcodes:string[] =
-  inventory?.data?.items.map((item) => item.product_variant?.qr_code ?? "") ?? [];
+  const barcodes: string[] =
+    inventory?.data?.items.map((item) => item.product_variant?.qr_code ?? "") ??
+    [];
   const myProcessBarcode = () =>
     processBarcode({
       inventory: inventory!,
@@ -159,7 +160,7 @@ export default function ({ franchise }: Props) {
             autoFocus
           />
           <div>
-            <ul className="flex flex-col gap-2 p-2">
+            <ScrollArea className="flex flex-col gap-2 p-2 max-h-[400px]">
               {billItems.map((billItem) => (
                 <MakeBillTile
                   key={billItem.product_variant_id}
@@ -169,7 +170,7 @@ export default function ({ franchise }: Props) {
                   items={inventory?.data?.items ?? []}
                 />
               ))}
-            </ul>
+            </ScrollArea>
           </div>
           <div className="flex text-xl text-white justify-end">
             Total:{" "}

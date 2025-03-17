@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { BillItem, EntryBill } from "@/models/data/bill.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateEntryBillSchema } from "@/schemas/bill";
@@ -56,14 +57,14 @@ export default function ({
             bill.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-2">
+        <ScrollArea className="flex flex-col gap-2 max-h-[400px]">
           {extraItems.map((item) => (
             <div key={item.product_variant_id} className="flex justify-between">
               <span className="text-white">{item.qr_code}</span>
               <span className="text-bold">Qty: {item.quantity}</span>
             </div>
           ))}
-        </div>
+        </ScrollArea>
         <DialogFooter>
           <Button
             variant={"outline"}
