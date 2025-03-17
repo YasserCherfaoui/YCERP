@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { BillItem, ExitBill } from "@/models/data/bill.model";
 import { CreateEntryBillSchema, createEntryBillSchema } from "@/schemas/bill";
@@ -164,7 +165,7 @@ export default function ({ bill }: Props) {
               autoFocus
             />
             <div>
-              <ul className="flex flex-col gap-2 p-2">
+              <ScrollArea className="flex flex-col gap-2 p-2 max-h-[400px]">
                 {billItems.map((billItem) => (
                   <MakeBillTile
                     key={billItem.product_variant_id}
@@ -174,7 +175,7 @@ export default function ({ bill }: Props) {
                     items={inventory?.data?.items ?? []}
                   />
                 ))}
-              </ul>
+              </ScrollArea>
             </div>
           </div>
         </DialogHeader>

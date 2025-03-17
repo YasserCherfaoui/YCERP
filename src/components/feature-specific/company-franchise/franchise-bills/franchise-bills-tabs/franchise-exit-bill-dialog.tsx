@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExitBill } from "@/models/data/bill.model";
 import { CircleX, LucideTicket, Printer } from "lucide-react";
 import { useState } from "react";
@@ -42,7 +43,7 @@ export default function ({ bill }: Props) {
               {new Date(bill.franchise?.CreatedAt ?? "").toDateString()}
             </p>
           </div>
-          <div>
+          <ScrollArea className="max-h-[400px]">
             {bill.bill_items.map((billItem) => (
               <div
                 key={`bill-item-${billItem.id}`}
@@ -56,7 +57,7 @@ export default function ({ bill }: Props) {
                 <span className="text-bold">Qty: {billItem.quantity}</span>
               </div>
             ))}
-          </div>
+          </ScrollArea>
           <div></div>
           <div>
             <div className="flex justify-between">
