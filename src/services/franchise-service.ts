@@ -9,6 +9,7 @@ import { MyFranchiseAuthResponse } from "@/models/responses/my-franchise-auth-re
 import { LoginFormSchema } from "@/schemas/auth";
 import { CreateEntryBillSchema } from "@/schemas/bill";
 import { CreateFranchiseSchema } from "@/schemas/franchise";
+import { CreateSaleSchema } from "@/schemas/sale";
 
 
 export const createFranchise = async (data: CreateFranchiseSchema): Promise<APIResponse<Franchise>> => {
@@ -239,6 +240,26 @@ export const getCompanyFranchiseSales = async (franchiseID: number): Promise<API
     }
 
     const apiResponse: APIResponse<Sale[]> = await response.json();
+    return apiResponse;
+
+}
+
+export const createFranchiseSale = async (data: CreateSaleSchema): Promise<APIResponse<Sale>> => {
+    const response = await fetch(`${baseUrl}/franchise/sale`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create sale.");
+    }
+
+    const apiResponse: APIResponse<Sale> = await response.json();
     return apiResponse;
 
 }
