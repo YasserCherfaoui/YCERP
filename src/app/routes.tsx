@@ -20,6 +20,7 @@ import CompanyProductsPage from "@/pages/dashboard/company/company-products-page
 import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
 import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
+import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
 import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
@@ -82,6 +83,10 @@ export default function AppRouter() {
               <Route
                 path="suppliers/:supplierID"
                 element={<CompanySupplierPage />}
+              />
+              <Route
+                path="unknown-returns"
+                element={<CompanyUnknownReturnsPage />}
               />
             </Route>
           </Route>

@@ -2,12 +2,21 @@ import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import { Button } from "@/components/ui/button";
-import { Apple, ArrowLeft, Handshake, ReceiptText, ShoppingCart, Store, Warehouse } from "lucide-react";
+import {
+  Apple,
+  ArrowLeft,
+  Handshake,
+  ReceiptText,
+  ShoppingCart,
+  Store,
+  Undo2,
+  Warehouse,
+} from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function () {
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
   const company = useSelector((state: RootState) => state.company.company);
@@ -65,5 +74,9 @@ const quickMenu = [
     icon: Handshake,
     href: "suppliers",
   },
-
+  {
+    label: "Unkown Returns",
+    icon: Undo2,
+    href: "unknown-returns",
+  },
 ];
