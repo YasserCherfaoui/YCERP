@@ -1,19 +1,20 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { SupplierBill } from "@/models/data/supplier.model";
 import { Ticket } from "lucide-react";
@@ -33,38 +34,42 @@ export default function ({ bill }: Props) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Supplier Bill {bill.ID}</DialogTitle>
+          <ScrollArea className="max-h-[400px]">
+            <Table>
+              <TableHeader>
+                <TableHead>Product</TableHead>
+                <TableHead>Qty</TableHead>
+                <TableHead>Unit Price</TableHead>
+                <TableHead>Total</TableHead>
+              </TableHeader>
+              <TableBody>
+                {bill.items.map((item, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>{item.product_variant?.qr_code}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>
+                      {new Intl.NumberFormat("en-DZ", {
+                        style: "currency",
+                        currency: "DZD",
+                      }).format(
+                        item.product_variant?.product?.first_price ?? 0
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {new Intl.NumberFormat("en-DZ", {
+                        style: "currency",
+                        currency: "DZD",
+                      }).format(
+                        (item.product_variant?.product?.first_price ?? 0) *
+                          item.quantity
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
 
-          <Table>
-            <TableHeader>
-              <TableHead>Product</TableHead>
-              <TableHead>Qty</TableHead>
-              <TableHead>Unit Price</TableHead>
-              <TableHead>Total</TableHead>
-            </TableHeader>
-            <TableBody>
-              {bill.items.map((item, idx) => (
-                <TableRow key={idx}>
-                  <TableCell>{item.product_variant?.qr_code}</TableCell>
-                  <TableCell>{item.quantity}</TableCell>
-                  <TableCell>
-                    {new Intl.NumberFormat("en-DZ", {
-                      style: "currency",
-                      currency: "DZD",
-                    }).format(item.product_variant?.product?.first_price ?? 0)}
-                  </TableCell>
-                  <TableCell>
-                    {new Intl.NumberFormat("en-DZ", {
-                      style: "currency",
-                      currency: "DZD",
-                    }).format(
-                      (item.product_variant?.product?.first_price ?? 0) *
-                        item.quantity
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
           <div>
             <div className="flex flex-col gap-2">
               <div className="flex justify-between">
