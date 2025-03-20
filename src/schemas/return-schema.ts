@@ -76,3 +76,25 @@ export const makeCreateSaleReturnSchema = (sale: Sale) => z.object({
 });
 
 export type CreateSaleReturnSchema = z.infer<typeof createSaleReturnSchema>;
+
+
+export const createUnknownReturnSchema = z.object({
+    return_items: z.array(z.object({
+        product_variant_id: z.number().min(1, "Please insert a product"),
+        quantity: z.number().min(1, "please insert a quantity > 0 or remove the item"),
+    })),
+    cost: z.number(),
+    location_id: z.number().min(1, "Please select a location")
+}).superRefine((val, ctx) => {
+    if (val.return_items.length < 1) {
+        ctx.addIssue(
+            {
+                code: z.ZodIssueCode.custom,
+                message: `At least one product should be selected.`,
+                path: [`cost`]
+            }
+        )
+    }
+});
+
+export type CreateUnknownReturnSchema = z.infer<typeof createUnknownReturnSchema>;

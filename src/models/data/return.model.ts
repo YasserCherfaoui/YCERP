@@ -1,3 +1,5 @@
+import { Company } from "@/models/data/company.model";
+import { Franchise } from "@/models/data/franchise.model";
 import { ProductVariant } from "./product.model";
 import { Sale } from "./sale.model";
 
@@ -8,8 +10,13 @@ export interface Return {
     DeletedAt: string | null;
     sale_id: number | null;
     order_id: number | null;
+    company_id: number | null;
+    franchise_id: number | null;
+
     sale: Sale | null;
     // order: Order | null;
+    company: Company | null;
+    franchise: Franchise | null;
     reason: string;
     type: string;
     comment: string;
