@@ -1,7 +1,8 @@
 import { baseUrl } from "@/app/constants";
 import { ExitBill } from "@/models/data/bill.model";
+import { FranchisePayment } from "@/models/data/franchise.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CreateExitBillSchema } from "@/schemas/bill";
+import { CreateExitBillSchema, CreateFranchisePayment } from "@/schemas/bill";
 
 export const createExitBill = async (data: CreateExitBillSchema): Promise<APIResponse<ExitBill>> => {
     const response = await fetch(`${baseUrl}/bills/exit`, {
@@ -59,4 +60,42 @@ export const removeExitBill = async (billID: number): Promise<APIResponse<void>>
     const apiResponse: APIResponse<void> = await response.json();
     return apiResponse;
 
+}
+
+export const deleteEntryBill = async (billID: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/bills/entry/${billID}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to remove entry bill.");
+    }
+
+    const apiResponse: APIResponse<void> = await response.json();
+    return apiResponse;
+
+}
+
+export const recordFranchisePayment = async (data: CreateFranchisePayment): Promise<APIResponse<FranchisePayment>> => {
+    const response = await fetch(`${baseUrl}/franchises/payments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to record franchise payment.");
+    }
+
+    const apiResponse: APIResponse<any> = await response.json();
+    return apiResponse;
 }

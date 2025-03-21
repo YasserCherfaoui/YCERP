@@ -20,7 +20,17 @@ export const createEntryBillSchema = z.object({
     missing_items: z.array(ItemSchema).optional(),
     broken_items: z.array(ItemSchema).optional(),
     extra_items: z.array(ItemSchema).optional(),
-})
+});
 
+export const createFranchisePaymentSchema = z.object({
+    company_id: z.number().min(1, "Company is required"),
+    franchise_id: z.number().min(1, "Franchise is required"),
+    administrator_id: z.number().min(1, "Administrator is required"),
+    amount: z.number().min(1, "Amount must be greater than 0"),
+    comment: z.string(),
+});
+
+export type CreateFranchisePayment = z.infer<typeof createFranchisePaymentSchema>;
 export type CreateExitBillSchema = z.infer<typeof createExitBillSchema>
 export type CreateEntryBillSchema = z.infer<typeof createEntryBillSchema>
+

@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
-import { Franchise } from "@/models/data/franchise.model";
+import { Franchise, FranchiseTotals } from "@/models/data/franchise.model";
 import { Inventory } from "@/models/data/inventory.model";
 import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
@@ -260,6 +260,45 @@ export const createFranchiseSale = async (data: CreateSaleSchema): Promise<APIRe
     }
 
     const apiResponse: APIResponse<Sale> = await response.json();
+    return apiResponse;
+
+}
+
+export const getFranchisePaymentTotals = async (franchiseID: number): Promise<APIResponse<FranchiseTotals>> => {
+    const response = await fetch(`${baseUrl}/franchise/payment-totals/${franchiseID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to get payment totals.");
+    }
+
+    const apiResponse: APIResponse<FranchiseTotals> = await response.json();
+    return apiResponse;
+
+}
+
+
+export const getCompanyFranchisePaymentTotals = async (franchiseID: number): Promise<APIResponse<FranchiseTotals>> => {
+    const response = await fetch(`${baseUrl}/franchise/payment-totals/${franchiseID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to get payment totals.");
+    }
+
+    const apiResponse: APIResponse<FranchiseTotals> = await response.json();
     return apiResponse;
 
 }

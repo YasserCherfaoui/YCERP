@@ -1,6 +1,6 @@
 import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
-import { ReceiptText, ShoppingCart, Warehouse } from "lucide-react";
+import { Apple, ReceiptText, ShoppingCart, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
 import FranchiseTile from "./franchise-tile";
 
@@ -36,5 +36,10 @@ const quickMenu = [
     label: "Bills",
     icon: ReceiptText,
     href: "bills",
+  },
+  {
+    label: "Products",
+    icon: Apple,
+    href: "products",
   },
 ];

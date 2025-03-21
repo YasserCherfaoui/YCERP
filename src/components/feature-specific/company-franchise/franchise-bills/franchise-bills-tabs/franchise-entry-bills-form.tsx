@@ -62,8 +62,15 @@ export default function ({ bill }: Props) {
         description: "Entry Bill was created successfully",
       });
       setOpen(false);
+
       queryClient.invalidateQueries({
-        queryKey: ["inventory", "exit-bills", "entry-bills"],
+        queryKey: ["inventory"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["franchise-entry-bills"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["franchise-exit-bills"],
       });
     },
     onError: (error) => {
@@ -246,7 +253,11 @@ export default function ({ bill }: Props) {
         setOpen={setExtraOpen}
         setPrimaryFormOpen={setOpen}
         primaryForm={form}
-        submitMutation={extraItems.length > 0 && missingItems.length == 0 ? createEntryBillMutation : undefined}
+        submitMutation={
+          extraItems.length > 0 && missingItems.length == 0
+            ? createEntryBillMutation
+            : undefined
+        }
       />
     </Dialog>
   );

@@ -1,12 +1,14 @@
+import { RemoveEntryBillDialog } from "@/components/feature-specific/company-franchise/franchise-bills/franchise-bills-tabs/remove-entry-bill-dialog";
+import FranchiseEntryBillDetailsDialog from "@/components/feature-specific/franchise-bills/franchise-bills-tabs/franchise-entry-bill-details-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EntryBill } from "@/models/data/bill.model";
 import { ColumnDef } from "@tanstack/react-table";
@@ -70,7 +72,9 @@ export const franchiseEntryBillsColumns: ColumnDef<EntryBill>[] = [
     accessorKey: "franchise_total_amount",
     header: () => <div className="text-right">Total (DZD)</div>,
     cell: ({ row }) => {
-      const price = parseInt(row.getValue("franchise_total_amount"));
+      const price = parseInt(
+        row.original.total.toString() ?? "0"
+      );
       const formatted = new Intl.NumberFormat("en-DZ", {
         style: "currency",
         currency: "DZD",
@@ -83,7 +87,7 @@ export const franchiseEntryBillsColumns: ColumnDef<EntryBill>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const exitBill = row.original;
+      const entryBill = row.original;
 
       return (
         <DropdownMenu>
@@ -97,15 +101,16 @@ export const franchiseEntryBillsColumns: ColumnDef<EntryBill>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
-                navigator.clipboard.writeText(exitBill.ID.toString())
+                navigator.clipboard.writeText(entryBill.ID.toString())
               }
             >
-                <Clipboard />
+              <Clipboard />
               Copy Bill ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {/* <CompanyBillDialog bill={exitBill} />
-            <FranchiseEntryBillsForm bill={exitBill} /> */}
+            <FranchiseEntryBillDetailsDialog bill={entryBill} />
+            <RemoveEntryBillDialog entryBillId={entryBill.ID} />
+
           </DropdownMenuContent>
         </DropdownMenu>
       );
