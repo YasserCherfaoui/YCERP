@@ -24,6 +24,7 @@ export type ExitBill = {
     company_total_amount: number;
     cogs: number;
     status: string;
+    entry_bill?:EntryBill;
 }
 
 export type BillItemModel = {
@@ -52,6 +53,8 @@ export type EntryBill = {
     exit_bill_id: number;
     exit_bill?: ExitBill;
     confirmed_bill_items: Array<BillItemModel>;
+    bill_issue?: BillIssue;
+    total: number;
 
 }
 
@@ -64,5 +67,5 @@ export type BillIssue = {
     entry_bill?: EntryBill;
     missing_items: Array<BillItemModel>;
     broken_items: Array<BillItemModel>;
-
+    extra_items: Array<BillItemModel>;
 }

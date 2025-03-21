@@ -64,8 +64,15 @@ export default function ({ bill }: Props) {
       });
       setOpen(false);
       queryClient.invalidateQueries({
-        queryKey: ["inventory", "exit-bills", "entry-bills"],
+        queryKey: ["inventory"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["franchise-entry-bills"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["franchise-exit-bills"],
+      });
+
     },
     onError: (error) => {
       toast({
@@ -136,7 +143,9 @@ export default function ({ bill }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={"ghost"} className="text-blue-500 pl-2">
+        <Button
+        disabled={!!bill.entry_bill}
+        variant={"ghost"} className="text-blue-500 pl-2">
           <PackageCheck />
           Make Entry Bill
         </Button>

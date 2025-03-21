@@ -40,6 +40,24 @@ export const getAllProducts = async (): Promise<APIResponse<Product[]>> => {
     return apiResponse;
 
 }
+export const getFranchiseAllProducts = async (companyID:number): Promise<APIResponse<Product[]>> => {
+    const response = await fetch(`${baseUrl}/products/${companyID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch products.");
+    }
+
+    const apiResponse: APIResponse<Product[]> = await response.json();
+    return apiResponse;
+
+}
 
 export const getAllProductsWithVariantsByCompany = async (companyId: number): Promise<APIResponse<Product[]>> => {
     const response = await fetch(`${baseUrl}/company/products/variants/${companyId}`, {

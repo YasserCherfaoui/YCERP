@@ -28,6 +28,7 @@ import FranchiseLoginPage from "@/pages/franchise/auth/franchise-login-page";
 import FranchiseBillsPage from "@/pages/franchise/dashboard/franchise-bills-page";
 import FranchiseInventoryPage from "@/pages/franchise/dashboard/franchise-inventory-page";
 import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
+import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-products-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import HomePage from "@/pages/home-page";
 import { Route, Routes } from "react-router-dom";
@@ -53,6 +54,10 @@ export default function AppRouter() {
             <Route path="sales" element={<FranchiseSalesPage />} />
             <Route path="bills" element={<FranchiseBillsPage />} />
             <Route path="inventory" element={<FranchiseInventoryPage />} />
+            <Route
+              path="products"
+              element={<FranchiseProductsPage />}
+            />
           </Route>
         </Route>
         //! WARNING: PRIVATE ROUTES
