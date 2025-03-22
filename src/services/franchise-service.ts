@@ -243,6 +243,24 @@ export const getCompanyFranchiseSales = async (franchiseID: number): Promise<API
     return apiResponse;
 
 }
+export const getFranchiseSales = async (franchiseID: number): Promise<APIResponse<Sale[]>> => {
+    const response = await fetch(`${baseUrl}/franchise/sales/${franchiseID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create entry bill.");
+    }
+
+    const apiResponse: APIResponse<Sale[]> = await response.json();
+    return apiResponse;
+
+}
 
 export const createFranchiseSale = async (data: CreateSaleSchema): Promise<APIResponse<Sale>> => {
     const response = await fetch(`${baseUrl}/franchise/sale`, {

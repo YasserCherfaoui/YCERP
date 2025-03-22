@@ -2,7 +2,7 @@ import { RootState } from "@/app/store";
 import { companySalesColumns } from "@/components/feature-specific/company-sales/company-sales-columns";
 import { DataTable } from "@/components/ui/data-table";
 import { useToast } from "@/hooks/use-toast";
-import { getCompanyFranchiseSales } from "@/services/franchise-service";
+import { getFranchiseSales } from "@/services/franchise-service";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -14,7 +14,7 @@ export default function () {
 
   const { data } = useQuery({
     queryKey: ["sales"],
-    queryFn: () => getCompanyFranchiseSales(franchise.ID),
+    queryFn: () => getFranchiseSales(franchise.ID),
   });
   const { toast } = useToast();
 
