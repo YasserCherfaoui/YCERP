@@ -83,7 +83,6 @@ export default function () {
   useEffect(() => {
     let timeout = setTimeout(() => {
       if (input.length != 0) {
-        let found = false;
         for (let item of inventory?.data?.items ?? []) {
           if (item.product_variant?.qr_code.includes(input)) {
             toast({
@@ -100,7 +99,7 @@ export default function () {
                 `return_items.${inputIndex}.quantity`,
                 form.watch(`return_items.${inputIndex}.quantity`) + 1
               );
-              found = true;
+          
               break;
             } else {
               form.setValue(
