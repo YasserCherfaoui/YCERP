@@ -1,4 +1,11 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sale } from "@/models/data/sale.model";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
@@ -23,6 +30,32 @@ export const companySalesColumns: ColumnDef<Sale>[] = [
       </Button>
     ),
     cell: ({ row }) => new Date(row.original.CreatedAt).toUTCString(),
+  },
+  {
+    header: "Items",
+    cell: ({ row }) => (
+      <Accordion type="single" collapsible>
+        <AccordionItem value="item-1">
+          <AccordionTrigger>
+            {row.original.sale_items.length} Items
+          </AccordionTrigger>
+          <AccordionContent>
+            <Table>
+              <TableHeader>
+                <TableHead>Product</TableHead>
+                <TableHead>Quantity</TableHead>
+              </TableHeader>
+              <TableBody>
+                {row.original.sale_items.map((item,index)=> <TableRow key={index}>
+                    <TableCell>{item.product_variant?.qr_code}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                </TableRow>)}
+              </TableBody>
+            </Table>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    ),
   },
   {
     accessorKey: "amount",
