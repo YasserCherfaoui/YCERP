@@ -1,5 +1,5 @@
 import { RootState } from "@/app/store";
-import { companySalesColumns } from "@/components/feature-specific/company-sales/company-sales-columns";
+import { franchiseSalesColumns } from "@/components/feature-specific/company-franchise/franchise-sales/franchise-sale-columns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
@@ -115,7 +115,7 @@ export default function () {
               new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
           ) ?? []
         }
-        columns={companySalesColumns}
+        columns={franchiseSalesColumns}
         searchColumn="sale_id"
       />
     </div>

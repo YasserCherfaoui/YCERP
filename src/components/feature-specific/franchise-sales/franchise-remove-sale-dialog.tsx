@@ -10,7 +10,7 @@ import {
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { Sale } from "@/models/data/sale.model";
-import { removeFranchiseSale } from "@/services/sale-service";
+import { removeCompanyFranchiseSale } from "@/services/sale-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -24,7 +24,7 @@ export default function ({ sale }: Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { mutate: removeSaleMutation, isPending } = useMutation({
-    mutationFn: (saleID: number) => removeFranchiseSale(saleID),
+    mutationFn: (saleID: number) => removeCompanyFranchiseSale(saleID),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["sales"],

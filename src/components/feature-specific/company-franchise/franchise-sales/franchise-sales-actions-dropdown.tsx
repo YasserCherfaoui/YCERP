@@ -1,4 +1,5 @@
 import CompanySaleDetailsDialog from "@/components/feature-specific/company-sales/company-sale-details-dialog";
+import FranchiseRemoveSaleDialog from "@/components/feature-specific/franchise-sales/franchise-remove-sale-dialog";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -33,7 +34,7 @@ export default function ({ sale }: Props) {
         </DropdownMenuItem>
         <CompanySaleDetailsDialog sale={sale} />
         {/* <CreateSaleReturnDialog sale={sale} /> */}
-        {/* <FranchiseRemoveSaleDialog sale={sale} /> */}
+        <FranchiseRemoveSaleDialog sale={sale} />
       </DropdownMenuContent>
 
     </DropdownMenu>
