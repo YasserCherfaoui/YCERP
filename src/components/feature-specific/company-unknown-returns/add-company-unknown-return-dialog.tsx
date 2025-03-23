@@ -2,48 +2,49 @@ import { RootState } from "@/app/store";
 import { ProductVariantCombobox } from "@/components/feature-specific/company-products/product-variant-combobox";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import {
-    createUnknownReturnSchema,
-    CreateUnknownReturnSchema,
+  createUnknownReturnSchema,
+  CreateUnknownReturnSchema,
 } from "@/schemas/return-schema";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { createCompanyUnknownReturn } from "@/services/return-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 
 export default function () {
   const [isOpen, setIsOpen] = useState(false);
   const company = useSelector((state: RootState) => state.company.company);
+  const [input, setInput] = useState<string>("");
   const form = useForm<CreateUnknownReturnSchema>({
     resolver: zodResolver(createUnknownReturnSchema),
     defaultValues: {
@@ -79,7 +80,53 @@ export default function () {
       });
     },
   });
-
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      if (input.length != 0) {
+        let found = false;
+        for (let item of inventory?.data?.items ?? []) {
+          if (item.product_variant?.qr_code.includes(input)) {
+            toast({
+              title: "Product added",
+              description: `Added ${item.product_variant?.qr_code} to return`,
+            });
+            let inputIndex = form
+              .watch("return_items")
+              .findIndex(
+                (i) => i.product_variant_id === item.product_variant?.ID
+              );
+            if (inputIndex != -1) {
+              form.setValue(
+                `return_items.${inputIndex}.quantity`,
+                form.watch(`return_items.${inputIndex}.quantity`) + 1
+              );
+              found = true;
+              break;
+            } else {
+              form.setValue(
+                `return_items.${form.watch("return_items").length}`,
+                {
+                  product_variant_id: item.product_variant_id,
+                  quantity: 1,
+                }
+              );
+            }
+          } else {
+            toast({
+              title: "Product not found",
+              description: `Product with barcode ${input} not found`,
+              variant: "destructive",
+            });
+          }
+          // form.setValue(`return_items.${form.watch("return_items").length}.quantity`, 1)
+        }
+        setInput("");
+      }
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [input]);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -94,6 +141,13 @@ export default function () {
         </DialogHeader>
         <Form {...form}>
           <>
+            <Input
+              autoFocus
+              placeholder="Scan barcode..."
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
             <Button
               onClick={() => {
                 form.setValue("return_items", [
