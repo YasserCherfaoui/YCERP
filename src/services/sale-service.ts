@@ -75,3 +75,39 @@ export const getSalesTotal = async (companyID: number, from: Date, to: Date): Pr
     const apiResponse: APIResponse<{ total_amount: number }> = await response.json();
     return apiResponse;
 }
+
+export const removeFranchiseSale = async (saleID: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/franchise/sales/${saleID}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to remove sale.");
+    }
+
+    const apiResponse: APIResponse<void> = await response.json();
+    return apiResponse;
+}
+
+export const removeCompanyFranchiseSale = async (saleID: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/franchise/sales/${saleID}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to remove sale.");
+    }
+
+    const apiResponse: APIResponse<void> = await response.json();
+    return apiResponse;
+}
