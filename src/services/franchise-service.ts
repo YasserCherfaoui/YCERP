@@ -320,3 +320,40 @@ export const getCompanyFranchisePaymentTotals = async (franchiseID: number): Pro
     return apiResponse;
 
 }
+
+
+export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number }>> => {
+    const response = await fetch(`${baseUrl}/franchise/sales/totals/${franchiseID}?start_date=${from.toISOString()}&end_date=${to.toISOString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch sales total.");
+    }
+
+    const apiResponse: APIResponse<{ total_amount: number }> = await response.json();
+    return apiResponse;
+}
+
+export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number }>> => {
+    const response = await fetch(`${baseUrl}/franchise/sales/totals/${franchiseID}?start_date=${from.toISOString()}&end_date=${to.toISOString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch sales total.");
+    }
+
+    const apiResponse: APIResponse<{ total_amount: number }> = await response.json();
+    return apiResponse;
+}
