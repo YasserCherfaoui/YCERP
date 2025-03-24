@@ -1,3 +1,4 @@
+import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InventoryItem } from "@/models/data/inventory.model";
@@ -92,5 +93,13 @@ export const franchiseInventoryColumns: ColumnDef<InventoryItem>[] = [
     header: "QR Code",
     accessorKey: "product_variant.qr_code",
     cell: ({ getValue }: any) => <Barcode value={getValue()} height={20} />,
+  },
+  {
+    header: "Actions",
+    cell: ({ row }) => (
+      <>
+        <UpdateInventoryItemDialog inventoryItem={row.original} />
+      </>
+    ),
   },
  ];

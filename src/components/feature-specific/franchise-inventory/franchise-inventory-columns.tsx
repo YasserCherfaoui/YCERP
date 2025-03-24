@@ -86,11 +86,12 @@ export const franchiseInventoryColumns: ColumnDef<InventoryItem>[] = [
   },
   {
     accessorKey: "quantity",
-    header: "Quantity"
+    header: "Quantity",
   },
   {
     header: "QR Code",
     accessorKey: "product_variant.qr_code",
     cell: ({ getValue }: any) => <Barcode value={getValue()} height={20} />,
   },
- ];
+ 
+];

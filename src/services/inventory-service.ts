@@ -1,6 +1,7 @@
 import { baseUrl } from "@/app/constants";
-import { Inventory } from "@/models/data/inventory.model";
+import { Inventory, InventoryItem } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { UpdateInventoryItemSchema } from "@/schemas/inventory-schema";
 
 export const getCompanyInventory = async (companyId: number): Promise<APIResponse<Inventory>> => {
     const response = await fetch(`${baseUrl}/company/${companyId}/inventory`, {
@@ -17,4 +18,24 @@ export const getCompanyInventory = async (companyId: number): Promise<APIRespons
     }
     const apiResponse: APIResponse<Inventory> = await response.json();
     return apiResponse;
+}
+
+export const updateCompanyInventoryItem = async (itemID: number, data: UpdateInventoryItemSchema): Promise<APIResponse<InventoryItem>> => {
+    const response = await fetch(`${baseUrl}/inventory/item/${itemID}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(data)
+
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update inventory item.");
+    }
+    const apiResponse: APIResponse<InventoryItem> = await response.json();
+    return apiResponse;
+
 }

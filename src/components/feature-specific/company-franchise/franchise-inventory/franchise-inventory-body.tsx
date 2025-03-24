@@ -11,7 +11,7 @@ export default function () {
   );
   if (!franchise) return;
   const { data: inventory } = useQuery({
-    queryKey: ["franchise-inventory"],
+    queryKey: ["inventory"],
     queryFn: () => getFranchiseInventory(franchise.ID),
     enabled: !!franchise,
   });
