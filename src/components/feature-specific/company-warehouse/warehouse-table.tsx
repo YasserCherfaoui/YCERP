@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,9 +18,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Inventory } from "@/models/data/inventory.model";
+import { Inventory, InventoryItem } from "@/models/data/inventory.model";
 import { getCompanyInventory } from "@/services/inventory-service";
+import { useQuery } from "@tanstack/react-query";
 import {
+  ColumnDef,
   SortDirection,
   flexRender,
   getCoreRowModel,
@@ -29,7 +32,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Barcode from "react-barcode";
 import { useSelector } from "react-redux";
 
@@ -59,7 +62,7 @@ export default function () {
     }));
   };
   const { toast } = useToast();
-  const columns = [
+  const columns: ColumnDef<InventoryItem>[] = [
     {
       header: "Product",
       accessorKey: "product.name",
@@ -87,10 +90,22 @@ export default function () {
       accessorKey: "product_variant.qr_code",
       cell: ({ getValue }: any) => <Barcode value={getValue()} height={20} />,
     },
+    {
+      header: "Actions",
+      cell: ({ row }) => (
+        <>
+          <UpdateInventoryItemDialog inventoryItem={row.original} />
+        </>
+      ),
+    },
   ];
+  const { data: inventoryData } = useQuery({
+    queryKey: ["inventory"],
+    queryFn: () => getCompanyInventory(company?.ID ?? 0),
+  });
   //   ANCHOR: TABLE
   const table = useReactTable({
-    data: inventory?.items ?? [],
+    data: inventoryData?.data?.items ?? [],
     columns,
     state: {
       sorting: tableState.sorting,
@@ -109,29 +124,7 @@ export default function () {
     onPaginationChange: setTableStatePagination,
     getPaginationRowModel: getPaginationRowModel(),
   });
-  useEffect(() => {
-    // get company inventory
-    async function getInventory() {
-      setLoading(true);
-      if (company == null) return;
-      const response = await getCompanyInventory(company.ID);
-      if (!response.data && response.error) {
-        toast({
-          title: "Error",
-          description: response.message,
-          variant: "destructive",
-        });
-      } else {
-        setInventory(response.data);
-        toast({
-          title: "Success",
-          description: "Inventory fetched successfully",
-        });
-      }
-      setLoading(false);
-    }
-    getInventory();
-  }, []);
+
   if (!company) return;
   if (loading) return;
   return (
