@@ -17,8 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
-import { Inventory, InventoryItem } from "@/models/data/inventory.model";
+import { InventoryItem } from "@/models/data/inventory.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -38,8 +37,6 @@ import { useSelector } from "react-redux";
 
 export default function () {
   const company = useSelector((state: RootState) => state.company.company);
-  const [inventory, setInventory] = useState<Inventory | null>();
-  const [loading, setLoading] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
   const [tableState, setTableState] = useState({
     sorting: [],
@@ -61,7 +58,7 @@ export default function () {
         typeof updater === "function" ? updater(old.pagination) : updater,
     }));
   };
-  const { toast } = useToast();
+
   const columns: ColumnDef<InventoryItem>[] = [
     {
       header: "Product",
@@ -126,7 +123,7 @@ export default function () {
   });
 
   if (!company) return;
-  if (loading) return;
+
   return (
     <div className="flex flex-col gap-2 mt-4">
       <Input
