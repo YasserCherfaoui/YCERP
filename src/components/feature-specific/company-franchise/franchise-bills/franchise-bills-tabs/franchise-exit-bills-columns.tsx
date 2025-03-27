@@ -1,12 +1,13 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ExitBill } from "@/models/data/bill.model";
 import { ColumnDef } from "@tanstack/react-table";
@@ -82,7 +83,7 @@ export const franchiseExitBillsColumns: ColumnDef<ExitBill>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => `EXB-${row.original.ID}`,
+    cell: ({ row }) => row.original.entry_bill == null ? <Badge variant={'destructive'}>Pending</Badge> : <Badge variant={'secondary'}>Acquired</Badge>,
   },
   {
     accessorKey: "franchise_total_amount",
