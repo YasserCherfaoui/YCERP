@@ -62,7 +62,7 @@ export default function () {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>Today's Sales Total</CardTitle>
@@ -74,6 +74,21 @@ export default function () {
                 currency: "DZD",
               }).format(todayTotal?.data?.total_amount || 0)}
             </p>
+            
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Today's Company's Benefits</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-bold">
+              {new Intl.NumberFormat("en-DZ", {
+                style: "currency",
+                currency: "DZD",
+              }).format(todayTotal?.data?.total_franchise_price || 0)}
+            </p>
+            
           </CardContent>
         </Card>
 
@@ -101,6 +116,33 @@ export default function () {
                 style: "currency",
                 currency: "DZD",
               }).format(rangeTotal?.data?.total_amount || 0)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Custom Range Company's Benifits</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <DatePickerWithRange
+              date={{
+                from: dateRange.from,
+                to: dateRange.to,
+              }}
+              onSelect={(range) => {
+                if (range?.from && range?.to) {
+                  setDateRange({
+                    from: startOfDay(range.from),
+                    to: endOfDay(range.to),
+                  });
+                }
+              }}
+            />
+            <p className="text-3xl font-bold">
+              {new Intl.NumberFormat("en-DZ", {
+                style: "currency",
+                currency: "DZD",
+              }).format(rangeTotal?.data?.total_franchise_price || 0)}
             </p>
           </CardContent>
         </Card>
