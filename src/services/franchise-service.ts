@@ -357,3 +357,32 @@ export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: D
     const apiResponse: APIResponse<{ total_amount: number, total_franchise_price:number }> = await response.json();
     return apiResponse;
 }
+
+export const downloadAndPrintFranchisePDF = async (saleID: number): Promise<void> => {
+    const response = await fetch(`${baseUrl}/franchise/sales/receipt/${saleID}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to download PDF.");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    
+    const printWindow = window.open(url);
+    if (printWindow) {
+        printWindow.onload = () => {
+            printWindow.print();
+            printWindow.onafterprint = () => {
+                printWindow.close();
+            };
+        };
+    } else {
+        throw new Error("Failed to open print window.");
+    }
+}

@@ -29,7 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
 import { getCompanyInventory } from "@/services/inventory-service";
-import { createCompanySale } from "@/services/sale-service";
+import { createCompanySale, downloadAndPrintPDF } from "@/services/sale-service";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -53,6 +53,7 @@ export default function () {
       discount: 0,
     },
   });
+
   const { data: inventory } = useQuery({
     queryKey: ["inventory"],
     queryFn: () => getCompanyInventory(company.ID),
@@ -139,14 +140,19 @@ export default function () {
     );
   }
   const queryClient = useQueryClient();
+  const {mutate: downloadAndPrintPDFMutation} = useMutation({
+    mutationFn: downloadAndPrintPDF,
+   
+  })
   const { mutate: createCompanySaleMutation, isPending } = useMutation({
     mutationFn: createCompanySale,
-    onSuccess: () => {
+    onSuccess: (data) => {
       setOpen(false);
       toast({
         title: "Sale Created",
         description: "Sale was created successfully",
       });
+      downloadAndPrintPDFMutation(data.data?.ID ?? 0)
       form.reset();
       setSaleItems([]);
       queryClient.invalidateQueries({

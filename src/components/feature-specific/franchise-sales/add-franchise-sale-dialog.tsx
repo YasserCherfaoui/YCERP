@@ -1,34 +1,34 @@
 import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
-import { createFranchiseSale, getFranchiseInventory } from "@/services/franchise-service";
+import { createFranchiseSale, downloadAndPrintFranchisePDF, getFranchiseInventory } from "@/services/franchise-service";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -138,14 +138,19 @@ export default function () {
     );
   }
   const queryClient = useQueryClient();
+  const {mutate: downloadAndPrintFranchisePDFMutation }= useMutation({
+    mutationFn: downloadAndPrintFranchisePDF
+    
+  });
   const { mutate: createFranchiseSaleMutation, isPending } = useMutation({
     mutationFn: createFranchiseSale,
-    onSuccess: () => {
+    onSuccess: (data) => {
       setOpen(false);
       toast({
         title: "Sale Created",
         description: "Sale was created successfully",
       });
+      downloadAndPrintFranchisePDFMutation(data?.data?.ID ?? 0)
       form.reset();
       setSaleItems([]);
       queryClient.invalidateQueries({
