@@ -1,13 +1,15 @@
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sale } from "@/models/data/sale.model";
-import { MoreHorizontal } from "lucide-react";
+import { downloadAndPrintPDF } from "@/services/sale-service";
+import { useMutation } from "@tanstack/react-query";
+import { MoreHorizontal, Printer } from "lucide-react";
 import CompanyRemoveSaleDialog from "./company-remove-sale-dialog";
 import CompanySaleDetailsDialog from "./company-sale-details-dialog";
 import CreateSaleReturnDialog from "./create-sale-return-dialog";
@@ -17,6 +19,9 @@ interface Props {
 }
 
 export default function ({ sale }: Props) {
+  const { mutate: downloadAndPrintMutation } = useMutation({
+    mutationFn: downloadAndPrintPDF,
+  });
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -34,9 +39,12 @@ export default function ({ sale }: Props) {
         </DropdownMenuItem>
         <CompanySaleDetailsDialog sale={sale} />
         <CreateSaleReturnDialog sale={sale} />
+        <DropdownMenuItem onClick={() => downloadAndPrintMutation(sale.ID)}>
+          <Printer />
+          Print Receipt
+        </DropdownMenuItem>
         <CompanyRemoveSaleDialog sale={sale} />
       </DropdownMenuContent>
-
     </DropdownMenu>
   );
 }
