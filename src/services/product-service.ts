@@ -140,6 +140,46 @@ export const generateBarcodes = async (data: GenerateBarcodePDFSchema): Promise<
 
 }
 
+export const generateThermalBarcodes = async (data: GenerateBarcodePDFSchema): Promise<void> => {
+    const response = await fetch(`${baseUrl}/products/barcodes-thermal`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to generate barcodes.");
+    }
+    // Get the blob from the response
+    const blob = await response.blob();
+
+    // Create a URL for the blob
+    const url = window.URL.createObjectURL(blob);
+
+    // Create a temporary anchor element
+    const link = document.createElement('a');
+    link.href = url;
+
+    // Try to get filename from Content-Disposition header, fallback to default
+    const filename = response.headers.get('Content-Disposition')
+        ?.split('filename=')[1] || 'download.pdf';
+
+    link.download = filename;
+
+    // Append to body, click, and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Clean up the URL object
+    window.URL.revokeObjectURL(url);
+
+}
+
 export const updateProduct = async (productId: number, productData: UpdateProductSchema): Promise<APIResponse<Product>> => {
     const response = await fetch(`${baseUrl}/products/${productId}`, {
         method: 'PUT',
