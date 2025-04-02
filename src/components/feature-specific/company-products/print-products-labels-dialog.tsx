@@ -26,7 +26,10 @@ import {
   generateBarcodePDFSchema,
 } from "@/schemas/product";
 import { getCompanyInventory } from "@/services/inventory-service";
-import { generateBarcodes } from "@/services/product-service";
+import {
+  generateBarcodes,
+  generateThermalBarcodes
+} from "@/services/product-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Printer } from "lucide-react";
@@ -71,6 +74,25 @@ export default function () {
       });
     },
   });
+  const { mutate: generateThermalBarcodesMutation, isPending:isPendingThermal } =
+    useMutation({
+      mutationFn: generateThermalBarcodes,
+      onSuccess: () => {
+        setIsOpen(false);
+        toast({
+          title: "Barcodes generated successfully",
+          description: "Your barcodes have been generated.",
+        });
+      },
+      onError: (error) => {
+        console.log(error);
+        toast({
+          variant: "destructive",
+          title: "Error generating barcodes",
+          description: "There was an error generating your barcodes.",
+        });
+      },
+    });
   const onSaveClicked = (data: GenerateBarcodePDFSchema) => {
     generateBarcodesMutation(data);
   };
@@ -150,7 +172,17 @@ export default function () {
         <DialogFooter>
           <Button variant={"outline"}>Cancel</Button>
           <Button
-            disabled={isPending}
+            disabled={isPendingThermal || isPending}
+            variant={"secondary"}
+            onClick={form.handleSubmit(
+              (data) => generateThermalBarcodesMutation(data),
+              console.error
+            )}
+          >
+            Small (50x30)
+          </Button>
+          <Button
+            disabled={isPending || isPendingThermal}
             onClick={form.handleSubmit(onSaveClicked, console.error)}
           >
             Save
