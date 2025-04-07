@@ -1,5 +1,5 @@
 import { baseUrl } from "@/app/constants";
-import { Inventory, InventoryItem } from "@/models/data/inventory.model";
+import { Inventory, InventoryItem, InventoryItemTransactionLog } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { UpdateInventoryItemSchema } from "@/schemas/inventory-schema";
 
@@ -36,6 +36,24 @@ export const updateCompanyInventoryItem = async (itemID: number, data: UpdateInv
         throw new Error(errorData.message || "Failed to update inventory item.");
     }
     const apiResponse: APIResponse<InventoryItem> = await response.json();
+    return apiResponse;
+
+}
+
+export const getCompanyInventoryTransactionLogs = async (comapnyID: number): Promise<APIResponse<InventoryItemTransactionLog[]>> => {
+    const response = await fetch(`${baseUrl}/inventory/transactions/${comapnyID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory transactions.");
+    }
+    const apiResponse: APIResponse<InventoryItemTransactionLog[]> = await response.json();
     return apiResponse;
 
 }
