@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import TransactionsLogDialog from "@/components/feature-specific/company-warehouse/transactions-log-dialog";
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { InventoryItem } from "@/models/data/inventory.model";
-import { getCompanyInventory } from "@/services/inventory-service";
+import { getCompanyInventory, getCompanyInventoryTransactionLogs } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
 import {
   ColumnDef,
@@ -58,7 +59,11 @@ export default function () {
         typeof updater === "function" ? updater(old.pagination) : updater,
     }));
   };
-
+  const {data: logData} = useQuery({
+    queryKey: ["inventory-log", company?.ID ?? 0],
+    queryFn: () => getCompanyInventoryTransactionLogs(company?.ID ?? 0),
+    enabled: !!company
+  })
   const columns: ColumnDef<InventoryItem>[] = [
     {
       header: "Product",
@@ -92,6 +97,7 @@ export default function () {
       cell: ({ row }) => (
         <>
           <UpdateInventoryItemDialog inventoryItem={row.original} />
+          <TransactionsLogDialog logs={logData?.data?.filter((log) => log.inventory_item_id == row.original.ID) ?? []} />
         </>
       ),
     },
@@ -100,6 +106,7 @@ export default function () {
     queryKey: ["inventory"],
     queryFn: () => getCompanyInventory(company?.ID ?? 0),
   });
+
   //   ANCHOR: TABLE
   const table = useReactTable({
     data: inventoryData?.data?.items ?? [],
