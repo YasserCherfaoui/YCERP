@@ -61,6 +61,15 @@ export default function () {
                 currency: "DZD",
               }).format(todayTotal?.data?.total_amount || 0)}
             </p>
+            {todayTotal?.data?.total_benefit && (
+              <p className="text-green-500 font-bold">
+                Benefit:{" "}
+                {new Intl.NumberFormat("en-DZ", {
+                  style: "currency",
+                  currency: "DZD",
+                }).format(todayTotal.data.total_benefit)}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -89,6 +98,15 @@ export default function () {
                 currency: "DZD",
               }).format(rangeTotal?.data?.total_amount || 0)}
             </p>
+            {rangeTotal?.data?.total_benefit && (
+              <p className="text-green-500 font-bold">
+                Benefit:{" "}
+                {new Intl.NumberFormat("en-DZ", {
+                  style: "currency",
+                  currency: "DZD",
+                }).format(rangeTotal.data.total_benefit)}
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>
