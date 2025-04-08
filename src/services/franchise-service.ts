@@ -322,7 +322,7 @@ export const getCompanyFranchisePaymentTotals = async (franchiseID: number): Pro
 }
 
 
-export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_franchise_price: number }>> => {
+export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_franchise_price: number, total_benefit:number }>> => {
     const response = await fetch(`${baseUrl}/franchise/sales/totals/${franchiseID}?start_date=${from.toISOString()}&end_date=${to.toISOString()}`, {
         method: 'GET',
         headers: {
@@ -336,11 +336,11 @@ export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to
         throw new Error(errorData.message || "Failed to fetch sales total.");
     }
 
-    const apiResponse: APIResponse<{ total_amount: number, total_franchise_price: number }> = await response.json();
+    const apiResponse: APIResponse<{ total_amount: number, total_franchise_price: number, total_benefit:number }> = await response.json();
     return apiResponse;
 }
 
-export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_franchise_price: number }>> => {
+export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_franchise_price: number, total_benefit:number }>> => {
     const response = await fetch(`${baseUrl}/franchise/sales/totals/${franchiseID}?start_date=${from.toISOString()}&end_date=${to.toISOString()}`, {
         method: 'GET',
         headers: {
@@ -354,7 +354,7 @@ export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: D
         throw new Error(errorData.message || "Failed to fetch sales total.");
     }
 
-    const apiResponse: APIResponse<{ total_amount: number, total_franchise_price:number }> = await response.json();
+    const apiResponse: APIResponse<{ total_amount: number, total_franchise_price:number, total_benefit:number }> = await response.json();
     return apiResponse;
 }
 
