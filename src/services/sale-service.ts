@@ -40,6 +40,25 @@ export const getCompanySales = async (companyID: number): Promise<APIResponse<Sa
     return apiResponse;
 }
 
+
+export const getCompanyAlgiersSales = async (companyID: number): Promise<APIResponse<Sale[]>> => {
+    const response = await fetch(`${baseUrl}/sales/${companyID}?sale_type=algiers`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch sales.");
+    }
+
+    const apiResponse: APIResponse<Sale[]> = await response.json();
+    return apiResponse;
+}
+
 export const removeSale = async (saleID: number): Promise<APIResponse<void>> => {
     const response = await fetch(`${baseUrl}/sales/${saleID}`, {
         method: 'DELETE',
@@ -60,6 +79,24 @@ export const removeSale = async (saleID: number): Promise<APIResponse<void>> => 
 
 export const getSalesTotal = async (companyID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_benefit:number }>> => {
     const response = await fetch(`${baseUrl}/sales/totals?company_id=${companyID}&start_date=${from.toISOString()}&end_date=${to.toISOString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch sales total.");
+    }
+
+    const apiResponse: APIResponse<{ total_amount: number, total_benefit:number }> = await response.json();
+    return apiResponse;
+}
+
+export const getAlgiersSalesTotal = async (companyID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_benefit:number }>> => {
+    const response = await fetch(`${baseUrl}/sales/totals?company_id=${companyID}&start_date=${from.toISOString()}&end_date=${to.toISOString()}&sale_type=algiers`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
