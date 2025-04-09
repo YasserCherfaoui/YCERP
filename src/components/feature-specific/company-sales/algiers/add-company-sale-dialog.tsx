@@ -51,7 +51,7 @@ export default function () {
       location_id: company.ID,
       sale_items: [],
       discount: 0,
-      sale_type: "warehouse",
+      sale_type: "algiers",
     },
   });
 
@@ -157,7 +157,7 @@ export default function () {
         queryKey: ["inventory"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["sales"],
+        queryKey: ["sales", "algiers"],
       });
     },
     onError: () => {

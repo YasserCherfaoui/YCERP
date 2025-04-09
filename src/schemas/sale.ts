@@ -13,6 +13,7 @@ export const createSaleSchema = z.object({
     location_id: z.number(),
     sale_items: z.array(saleItemSchema),
     discount: z.number(),
+    sale_type: z.string(),
 })
 
 export type CreateSaleSchema = z.infer<typeof createSaleSchema>;

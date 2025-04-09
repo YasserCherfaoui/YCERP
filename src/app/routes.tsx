@@ -8,6 +8,7 @@ import DashboardLayout from "@/layouts/dashboard-layout";
 import MainLayout from "@/layouts/main-layout";
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
+import CompanyAlgiersSalesPage from "@/pages/dashboard/company/company-algiers-sales-page";
 import CompanyBillsPage from "@/pages/dashboard/company/company-bills-page";
 import CompanyControlPanelPage from "@/pages/dashboard/company/company-control-panel-page";
 import CompanyFranchiseBillsPage from "@/pages/dashboard/company/company-franchise-bills-page";
@@ -18,6 +19,7 @@ import CompanyFranchisesPage from "@/pages/dashboard/company/company-franchises-
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
 import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
+import CompanySalesSwitchPage from "@/pages/dashboard/company/company-sales-switch-page";
 import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
@@ -54,10 +56,7 @@ export default function AppRouter() {
             <Route path="sales" element={<FranchiseSalesPage />} />
             <Route path="bills" element={<FranchiseBillsPage />} />
             <Route path="inventory" element={<FranchiseInventoryPage />} />
-            <Route
-              path="products"
-              element={<FranchiseProductsPage />}
-            />
+            <Route path="products" element={<FranchiseProductsPage />} />
           </Route>
         </Route>
         //! WARNING: PRIVATE ROUTES
@@ -84,7 +83,11 @@ export default function AppRouter() {
               <Route path="products" element={<CompanyProductsPage />} />
               <Route path="bills" element={<CompanyBillsPage />} />
               <Route path="suppliers" element={<CompanySuppliersPage />} />
-              <Route path="sales" element={<CompanySalesPage />} />
+              <Route path="sales">
+                <Route index element={<CompanySalesSwitchPage />} />
+                <Route path="warehouse" element={<CompanySalesPage />} />
+                <Route path="algiers" element={<CompanyAlgiersSalesPage />} />
+              </Route>
               <Route
                 path="suppliers/:supplierID"
                 element={<CompanySupplierPage />}
