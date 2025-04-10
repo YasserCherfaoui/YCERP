@@ -50,6 +50,7 @@ export default function () {
       location_id: franchise.ID,
       sale_items: [],
       discount: 0,
+      sale_type: "franchise",
     },
   });
   const { data: inventory } = useQuery({
