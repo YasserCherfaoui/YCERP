@@ -24,6 +24,25 @@ export const createReturnSale = async (data: CreateSaleReturnSchema) => {
 }
 
 
+export const createFranchiseReturnSale = async (data: CreateSaleReturnSchema) => {
+    const response = await fetch(`${baseUrl}/franchise/sales-return`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create return.");
+    }
+
+    const createdReturn = await response.json();
+    return createdReturn;
+}
+
 export const createCompanyUnknownReturn = async (data: CreateUnknownReturnSchema): Promise<APIResponse<Return>> => {
     const response = await fetch(`${baseUrl}/company-unknown-returns`, {
         method: 'POST',

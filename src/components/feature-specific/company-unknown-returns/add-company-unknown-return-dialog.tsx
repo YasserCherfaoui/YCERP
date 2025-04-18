@@ -121,11 +121,11 @@ export default function () {
         }
         setInput("");
       }
-    }, 1000);
+    }, 1800);
     return () => {
       clearTimeout(timeout);
     };
-  }, [input]);
+  }, [input]); 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>

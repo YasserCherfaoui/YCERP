@@ -1,4 +1,5 @@
 import { Company } from "@/models/data/company.model";
+import { Exchange } from "@/models/data/exchange.model";
 import { Franchise } from "@/models/data/franchise.model";
 import { ProductVariant } from "./product.model";
 import { Sale } from "./sale.model";
@@ -25,7 +26,7 @@ export interface Return {
     previous_discount: number;
     total: number;
     items: ReturnItem[];
-    // exchange: Exchange | null;
+    exchange: Exchange | null;
 }
 
 export interface ReturnItem {
