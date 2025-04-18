@@ -1,3 +1,4 @@
+import CreateFranchiseReturnDialog from "@/components/feature-specific/company-franchise/franchise-sales/create-franchise-return-dialog";
 import CompanySaleDetailsDialog from "@/components/feature-specific/company-sales/company-sale-details-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +41,7 @@ export default function ({ sale }: Props) {
           <Printer />
           Print Receipt
         </DropdownMenuItem>
-        {/* <CreateSaleReturnDialog sale={sale} /> */}
+        <CreateFranchiseReturnDialog sale={sale} />
         {/* <FranchiseRemoveSaleDialog sale={sale} /> */}
       </DropdownMenuContent>
     </DropdownMenu>
