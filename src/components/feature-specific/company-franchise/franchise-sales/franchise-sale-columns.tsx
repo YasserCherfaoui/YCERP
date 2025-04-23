@@ -1,4 +1,4 @@
-import FranchiseSalesActionsDropdown from "@/components/feature-specific/franchise-sales/franchise-sales-actions-dropdown";
+import FranchiseSalesActionsDropdown from "@/components/feature-specific/company-franchise/franchise-sales/franchise-sales-actions-dropdown";
 import {
   Accordion,
   AccordionContent,
