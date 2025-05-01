@@ -54,7 +54,7 @@ export default function () {
     },
   });
   const { data: inventory } = useQuery({
-    queryKey: ["inventory"],
+    queryKey: ["franchise-inventory", franchise.ID],
     queryFn: () => getFranchiseInventory(franchise.ID),
   });
 
@@ -155,7 +155,7 @@ export default function () {
       form.reset();
       setSaleItems([]);
       queryClient.invalidateQueries({
-        queryKey: ["inventory"],
+        queryKey: ["franchise-inventory", franchise.ID],
       });
       queryClient.invalidateQueries({
         queryKey: ["sales"],

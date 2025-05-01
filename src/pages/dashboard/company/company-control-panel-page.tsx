@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Apple,
   ArrowLeft,
+  ChartNoAxesCombined,
   Handshake,
   ReceiptText,
   ShoppingCart,
@@ -78,5 +79,10 @@ const quickMenu = [
     label: "Unkown Returns",
     icon: Undo2,
     href: "unknown-returns",
+  },
+  {
+    label: "Statistics",
+    icon: ChartNoAxesCombined,
+    href: "statistics",
   },
 ];

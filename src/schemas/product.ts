@@ -64,3 +64,12 @@ export const updateProductSchema = z.object({
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>
+
+export const createProductVariantSchema = z.object({
+    company_id: z.number(),
+    product_id: z.number(),
+    color: z.array(z.string().min(1, { message: "Color is required" }), { message: "Color is required" }),
+    size: z.array(z.number().min(1, { message: "Size is required" }), { message: "Size is required" }),
+});
+
+export type CreateProductVariantSchema = z.infer<typeof createProductVariantSchema>

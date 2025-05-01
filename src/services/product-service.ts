@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
-import { Product } from "@/models/data/product.model";
+import { Product, ProductVariant } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CreateProductSchema, GenerateBarcodePDFSchema, UpdateProductSchema } from "@/schemas/product";
+import { CreateProductSchema, CreateProductVariantSchema, GenerateBarcodePDFSchema, UpdateProductSchema } from "@/schemas/product";
 
 export const createProduct = async (productData: CreateProductSchema): Promise<APIResponse<Product>> => {
     const response = await fetch(`${baseUrl}/products`, {
@@ -198,3 +198,23 @@ export const updateProduct = async (productId: number, productData: UpdateProduc
     const updatedProduct: APIResponse<Product> = await response.json();
     return updatedProduct;
 }
+
+export const createProductVariant = async (productVariantData: CreateProductVariantSchema): Promise<APIResponse<ProductVariant>> => {
+    const response = await fetch(`${baseUrl}/products-variants`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        },
+        body: JSON.stringify(productVariantData)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create product variant.");
+    }
+
+    const createdProductVariant: APIResponse<ProductVariant> = await response.json();
+    return createdProductVariant;
+}
+

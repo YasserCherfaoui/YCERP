@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import AddProductVariantForm from "@/components/feature-specific/company-products/add-product-variant-form";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -23,8 +24,11 @@ export default function () {
         <span className="text-2xl">{company.company_name} &gt; Products</span>
       </div>
       <div className="flex gap-2">
+
         <AddProductForm />
+        <AddProductVariantForm />
         <PrintProductsLabelsDialog />
+
       </div>
     </div>
   );

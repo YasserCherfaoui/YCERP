@@ -11,11 +11,10 @@ export default function () {
   );
   if (!franchise) return;
   const { data: inventory } = useQuery({
-    queryKey: ["franchise-inventory"],
+    queryKey: ["franchise-inventory", franchise.ID],
     queryFn: () => getFranchiseInventory(franchise.ID),
     enabled: !!franchise,
   });
-  console.log(inventory);
   return (
     <div>
       <DataTable

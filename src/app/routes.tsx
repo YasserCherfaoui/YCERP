@@ -20,6 +20,7 @@ import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
 import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
 import CompanySalesSwitchPage from "@/pages/dashboard/company/company-sales-switch-page";
+import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
 import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
@@ -96,6 +97,7 @@ export default function AppRouter() {
                 path="unknown-returns"
                 element={<CompanyUnknownReturnsPage />}
               />
+              <Route path="statistics" element={<CompanyStatsPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
