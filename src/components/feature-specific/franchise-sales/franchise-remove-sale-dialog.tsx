@@ -1,11 +1,12 @@
+import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
@@ -14,12 +15,14 @@ import { removeCompanyFranchiseSale } from "@/services/sale-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 interface Props {
   sale: Sale;
 }
 
 export default function ({ sale }: Props) {
+  const franchise = useSelector((state: RootState) => state.franchise.franchise);
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -30,7 +33,7 @@ export default function ({ sale }: Props) {
         queryKey: ["sales"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["inventory"],
+        queryKey: ["franchise-inventory", franchise?.ID],
       });
       toast({
         title: "Sale removed",

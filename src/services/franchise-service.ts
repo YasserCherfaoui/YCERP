@@ -186,6 +186,26 @@ export const getFranchiseInventory = async (id: number): Promise<APIResponse<Inv
 
 }
 
+export const getCompanyFranchiseInventory = async (id: number): Promise<APIResponse<Inventory>> => {
+    const token = localStorage.getItem('authToken');
+
+    const response = await fetch(`${baseUrl}/franchises/inventory/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise inventory.");
+    }
+
+    const apiResponse: APIResponse<Inventory> = await response.json();
+    return apiResponse;
+
+}
 export const deleteFranchise = async (id: number): Promise<APIResponse<void>> => {
     const response = await fetch(`${baseUrl}/franchises/${id}`, {
         method: 'DELETE',
