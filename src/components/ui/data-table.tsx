@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PaginationMeta } from "@/models/responses/company-stats.model";
 import React from "react";
 import { Button } from "./button";
 import {
@@ -32,13 +33,19 @@ import { Input } from "./input";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  searchColumn:string;
+  searchColumn: string;
+  paginationMeta?: PaginationMeta;
+  onPageChange?: (page: number) => void;
+  currentPage?: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  searchColumn
+  searchColumn,
+  paginationMeta,
+  onPageChange,
+  currentPage = 0
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -59,11 +66,17 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    manualPagination: !!onPageChange,
+    pageCount: paginationMeta?.total_pages ?? -1,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: currentPage,
+        pageSize: paginationMeta?.per_page ?? 10
+      }
     },
   });
 
@@ -164,16 +177,27 @@ export function DataTable<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => {
+            const newPage = currentPage - 1;
+            onPageChange?.(newPage);
+          }}
+          disabled={currentPage <= 0}
         >
           Previous
         </Button>
+        <div className="flex items-center gap-2 mx-2">
+          <span className="text-sm">
+            Page {currentPage + 1} of {paginationMeta?.total_pages ?? 1}
+          </span>
+        </div>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => {
+            const newPage = currentPage + 1;
+            onPageChange?.(newPage);
+          }}
+          disabled={currentPage >= (paginationMeta?.total_pages ?? 1) - 1}
         >
           Next
         </Button>
