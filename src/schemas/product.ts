@@ -73,3 +73,12 @@ export const createProductVariantSchema = z.object({
 });
 
 export type CreateProductVariantSchema = z.infer<typeof createProductVariantSchema>
+
+
+export const salesQuantityRequestSchema = z.object({
+    company_id: z.number(),
+    start_date: z.date(),
+    end_date: z.date(),
+});
+
+export type SalesQuantityRequestSchema = z.infer<typeof salesQuantityRequestSchema>
