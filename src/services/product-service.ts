@@ -221,7 +221,7 @@ export const createProductVariant = async (productVariantData: CreateProductVari
 
 
 export const getProductSales = async (data: SalesQuantityRequestSchema): Promise<APIResponse<CompanyStatsResponse>> => {
-    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit}`, {
+    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit??10}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
