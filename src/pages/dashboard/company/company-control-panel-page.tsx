@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Store,
   Undo2,
+  UserCog,
   Warehouse,
 } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -84,5 +85,10 @@ const quickMenu = [
     label: "Statistics",
     icon: ChartNoAxesCombined,
     href: "statistics",
+  },
+  {
+    label: "IAM",
+    icon: UserCog,
+    href: "iam",
   },
 ];

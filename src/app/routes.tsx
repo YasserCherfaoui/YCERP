@@ -24,6 +24,7 @@ import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
 import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
+import IamPage from "@/pages/dashboard/company/iam-page";
 import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
@@ -83,21 +84,22 @@ export default function AppRouter() {
               <Route path="warehouse" element={<WarehousePage />} />
               <Route path="products" element={<CompanyProductsPage />} />
               <Route path="bills" element={<CompanyBillsPage />} />
-              <Route path="suppliers" element={<CompanySuppliersPage />} />
+              <Route path="suppliers">
+                <Route index element={<CompanySuppliersPage />} />
+                <Route path=":supplierID" element={<CompanySupplierPage />} />
+              </Route>
+
               <Route path="sales">
                 <Route index element={<CompanySalesSwitchPage />} />
                 <Route path="warehouse" element={<CompanySalesPage />} />
                 <Route path="algiers" element={<CompanyAlgiersSalesPage />} />
               </Route>
               <Route
-                path="suppliers/:supplierID"
-                element={<CompanySupplierPage />}
-              />
-              <Route
                 path="unknown-returns"
                 element={<CompanyUnknownReturnsPage />}
               />
               <Route path="statistics" element={<CompanyStatsPage />} />
+              <Route path="iam" element={<IamPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
