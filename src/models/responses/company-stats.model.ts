@@ -12,7 +12,14 @@ export interface VariantSalesResponse {
   size: number;
   sold_quantity: number;
 }
+export interface PaginationMeta {
+  total_items: number;
+  total_pages: number;
+  current_page: number;
+  per_page: number;
+}
 
-export interface CompanyStats {
-  productSales: ProductSalesResponse[];
+export interface CompanyStatsResponse {
+  products: ProductSalesResponse[];
+  pagination: PaginationMeta;
 }

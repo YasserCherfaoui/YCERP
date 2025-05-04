@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { Product, ProductVariant } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { ProductSalesResponse } from "@/models/responses/company-stats.model";
+import { CompanyStatsResponse } from "@/models/responses/company-stats.model";
 import { CreateProductSchema, CreateProductVariantSchema, GenerateBarcodePDFSchema, SalesQuantityRequestSchema, UpdateProductSchema } from "@/schemas/product";
 
 export const createProduct = async (productData: CreateProductSchema): Promise<APIResponse<Product>> => {
@@ -220,8 +220,8 @@ export const createProductVariant = async (productVariantData: CreateProductVari
 }
 
 
-export const getProductSales = async (data: SalesQuantityRequestSchema): Promise<APIResponse<ProductSalesResponse[]>> => {
-    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}`, {
+export const getProductSales = async (data: SalesQuantityRequestSchema): Promise<APIResponse<CompanyStatsResponse>> => {
+    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -234,7 +234,7 @@ export const getProductSales = async (data: SalesQuantityRequestSchema): Promise
         throw new Error(errorData.message || "Failed to get product sales.");
     }
 
-    const apiResponse: APIResponse<ProductSalesResponse[]> = await response.json();
+    const apiResponse: APIResponse<CompanyStatsResponse> = await response.json();
     return apiResponse;
 }
 

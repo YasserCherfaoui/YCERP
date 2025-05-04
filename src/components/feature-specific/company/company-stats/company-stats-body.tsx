@@ -27,18 +27,21 @@ export default function CompanyStatsBody() {
     from: subMonths(new Date(), 1),
     to: new Date(),
   });
+  const [currentPage, setCurrentPage] = useState(0);
   const { data } = useQuery({
     queryKey: [
       "product-sales",
       company?.ID || 0,
       date?.from || new Date(),
       date?.to || new Date(),
+      currentPage,
     ],
     queryFn: () =>
       getProductSales({
         company_id: company?.ID || 0,
         start_date: date?.from || new Date(),
         end_date: date?.to || new Date(),
+        page: currentPage + 1,
       }),
     enabled: !!company?.ID && !!date?.from && !!date?.to,
   });
@@ -90,8 +93,12 @@ export default function CompanyStatsBody() {
       <CardContent>
         <DataTable
           columns={companyStatsColumns}
-          data={data?.data || []}
+          data={data?.data?.products || []}
           searchColumn="name"
+          paginationMeta={data?.data?.pagination}
+          onPageChange={(page) => setCurrentPage(page)}
+          currentPage={currentPage}
+          
         />
       </CardContent>
     </Card>

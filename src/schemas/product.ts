@@ -79,6 +79,8 @@ export const salesQuantityRequestSchema = z.object({
     company_id: z.number(),
     start_date: z.date(),
     end_date: z.date(),
+    page: z.number().optional(),
+    limit: z.number().optional(),
 });
 
 export type SalesQuantityRequestSchema = z.infer<typeof salesQuantityRequestSchema>
