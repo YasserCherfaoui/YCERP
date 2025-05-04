@@ -40,7 +40,7 @@ export default function CompanyStatsBody() {
         start_date: date?.from || new Date(),
         end_date: date?.to || new Date(),
       }),
-    // enabled: !!company?.ID && !!date?.from && !!date?.to,
+    enabled: !!company?.ID && !!date?.from && !!date?.to,
   });
 
 
