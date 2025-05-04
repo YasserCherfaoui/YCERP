@@ -1,6 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { User } from "@/models/data/user.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { UserLoginResponse } from "@/models/responses/user-login-response";
 import { CreateUserSchema } from "@/schemas/iam";
 
 
@@ -54,4 +55,40 @@ export const deleteUser = async (userID: number): Promise<APIResponse<void>> => 
     }
     const user: APIResponse<void> = await response.json();
     return user;
+}
+
+export const loginUser = async ({ email, password }: { email: string, password: string }): Promise<APIResponse<UserLoginResponse>> => {
+    const response = await fetch(`${baseUrl}/users/login`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            email,
+            password,
+        }),
+    })
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to login.");
+    }
+    const user: APIResponse<UserLoginResponse> = await response.json();
+    return user;
+}
+
+export const getUserProfile = async (token: string): Promise<APIResponse<User>> => {
+    const response = await fetch(`${baseUrl}/users/me`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+    })
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch user profile.");
+    }
+    const user: APIResponse<User> = await response.json();
+    return user;
+
 }

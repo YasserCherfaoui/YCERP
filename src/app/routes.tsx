@@ -1,5 +1,7 @@
 import FranchisePrivateRoute from "@/components/feature-specific/franchise-private-route";
 import FranchisePublicRoute from "@/components/feature-specific/franchise-public-route";
+import UserPrivateRoute from "@/components/feature-specific/moderator/user-private-route";
+import UserPublicRoute from "@/components/feature-specific/moderator/user-public-route";
 import PrivateRoute from "@/components/feature-specific/private-route";
 import PublicRoute from "@/components/feature-specific/public-route";
 import SuperFranchiseRoute from "@/components/feature-specific/super-franchise-route";
@@ -35,6 +37,9 @@ import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
 import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-products-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import HomePage from "@/pages/home-page";
+import UserLoginPage from "@/pages/moderator/auth/login-page";
+import UserMenuPage from "@/pages/moderator/dashboard/user-menu-page";
+import UserSalesPage from "@/pages/moderator/dashboard/user-sales-page";
 import { Route, Routes } from "react-router-dom";
 
 export default function AppRouter() {
@@ -59,6 +64,20 @@ export default function AppRouter() {
             <Route path="bills" element={<FranchiseBillsPage />} />
             <Route path="inventory" element={<FranchiseInventoryPage />} />
             <Route path="products" element={<FranchiseProductsPage />} />
+          </Route>
+        </Route>
+        //? USER ROUTES
+        <Route path="moderator">
+          <Route element={<UserPublicRoute />}>
+            <Route path="login" element={<UserLoginPage />} />
+          </Route>
+          <Route element={<UserPrivateRoute />}>
+            <Route index element={<UserMenuPage />} />
+            <Route path="sales">
+                <Route index element={<CompanySalesSwitchPage />} />
+                <Route path="warehouse" element={<UserSalesPage />} />
+                <Route path="algiers" element={<CompanyAlgiersSalesPage />} />
+              </Route>
           </Route>
         </Route>
         //! WARNING: PRIVATE ROUTES
