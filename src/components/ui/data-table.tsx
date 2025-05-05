@@ -55,6 +55,16 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  // Add local pagination state for automatic mode
+  const [autoPageIndex, setAutoPageIndex] = React.useState(0);
+  const [autoPageSize, setAutoPageSize] = React.useState(paginationMeta?.per_page ?? 10);
+
+  // Determine if manual or automatic pagination
+  const isManual = !!onPageChange;
+  const pageIndex = isManual ? currentPage : autoPageIndex;
+  const pageSize = isManual ? (paginationMeta?.per_page ?? 10) : autoPageSize;
+  const pageCount = isManual ? (paginationMeta?.total_pages ?? -1) : Math.ceil(data.length / pageSize);
+
   const table = useReactTable({
     data,
     columns,
@@ -66,16 +76,27 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    manualPagination: !!onPageChange,
-    pageCount: paginationMeta?.total_pages ?? -1,
+    manualPagination: isManual,
+    pageCount,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
       pagination: {
-        pageIndex: currentPage,
-        pageSize: paginationMeta?.per_page ?? 10
+        pageIndex,
+        pageSize
+      }
+    },
+    onPaginationChange: isManual ? undefined : (updater) => {
+      // updater can be a function or value
+      if (typeof updater === 'function') {
+        const newState = updater({ pageIndex: autoPageIndex, pageSize: autoPageSize });
+        setAutoPageIndex(newState.pageIndex);
+        setAutoPageSize(newState.pageSize);
+      } else {
+        setAutoPageIndex(updater.pageIndex);
+        setAutoPageSize(updater.pageSize);
       }
     },
   });
@@ -178,26 +199,34 @@ export function DataTable<TData, TValue>({
           variant="outline"
           size="sm"
           onClick={() => {
-            const newPage = currentPage - 1;
-            onPageChange?.(newPage);
+            if (isManual) {
+              const newPage = currentPage - 1;
+              onPageChange?.(newPage);
+            } else {
+              table.previousPage();
+            }
           }}
-          disabled={currentPage <= 0}
+          disabled={isManual ? currentPage <= 0 : !table.getCanPreviousPage()}
         >
           Previous
         </Button>
         <div className="flex items-center gap-2 mx-2">
           <span className="text-sm">
-            Page {currentPage + 1} of {paginationMeta?.total_pages ?? 1}
+            Page {pageIndex + 1} of {pageCount > 0 ? pageCount : 1}
           </span>
         </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => {
-            const newPage = currentPage + 1;
-            onPageChange?.(newPage);
+            if (isManual) {
+              const newPage = currentPage + 1;
+              onPageChange?.(newPage);
+            } else {
+              table.nextPage();
+            }
           }}
-          disabled={currentPage >= (paginationMeta?.total_pages ?? 1) - 1}
+          disabled={isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()}
         >
           Next
         </Button>

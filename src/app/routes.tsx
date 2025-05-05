@@ -86,9 +86,21 @@ export default function AppRouter() {
               <Route path=":supplierID" element={<CompanySupplierPage />} />
             </Route>
             <Route
-                path="unknown-returns"
-                element={<CompanyUnknownReturnsPage />}
-              />
+              path="unknown-returns"
+              element={<CompanyUnknownReturnsPage />}
+            />
+            <Route path="franchises">
+              <Route index element={<CompanyFranchisesPage />} />
+              <Route path=":franchiseID" element={<SuperFranchiseRoute />}>
+                <Route index element={<CompanyFranchisePage />} />
+                <Route path="sales" element={<CompanyFranchiseSalesPage />} />
+                <Route path="bills" element={<CompanyFranchiseBillsPage />} />
+                <Route
+                  path="inventory"
+                  element={<CompanyFranchiseInventoryPage />}
+                />
+              </Route>
+            </Route>
           </Route>
         </Route>
         //! WARNING: PRIVATE ROUTES
