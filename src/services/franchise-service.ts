@@ -32,6 +32,24 @@ export const createFranchise = async (data: CreateFranchiseSchema): Promise<APIR
 
 }
 
+export const getFranchise = async (id: number): Promise<APIResponse<Franchise>> => {
+    const response = await fetch(`${baseUrl}/franchises/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise.");
+    }
+
+    const apiResponse: APIResponse<Franchise> = await response.json();
+    return apiResponse;
+}
+
 export const getMyCompanyFranchises = async (id: number): Promise<APIResponse<Array<Franchise>>> => {
     const response = await fetch(`${baseUrl}/franchises/company/${id}`, {
         method: 'GET',

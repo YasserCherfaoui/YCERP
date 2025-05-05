@@ -41,6 +41,7 @@ import UserLoginPage from "@/pages/moderator/auth/login-page";
 import UserAlgiersSalesPage from "@/pages/moderator/dashboard/user-algiers-sales-page";
 import UserMenuPage from "@/pages/moderator/dashboard/user-menu-page";
 import UserSalesPage from "@/pages/moderator/dashboard/user-sales-page";
+import ModFranchiseRoute from "@/pages/moderator/mod-franchise-route";
 import { Route, Routes } from "react-router-dom";
 
 export default function AppRouter() {
@@ -91,7 +92,7 @@ export default function AppRouter() {
             />
             <Route path="franchises">
               <Route index element={<CompanyFranchisesPage />} />
-              <Route path=":franchiseID" element={<SuperFranchiseRoute />}>
+              <Route path=":franchiseID" element={<ModFranchiseRoute />}>
                 <Route index element={<CompanyFranchisePage />} />
                 <Route path="sales" element={<CompanyFranchiseSalesPage />} />
                 <Route path="bills" element={<CompanyFranchiseBillsPage />} />

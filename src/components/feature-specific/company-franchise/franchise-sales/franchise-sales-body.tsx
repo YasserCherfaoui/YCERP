@@ -13,11 +13,15 @@ import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function () {
   const franchise = useSelector(
     (state: RootState) => state.franchise.franchise
   );
+  const {pathname} = useLocation(); 
+  const isModerator = pathname.includes("moderator");
+
   if (!franchise) return;
   const [dateRange, setDateRange] = useState({
     from: startOfDay(new Date()),
@@ -77,7 +81,7 @@ export default function () {
             
           </CardContent>
         </Card>
-        <Card>
+        <Card className={`${isModerator ? "hidden" : ""}`}>
           <CardHeader>
             <CardTitle>Today's Company's Benefits</CardTitle>
           </CardHeader>
@@ -88,7 +92,7 @@ export default function () {
                 currency: "DZD",
               }).format(todayTotal?.data?.total_franchise_price || 0)}
             </p>
-            {todayTotal?.data?.total_benefit && (
+            {todayTotal?.data?.total_benefit && !isModerator && (
               <p className="text-green-500 font-bold">
                 Benefit:{" "}
                 {new Intl.NumberFormat("en-DZ", {
@@ -100,7 +104,7 @@ export default function () {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={`${isModerator ? "hidden" : ""}`}>
           <CardHeader>
             <CardTitle>Custom Range Sales Total</CardTitle>
           </CardHeader>
@@ -127,7 +131,7 @@ export default function () {
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className={`${isModerator ? "hidden" : ""}`}>
           <CardHeader>
             <CardTitle>Custom Range Company's Benifits</CardTitle>
           </CardHeader>
@@ -152,7 +156,7 @@ export default function () {
                 currency: "DZD",
               }).format(rangeTotal?.data?.total_franchise_price || 0)}
             </p>
-            {rangeTotal?.data?.total_benefit && (
+            {rangeTotal?.data?.total_benefit && !isModerator && (
               <p className="text-green-500 font-bold">
                 Benefit:{" "}
                 {new Intl.NumberFormat("en-DZ", {
