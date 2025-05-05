@@ -4,14 +4,14 @@ import { useSelector } from "react-redux";
 import AddCompanySaleDialog from "./add-company-sale-dialog";
 
 export default function () {
-  const company = useSelector((state: RootState) => state.company.company);
+  const company = useSelector((state: RootState) => state.user.company);
   if (!company) return;
   return (
     <div className="flex justify-between">
       <div className="flex gap-4 items-center">
         <AppBarBackButton destination="Sales Menu" />
         <span className="text-2xl font-bold">
-          {company.company_name} &gt; Sales
+          {company.company_name} &gt; Sales &gt; Algiers
         </span>
       </div>
       <AddCompanySaleDialog />
