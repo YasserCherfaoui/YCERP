@@ -17,7 +17,7 @@ const useAuth = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('token');
             if (!token) {
                 setIsLoading(false);
                 return;
@@ -28,13 +28,13 @@ const useAuth = () => {
             if (response.status === 'success' && response.data) {
                 dispatch(login(response.data));
             } else if (response.status === 'error' && response.error) {
-                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
                 setError(response.error);
             }
 
             setIsLoading(false);
         } catch (error) {
-            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
             setError(
                 {
                     code: 'AUTH_ERROR',

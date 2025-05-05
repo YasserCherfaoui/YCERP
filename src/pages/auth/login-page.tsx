@@ -1,20 +1,20 @@
 import { useAppDispatch } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { login } from "@/features/auth/auth-slice";
@@ -44,7 +44,7 @@ export default function () {
           title: "Access Granted",
           description: "Welcome to your portal.",
         });
-        localStorage.setItem("authToken", response.data.token);
+        localStorage.setItem("token", response.data.token);
         dispatch(login(response.data.user));
         navigate("/menu", { replace: true });
       } else {

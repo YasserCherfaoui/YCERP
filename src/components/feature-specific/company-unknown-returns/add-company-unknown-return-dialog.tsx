@@ -40,10 +40,16 @@ import { Plus, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function () {
   const [isOpen, setIsOpen] = useState(false);
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  const isModerator = pathname.includes("moderator");
+  if (isModerator) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   const [input, setInput] = useState<string>("");
   const form = useForm<CreateUnknownReturnSchema>({
     resolver: zodResolver(createUnknownReturnSchema),
@@ -83,8 +89,9 @@ export default function () {
   useEffect(() => {
     let timeout = setTimeout(() => {
       if (input.length != 0) {
+        let found = false;
         for (let item of inventory?.data?.items ?? []) {
-          if (item.product_variant?.qr_code.includes(input)) {
+          if (item.product_variant && item.product_variant.qr_code == input) {
             toast({
               title: "Product added",
               description: `Added ${item.product_variant?.qr_code} to return`,
@@ -99,7 +106,7 @@ export default function () {
                 `return_items.${inputIndex}.quantity`,
                 form.watch(`return_items.${inputIndex}.quantity`) + 1
               );
-          
+              found = true;
               break;
             } else {
               form.setValue(
@@ -109,15 +116,17 @@ export default function () {
                   quantity: 1,
                 }
               );
+              found = true;
+              break;
             }
-          } else {
-            toast({
-              title: "Product not found",
-              description: `Product with barcode ${input} not found`,
-              variant: "destructive",
-            });
           }
-          // form.setValue(`return_items.${form.watch("return_items").length}.quantity`, 1)
+        }
+        if (!found) {
+          toast({
+            title: "Product not found",
+            description: `Product with barcode ${input} not found`,
+            variant: "destructive",
+          });
         }
         setInput("");
       }

@@ -27,18 +27,25 @@ import { UserPlus, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function () {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const user = useSelector((state: RootState) => state.user.user);
+  const { pathname } = useLocation();
+  if (pathname.includes("moderator")) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   const administrator = useSelector((state: RootState) => state.auth.user);
-  if (!administrator) return;
+
   if (!company) return;
   const [open, setOpen] = useState(false);
   const form = useForm<CreateSupplierSchema>({
     resolver: zodResolver(createSupplierSchema),
     defaultValues: {
       company_id: company.ID,
-      administrator_id: administrator.ID,
+      administrator_id: administrator?.ID ?? 0,
+      user_id: user?.ID ?? 0,
     },
   });
   const queryClient = useQueryClient();
@@ -127,7 +134,10 @@ export default function () {
         </Form>
         <DialogFooter>
           <Button variant={"outline"}>Cancel</Button>
-          <Button disabled={isPending} onClick={form.handleSubmit(onSaveClicked, console.error)}>
+          <Button
+            disabled={isPending}
+            onClick={form.handleSubmit(onSaveClicked, console.error)}
+          >
             Add
           </Button>
         </DialogFooter>

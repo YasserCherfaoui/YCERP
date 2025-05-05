@@ -35,6 +35,7 @@ import { AppleIcon, Barcode, PackagePlus, Scan } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import MakeSupplierBillTile from "./make-supplier-bill-tile";
 
 interface Props {
@@ -43,7 +44,12 @@ interface Props {
 export default function ({ supplierID }: Props) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const user = useSelector((state: RootState) => state.user.user);
+  const { pathname } = useLocation();
+  if (pathname.includes("moderator")) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   const admin = useSelector((state: RootState) => state.auth.user);
   const [billItems, setBillItems] = useState<Array<BillItem>>([]);
   const { toast } = useToast();
@@ -53,6 +59,7 @@ export default function ({ supplierID }: Props) {
       company_id: company?.ID ?? 0,
       supplier_id: supplierID,
       administrator_id: admin?.ID ?? 0,
+      user_id: user?.ID ?? 0,
       items: [],
       total: 0,
     },
@@ -226,8 +233,9 @@ export default function ({ supplierID }: Props) {
             Cancel
           </Button>
           <Button
-          disabled={isPending}
-          onClick={form.handleSubmit(onSaveClicked, console.error)}>
+            disabled={isPending}
+            onClick={form.handleSubmit(onSaveClicked, console.error)}
+          >
             Save
           </Button>
         </DialogFooter>

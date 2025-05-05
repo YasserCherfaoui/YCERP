@@ -11,7 +11,7 @@ export default function () {
       <div className="flex gap-4 items-center">
         <AppBarBackButton destination="Sales Menu" />
         <span className="text-2xl font-bold">
-          {company.company_name} &gt; Sales
+          {company.company_name} &gt; Sales &gt; Warehouse
         </span>
       </div>
       <AddCompanySaleDialog />

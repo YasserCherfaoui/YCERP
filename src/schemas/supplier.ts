@@ -5,12 +5,14 @@ export const createSupplierSchema = z.object({
     phone_number: z.string().min(10, { message: "Phone must be at least 10 characters" }),
     address: z.string().min(3, { message: "Address must be at least 3 characters" }),
     company_id: z.number(),
-    administrator_id: z.number()
+    administrator_id: z.number(),
+    user_id: z.number(),
 });
 
 export const createSupplierBillSchema = z.object({
     supplier_id: z.number(),
     company_id: z.number(),
+    user_id: z.number(),
     administrator_id: z.number(),
     items: z.array(z.object({
         product_variant_id: z.number(),

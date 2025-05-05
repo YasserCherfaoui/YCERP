@@ -8,7 +8,24 @@ export const getCompanyInventory = async (companyId: number): Promise<APIRespons
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory.");
+    }
+    const apiResponse: APIResponse<Inventory> = await response.json();
+    return apiResponse;
+}
+
+export const getUserInventory = async (companyId: number): Promise<APIResponse<Inventory>> => {
+    const response = await fetch(`${baseUrl}/company/${companyId}/inventory`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -25,7 +42,7 @@ export const updateCompanyInventoryItem = async (itemID: number, data: UpdateInv
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
 
@@ -45,7 +62,7 @@ export const getCompanyInventoryTransactionLogs = async (comapnyID: number): Pro
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 

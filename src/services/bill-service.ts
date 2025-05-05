@@ -9,7 +9,7 @@ export const createExitBill = async (data: CreateExitBillSchema): Promise<APIRes
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -29,7 +29,7 @@ export const getCompanyExitBills = async (companyID: number): Promise<APIRespons
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -48,7 +48,7 @@ export const removeExitBill = async (billID: number): Promise<APIResponse<void>>
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -67,7 +67,7 @@ export const deleteEntryBill = async (billID: number): Promise<APIResponse<void>
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -86,7 +86,7 @@ export const recordFranchisePayment = async (data: CreateFranchisePayment): Prom
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });

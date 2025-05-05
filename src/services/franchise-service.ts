@@ -17,7 +17,7 @@ export const createFranchise = async (data: CreateFranchiseSchema): Promise<APIR
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -37,7 +37,7 @@ export const getMyCompanyFranchises = async (id: number): Promise<APIResponse<Ar
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -94,7 +94,7 @@ export const getFranchiseExitBills = async (id: number): Promise<APIResponse<Arr
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -113,7 +113,7 @@ export const getSuperFranchiseExitBills = async (id: number): Promise<APIRespons
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -132,7 +132,7 @@ export const getFranchiseEntryBills = async (id: number): Promise<APIResponse<Ar
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -151,7 +151,7 @@ export const getSuperFranchiseEntryBills = async (id: number): Promise<APIRespon
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -166,7 +166,7 @@ export const getSuperFranchiseEntryBills = async (id: number): Promise<APIRespon
 }
 
 export const getFranchiseInventory = async (id: number): Promise<APIResponse<Inventory>> => {
-    const token = localStorage.getItem('my-franchise-user-token') ? localStorage.getItem('my-franchise-user-token') : localStorage.getItem('authToken');
+    const token = localStorage.getItem('token') ? localStorage.getItem('token') : localStorage.getItem('token');
 
     const response = await fetch(`${baseUrl}/franchises/inventory/${id}`, {
         method: 'GET',
@@ -187,7 +187,7 @@ export const getFranchiseInventory = async (id: number): Promise<APIResponse<Inv
 }
 
 export const getCompanyFranchiseInventory = async (id: number): Promise<APIResponse<Inventory>> => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
 
     const response = await fetch(`${baseUrl}/franchises/inventory/${id}`, {
         method: 'GET',
@@ -211,7 +211,7 @@ export const deleteFranchise = async (id: number): Promise<APIResponse<void>> =>
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -230,7 +230,7 @@ export const createFranchiseEntryBill = async (data: CreateEntryBillSchema): Pro
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -250,7 +250,7 @@ export const getCompanyFranchiseSales = async (franchiseID: number): Promise<API
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
     });
 
@@ -268,7 +268,7 @@ export const getFranchiseSales = async (franchiseID: number): Promise<APIRespons
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
     });
 
@@ -287,7 +287,7 @@ export const createFranchiseSale = async (data: CreateSaleSchema): Promise<APIRe
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -307,7 +307,7 @@ export const getFranchisePaymentTotals = async (franchiseID: number): Promise<AP
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
     });
 
@@ -327,7 +327,7 @@ export const getCompanyFranchisePaymentTotals = async (franchiseID: number): Pro
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
     });
 
@@ -347,7 +347,7 @@ export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -365,7 +365,7 @@ export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: D
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -382,7 +382,7 @@ export const downloadAndPrintFranchisePDF = async (saleID: number): Promise<void
     const response = await fetch(`${baseUrl}/franchise/sales/receipt/${saleID}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 

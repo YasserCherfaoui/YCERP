@@ -159,6 +159,9 @@ export default function () {
       queryClient.invalidateQueries({
         queryKey: ["sales"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["sales-total-today", company.ID],
+      });
     },
     onError: () => {
       toast({

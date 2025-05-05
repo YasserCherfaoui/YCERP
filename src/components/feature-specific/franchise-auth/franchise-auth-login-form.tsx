@@ -41,7 +41,7 @@ export default function () {
         description: "Login successful",
       });
       if (data.data) {
-        localStorage.setItem("my-franchise-user-token", data.data.token);
+        localStorage.setItem("token", data.data.token);
         dispatch(login(data.data.user));
         navigate("/myFranchise/menu");
       } else {

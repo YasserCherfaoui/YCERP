@@ -9,7 +9,7 @@ export const createProduct = async (productData: CreateProductSchema): Promise<A
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(productData)
     });
@@ -28,7 +28,7 @@ export const getAllProducts = async (): Promise<APIResponse<Product[]>> => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -46,7 +46,7 @@ export const getFranchiseAllProducts = async (companyID:number): Promise<APIResp
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -65,7 +65,7 @@ export const getAllProductsWithVariantsByCompany = async (companyId: number): Pr
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -84,7 +84,7 @@ export const deleteProducts = async (productIds: number[]): Promise<APIResponse<
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
             "ids": productIds
@@ -106,7 +106,7 @@ export const generateBarcodes = async (data: GenerateBarcodePDFSchema): Promise<
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -146,7 +146,7 @@ export const generateThermalBarcodes = async (data: GenerateBarcodePDFSchema): P
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -186,7 +186,7 @@ export const updateProduct = async (productId: number, productData: UpdateProduc
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(productData)
     });
@@ -205,7 +205,7 @@ export const createProductVariant = async (productVariantData: CreateProductVari
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(productVariantData)
     });
@@ -225,7 +225,7 @@ export const getProductSales = async (data: SalesQuantityRequestSchema): Promise
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
     });
 

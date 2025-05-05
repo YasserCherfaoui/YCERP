@@ -19,7 +19,7 @@ const useSuperFranchise = (franchiseID: number) => {
         setIsLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('token');
             if (!token) {
                 setIsLoading(false);
                 return;
@@ -48,13 +48,13 @@ const useSuperFranchise = (franchiseID: number) => {
                 }
 
             } else if (status === 'error' && error) {
-                localStorage.removeItem('authToken');
+                localStorage.removeItem('token');
                 setError(error);
             }
 
             setIsLoading(false);
         } catch (error) {
-            localStorage.removeItem('authToken');
+            localStorage.removeItem('token');
             setError(
                 {
                     code: 'AUTH_ERROR',
