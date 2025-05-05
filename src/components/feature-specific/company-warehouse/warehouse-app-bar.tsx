@@ -11,9 +11,13 @@ interface Props {
   selectedRow: number | null;
 }
 export default function ({ selectedRow }: Props) {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  if(pathname.includes("moderator")){
+    company = useSelector((state: RootState) => state.user.company);
+  }
+  
   const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
 
   if (!company) return;

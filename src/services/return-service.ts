@@ -9,7 +9,7 @@ export const createReturnSale = async (data: CreateSaleReturnSchema) => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -29,7 +29,7 @@ export const createFranchiseReturnSale = async (data: CreateSaleReturnSchema) =>
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -48,7 +48,7 @@ export const createCompanyUnknownReturn = async (data: CreateUnknownReturnSchema
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -68,7 +68,7 @@ export const getCompanyUnknownReturns = async (comapnyID: number): Promise<APIRe
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
     });
 
@@ -86,7 +86,7 @@ export const removeCompanyUnknownReturn = async (returnID: number): Promise<APIR
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
     });
 

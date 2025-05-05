@@ -8,7 +8,7 @@ export const createCompanySale = async (data: CreateSaleSchema): Promise<APIResp
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(data)
     });
@@ -27,7 +27,7 @@ export const getCompanySales = async (companyID: number): Promise<APIResponse<Sa
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -46,7 +46,7 @@ export const getCompanyAlgiersSales = async (companyID: number): Promise<APIResp
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -64,7 +64,7 @@ export const removeSale = async (saleID: number): Promise<APIResponse<void>> => 
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -82,7 +82,7 @@ export const getSalesTotal = async (companyID: number, from: Date, to: Date): Pr
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -100,7 +100,7 @@ export const getAlgiersSalesTotal = async (companyID: number, from: Date, to: Da
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -118,7 +118,7 @@ export const removeFranchiseSale = async (saleID: number): Promise<APIResponse<v
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('my-franchise-user-token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -136,7 +136,7 @@ export const removeCompanyFranchiseSale = async (saleID: number): Promise<APIRes
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -153,7 +153,7 @@ export const downloadAndPrintPDF = async (saleID: number): Promise<void> => {
     const response = await fetch(`${baseUrl}/sales/receipt/${saleID}`, {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 

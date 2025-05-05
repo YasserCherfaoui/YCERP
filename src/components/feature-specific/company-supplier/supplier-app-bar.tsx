@@ -3,6 +3,7 @@ import AppBarBackButton from "@/components/common/app-bar-back-button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { SupplierResponse } from "@/models/data/supplier.model";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import RecordPaymentDialog from "./record-payment-dialog";
 
 interface Props {
@@ -10,7 +11,12 @@ interface Props {
 }
 
 export default function ({ supplier }: Props) {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  const isModerator = pathname.includes("moderator");
+  if (isModerator) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
@@ -22,11 +28,11 @@ export default function ({ supplier }: Props) {
           </span>
         </div>
         {/* ANCHOR: ACTION BUTTONS */}
-        <div className="flex gap-4">
+        <div className={`flex gap-4 ${isModerator ? 'hidden' : ''}`}>
           <RecordPaymentDialog supplier={supplier} />
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className={`flex gap-2 ${isModerator ? 'hidden' : ''}`}>
         <Card className="p-4 flex flex-col gap-3">
           <CardTitle className="text-xl">Paid</CardTitle>
           <CardContent className="text-2xl">

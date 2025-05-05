@@ -75,10 +75,20 @@ export default function AppRouter() {
           <Route element={<UserPrivateRoute />}>
             <Route index element={<UserMenuPage />} />
             <Route path="sales">
-                <Route index element={<CompanySalesSwitchPage />} />
-                <Route path="warehouse" element={<UserSalesPage />} />
-                <Route path="algiers" element={<UserAlgiersSalesPage />} />
-              </Route>
+              <Route index element={<CompanySalesSwitchPage />} />
+              <Route path="warehouse" element={<UserSalesPage />} />
+              <Route path="algiers" element={<UserAlgiersSalesPage />} />
+            </Route>
+            <Route path="warehouse" element={<WarehousePage />} />
+            <Route path="bills" element={<CompanyBillsPage />} />
+            <Route path="suppliers">
+              <Route index element={<CompanySuppliersPage />} />
+              <Route path=":supplierID" element={<CompanySupplierPage />} />
+            </Route>
+            <Route
+                path="unknown-returns"
+                element={<CompanyUnknownReturnsPage />}
+              />
           </Route>
         </Route>
         //! WARNING: PRIVATE ROUTES

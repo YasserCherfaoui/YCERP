@@ -18,7 +18,7 @@ const useFranchise = () => {
         setIsLoading(true);
         setError(null);
         try {
-            const token = localStorage.getItem('my-franchise-user-token');
+            const token = localStorage.getItem('token');
             if (!token) {
                 setIsLoading(false);
                 return;
@@ -29,13 +29,13 @@ const useFranchise = () => {
             if (response.status === 'success' && response.data) {
                 dispatch(login(response.data));
             } else if (response.status === 'error' && response.error) {
-                localStorage.removeItem('my-franchise-user-token');
+                localStorage.removeItem('token');
                 setError(response.error);
             }
 
             setIsLoading(false);
         } catch (error) {
-            localStorage.removeItem('my-franchise-user-token');
+            localStorage.removeItem('token');
             setError(
                 {
                     code: 'AUTH_ERROR',

@@ -35,9 +35,14 @@ import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
 import { useState } from "react";
 import Barcode from "react-barcode";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function () {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const {pathname} = useLocation();
+  if (pathname.includes("moderator")){
+    company = useSelector((state: RootState) => state.user.company);
+  }
   const [globalFilter, setGlobalFilter] = useState("");
   const [tableState, setTableState] = useState({
     sorting: [],

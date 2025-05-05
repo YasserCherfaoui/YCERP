@@ -9,7 +9,7 @@ export const createCompany = async (data: CreateCompanySchema): Promise<APIRespo
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
 
         },
         body: JSON.stringify(data),
@@ -30,7 +30,7 @@ export const deleteCompany = async (companyId: number): Promise<APIResponse<void
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 
@@ -49,7 +49,7 @@ export const getMyCompanies = async (): Promise<APIResponse<Company[]>> => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     });
 

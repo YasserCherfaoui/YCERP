@@ -11,7 +11,7 @@ export const createUser = async (data: CreateUserSchema): Promise<APIResponse<Us
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.getItem("authToken"),
+            "Authorization": "Bearer " + localStorage.getItem("token"),
 
         },
         body: JSON.stringify(data),
@@ -30,7 +30,7 @@ export const getUsersByCompany = async (companyID: number): Promise<APIResponse<
         method: "GET",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.getItem("authToken"),
+            "Authorization": "Bearer " + localStorage.getItem("token"),
         },
     });
     if (!response.ok) {
@@ -46,7 +46,7 @@ export const deleteUser = async (userID: number): Promise<APIResponse<void>> => 
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + localStorage.getItem("authToken"),
+            "Authorization": "Bearer " + localStorage.getItem("token"),
         },
     });
     if (!response.ok) {
