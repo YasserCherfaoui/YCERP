@@ -3,6 +3,7 @@ import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { FranchiseTotals } from "@/models/data/franchise.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { FileText, Package, PackageMinus, PackagePlus } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   exitBills?: APIResponse<Array<ExitBill>>;
@@ -11,6 +12,8 @@ interface Props {
 }
 
 export default function ({ exitBills, entryBills, paymentTotals }: Props) {
+  const {pathname} = useLocation(); 
+  const isModerator = pathname.includes("moderator");
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -37,7 +40,7 @@ export default function ({ exitBills, entryBills, paymentTotals }: Props) {
           <p className="text-xs text-muted-foreground"></p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className={`${isModerator ? "hidden" : ""}`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Due Bills</CardTitle>
           <PackageMinus className="h-4 w-4 text-muted-foreground" />
@@ -52,7 +55,7 @@ export default function ({ exitBills, entryBills, paymentTotals }: Props) {
           <p className="text-xs text-muted-foreground"></p>
         </CardContent>
       </Card>
-      <Card>
+      <Card className={`${isModerator ? "hidden" : ""}`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Paid Bills</CardTitle>
           <FileText className="h-4 w-4 text-muted-foreground" />
