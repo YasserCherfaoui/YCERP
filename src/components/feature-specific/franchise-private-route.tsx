@@ -3,8 +3,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 export default function () {
   const location = useLocation();
-  const { isAuthenticated, isLoading, user } = useFranchise();
-  console.log(user);
+  const { isAuthenticated, isLoading } = useFranchise();
 
   if (isLoading) {
     return <div>Loading...</div>;

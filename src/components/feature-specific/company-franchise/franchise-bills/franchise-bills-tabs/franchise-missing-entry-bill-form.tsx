@@ -1,30 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { BillItem, EntryBill } from "@/models/data/bill.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateEntryBillSchema } from "@/schemas/bill";
 import {
-    MissingItemsFormSchema,
-    MissingItemsSchema,
+  MissingItemsFormSchema,
+  MissingItemsSchema,
 } from "@/schemas/missing-items";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UseMutateFunction } from "@tanstack/react-query";
@@ -78,7 +78,6 @@ export default function ({
       }[];
     }>
   ) {
-    console.log(errors);
     toast({
       variant: "destructive",
       title: "Error",
@@ -109,7 +108,6 @@ export default function ({
       submitMutation(primaryForm.getValues());
     }
     setOpen(false);
-    console.log(primaryForm.getValues());
     setPrimaryFormOpen(false);
   }
 

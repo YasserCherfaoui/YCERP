@@ -3,9 +3,10 @@ import { Navigate, Outlet, useLocation, useParams } from "react-router-dom";
 
 export default function () {
   const location = useLocation();
-  const {franchiseID} = useParams();
-  const { isAuthenticated, isLoading, user } = useSuperFranchise(Number(franchiseID));
-  console.log(user);
+  const { franchiseID } = useParams();
+  const { isAuthenticated, isLoading } = useSuperFranchise(
+    Number(franchiseID)
+  );
 
   if (isLoading) {
     return <div>Loading...</div>;
