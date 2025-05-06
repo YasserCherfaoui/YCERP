@@ -44,8 +44,8 @@ export default function () {
     resolver: zodResolver(createSupplierSchema),
     defaultValues: {
       company_id: company.ID,
-      administrator_id: administrator?.ID ?? 0,
-      user_id: user?.ID ?? 0,
+      administrator_id: administrator?.ID,
+      user_id: user?.ID,
     },
   });
   const queryClient = useQueryClient();

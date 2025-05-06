@@ -36,6 +36,7 @@ import { Printer } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { ProductVariantCombobox } from "./product-variant-combobox";
 
 export default function () {
@@ -50,7 +51,11 @@ export default function () {
     resolver: zodResolver(generateBarcodePDFSchema),
     defaultValues: defaultPDFValues,
   });
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  if (pathname.includes("moderator")) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   const { data: inventory } = useQuery({
     queryKey: ["products-variants"],
     queryFn: () => getCompanyInventory(company?.ID ?? 0),

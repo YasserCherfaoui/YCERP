@@ -34,10 +34,16 @@ import { Check, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function () {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  if (pathname.includes("moderator")) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   if (!company) return;
+
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const form = useForm<CreateProductSchema>({
