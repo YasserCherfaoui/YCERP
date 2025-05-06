@@ -99,3 +99,46 @@ export const recordFranchisePayment = async (data: CreateFranchisePayment): Prom
     const apiResponse: APIResponse<any> = await response.json();
     return apiResponse;
 }
+
+export const downloadExitBillPDF = async (exitBillID: number): Promise<void> => {
+    try {
+        const response = await fetch(`${baseUrl}/bills/exit/${exitBillID}/print`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to download exit bill PDF.");
+        }
+
+        // Convert the response to a blob
+        const blob = await response.blob();
+        
+        // Create a URL for the blob
+        const url = window.URL.createObjectURL(blob);
+        
+        // Open the PDF in a new tab
+        const newWindow = window.open(url, '_blank');
+        
+        if (!newWindow) {
+            throw new Error("Popup blocked. Please allow popups for this site.");
+        }
+        
+        // Trigger the print dialog once the PDF is loaded
+        newWindow.addEventListener('load', () => {
+            newWindow.print();
+        });
+        
+        // Clean up the URL object after a delay to ensure the PDF has loaded
+        setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+        }, 1000);
+    } catch (error) {
+        console.error("Error printing exit bill PDF:", error);
+        throw error;
+    }
+};
+
