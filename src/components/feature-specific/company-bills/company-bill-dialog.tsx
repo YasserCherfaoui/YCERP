@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExitBill } from "@/models/data/bill.model";
+import { downloadExitBillPDF } from "@/services/bill-service";
 import { CircleX, LucideTicket, Printer } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -19,7 +20,7 @@ interface Props {
 
 export default function ({ bill }: Props) {
   const [open, setOpen] = useState(false);
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
   const isModerator = pathname.includes("moderator");
 
   return (
@@ -43,11 +44,16 @@ export default function ({ bill }: Props) {
           </div>
           <div className="flex gap-2">
             <span className="font-bold">Date:</span>
-            <p className="text-white font-bold">{new Date(bill.franchise?.CreatedAt ?? "").toDateString()}</p>
+            <p className="text-white font-bold">
+              {new Date(bill.franchise?.CreatedAt ?? "").toDateString()}
+            </p>
           </div>
           <ScrollArea className="max-h-[400px]">
             {bill.bill_items.map((billItem) => (
-              <div key={`bill-item-${billItem.id}`} className="flex justify-between">
+              <div
+                key={`bill-item-${billItem.id}`}
+                className="flex justify-between"
+              >
                 <span className="text-white">
                   {billItem.product_variant.product?.name}{" "}
                   {billItem.product_variant.color}{" "}
@@ -68,7 +74,9 @@ export default function ({ bill }: Props) {
                 }).format(bill.franchise_total_amount)}
               </span>
             </div>
-            <div className={`flex justify-between ${isModerator ? "hidden": ""}`}>
+            <div
+              className={`flex justify-between ${isModerator ? "hidden" : ""}`}
+            >
               <span>Company Spent:</span>
               <span className="text-white font-bold">
                 {new Intl.NumberFormat("en-DZ", {
@@ -77,7 +85,9 @@ export default function ({ bill }: Props) {
                 }).format(bill.company_total_amount)}
               </span>
             </div>
-            <div className={`flex justify-between ${isModerator ? "hidden": ""}`}>
+            <div
+              className={`flex justify-between ${isModerator ? "hidden" : ""}`}
+            >
               <span>Benefits:</span>
               <span className="text-white font-bold">
                 {new Intl.NumberFormat("en-DZ", {
@@ -94,7 +104,7 @@ export default function ({ bill }: Props) {
                 Close
               </Button>
             </DialogTrigger>
-            <Button>
+            <Button onClick={() => downloadExitBillPDF(bill.ID)}>
               <Printer />
               Print
             </Button>
