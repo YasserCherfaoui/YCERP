@@ -4,8 +4,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const PrivateRoute: React.FC = () => {
   const location = useLocation();
-  const { isAuthenticated, isLoading, user } = useAuth();
-  console.log(user);
+  const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return <div>Loading...</div>;

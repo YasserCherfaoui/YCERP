@@ -111,7 +111,6 @@ export default function ({ bill }: Props) {
     let timeout;
 
     const handleKeyPress = (e: any) => {
-      console.log(e.key);
       // Prevent default form submission on Enter
       if (e.key === "Enter") {
         e.preventDefault();

@@ -1,9 +1,10 @@
 import { baseUrl } from "@/app/constants";
 import { Inventory, InventoryItem, InventoryItemTransactionLog } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
 import { UpdateInventoryItemSchema } from "@/schemas/inventory-schema";
 
-export const getCompanyInventory = async (companyId: number): Promise<APIResponse<Inventory>> => {
+export const getCompanyInventory = async (companyId: number): Promise<APIResponse<InventoryWithCostResponse>> => {
     const response = await fetch(`${baseUrl}/company/${companyId}/inventory`, {
         method: 'GET',
         headers: {
@@ -16,7 +17,7 @@ export const getCompanyInventory = async (companyId: number): Promise<APIRespons
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to fetch inventory.");
     }
-    const apiResponse: APIResponse<Inventory> = await response.json();
+    const apiResponse: APIResponse<InventoryWithCostResponse> = await response.json();
     return apiResponse;
 }
 
@@ -73,4 +74,21 @@ export const getCompanyInventoryTransactionLogs = async (comapnyID: number): Pro
     const apiResponse: APIResponse<InventoryItemTransactionLog[]> = await response.json();
     return apiResponse;
 
+}
+
+export const getInventoryTotalCost = async (companyId: number): Promise<APIResponse<{ total: number }>> => {
+    const response = await fetch(`${baseUrl}/inventory/totals/${companyId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory total cost.");
+    }
+    const apiResponse: APIResponse<{ total: number }> = await response.json();
+    return apiResponse;
 }

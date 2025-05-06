@@ -2,6 +2,13 @@ import { RootState } from "@/app/store";
 import TransactionsLogDialog from "@/components/feature-specific/company-warehouse/transactions-log-dialog";
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -18,8 +25,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InventoryItem } from "@/models/data/inventory.model";
-import { getCompanyInventory, getCompanyInventoryTransactionLogs } from "@/services/inventory-service";
+import { InventoryItemWithCost } from "@/models/responses/inventory-with-cost.model";
+import {
+  getCompanyInventory,
+  getCompanyInventoryTransactionLogs,
+  getInventoryTotalCost,
+} from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
 import {
   ColumnDef,
@@ -39,8 +50,9 @@ import { useLocation } from "react-router-dom";
 
 export default function () {
   let company = useSelector((state: RootState) => state.company.company);
-  const {pathname} = useLocation();
-  if (pathname.includes("moderator")){
+  const { pathname } = useLocation();
+  const isModerator = pathname.includes("moderator");
+  if (isModerator) {
     company = useSelector((state: RootState) => state.user.company);
   }
   const [globalFilter, setGlobalFilter] = useState("");
@@ -64,12 +76,12 @@ export default function () {
         typeof updater === "function" ? updater(old.pagination) : updater,
     }));
   };
-  const {data: logData} = useQuery({
+  const { data: logData } = useQuery({
     queryKey: ["inventory-log", company?.ID ?? 0],
     queryFn: () => getCompanyInventoryTransactionLogs(company?.ID ?? 0),
-    enabled: !!company
-  })
-  const columns: ColumnDef<InventoryItem>[] = [
+    enabled: !!company,
+  });
+  const columns: ColumnDef<InventoryItemWithCost>[] = [
     {
       header: "Product",
       accessorKey: "product.name",
@@ -93,6 +105,22 @@ export default function () {
       accessorKey: "quantity",
     },
     {
+      header: "Cost",
+      accessorKey: "cost",
+      cell: ({ getValue }: any) => (
+        <span
+          className={`${isModerator ? "hidden" : ""} ${
+            getValue() < 0 ? "text-red-500" : "text-green-500"
+          }`}
+        >
+          {Intl.NumberFormat("en-DZ", {
+            style: "currency",
+            currency: "DZD",
+          }).format(getValue())}
+        </span>
+      ),
+    },
+    {
       header: "QR Code",
       accessorKey: "product_variant.qr_code",
       cell: ({ getValue }: any) => <Barcode value={getValue()} height={20} />,
@@ -102,7 +130,13 @@ export default function () {
       cell: ({ row }) => (
         <>
           <UpdateInventoryItemDialog inventoryItem={row.original} />
-          <TransactionsLogDialog logs={logData?.data?.filter((log) => log.inventory_item_id == row.original.ID) ?? []} />
+          <TransactionsLogDialog
+            logs={
+              logData?.data?.filter(
+                (log) => log.inventory_item_id == row.original.ID
+              ) ?? []
+            }
+          />
         </>
       ),
     },
@@ -111,11 +145,17 @@ export default function () {
     queryKey: ["inventory"],
     queryFn: () => getCompanyInventory(company?.ID ?? 0),
   });
-
+  const { data: totalCostData } = useQuery({
+    queryKey: ["inventory-total-cost"],
+    queryFn: () => getInventoryTotalCost(company?.ID ?? 0),
+    enabled: !!company,
+  });
   //   ANCHOR: TABLE
   const table = useReactTable({
-    data: inventoryData?.data?.items ?? [],
-    columns,
+    data: inventoryData?.data?.items_with_cost ?? [],
+    columns: columns.filter(
+      (column) => !isModerator || column.header !== "Cost"
+    ),
     state: {
       sorting: tableState.sorting,
       globalFilter: globalFilter,
@@ -135,9 +175,24 @@ export default function () {
   });
 
   if (!company) return;
-
+  console.log(totalCostData);
   return (
     <div className="flex flex-col gap-2 mt-4">
+      <div className="grid grid-cols-2 gap-2">
+        <Card className={isModerator ? "hidden" : ""}>
+          <CardHeader>
+            <CardTitle>Total Cost</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-2xl font-bold">
+              {Intl.NumberFormat("en-DZ", {
+                style: "currency",
+                currency: "DZD",
+              }).format(totalCostData?.data?.total ?? 0)}
+            </CardDescription>
+          </CardContent>
+        </Card>
+      </div>
       <Input
         onChange={(e) => setGlobalFilter(e.target.value)}
         placeholder="Search..."
