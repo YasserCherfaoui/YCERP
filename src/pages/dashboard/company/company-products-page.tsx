@@ -26,7 +26,9 @@ export default function () {
       <CompanyProductsAppBar />
       <DataTable
         searchColumn="product_name"
-        columns={columns.filter((column) => !isModerator || column.header !== "First Price" )}
+        columns={columns.filter(
+          (column) => !isModerator || column.id !== "first_price"
+        )}
         data={data?.data ?? []}
       />
     </div>
