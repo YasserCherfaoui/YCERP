@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import { InventoryItem } from "@/models/data/inventory.model";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
@@ -87,6 +88,14 @@ export const franchiseInventoryColumns: ColumnDef<InventoryItem>[] = [
   {
     accessorKey: "quantity",
     header: "Quantity",
+  },
+  {
+    accessorKey: "franchise_cost",
+    header: "Franchise Cost",
+    id: "franchise_cost",
+    cell: ({ getValue }: any) => {
+      return <span className={cn(getValue() < 0 ? "text-red-500" : "text-green-500")}>{Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(getValue())}</span>;
+    },
   },
   {
     header: "QR Code",

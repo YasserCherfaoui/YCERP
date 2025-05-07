@@ -2,9 +2,9 @@ import { baseUrl } from "@/app/constants";
 import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { Franchise, FranchiseTotals } from "@/models/data/franchise.model";
-import { Inventory } from "@/models/data/inventory.model";
 import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
 import { MyFranchiseAuthResponse } from "@/models/responses/my-franchise-auth-response.model";
 import { LoginFormSchema } from "@/schemas/auth";
 import { CreateEntryBillSchema } from "@/schemas/bill";
@@ -183,7 +183,7 @@ export const getSuperFranchiseEntryBills = async (id: number): Promise<APIRespon
 
 }
 
-export const getFranchiseInventory = async (id: number): Promise<APIResponse<Inventory>> => {
+export const getFranchiseInventory = async (id: number): Promise<APIResponse<InventoryWithCostResponse>> => {
     const token = localStorage.getItem('token') ? localStorage.getItem('token') : localStorage.getItem('token');
 
     const response = await fetch(`${baseUrl}/franchises/inventory/${id}`, {
@@ -199,12 +199,12 @@ export const getFranchiseInventory = async (id: number): Promise<APIResponse<Inv
         throw new Error(errorData.message || "Failed to fetch franchise inventory.");
     }
 
-    const apiResponse: APIResponse<Inventory> = await response.json();
+    const apiResponse: APIResponse<InventoryWithCostResponse> = await response.json();
     return apiResponse;
 
 }
 
-export const getCompanyFranchiseInventory = async (id: number): Promise<APIResponse<Inventory>> => {
+export const getCompanyFranchiseInventory = async (id: number): Promise<APIResponse<InventoryWithCostResponse>> => {
     const token = localStorage.getItem('token');
 
     const response = await fetch(`${baseUrl}/franchises/inventory/${id}`, {
@@ -220,7 +220,7 @@ export const getCompanyFranchiseInventory = async (id: number): Promise<APIRespo
         throw new Error(errorData.message || "Failed to fetch franchise inventory.");
     }
 
-    const apiResponse: APIResponse<Inventory> = await response.json();
+const apiResponse: APIResponse<InventoryWithCostResponse> = await response.json();
     return apiResponse;
 
 }

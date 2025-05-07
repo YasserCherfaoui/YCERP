@@ -109,3 +109,23 @@ export const getInventoryTotalCost = async (companyId: number): Promise<APIRespo
     const apiResponse: APIResponse<{ total: number }> = await response.json();
     return apiResponse;
 }
+
+export const getFranchiseInventoryTotalCost = async (franchiseID: number): Promise<APIResponse<{ total_first_price: number, total_franchise_price: number }>> => {
+    const response = await fetch(`${baseUrl}/inventory/totals/franchise/${franchiseID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory total cost.");
+    }
+    const apiResponse: APIResponse<{
+        total_first_price: number,
+        total_franchise_price: number,
+    }> = await response.json();
+    return apiResponse;
+}

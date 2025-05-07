@@ -3,6 +3,7 @@ import TransactionsLogDialog from "@/components/feature-specific/company-warehou
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import { InventoryItem } from "@/models/data/inventory.model";
 import { getFranchiseInventoryTransactionLogs } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
@@ -93,6 +94,22 @@ export const franchiseInventoryColumns: ColumnDef<InventoryItem>[] = [
   {
     accessorKey: "quantity",
     header: "Quantity"
+  },
+  {
+    accessorKey: "cost",
+    header: "Cost",
+    id: "cost",
+    cell: ({ getValue }: any) => {
+      return <span className={cn(getValue() < 0 ? "text-red-500" : "text-green-500")}>{Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(getValue())}</span>;
+    },
+  },
+  {
+    accessorKey: "franchise_cost",
+    header: "Franchise Cost",
+    id: "franchise_cost",
+    cell: ({ getValue }: any) => {
+      return <span className={cn(getValue() < 0 ? "text-red-500" : "text-green-500")}>{Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(getValue())}</span>;
+    },
   },
   {
     header: "QR Code",
