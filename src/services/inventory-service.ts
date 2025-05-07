@@ -75,6 +75,23 @@ export const getCompanyInventoryTransactionLogs = async (comapnyID: number): Pro
     return apiResponse;
 
 }
+export const getFranchiseInventoryTransactionLogs = async (franchiseID: number): Promise<APIResponse<InventoryItemTransactionLog[]>> => {
+    const response = await fetch(`${baseUrl}/inventory/transactions/franchise/${franchiseID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory transactions.");
+    }
+    const apiResponse: APIResponse<InventoryItemTransactionLog[]> = await response.json();
+    return apiResponse;
+
+}
 
 export const getInventoryTotalCost = async (companyId: number): Promise<APIResponse<{ total: number }>> => {
     const response = await fetch(`${baseUrl}/inventory/totals/${companyId}`, {
