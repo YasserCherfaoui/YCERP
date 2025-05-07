@@ -1,6 +1,8 @@
 import { RootState } from "@/app/store";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { getFranchiseInventory } from "@/services/franchise-service";
+import { getFranchiseInventoryTotalCost } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import { franchiseInventoryColumns } from "./franchise-inventory-columns";
@@ -15,10 +17,30 @@ export default function () {
     queryFn: () => getFranchiseInventory(franchise.ID),
     enabled: !!franchise,
   });
+  const { data: totalCostData } = useQuery({
+    queryKey: ["inventory-total-cost"],
+    queryFn: () => getFranchiseInventoryTotalCost(franchise.ID),
+    enabled: !!franchise,
+  });
   return (
     <div>
+      <div className="grid grid-cols-2 gap-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Franchise Cost</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-2xl font-bold">
+              {Intl.NumberFormat("en-DZ", {
+                style: "currency",
+                currency: "DZD",
+              }).format(totalCostData?.data?.total_franchise_price ?? 0)}
+            </CardDescription>
+          </CardContent>
+        </Card>
+      </div>
       <DataTable
-        data={inventory?.data?.items ?? []}
+        data={inventory?.data?.items_with_cost ?? []}
         searchColumn="name"
         columns={franchiseInventoryColumns}
       />
