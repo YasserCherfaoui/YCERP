@@ -2,26 +2,26 @@ import { RootState } from "@/app/store";
 import Autocomplete from "@/components/ui/autocomplete";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { TagsInput } from "@/components/ui/tags_input";
 import { useToast } from "@/hooks/use-toast";
 import {
-    CreateProductVariantSchema,
-    createProductVariantSchema,
+  CreateProductVariantSchema,
+  createProductVariantSchema,
 } from "@/schemas/product";
 import { createProductVariant, getAllProductsWithVariantsByCompany } from "@/services/product-service";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,10 +30,15 @@ import { Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function () {
   const [open, setOpen] = useState(false);
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  if (pathname.includes("moderator")) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   const form = useForm<CreateProductVariantSchema>({
     resolver: zodResolver(createProductVariantSchema),
     defaultValues: {

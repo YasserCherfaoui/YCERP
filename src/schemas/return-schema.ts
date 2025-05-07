@@ -84,7 +84,8 @@ export const createUnknownReturnSchema = z.object({
         quantity: z.number().min(1, "please insert a quantity > 0 or remove the item"),
     })),
     cost: z.number(),
-    location_id: z.number().min(1, "Please select a location")
+    location_id: z.number().min(1, "Please select a location"),
+    return_type: z.string().min(1, "Please select a return type"),
 }).superRefine((val, ctx) => {
     if (val.return_items.length < 1) {
         ctx.addIssue(

@@ -2,12 +2,13 @@ import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import {
-    Handshake,
-    ReceiptText,
-    ShoppingCart,
-    Store,
-    Undo2,
-    Warehouse,
+  Apple,
+  Handshake,
+  ReceiptText,
+  ShoppingCart,
+  Store,
+  Undo2,
+  Warehouse,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 
@@ -58,5 +59,10 @@ const quickMenu = [
     label: "Unkown Returns",
     icon: Undo2,
     href: "unknown-returns",
+  },
+  {
+    label: "Products",
+    icon: Apple,
+    href: "products",
   },
 ];

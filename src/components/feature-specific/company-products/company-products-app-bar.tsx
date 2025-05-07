@@ -9,8 +9,11 @@ import PrintProductsLabelsDialog from "./print-products-labels-dialog";
 
 export default function () {
   const navigate = useNavigate();
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
   const { pathname } = useLocation();
+  if (pathname.includes("moderator")) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
 
   if (!company) return;

@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -134,7 +135,7 @@ export default function () {
     return () => {
       clearTimeout(timeout);
     };
-  }, [input]); 
+  }, [input]);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -260,6 +261,36 @@ export default function () {
                       field.onChange(parseInt(e.target.value) ?? 0);
                     }}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name={`return_type`}
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Return Type</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="algiers" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Algiers</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="warehouse" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Warehouse</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>

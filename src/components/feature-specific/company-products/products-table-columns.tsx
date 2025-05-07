@@ -54,6 +54,7 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "first_price",
+    id: "first_price",
     header: () => <div className="text-right">First Price</div>,
     cell: ({ row }) => {
       const price = parseInt(row.getValue("first_price"));
@@ -67,6 +68,7 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "franchise_price",
+    id: "franchise_price",
     header: () => <div className="text-right">Franchise Price</div>,
     cell: ({ row }) => {
       const price = parseInt(row.getValue("franchise_price"));

@@ -90,6 +90,7 @@ export default function AppRouter() {
               path="unknown-returns"
               element={<CompanyUnknownReturnsPage />}
             />
+            <Route path="products" element={<CompanyProductsPage />} />
             <Route path="franchises">
               <Route index element={<CompanyFranchisesPage />} />
               <Route path=":franchiseID" element={<ModFranchiseRoute />}>

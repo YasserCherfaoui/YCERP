@@ -5,21 +5,28 @@ import { DataTable } from "@/components/ui/data-table";
 import { getAllProductsWithVariantsByCompany } from "@/services/product-service";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 export default function () {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  const isModerator = pathname.includes("moderator");
+  if (isModerator) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
+  if (!company) return;
+
   const { data } = useQuery({
     queryKey: ["products"],
-    queryFn: () => getAllProductsWithVariantsByCompany(company?.ID ?? 0),
+    queryFn: () => getAllProductsWithVariantsByCompany(company.ID),
     enabled: !!company,
   });
-  if (!company) return;
   return (
     <div className="flex flex-col gap-4 p-4">
       <CompanyProductsAppBar />
       <DataTable
         searchColumn="product_name"
-        columns={columns}
+        columns={columns.filter((column) => !isModerator || column.header !== "First Price" )}
         data={data?.data ?? []}
       />
     </div>
