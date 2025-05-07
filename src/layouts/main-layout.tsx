@@ -1,3 +1,4 @@
+import AuthAppBar from "@/components/common/auth-app-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { DayPickerProvider } from "react-day-picker";
@@ -12,6 +13,7 @@ export default function MainLayout() {
           required: true,
         }}
       >
+        <AuthAppBar />
         <Outlet />
         <Toaster />
       </DayPickerProvider>
