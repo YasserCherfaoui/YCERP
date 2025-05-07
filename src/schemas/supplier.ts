@@ -12,8 +12,8 @@ export const createSupplierSchema = z.object({
 export const createSupplierBillSchema = z.object({
     supplier_id: z.number(),
     company_id: z.number(),
-    user_id: z.number(),
-    administrator_id: z.number(),
+    user_id: z.number().nullable(),
+    administrator_id: z.number().nullable(),
     items: z.array(z.object({
         product_variant_id: z.number(),
         quantity: z.number(),
