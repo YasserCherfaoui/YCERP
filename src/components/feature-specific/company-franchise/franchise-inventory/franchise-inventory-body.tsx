@@ -15,6 +15,7 @@ export default function () {
     queryFn: () => getCompanyFranchiseInventory(franchise.ID),
     enabled: !!franchise,
   });
+
   return (
     <div>
       <DataTable
