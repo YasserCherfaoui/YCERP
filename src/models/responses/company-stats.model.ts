@@ -27,3 +27,23 @@ export interface CompanyStatsResponse {
   products: ProductSalesResponse[];
   pagination: PaginationMeta;
 }
+
+
+export interface ProductPurchasesResponse {
+  products: ProductSupplierBillResponse[];
+  pagination: PaginationMeta;
+}
+
+export interface ProductSupplierBillResponse {
+  product_id: number;
+  name: string;
+  variants: VariantSupplierBillResult[];
+  total_bill_quantity: number;
+}
+
+export interface VariantSupplierBillResult {
+  product_variant_id: number;
+  color: string;
+  size: number;
+  bill_quantity: number;
+}
