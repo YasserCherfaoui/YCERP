@@ -238,3 +238,21 @@ export const getProductSales = async (data: SalesQuantityRequestSchema): Promise
     return apiResponse;
 }
 
+
+export const getProductSalesByFranchise = async (data: SalesQuantityRequestSchema): Promise<APIResponse<CompanyStatsResponse>> => {
+    const response = await fetch(`${baseUrl}/products/sales-quantities-franchise/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit??10}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to get product sales.");
+    }
+
+    const apiResponse: APIResponse<CompanyStatsResponse> = await response.json();
+    return apiResponse;
+}

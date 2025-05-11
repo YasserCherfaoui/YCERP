@@ -7,10 +7,12 @@ interface FranchiseState {
   isAuthenticated: boolean;
   user?: FranchiseAdministrator;
   franchise?: Franchise
+  isAdministrator: boolean;
 }
 
 const initialState: FranchiseState = {
   isAuthenticated: false,
+  isAdministrator: false,
 };
 
 export const franchiseSlice = createSlice({
@@ -22,13 +24,20 @@ export const franchiseSlice = createSlice({
       state.user = action.payload;
       state.franchise = action.payload.franchise;
     },
+    loginAdministrator: (state, action: PayloadAction<FranchiseAdministrator>) => {
+      state.isAuthenticated = true;
+      state.user = action.payload;
+      state.franchise = action.payload.franchise;
+      state.isAdministrator = true;
+    },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = undefined;
       state.franchise = undefined;
+      state.isAdministrator = false;
     },
   },
 });
 
-export const { login, logout } = franchiseSlice.actions;
+export const { login, loginAdministrator, logout } = franchiseSlice.actions;
 export default franchiseSlice.reducer;
