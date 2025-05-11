@@ -44,7 +44,7 @@ export default function () {
     resolver: zodResolver(createSupplierSchema),
     defaultValues: {
       company_id: company.ID,
-      administrator_id: administrator?.ID,
+      administrator_id: administrator?.ID ?? null,
       user_id: user?.ID,
     },
   });

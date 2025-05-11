@@ -25,7 +25,7 @@ export const createEntryBillSchema = z.object({
 export const createFranchisePaymentSchema = z.object({
     company_id: z.number().min(1, "Company is required"),
     franchise_id: z.number().min(1, "Franchise is required"),
-    administrator_id: z.number().min(1, "Administrator is required"),
+    administrator_id: z.number(),
     amount: z.number().min(1, "Amount must be greater than 0"),
     comment: z.string(),
 });
