@@ -3,20 +3,20 @@ import Comp13 from "@/components/comp-13";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -43,7 +43,7 @@ export default function AddFranchisePayment() {
     defaultValues: {
       company_id: company?.ID ?? 0,
       franchise_id: franchise?.ID ?? 0,
-      administrator_id: user?.ID ?? 0,
+      administrator_id: user?.ID,
       amount: 0,
       comment: "",
     },

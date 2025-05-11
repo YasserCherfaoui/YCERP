@@ -46,7 +46,7 @@ export default function ({ supplier }: Props) {
     defaultValues: {
       company_id: company?.ID ?? 0,
       supplier_id: supplier.supplier.ID,
-      administrator_id: user?.ID ?? 0,
+      administrator_id: user?.ID,
       amount: 0,
       comment: "",
     },
