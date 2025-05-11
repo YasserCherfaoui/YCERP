@@ -10,6 +10,7 @@ import DashboardLayout from "@/layouts/dashboard-layout";
 import MainLayout from "@/layouts/main-layout";
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
+import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
 import CompanyAlgiersSalesPage from "@/pages/dashboard/company/company-algiers-sales-page";
 import CompanyBillsPage from "@/pages/dashboard/company/company-bills-page";
 import CompanyControlPanelPage from "@/pages/dashboard/company/company-control-panel-page";
@@ -123,6 +124,7 @@ export default function AppRouter() {
                     path="inventory"
                     element={<CompanyFranchiseInventoryPage />}
                   />
+                  <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
                 </Route>
               </Route>
               <Route path="warehouse" element={<WarehousePage />} />

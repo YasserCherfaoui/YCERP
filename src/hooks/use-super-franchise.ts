@@ -1,6 +1,6 @@
 import { useAppDispatch } from "@/app/hooks";
 import { RootState } from "@/app/store";
-import { login } from "@/features/auth/franchise-slice";
+import { loginAdministrator } from "@/features/auth/franchise-slice";
 import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { APIError } from "@/models/responses/api-response.model";
 import { fetchUser } from "@/services/auth-service";
@@ -37,10 +37,10 @@ const useSuperFranchise = (franchiseID: number) => {
                 for (let company of companies) {
                     for (let franchise of (company?.franchises ?? [])) {
                         if (franchise.ID === franchiseID) {
-                            dispatch(login({
+                            dispatch(loginAdministrator({
                                 ID, CreatedAt, UpdatedAt, DeletedAt,
                                 full_name, email, administrator_id: ID,
-                                franchise_id: franchiseID, franchise
+                                franchise_id: franchiseID, franchise,
                             } as FranchiseAdministrator));
                             break;
                         }
