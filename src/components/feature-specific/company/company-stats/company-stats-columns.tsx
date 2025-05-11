@@ -19,7 +19,7 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
   {
     header: "Product",
     accessorKey: "name",
-    id: "name"
+    id: "name",
   },
 
   {
@@ -56,6 +56,14 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
         </Accordion>
       );
     },
+  },
+  {
+    header: "Total Sold Warehouse",
+    accessorKey: "total_sold_warehouse",
+  },
+  {
+    header: "Total Sold Algiers",
+    accessorKey: "total_sold_algiers",
   },
   {
     header: "Total Sold Quantity",
