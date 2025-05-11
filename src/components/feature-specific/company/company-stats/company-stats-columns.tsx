@@ -1,16 +1,16 @@
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { ProductSalesResponse } from "@/models/responses/company-stats.model";
 import { ColumnDef } from "@tanstack/react-table";
@@ -35,6 +35,8 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
                 <TableHeader>
                   <TableHead>Color</TableHead>
                   <TableHead>Size</TableHead>
+                  <TableHead>Sold Warehouse</TableHead>
+                  <TableHead>Sold Algiers</TableHead>
                   <TableHead>Sold Quantity</TableHead>
                 </TableHeader>
                 <TableBody>
@@ -42,6 +44,8 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
                     <TableRow key={variant.product_variant_id}>
                       <TableCell>{variant.color}</TableCell>
                       <TableCell>{variant.size}</TableCell>
+                      <TableCell>{variant.sold_warehouse}</TableCell>
+                      <TableCell>{variant.sold_algiers}</TableCell>
                       <TableCell>{variant.sold_quantity}</TableCell>
                     </TableRow>
                   ))}

@@ -4,6 +4,8 @@ export interface ProductSalesResponse {
   name: string;
   variants: VariantSalesResponse[];
   total_sold_quantity: number;
+  total_sold_warehouse: number;
+  total_sold_algiers: number;
 }
 
 export interface VariantSalesResponse {
@@ -11,6 +13,8 @@ export interface VariantSalesResponse {
   color: string;
   size: number;
   sold_quantity: number;
+  sold_warehouse: number;
+  sold_algiers: number;
 }
 export interface PaginationMeta {
   total_items: number;
