@@ -19,6 +19,7 @@ import CompanyFranchiseInventoryPage from "@/pages/dashboard/company/company-fra
 import CompanyFranchisePage from "@/pages/dashboard/company/company-franchise-page";
 import CompanyFranchiseSalesPage from "@/pages/dashboard/company/company-franchise-sales-page";
 import CompanyFranchisesPage from "@/pages/dashboard/company/company-franchises-page";
+import CompanyInventoryAnalyticsPage from "@/pages/dashboard/company/company-inventory-analytics-page";
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
 import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
@@ -146,6 +147,7 @@ export default function AppRouter() {
               />
               <Route path="statistics" element={<CompanyStatsPage />} />
               <Route path="iam" element={<IamPage />} />
+              <Route path="inventory-analytics" element={<CompanyInventoryAnalyticsPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />

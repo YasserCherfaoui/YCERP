@@ -6,6 +6,7 @@ import {
   Apple,
   ArrowLeft,
   ChartNoAxesCombined,
+  ChartPie,
   Handshake,
   ReceiptText,
   ShoppingCart,
@@ -35,7 +36,7 @@ export default function () {
       </div>
       <div className="flex flex-col gap-10 p-4 justify-center items-center">
         <CompanyTile company={company} />
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {quickMenu.map((item, index) => (
             <WideButton key={index} item={item} />
           ))}
@@ -83,12 +84,17 @@ const quickMenu = [
   },
   {
     label: "Statistics",
-    icon: ChartNoAxesCombined,
+    icon: ChartPie,
     href: "statistics",
   },
   {
     label: "IAM",
     icon: UserCog,
     href: "iam",
+  },
+  {
+    label: "Inventory Analytics",
+    icon: ChartNoAxesCombined,
+    href: "inventory-analytics",
   },
 ];
