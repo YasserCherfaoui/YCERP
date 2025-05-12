@@ -2,6 +2,7 @@ import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
+import { Combobox } from "@/components/ui/combobox-standalone";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import {
   InventoryItem,
@@ -74,7 +75,8 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function CompanyInventoryAnalyticsPage() {
   const company = useSelector((state: RootState) => state.company.company);
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  // Use string for selectedItemId for Combobox compatibility
+  const [selectedItemId, setSelectedItemId] = useState<string>("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   // Fetch inventory items
@@ -91,16 +93,24 @@ export default function CompanyInventoryAnalyticsPage() {
     enabled: !!company,
   });
 
-  // Prepare inventory items for select
+  // Prepare inventory items for combobox
   const inventoryItems: InventoryItem[] = useMemo(() => {
     return inventoryData?.data?.items_with_cost || [];
   }, [inventoryData]);
+
+  // Prepare combobox items
+  const comboboxItems = useMemo(() =>
+    inventoryItems
+      .filter((item) => item.name.length > 0)
+      .map((item) => ({ value: String(item.ID), label: item.name })),
+    [inventoryItems]
+  );
 
   // Prepare logs for the selected item and date range
   const filteredLogs: InventoryItemTransactionLog[] = useMemo(() => {
     if (!logsData?.data || !selectedItemId) return [];
     let logs = logsData.data.filter(
-      (log) => log.inventory_item_id === selectedItemId
+      (log) => String(log.inventory_item_id) === selectedItemId
     );
     if (dateRange && dateRange.from && dateRange.to) {
       // If single day, expand to full day
@@ -157,29 +167,14 @@ export default function CompanyInventoryAnalyticsPage() {
         <CardContent>
           <div className="flex flex-col md:flex-row gap-4 items-center mb-6">
             <div className="w-full md:w-1/3">
-              <select
-                className="w-full border rounded p-2 bg-black"
-                value={selectedItemId ?? ""}
-                onChange={(e) =>
-                  setSelectedItemId(
-                    e.target.value ? Number(e.target.value) : null
-                  )
-                }
-                disabled={inventoryLoading}
-              >
-                <option value="">
-                  {inventoryLoading
-                    ? "Loading items..."
-                    : "Select inventory item"}
-                </option>
-                {inventoryItems
-                  .filter((item) => item.name.length > 0)
-                  .map((item) => (
-                    <option key={item.ID} value={item.ID}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
+              <Combobox
+                items={comboboxItems}
+                value={selectedItemId}
+                onChange={setSelectedItemId}
+                placeholder={inventoryLoading ? "Loading items..." : "Select inventory item"}
+                searchPlaceholder="Search inventory item..."
+                label="Inventory Item"
+              />
             </div>
             <div className="w-full md:w-1/3">
               <DatePickerWithRange date={dateRange} onSelect={setDateRange} />
