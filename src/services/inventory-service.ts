@@ -129,3 +129,4 @@ export const getFranchiseInventoryTotalCost = async (franchiseID: number): Promi
     }> = await response.json();
     return apiResponse;
 }
+
