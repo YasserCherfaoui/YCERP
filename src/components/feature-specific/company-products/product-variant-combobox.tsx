@@ -5,23 +5,23 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { ProductVariant } from "@/models/data/product.model";
 
 interface ProductVariantComboboxProps {
-  variants: ProductVariant[];
+  variants?: ProductVariant[];
   value?: number;
   onChange: (value: number | undefined) => void;
   placeholder?: string;
@@ -29,7 +29,7 @@ interface ProductVariantComboboxProps {
 }
 
 export function ProductVariantCombobox({
-  variants,
+  variants = [],
   value,
   onChange,
   placeholder = "Select variant...",
@@ -38,9 +38,10 @@ export function ProductVariantCombobox({
   const [open, setOpen] = React.useState(false);
 
   // Find the selected variant to display its QR code
+  const safeVariants = Array.isArray(variants) ? variants.filter(Boolean) : [];
   const selectedVariant = React.useMemo(
-    () => variants.find((variant) => variant.ID === value),
-    [variants, value]
+    () => safeVariants.find((variant) => variant && variant.ID === value),
+    [safeVariants, value]
   );
 
   return (
@@ -64,7 +65,7 @@ export function ProductVariantCombobox({
           <CommandList>
             <CommandEmpty>No variant found.</CommandEmpty>
             <CommandGroup>
-              {variants.map((variant) => (
+              {safeVariants.map((variant) => (
                 <CommandItem
                   key={variant.ID}
                   value={variant.qr_code}

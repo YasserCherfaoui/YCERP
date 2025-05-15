@@ -8,6 +8,7 @@ import {
   ChartNoAxesCombined,
   ChartPie,
   Handshake,
+  Package,
   ReceiptText,
   ShoppingCart,
   Store,
@@ -96,5 +97,10 @@ const quickMenu = [
     label: "Inventory Analytics",
     icon: ChartNoAxesCombined,
     href: "inventory-analytics",
+  },
+  {
+    label: "Orders",
+    icon: Package,
+    href: "orders",
   },
 ];
