@@ -1,9 +1,9 @@
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { WooOrder } from "@/models/data/woo-order.model";
@@ -27,7 +27,7 @@ export default function OrderDetailsDialog({ order, open, setOpen }: OrderDetail
           <section>
             <h3 className="font-semibold mb-2">Order Info</h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div><strong>ID:</strong> {order.ID}</div>
+              <div><strong>ID:</strong> {order.id}</div>
               <div><strong>Woo ID:</strong> {order.woo_id}</div>
               <div><strong>Status:</strong> {order.status}</div>
               <div><strong>Total:</strong> {order.total} {order.currency}</div>
