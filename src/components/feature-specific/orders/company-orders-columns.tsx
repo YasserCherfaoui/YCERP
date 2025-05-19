@@ -4,7 +4,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { ColumnDef } from "@tanstack/react-table";
-
+import { useState } from "react";
+import ClientStatusDetailsDialog from "./client-status-details-dialog";
 export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
   { accessorKey: "id", header: "ID" },
   {
@@ -39,31 +40,55 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     accessorKey: "client_statuses",
     header: "Client Status",
     cell: ({ row }: { row: { original: WooOrder } }) => {
-      if (row.original.client_statuses.length === 0) {
-        return (
-          <div className="bg-gray-500 p-2 rounded-md text-white text-center">
-            No status
-          </div>
-        );
-      }
-      const lastStatus =
-        row.original.client_statuses[row.original.client_statuses.length - 1];
+      const [open, setOpen] = useState(false);
+      const [setStatusOpen, setSetStatusOpen] = useState(false);
+      const statuses = row.original.client_statuses;
       return (
-        <div
-          className={cn(
-            "p-2 rounded-md text-black text-center flex flex-col gap-2"
-          )}
-          style={{
-            backgroundColor: lastStatus?.sub_qualification
-              ? lastStatus?.sub_qualification?.color
-              : lastStatus?.qualification?.color?.startsWith("#")
-              ? lastStatus?.qualification?.color
-              : "gray",
-          }}
-        >
-          <span className="font-bold">{lastStatus?.qualification?.name}</span>
-          <span>{lastStatus?.sub_qualification?.name}</span>
-        </div>
+        <>
+          <div
+            className={cn(
+              "cursor-pointer",
+              statuses.length === 0
+                ? "bg-gray-500 p-2 rounded-md text-white text-center"
+                : "p-2 rounded-md text-black text-center flex flex-col gap-2"
+            )}
+            style={
+              statuses.length > 0
+                ? {
+                    backgroundColor: statuses[statuses.length - 1]?.sub_qualification
+                      ? statuses[statuses.length - 1]?.sub_qualification?.color
+                      : statuses[statuses.length - 1]?.qualification?.color?.startsWith("#")
+                      ? statuses[statuses.length - 1]?.qualification?.color
+                      : "gray",
+                  }
+                : {}
+            }
+            onClick={() => setOpen(true)}
+          >
+            {statuses.length === 0 ? (
+              "No status"
+            ) : (
+              <>
+                <span className="font-bold">
+                  {statuses[statuses.length - 1]?.qualification?.name}
+                </span>
+                <span>{statuses[statuses.length - 1]?.sub_qualification?.name}</span>
+              </>
+            )}
+          </div>
+          <ClientStatusDetailsDialog
+            open={open}
+            onClose={() => setOpen(false)}
+            statuses={statuses}
+            onSetStatus={() => {
+              setOpen(false);
+              setSetStatusOpen(true);
+            }}
+            setStatusOpen={setStatusOpen}
+            setSetStatusOpen={setSetStatusOpen}
+            orderID={row.original.id}
+          />
+        </>
       );
     },
   },

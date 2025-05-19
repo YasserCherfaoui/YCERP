@@ -28,7 +28,19 @@ function OrderLineItemsAccordion({
                   <span className="font-medium">{item.name}</span>
                   <span>
                     (SKU: <b>{item.sku}</b>) - Qty: <b>{item.quantity}</b>, Price:{" "}
-                    <b>{item.price}</b>, Total: <b>{item.total}</b>
+                    <b>
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "DZD",
+                      }).format(item.price)}
+                    </b>
+                    , Total:{" "}
+                    <b>
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "DZD",
+                      }).format(Number(item.total) ?? 0)}
+                    </b>
                   </span>
                 </li>
               ))}
