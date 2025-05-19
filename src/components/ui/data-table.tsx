@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PaginationMeta } from "@/models/responses/company-stats.model";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "./button";
 import {
   DropdownMenu,
@@ -37,6 +37,9 @@ interface DataTableProps<TData, TValue> {
   paginationMeta?: PaginationMeta;
   onPageChange?: (page: number) => void;
   currentPage?: number;
+  selectedRows?: string[]; // List of selected row IDs
+  setSelectedRows?: (ids: string[]) => void; // Setter for selected row IDs
+  getRowId?: (row: TData) => string; // Function to get row ID
 }
 
 export function DataTable<TData, TValue>({
@@ -45,15 +48,23 @@ export function DataTable<TData, TValue>({
   searchColumn,
   paginationMeta,
   onPageChange,
-  currentPage = 0
+  currentPage = 0,
+  selectedRows,
+  setSelectedRows,
+  getRowId
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  // If selection is enabled, sync with external selectedRows
+  const selectionEnabled = !!selectedRows && !!setSelectedRows;
+  // Map selectedRows to TanStack's rowSelection object
+  const rowSelection = React.useMemo(() => {
+    if (!selectionEnabled || !selectedRows) return {};
+    const obj: Record<string, boolean> = {};
+    for (const id of selectedRows) obj[id] = true;
+    return obj;
+  }, [selectedRows, selectionEnabled]);
 
   // Add local pagination state for automatic mode
   const [autoPageIndex, setAutoPageIndex] = React.useState(0);
@@ -75,14 +86,29 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     manualPagination: isManual,
     pageCount,
+    enableRowSelection: selectionEnabled ? true : false,
+    getRowId: getRowId,
+    onRowSelectionChange: selectionEnabled
+      ? (updater) => {
+          // updater can be a function or value
+          let newRowSelection: Record<string, boolean>;
+          if (typeof updater === 'function') {
+            newRowSelection = updater(rowSelection);
+          } else {
+            newRowSelection = updater;
+          }
+          // Convert rowSelection object to selectedRows array
+          const newSelectedRows = Object.keys(newRowSelection).filter((id) => newRowSelection[id]);
+          setSelectedRows?.(newSelectedRows);
+        }
+      : undefined,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
+      rowSelection: selectionEnabled ? rowSelection : undefined,
       pagination: {
         pageIndex,
         pageSize
@@ -100,6 +126,21 @@ export function DataTable<TData, TValue>({
       }
     },
   });
+
+  // Helper: get row ID
+
+  // Helper: get all visible row IDs
+
+  // Ref for select-all checkbox to set indeterminate
+  const selectAllRef = useRef<HTMLInputElement>(null);
+  const allChecked = table.getIsAllRowsSelected();
+  const someChecked = table.getIsSomeRowsSelected() && !allChecked;
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someChecked;
+    }
+  }, [someChecked]);
 
   return (
     <div>
@@ -142,8 +183,24 @@ export function DataTable<TData, TValue>({
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map((headerGroup, headerGroupIdx) => (
               <TableRow key={headerGroup.id}>
+                {/* Selection checkbox header only for first header row */}
+                {selectionEnabled && headerGroupIdx === 0 && (
+                  <TableHead key="select-all" style={{ width: 36 }}>
+                    <input
+                      ref={selectAllRef}
+                      type="checkbox"
+                      aria-label="Select all"
+                      checked={allChecked}
+                      onChange={table.getToggleAllRowsSelectedHandler()}
+                    />
+                  </TableHead>
+                )}
+                {/* If not first header row but selection enabled, add empty cell for alignment */}
+                {selectionEnabled && headerGroupIdx !== 0 && (
+                  <TableHead key="select-all-empty" style={{ width: 36 }} />
+                )}
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -166,6 +223,17 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
+                  {/* Selection checkbox cell */}
+                  {selectionEnabled && (
+                    <TableCell key="select-row" style={{ width: 36 }}>
+                      <input
+                        type="checkbox"
+                        aria-label="Select row"
+                        checked={row.getIsSelected()}
+                        onChange={row.getToggleSelectedHandler()}
+                      />
+                    </TableCell>
+                  )}
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -179,7 +247,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + (selectionEnabled ? 1 : 0)}
                   className="h-24 text-center"
                 >
                   No results.
@@ -190,8 +258,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
+        {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s) selected.
       </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">

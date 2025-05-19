@@ -1,4 +1,9 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { WooOrder } from "@/models/data/woo-order.model";
 
 function OrderLineItemsAccordion({
@@ -19,8 +24,12 @@ function OrderLineItemsAccordion({
           ) : (
             <ul className="list-disc list-inside space-y-1">
               {lineItems.map((item, idx) => (
-                <li key={item.ID ?? idx}>
-                  <span className="font-medium">{item.name}</span> (SKU: {item.sku}) - Qty: {item.quantity}, Price: {item.price}, Total: {item.total}
+                <li key={item.ID ?? idx} className="flex flex-col gap-2">
+                  <span className="font-medium">{item.name}</span>
+                  <span>
+                    (SKU: <b>{item.sku}</b>) - Qty: <b>{item.quantity}</b>, Price:{" "}
+                    <b>{item.price}</b>, Total: <b>{item.total}</b>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -31,4 +40,4 @@ function OrderLineItemsAccordion({
   );
 }
 
-export default OrderLineItemsAccordion; 
+export default OrderLineItemsAccordion;

@@ -21,4 +21,42 @@ export const createOrder = async (orderData: CreateOrderSchema): Promise<APIResp
 
   const createdOrder: APIResponse<Order> = await response.json();
   return createdOrder;
-}; 
+};
+
+export const shuffleOrders = async (data: { selected_users: number[] }): Promise<APIResponse<any>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/shuffle`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to shuffle orders.");
+  }
+
+  const shuffledOrders: APIResponse<any> = await response.json();
+  return shuffledOrders;
+}
+
+export const assignOrders = async (data: { orders_ids: number[], user_id: number }): Promise<APIResponse<any>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/assign`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to assign orders.");
+  }
+
+  const assignedOrders: APIResponse<any> = await response.json();
+  return assignedOrders;
+}
