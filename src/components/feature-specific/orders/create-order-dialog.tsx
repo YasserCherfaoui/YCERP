@@ -23,6 +23,7 @@ import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { ClientStatusDialog } from "./client-status-dialog";
 
 function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; open: boolean; setOpen: (open: boolean) => void }) {
   const company = useSelector((state: RootState) => state.company.company);
@@ -40,6 +41,7 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
   const [status, setStatus] = useState("unconfirmed");
   const [discount, setDiscount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [clientStatusDialogOpen, setClientStatusDialogOpen] = useState(false);
 
   // Fetch all product variants for the company
   const { data: inventoryData } = useQuery({
@@ -50,6 +52,16 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
   const allVariants = (inventoryData?.data?.items
     .map((item) => item.product_variant)
     .filter((v): v is NonNullable<typeof v> => Boolean(v))) || [];
+
+  // Map product_variant_id to cost for quick lookup
+  const variantCostMap: Record<number, number> = {};
+  if (inventoryData?.data?.items) {
+    for (const item of inventoryData.data.items) {
+      if (item.product_variant_id && typeof item.product?.price === 'number') {
+        variantCostMap[item.product_variant_id] = item.product.price;
+      }
+    }
+  }
 
   // Helper to find variant by SKU
   function findVariantBySku(sku: string) {
@@ -103,6 +115,11 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
             Fill or adjust the details below to create a new Order.
           </DialogDescription>
         </DialogHeader>
+        <div className="flex justify-end">
+          <Button type="button" variant="secondary" onClick={() => setClientStatusDialogOpen(true)}>
+            Set Client Status
+          </Button>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
@@ -139,7 +156,6 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                 />
               </div>
               <div>
-                <Label>State</Label>
                 <Combobox
                   items={cities.map(city => ({ value: city.key, label: city.label }))}
                   value={shipping.state}
@@ -194,7 +210,18 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                             variants={allVariants}
                             value={item.product_variant_id}
                             onChange={variantId => {
-                              setOrderItems(items => items.map((it, i) => i === idx ? { ...it, product_variant_id: variantId ?? 0 } : it));
+                              const selectedVariant = allVariants.find(v => v.ID === variantId);
+                              const variantCost = variantId ? variantCostMap[variantId] : undefined;
+                              setOrderItems(items => items.map((it, i) =>
+                                i === idx
+                                  ? {
+                                      ...it,
+                                      product_variant_id: variantId ?? 0,
+                                      product_id: selectedVariant?.product_id ?? 0,
+                                      price: variantCost !== undefined ? variantCost * it.quantity : it.price
+                                    }
+                                  : it
+                              ));
                             }}
                             key={`variant-combobox-${idx}`}
                           />
@@ -206,12 +233,24 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                             value={item.quantity}
                             onChange={e => {
                               const quantity = Number(e.target.value);
-                              setOrderItems(items => items.map((it, i) => i === idx ? { ...it, quantity } : it));
+                              const cost = item.product_variant_id ? variantCostMap[item.product_variant_id] : undefined;
+                              setOrderItems(items => items.map((it, i) =>
+                                i === idx
+                                  ? {
+                                      ...it,
+                                      quantity,
+                                      price: cost !== undefined ? cost * quantity : it.price
+                                    }
+                                  : it
+                              ));
                             }}
                           />
                         </TableCell>
                         <TableCell>
-                          {item.price}
+                          {(() => {
+                            const variantCost = item.product_variant_id ? variantCostMap[item.product_variant_id] : undefined;
+                            return variantCost !== undefined ? variantCost * item.quantity : item.price;
+                          })()}
                         </TableCell>
                         <TableCell>
                           <Button type="button" variant="destructive" size="sm" onClick={() => setOrderItems(items => items.filter((_, i) => i !== idx))}>
@@ -244,6 +283,7 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
           </DialogFooter>
         </form>
       </DialogContent>
+      <ClientStatusDialog open={clientStatusDialogOpen} setOpen={setClientStatusDialogOpen} orderID={wooOrder.id} />
     </Dialog>
   );
 }

@@ -1,7 +1,8 @@
+import { ClientStatus } from "@/models/data/client-status.model";
 import { User } from "./user.model";
 
 export interface WooOrder {
-  ID: number;
+  id: number;
   woo_id: number;
   number: string;
   status: string;
@@ -30,6 +31,7 @@ export interface WooOrder {
   taken_by_id?: number | null;
   taken_by?: User | null;
   taken_at?: string | null;
+  client_statuses: ClientStatus[];
 }
 
 export interface WooOrderItem {
