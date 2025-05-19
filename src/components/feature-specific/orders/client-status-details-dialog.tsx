@@ -39,13 +39,13 @@ export default function ClientStatusDetailsDialog({
                 : "Below are all client statuses for this order."}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-4 my-4">
+          <div className="flex flex-col gap-4 my-4 max-h-[500px] overflow-y-auto p-2">
             {statuses.length === 0 ? (
               <div className="bg-gray-500 p-2 rounded-md text-white text-center">
                 No status
               </div>
             ) : (
-              statuses.map((status, idx) => (
+              statuses.sort((a, b) => new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()).map((status, idx) => (
                 <div
                   key={idx}
                   className={cn(

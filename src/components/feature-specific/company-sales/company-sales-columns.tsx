@@ -56,7 +56,7 @@ export const companySalesColumns: ColumnDef<Sale>[] = [
         : "black";
       return (
         <Badge
-          variant={!!data.return ? "default" : "outline"}
+          variant={"default"}
           className={`text-${color}`}
         >
           {label}
