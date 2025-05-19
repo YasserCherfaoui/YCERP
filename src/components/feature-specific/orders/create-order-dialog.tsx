@@ -13,8 +13,21 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { OrderStatus } from "@/models/data/order.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { getCompanyInventory } from "@/services/inventory-service";
@@ -25,7 +38,15 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { ClientStatusDialog } from "./client-status-dialog";
 
-function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; open: boolean; setOpen: (open: boolean) => void }) {
+function CreateOrderDialog({
+  wooOrder,
+  open,
+  setOpen,
+}: {
+  wooOrder: WooOrder;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}) {
   const company = useSelector((state: RootState) => state.company.company);
   if (!company) {
     return null;
@@ -49,15 +70,16 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
     queryFn: () => getCompanyInventory(company.ID),
     enabled: Boolean(company && company.ID),
   });
-  const allVariants = (inventoryData?.data?.items
-    .map((item) => item.product_variant)
-    .filter((v): v is NonNullable<typeof v> => Boolean(v))) || [];
+  const allVariants =
+    inventoryData?.data?.items
+      .map((item) => item.product_variant)
+      .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
 
   // Map product_variant_id to cost for quick lookup
   const variantCostMap: Record<number, number> = {};
   if (inventoryData?.data?.items) {
     for (const item of inventoryData.data.items) {
-      if (item.product_variant_id && typeof item.product?.price === 'number') {
+      if (item.product_variant_id && typeof item.product?.price === "number") {
         variantCostMap[item.product_variant_id] = item.product.price;
       }
     }
@@ -69,11 +91,16 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
   }
 
   const [orderItems, setOrderItems] = useState(() =>
-    wooOrder.line_items.map(item => {
-      const matchedVariant = findVariantBySku(item.sku);
+    wooOrder.line_items.map((item) => {
+      // Try to find by SKU
+      let matchedVariant = findVariantBySku(item.sku);
+      // If not found by SKU, try to find by variation_id
+      if (!matchedVariant && item.variation_id) {
+        matchedVariant = allVariants.find((v) => v.ID === item.variation_id);
+      }
       return {
         product_id: matchedVariant?.product_id ?? item.product_id,
-        product_variant_id: matchedVariant?.ID ?? item.variation_id,
+        product_variant_id: matchedVariant?.ID ?? 0,
         discount: 0,
         quantity: item.quantity,
         price: item.price || 0,
@@ -110,13 +137,19 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-4xl w-full">
         <DialogHeader>
-          <DialogTitle>Create Order from WooOrder #{wooOrder.number}</DialogTitle>
+          <DialogTitle>
+            Create Order from WooOrder #{wooOrder.number}
+          </DialogTitle>
           <DialogDescription>
             Fill or adjust the details below to create a new Order.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end">
-          <Button type="button" variant="secondary" onClick={() => setClientStatusDialogOpen(true)}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setClientStatusDialogOpen(true)}
+          >
             Set Client Status
           </Button>
         </div>
@@ -127,7 +160,9 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                 <Label>Full Name</Label>
                 <Input
                   value={shipping.full_name}
-                  onChange={e => setShipping(s => ({ ...s, full_name: e.target.value }))}
+                  onChange={(e) =>
+                    setShipping((s) => ({ ...s, full_name: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -135,7 +170,9 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                 <Label>Phone Number</Label>
                 <Input
                   value={shipping.phone_number}
-                  onChange={e => setShipping(s => ({ ...s, phone_number: e.target.value }))}
+                  onChange={(e) =>
+                    setShipping((s) => ({ ...s, phone_number: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -143,7 +180,9 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                 <Label>Address</Label>
                 <Input
                   value={shipping.address}
-                  onChange={e => setShipping(s => ({ ...s, address: e.target.value }))}
+                  onChange={(e) =>
+                    setShipping((s) => ({ ...s, address: e.target.value }))
+                  }
                   required
                 />
               </div>
@@ -151,15 +190,22 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                 <Label>City</Label>
                 <Input
                   value={shipping.city}
-                  onChange={e => setShipping(s => ({ ...s, city: e.target.value }))}
+                  onChange={(e) =>
+                    setShipping((s) => ({ ...s, city: e.target.value }))
+                  }
                   required
                 />
               </div>
               <div>
                 <Combobox
-                  items={cities.map(city => ({ value: city.key, label: city.label }))}
+                  items={cities.map((city) => ({
+                    value: city.key,
+                    label: city.label,
+                  }))}
                   value={shipping.state}
-                  onChange={(value: string) => setShipping(s => ({ ...s, state: value }))}
+                  onChange={(value: string) =>
+                    setShipping((s) => ({ ...s, state: value }))
+                  }
                   placeholder="Select a wilaya"
                   label="State"
                   searchPlaceholder="Search wilaya..."
@@ -174,7 +220,8 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                   <SelectContent>
                     {Object.values(OrderStatus).map((statusValue) => (
                       <SelectItem key={statusValue} value={statusValue}>
-                        {statusValue.charAt(0).toUpperCase() + statusValue.slice(1)}
+                        {statusValue.charAt(0).toUpperCase() +
+                          statusValue.slice(1)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -185,13 +232,25 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                 <Input
                   type="number"
                   value={discount}
-                  onChange={e => setDiscount(Number(e.target.value))}
+                  onChange={(e) => setDiscount(Number(e.target.value))}
                   min={0}
                 />
               </div>
             </div>
             <div className="space-y-4">
               <Label>Order Items</Label>
+              <ol className="flex flex-col gap-2">
+                {wooOrder.line_items.map((item, idx) => (
+                  <li key={idx}>
+                    {idx + 1}. {item.name} ({item.quantity} x{" "}
+                    {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "DZD",
+                    }).format(item.price)}
+                    )
+                  </li>
+                ))}
+              </ol>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
@@ -209,19 +268,29 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                           <ProductVariantCombobox
                             variants={allVariants}
                             value={item.product_variant_id}
-                            onChange={variantId => {
-                              const selectedVariant = allVariants.find(v => v.ID === variantId);
-                              const variantCost = variantId ? variantCostMap[variantId] : undefined;
-                              setOrderItems(items => items.map((it, i) =>
-                                i === idx
-                                  ? {
-                                      ...it,
-                                      product_variant_id: variantId ?? 0,
-                                      product_id: selectedVariant?.product_id ?? 0,
-                                      price: variantCost !== undefined ? variantCost * it.quantity : it.price
-                                    }
-                                  : it
-                              ));
+                            onChange={(variantId) => {
+                              const selectedVariant = allVariants.find(
+                                (v) => v.ID === variantId
+                              );
+                              const variantCost = variantId
+                                ? variantCostMap[variantId]
+                                : undefined;
+                              setOrderItems((items) =>
+                                items.map((it, i) =>
+                                  i === idx
+                                    ? {
+                                        ...it,
+                                        product_variant_id: variantId ?? 0,
+                                        product_id:
+                                          selectedVariant?.product_id ?? 0,
+                                        price:
+                                          variantCost !== undefined
+                                            ? variantCost * it.quantity
+                                            : it.price,
+                                      }
+                                    : it
+                                )
+                              );
                             }}
                             key={`variant-combobox-${idx}`}
                           />
@@ -231,29 +300,49 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                             type="number"
                             min={1}
                             value={item.quantity}
-                            onChange={e => {
+                            onChange={(e) => {
                               const quantity = Number(e.target.value);
-                              const cost = item.product_variant_id ? variantCostMap[item.product_variant_id] : undefined;
-                              setOrderItems(items => items.map((it, i) =>
-                                i === idx
-                                  ? {
-                                      ...it,
-                                      quantity,
-                                      price: cost !== undefined ? cost * quantity : it.price
-                                    }
-                                  : it
-                              ));
+                              const cost = item.product_variant_id
+                                ? variantCostMap[item.product_variant_id]
+                                : undefined;
+                              setOrderItems((items) =>
+                                items.map((it, i) =>
+                                  i === idx
+                                    ? {
+                                        ...it,
+                                        quantity,
+                                        price:
+                                          cost !== undefined
+                                            ? cost * quantity
+                                            : it.price,
+                                      }
+                                    : it
+                                )
+                              );
                             }}
                           />
                         </TableCell>
                         <TableCell>
                           {(() => {
-                            const variantCost = item.product_variant_id ? variantCostMap[item.product_variant_id] : undefined;
-                            return variantCost !== undefined ? variantCost * item.quantity : item.price;
+                            const variantCost = item.product_variant_id
+                              ? variantCostMap[item.product_variant_id]
+                              : undefined;
+                            return variantCost !== undefined
+                              ? variantCost * item.quantity
+                              : item.price;
                           })()}
                         </TableCell>
                         <TableCell>
-                          <Button type="button" variant="destructive" size="sm" onClick={() => setOrderItems(items => items.filter((_, i) => i !== idx))}>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              setOrderItems((items) =>
+                                items.filter((_, i) => i !== idx)
+                              )
+                            }
+                          >
                             Remove
                           </Button>
                         </TableCell>
@@ -265,7 +354,18 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
                   type="button"
                   variant="outline"
                   className="mt-2"
-                  onClick={() => setOrderItems(items => [...items, { product_id: 0, product_variant_id: 0, discount: 0, quantity: 1, price: 0 }])}
+                  onClick={() =>
+                    setOrderItems((items) => [
+                      ...items,
+                      {
+                        product_id: 0,
+                        product_variant_id: 0,
+                        discount: 0,
+                        quantity: 1,
+                        price: 0,
+                      },
+                    ])
+                  }
                 >
                   Add Item
                 </Button>
@@ -278,14 +378,20 @@ function CreateOrderDialog({ wooOrder, open, setOpen }: { wooOrder: WooOrder; op
               {mutation.isPending ? "Creating..." : "Create Order"}
             </Button>
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
             </DialogClose>
           </DialogFooter>
         </form>
       </DialogContent>
-      <ClientStatusDialog open={clientStatusDialogOpen} setOpen={setClientStatusDialogOpen} orderID={wooOrder.id} />
+      <ClientStatusDialog
+        open={clientStatusDialogOpen}
+        setOpen={setClientStatusDialogOpen}
+        orderID={wooOrder.id}
+      />
     </Dialog>
   );
 }
 
-export default CreateOrderDialog; 
+export default CreateOrderDialog;
