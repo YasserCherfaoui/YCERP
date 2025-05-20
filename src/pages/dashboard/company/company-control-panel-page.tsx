@@ -3,6 +3,7 @@ import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import { Button } from "@/components/ui/button";
 import {
+  AlertCircle,
   Apple,
   ArrowLeft,
   ChartNoAxesCombined,
@@ -102,5 +103,10 @@ const quickMenu = [
     label: "Orders",
     icon: Package,
     href: "orders",
+  },
+  {
+    label: "Issues",
+    icon: AlertCircle,
+    href: "issues",
   },
 ];
