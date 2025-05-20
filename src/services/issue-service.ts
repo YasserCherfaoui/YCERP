@@ -19,3 +19,25 @@ export const getIssues = async (): Promise<APIResponse<IssueResponse[]>> => {
     const data = await response.json();
     return data;
 }
+
+type CreateIssueReplyData = {
+    issue_ticket_id: number;
+    reply: string;
+}
+
+export const createIssueReply = async (data: CreateIssueReplyData): Promise<APIResponse<IssueResponse>> => {
+    const response = await fetch(`${baseUrl}/support/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create issue reply");
+    }
+    const responseData = await response.json();
+    return responseData;
+}
