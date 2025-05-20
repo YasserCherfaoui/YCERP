@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
+import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
 import {
   Apple,
   Handshake,
@@ -64,5 +65,10 @@ const quickMenu = [
     label: "Products",
     icon: Apple,
     href: "products",
+  },
+  {
+    label: "Issues",
+    icon: IssuesIcon,
+    href: "issues",
   },
 ];
