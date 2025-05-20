@@ -1,9 +1,9 @@
 import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
+import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
 import { Button } from "@/components/ui/button";
 import {
-  AlertCircle,
   Apple,
   ArrowLeft,
   ChartNoAxesCombined,
@@ -106,7 +106,7 @@ const quickMenu = [
   },
   {
     label: "Issues",
-    icon: AlertCircle,
+    icon: IssuesIcon,
     href: "issues",
   },
 ];

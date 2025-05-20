@@ -1,3 +1,5 @@
+import { SupportReply } from "@/models/data/issue.model";
+
 export interface UploadResponse {
     id: number;
     issue_ticket_id: number;
@@ -10,4 +12,7 @@ export interface IssueResponse {
     phone: string;
     comment: string;
     issue_ticket_uploads: UploadResponse[];
+    support_replies: SupportReply[];
 }
+
+
