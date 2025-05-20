@@ -1,6 +1,6 @@
 import { baseUrl } from "@/app/constants";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { IssueResponse } from "@/models/responses/issue-response.model";
+import { IssueResponse, OrderTicketResponse } from "@/models/responses/issue-response.model";
 
 const token = localStorage.getItem("token");
 
@@ -21,7 +21,8 @@ export const getIssues = async (): Promise<APIResponse<IssueResponse[]>> => {
 }
 
 type CreateIssueReplyData = {
-    issue_ticket_id: number;
+    issue_ticket_id?: number;
+    order_ticket_id?: number;
     reply: string;
 }
 
@@ -40,4 +41,20 @@ export const createIssueReply = async (data: CreateIssueReplyData): Promise<APIR
     }
     const responseData = await response.json();
     return responseData;
+}
+
+export const getOrderTickets = async (): Promise<APIResponse<OrderTicketResponse[]>> => {
+    const response = await fetch(`${baseUrl}/orders/`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        }
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to fetch order tickets");
+    }
+    const data = await response.json();
+    return data;
 }

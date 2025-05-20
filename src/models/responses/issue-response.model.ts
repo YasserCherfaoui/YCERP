@@ -16,3 +16,17 @@ export interface IssueResponse {
 }
 
 
+export interface OrderTicketUploadResponse {
+    id: number;
+    order_ticket_id: number;
+    signed_url: string;
+}
+
+export interface OrderTicketResponse {
+    id: number;
+    full_name: string;
+    phone: string;
+    comment: string;
+    order_ticket_uploads: OrderTicketUploadResponse[];
+    support_replies: SupportReply[];
+}

@@ -8,6 +8,7 @@ import {
   ReceiptText,
   ShoppingCart,
   Store,
+  Ticket,
   Undo2,
   Warehouse,
 } from "lucide-react";
@@ -70,5 +71,10 @@ const quickMenu = [
     label: "Issues",
     icon: IssuesIcon,
     href: "issues",
+  },
+  {
+    label: "Order Tickets",
+    icon: Ticket,
+    href: "order-tickets",
   },
 ];

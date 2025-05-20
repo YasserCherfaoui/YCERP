@@ -31,6 +31,7 @@ import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-pa
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
 import IamPage from "@/pages/dashboard/company/iam-page";
 import IssuesPage from "@/pages/dashboard/company/issues-page";
+import OrderTicketsPage from "@/pages/dashboard/company/order-tickets-page";
 import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
@@ -105,6 +106,7 @@ export default function AppRouter() {
                   path="inventory"
                   element={<CompanyFranchiseInventoryPage />}
                 />
+                <Route path="order-tickets" element={<OrderTicketsPage />} />
               </Route>
             </Route>
           </Route>
@@ -152,6 +154,7 @@ export default function AppRouter() {
               <Route path="iam" element={<IamPage />} />
               <Route path="inventory-analytics" element={<CompanyInventoryAnalyticsPage />} />
               <Route path="issues" element={<IssuesPage />} />
+              <Route path="order-tickets" element={<OrderTicketsPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
