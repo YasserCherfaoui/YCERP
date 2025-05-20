@@ -108,6 +108,7 @@ export default function AppRouter() {
               </Route>
             </Route>
           </Route>
+          <Route path="issues" element={<IssuesPage />} />
         </Route>
         //! WARNING: PRIVATE ROUTES
         <Route element={<PrivateRoute />}>
