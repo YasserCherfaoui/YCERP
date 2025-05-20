@@ -30,6 +30,7 @@ import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
 import IamPage from "@/pages/dashboard/company/iam-page";
+import IssuesPage from "@/pages/dashboard/company/issues-page";
 import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
@@ -149,6 +150,7 @@ export default function AppRouter() {
               <Route path="statistics" element={<CompanyStatsPage />} />
               <Route path="iam" element={<IamPage />} />
               <Route path="inventory-analytics" element={<CompanyInventoryAnalyticsPage />} />
+              <Route path="issues" element={<IssuesPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
