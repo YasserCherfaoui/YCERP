@@ -4,6 +4,7 @@ import { companyOrdersColumns } from "@/components/feature-specific/orders/compa
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { useToast } from "@/hooks/use-toast";
+import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
 import { getWooCommerceOrders } from "@/services/woocommerce-service";
@@ -29,8 +30,11 @@ export default function CompanyOrdersPage() {
     queryKey: ["orders"],
     queryFn: () => getWooCommerceOrders(),
   });
-
-  // --- Shuffle Dialog State ---
+  useQuery({
+    queryKey: ["inventory", company.ID],
+    queryFn: () => getCompanyInventory(company.ID),
+    enabled: Boolean(company && company.ID),
+  });  // --- Shuffle Dialog State ---
   const [shuffleOpen, setShuffleOpen] = useState(false);
   const { data: usersData } = useUsersQuery({
     queryKey: ["users", company.ID],
