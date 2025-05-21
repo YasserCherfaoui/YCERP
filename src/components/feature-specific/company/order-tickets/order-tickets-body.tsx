@@ -99,7 +99,7 @@ export default function OrderTicketsBody() {
           open={!!replyTicket}
           onClose={() => setReplyTicket(null)}
           orderTicket={replyTicket}
-          onSubmit={(data) => createReply({ order_ticket_id: replyTicket?.id, reply: data.reply })}
+          onSubmit={(data) => createReply({ order_ticket_id: replyTicket?.id ?? null, issue_ticket_id: null, reply: data.reply })}
         />
       </TabsContent>
       <TabsContent value="solved">
