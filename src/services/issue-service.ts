@@ -1,6 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { IssueResponse, OrderTicketResponse } from "@/models/responses/issue-response.model";
+import { IssueReplySchema } from "@/schemas/issue";
 
 const token = localStorage.getItem("token");
 
@@ -20,13 +21,9 @@ export const getIssues = async (): Promise<APIResponse<IssueResponse[]>> => {
     return data;
 }
 
-type CreateIssueReplyData = {
-    issue_ticket_id?: number;
-    order_ticket_id?: number;
-    reply: string;
-}
 
-export const createIssueReply = async (data: CreateIssueReplyData): Promise<APIResponse<IssueResponse>> => {
+
+export const createIssueReply = async (data: IssueReplySchema): Promise<APIResponse<IssueResponse>> => {
     const response = await fetch(`${baseUrl}/support/`, {
         method: "POST",
         headers: {
