@@ -45,7 +45,7 @@ import { createOrder, getYalidineCenters, getYalidineCommunes, getYalidinePricin
 import { cities } from "@/utils/algeria-cities";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { ClientStatusDialog } from "./client-status-dialog";
@@ -112,6 +112,8 @@ function CreateOrderDialog({
       delivery_type: 'home',
       selected_commune: '',
       selected_center: '',
+      first_delivery_cost: 0,
+      second_delivery_cost: 0,
     },
     mode: "onChange",
   });
@@ -200,6 +202,41 @@ function CreateOrderDialog({
 
   // Helper to find variant by SKU
   const getVariantCost = (variantId: number) => variantCostMap[variantId] || 0;
+
+  // Compute the delivery fee
+  const computeDeliveryFee = () => {
+    let deliveryFee = 0;
+    if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
+      let communePricing = null;
+      if (watch('delivery_type') === 'home') {
+        communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
+          ? yalidinePricing.per_commune[String(watch('selected_commune'))]
+          : undefined;
+        deliveryFee = communePricing?.express_home ?? 0;
+      } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
+        const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
+        if (center && center.commune_id && yalidinePricing.per_commune) {
+          communePricing = yalidinePricing.per_commune[String(center.commune_id)];
+          deliveryFee = communePricing?.express_desk ?? 0;
+        }
+      }
+    }
+    return deliveryFee;
+  };
+
+  const deliveryFee = computeDeliveryFee();
+
+  // Add a ref to track if the user has edited second_delivery_cost
+  const userEditedSecondDelivery = useRef(false);
+
+  useEffect(() => {
+    setValue('first_delivery_cost', deliveryFee);
+    // Only set second_delivery_cost if the user hasn't edited it
+    if (!userEditedSecondDelivery.current) {
+      setValue('second_delivery_cost', deliveryFee);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deliveryFee, setValue]);
 
   const mutation = useMutation({
     mutationFn: createOrder,
@@ -600,58 +637,38 @@ function CreateOrderDialog({
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Delivery Fee</span>
-                    <>
-                      {/* Hidden input for first_delivery */}
-                      <input
-                        type="hidden"
-                        name="first_delivery"
-                        value={(() => {
-                          let deliveryFee = 0;
-                          if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
-                            let communePricing = null;
-                            if (watch('delivery_type') === 'home') {
-                              communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
-                                ? yalidinePricing.per_commune[String(watch('selected_commune'))]
-                                : undefined;
-                              deliveryFee = communePricing?.express_home ?? 0;
-                            } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
-                              const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
-                              if (center && center.commune_id && yalidinePricing.per_commune) {
-                                communePricing = yalidinePricing.per_commune[String(center.commune_id)];
-                                deliveryFee = communePricing?.express_desk ?? 0;
-                              }
-                            }
-                          }
-                          return deliveryFee;
-                        })()}
-                      />
-                      {/* Visible input for second_delivery */}
-                      <input
-                        type="number"
-                        name="second_delivery"
-                        className="max-w-[120px] text-right border rounded px-2 py-1 bg-background"
-                        value={(() => {
-                          let deliveryFee = 0;
-                          if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
-                            let communePricing = null;
-                            if (watch('delivery_type') === 'home') {
-                              communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
-                                ? yalidinePricing.per_commune[String(watch('selected_commune'))]
-                                : undefined;
-                              deliveryFee = communePricing?.express_home ?? 0;
-                            } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
-                              const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
-                              if (center && center.commune_id && yalidinePricing.per_commune) {
-                                communePricing = yalidinePricing.per_commune[String(center.commune_id)];
-                                deliveryFee = communePricing?.express_desk ?? 0;
-                              }
-                            }
-                          }
-                          return deliveryFee;
-                        })()}
-                        readOnly
-                      />
-                    </>
+                    <FormField
+                      control={form.control}
+                      name="first_delivery_cost"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <input type="hidden" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="second_delivery_cost"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <input
+                              type="number"
+                              className="max-w-[120px] text-right border rounded px-2 py-1 bg-background"
+                              value={field.value}
+                              onChange={e => {
+                                userEditedSecondDelivery.current = true;
+                                field.onChange(Number(e.target.value));
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Discount</span>
