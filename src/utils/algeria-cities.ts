@@ -25,7 +25,7 @@ export const cities: City[] = Array.from(
   new Map(
     algeriaCities.map((city) => [
       city.wilaya_code,
-      { key: city.wilaya_code, label: city.wilaya_name_ascii }
+      { key: `${Number(city.wilaya_code)}`, label: city.wilaya_name_ascii }
     ])
   ).values()
 );
