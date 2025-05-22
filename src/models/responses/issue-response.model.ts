@@ -11,7 +11,7 @@ export interface IssueResponse {
     full_name: string;
     phone: string;
     comment: string;
-    issue_ticket_uploads: UploadResponse[];
+    issue_ticket_uploads: UploadResponse[] | null;
     support_replies: SupportReply[];
 }
 
@@ -27,6 +27,6 @@ export interface OrderTicketResponse {
     full_name: string;
     phone: string;
     comment: string;
-    order_ticket_uploads: OrderTicketUploadResponse[];
+    order_ticket_uploads: OrderTicketUploadResponse[] | null;
     support_replies: SupportReply[];
 }

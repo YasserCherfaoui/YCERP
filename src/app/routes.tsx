@@ -108,9 +108,9 @@ export default function AppRouter() {
                   path="inventory"
                   element={<CompanyFranchiseInventoryPage />}
                 />
-                <Route path="order-tickets" element={<OrderTicketsPage />} />
               </Route>
             </Route>
+            <Route path="order-tickets" element={<OrderTicketsPage />} />
           </Route>
           <Route path="issues" element={<IssuesPage />} />
         </Route>
@@ -132,7 +132,10 @@ export default function AppRouter() {
                     path="inventory"
                     element={<CompanyFranchiseInventoryPage />}
                   />
-                  <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
+                  <Route
+                    path="statistics"
+                    element={<CompanyFranchiseStatsPage />}
+                  />
                 </Route>
               </Route>
               <Route path="warehouse" element={<WarehousePage />} />
@@ -154,9 +157,12 @@ export default function AppRouter() {
               />
               <Route path="statistics" element={<CompanyStatsPage />} />
               <Route path="iam" element={<IamPage />} />
-              <Route path="inventory-analytics" element={<CompanyInventoryAnalyticsPage />} />
+              <Route
+                path="inventory-analytics"
+                element={<CompanyInventoryAnalyticsPage />}
+              />
               <Route path="issues" element={<IssuesPage />} />
-              <Route path="delivery" >
+              <Route path="delivery">
                 <Route index element={<DeliveryListPage />} />
                 <Route path=":id" element={<DeliveryDashboardPage />} />
               </Route>
