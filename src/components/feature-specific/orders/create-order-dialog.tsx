@@ -11,6 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -24,19 +32,21 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
-  TableHead,
+  TableCell, TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 } from "@/components/ui/table";
-import { OrderStatus } from "@/models/data/order.model";
+import { Textarea } from "@/components/ui/textarea";
 import { WooOrder } from "@/models/data/woo-order.model";
+import { createOrderSchema, CreateOrderSchema } from "@/schemas/order";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { createOrder, getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
 import { cities } from "@/utils/algeria-cities";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { ClientStatusDialog } from "./client-status-dialog";
 
@@ -53,39 +63,66 @@ function CreateOrderDialog({
   if (!company) {
     return null;
   }
-  const [shipping, setShipping] = useState({
-    full_name: wooOrder.billing_name || wooOrder.shipping_name || "",
-    phone_number: wooOrder.customer_phone || "",
-    address: wooOrder.shipping_address_1 || wooOrder.billing_address_1 || "",
-    city: wooOrder.billing_city || "",
-    state: wooOrder.shipping_city || "",
-    delivery_id: undefined as number | undefined,
-  });
-  const [status, setStatus] = useState("unconfirmed");
-  const [discount, setDiscount] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [clientStatusDialogOpen, setClientStatusDialogOpen] = useState(false);
-  const [shippingProvider, setShippingProvider] = useState<'yalidine' | 'my_companies'>('yalidine');
-  const [deliveryType, setDeliveryType] = useState<'home' | 'stopdesk'>('home');
-  const [selectedCommune, setSelectedCommune] = useState<string>("");
-  const [selectedCenter, setSelectedCenter] = useState<string>("");
 
+  const form = useForm<CreateOrderSchema>({
+    resolver: zodResolver(createOrderSchema),
+    defaultValues: {
+      company_id: company.ID,
+      shipping: {
+        full_name: wooOrder.billing_name || wooOrder.shipping_name || "",
+        phone_number: wooOrder.customer_phone || "",
+        address: wooOrder.shipping_address_1 || wooOrder.billing_address_1 || "",
+        city: wooOrder.billing_city || "",
+        state: wooOrder.shipping_city || "",
+        delivery_id: undefined,
+        comments: "",
+      },
+      order_items: wooOrder.line_items.map((item) => ({
+        product_id: item.product_id,
+        product_variant_id: item.variation_id || 0,
+        discount: 0,
+        quantity: item.quantity,
+      })),
+      total: Number(wooOrder.total),
+      status: "unconfirmed",
+      discount: 0,
+      taken_by_id: wooOrder.taken_by_id || undefined,
+      shipping_provider: 'yalidine',
+      delivery_type: 'home',
+      selected_commune: '',
+      selected_center: '',
+    },
+    mode: "onChange",
+  });
+
+  const {
+    setValue,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = form;
+
+  const shipping = watch("shipping");
+  const discount = watch("discount");
+  const orderItems = watch("order_items");
+
+  const [clientStatusDialogOpen, setClientStatusDialogOpen] = useState(false);
 
   // Fetch yalidine Pricing with react-query
   const { data: yalidinePricing } = useQuery({
     queryKey: [
       "yalidine-pricing",
       shipping.state,
-      deliveryType === "home" ? selectedCommune : selectedCenter,
-      deliveryType
+      watch('delivery_type') === "home" ? watch('selected_commune') : watch('selected_center'),
+      watch('delivery_type')
     ],
     queryFn: () => getYalidinePricing(16, Number(shipping.state) ?? 16),
     select: (res) => res.data,
     enabled:
-      shippingProvider === "yalidine" &&
+      watch('shipping_provider') === "yalidine" &&
       Boolean(shipping.state) &&
-      ((deliveryType === "home" && Boolean(selectedCommune)) ||
-        (deliveryType === "stopdesk" && Boolean(selectedCenter))) &&
+      ((watch('delivery_type') === "home" && Boolean(watch('selected_commune'))) ||
+        (watch('delivery_type') === "stopdesk" && Boolean(watch('selected_center')))) &&
       open,
   });
 
@@ -94,7 +131,7 @@ function CreateOrderDialog({
     queryKey: ["yalidine-centers", shipping.state],
     queryFn: () => getYalidineCenters(Number(shipping.state)),
     select: (res) => res.data,
-    enabled: shippingProvider === "yalidine" && deliveryType === "stopdesk" && Boolean(shipping.state) && open,
+    enabled: watch('shipping_provider') === "yalidine" && watch('delivery_type') === "stopdesk" && Boolean(shipping.state) && open,
   });
 
   // Fetch communes for selected state using getYalidineCommunes
@@ -107,8 +144,8 @@ function CreateOrderDialog({
     queryFn: () => getYalidineCommunes(Number(shipping.state)),
     select: (res) => res.data?.data ?? [],
     enabled:
-      shippingProvider === "yalidine" &&
-      deliveryType === "home" &&
+      watch('shipping_provider') === "yalidine" &&
+      watch('delivery_type') === "home" &&
       Boolean(shipping.state) && open
   });
 
@@ -120,15 +157,15 @@ function CreateOrderDialog({
   } = useQuery({
     queryKey: ["delivery-companies"],
     queryFn: getDeliveryCompanies,
-    enabled: shippingProvider === "my_companies" && open,
+    enabled: watch('shipping_provider') === "my_companies" && open,
     select: (res) => res.data,
   });
 
   // Reset commune/center when state or delivery type changes
   useEffect(() => {
-    setSelectedCommune("");
-    setSelectedCenter("");
-  }, [shipping.state, deliveryType]);
+    setValue('selected_commune', '');
+    setValue('selected_center', '');
+  }, [shipping.state, watch('delivery_type')]);
 
   // Fetch all product variants for the company
   const { data: inventoryData } = useQuery({
@@ -152,27 +189,7 @@ function CreateOrderDialog({
   }
 
   // Helper to find variant by SKU
-  function findVariantBySku(sku: string) {
-    return allVariants.find((variant) => variant && variant.qr_code === sku);
-  }
-
-  const [orderItems, setOrderItems] = useState(() =>
-    wooOrder.line_items.map((item) => {
-      // Try to find by SKU
-      let matchedVariant = findVariantBySku(item.sku);
-      // If not found by SKU, try to find by variation_id
-      if (!matchedVariant && item.variation_id) {
-        matchedVariant = allVariants.find((v) => v.ID === item.variation_id);
-      }
-      return {
-        product_id: matchedVariant?.product_id ?? item.product_id,
-        product_variant_id: matchedVariant?.ID ?? 0,
-        discount: 0,
-        quantity: item.quantity,
-        price: item.price || 0,
-      };
-    })
-  );
+  const getVariantCost = (variantId: number) => variantCostMap[variantId] || 0;
 
   const mutation = useMutation({
     mutationFn: createOrder,
@@ -180,28 +197,18 @@ function CreateOrderDialog({
       setOpen(false);
     },
     onError: (err: any) => {
-      setError(err.message || "Failed to create order");
+      console.error("Failed to create order:", err);
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    const orderData = {
-      company_id: company.ID,
-      shipping,
-      order_items: orderItems.map(({ price, ...item }) => item),
-      total: Number(wooOrder.total),
-      status,
-      discount,
-      taken_by_id: wooOrder.taken_by_id || undefined,
-    };
-    mutation.mutate(orderData);
+  const handleSubmitForm = (data: CreateOrderSchema) => {
+    console.log(data);
+    mutation.mutate(data);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-[100rem] w-full">
+      <DialogContent className="max-w-[100rem] w-full overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>
             Create Order from WooOrder #{wooOrder.number}
@@ -219,373 +226,480 @@ function CreateOrderDialog({
             Set Client Status
           </Button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Main sections in a row on desktop, stacked on mobile */}
-          <div className="flex flex-col gap-6 xl:flex-row xl:gap-4">
-            {/* Shipping Section */}
-            <section className="border rounded p-4 flex flex-col gap-4 min-w-[320px] xl:w-1/3">
-              <h3 className="font-semibold mb-2">Shipping</h3>
-              <div>
-                <Label>Shipping Provider</Label>
-                <RadioGroup
-                  value={shippingProvider}
-                  onValueChange={val => setShippingProvider(val as 'yalidine' | 'my_companies')}
-                  className="flex flex-row gap-6 mt-2"
-                >
-                  <RadioGroupItem value="yalidine" id="yalidine" />
-                  <Label htmlFor="yalidine" className="mr-4">Yalidine</Label>
-                  <RadioGroupItem value="my_companies" id="my_companies" />
-                  <Label htmlFor="my_companies">My Delivery Companies</Label>
-                </RadioGroup>
-              </div>
-              {shippingProvider === 'yalidine' && (
+        <Form {...form}>
+          <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4">
+            {/* Main sections in a row on desktop, stacked on mobile */}
+            <div className="flex flex-col gap-6 xl:flex-row xl:gap-4">
+              {/* Shipping Section */}
+              <section className="border rounded p-4 flex flex-col gap-4 min-w-[320px] xl:w-1/3">
+                <h3 className="font-semibold mb-2">Shipping</h3>
                 <div>
-                  <Label>Delivery Type</Label>
-                  <RadioGroup
-                    value={deliveryType}
-                    onValueChange={val => setDeliveryType(val as 'home' | 'stopdesk')}
-                    className="flex flex-row gap-6 mt-2"
-                  >
-                    <RadioGroupItem value="home" id="home" />
-                    <Label htmlFor="home" className="mr-4">Home</Label>
-                    <RadioGroupItem value="stopdesk" id="stopdesk" />
-                    <Label htmlFor="stopdesk">Stop Desk</Label>
-                  </RadioGroup>
-                </div>
-              )}
-              {shippingProvider === 'yalidine' && deliveryType === 'home' && (
-                <div>
-                  <Label>Select Commune</Label>
-                  <Select value={selectedCommune} onValueChange={setSelectedCommune}>
-                    <SelectTrigger className="w-full mt-1">
-                      <SelectValue placeholder={communesLoading ? "Loading..." : "Select a commune"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {communesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
-                      {communesError && <div className="p-2 text-red-500">Error loading communes</div>}
-                      {!communesLoading && !communesError && (yalidineCommunes || []).map(commune => (
-                        <SelectItem key={commune.id} value={String(commune.id)}>{commune.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              {shippingProvider === 'yalidine' && yalidineCenters && shipping.state && deliveryType === 'stopdesk' && (
-                <div>
-                  <Label>Select Center</Label>
-                  <Select value={selectedCenter} onValueChange={setSelectedCenter}>
-                    <SelectTrigger className="w-full mt-1">
-                      <SelectValue placeholder="Select a center" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(yalidineCenters.data || []).map(center => (
-                        <SelectItem key={center.center_id} value={String(center.center_id)}>{center.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              {shippingProvider === 'my_companies' && (
-                <div>
-                  <Label>Select Delivery Company</Label>
-                  <Select
-                    value={shipping.delivery_id ? String(shipping.delivery_id) : ""}
-                    onValueChange={val => setShipping(s => ({ ...s, delivery_id: val ? Number(val) : undefined }))}
-                  >
-                    <SelectTrigger className="w-full mt-1">
-                      <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
-                      {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
-                      {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
-                        <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              {shippingProvider === 'yalidine' && yalidinePricing && (
-                <div>
-                  <Label>Pricing</Label>
-                  {(() => {
-                    let communePricing: any = null;
-                    if (deliveryType === 'home') {
-                      communePricing = yalidinePricing.per_commune?.[selectedCommune];
-                    } else if (deliveryType === 'stopdesk' && yalidineCenters && selectedCenter) {
-                      const center = (yalidineCenters.data || []).find(c => String(c.center_id) === selectedCenter);
-                      if (center) {
-                        communePricing = yalidinePricing.per_commune?.[String(center.commune_id)];
-                      }
-                    }
-                    return communePricing ? (
-                      <div className="border rounded p-2 bg-muted/30">
-                        <div className="font-medium mb-1">{communePricing.commune_name}</div>
-                        <table className="text-sm w-full">
-                          <thead>
-                            <tr>
-                              <th className="text-left">Type</th>
-                              <th className="text-left">Home</th>
-                              <th className="text-left">Desk</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>Express</td>
-                              <td>{communePricing.express_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_home) : "-"}</td>
-                              <td>{communePricing.express_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_desk) : "-"}</td>
-                            </tr>
-                            <tr>
-                              <td>Economic</td>
-                              <td>{communePricing.economic_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_home) : "-"}</td>
-                              <td>{communePricing.economic_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_desk) : "-"}</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                          <div>Retour Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.retour_fee)}</span></div>
-                          <div>COD %: <span className="font-medium">{yalidinePricing.cod_percentage}%</span></div>
-                          <div>Insurance %: <span className="font-medium">{yalidinePricing.insurance_percentage}%</span></div>
-                          <div>Oversize Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.oversize_fee)}</span></div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-xs text-muted-foreground">No pricing found for this {deliveryType === 'home' ? 'commune' : 'center'}.</div>
-                    );
-                  })()}
-                </div>
-              )}
-            </section>
-            {/* Customer/Order Info Section */}
-            <div className="space-y-4 border rounded p-4 min-w-[320px] xl:w-1/3">
-              <div>
-                <Label>Full Name</Label>
-                <Input
-                  value={shipping.full_name}
-                  onChange={(e) =>
-                    setShipping((s) => ({ ...s, full_name: e.target.value }))
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <Label>Phone Number</Label>
-                <Input
-                  value={shipping.phone_number}
-                  onChange={(e) =>
-                    setShipping((s) => ({ ...s, phone_number: e.target.value }))
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <Label>Address</Label>
-                <Input
-                  value={shipping.address}
-                  onChange={(e) =>
-                    setShipping((s) => ({ ...s, address: e.target.value }))
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <Label>City</Label>
-                <Input
-                  value={shipping.city}
-                  onChange={(e) =>
-                    setShipping((s) => ({ ...s, city: e.target.value }))
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <Combobox
-                  items={cities.map((city) => ({
-                    value: city.key,
-                    label: city.label,
-                  }))}
-                  value={shipping.state}
-                  onChange={(value: string) =>
-                    setShipping((s) => ({ ...s, state: value }))
-                  }
-                  placeholder="Select a wilaya"
-                  label="State"
-                  searchPlaceholder="Search wilaya..."
-                />
-              </div>
-              <div>
-                <Label>Status</Label>
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.values(OrderStatus).map((statusValue) => (
-                      <SelectItem key={statusValue} value={statusValue}>
-                        {statusValue.charAt(0).toUpperCase() + statusValue.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Discount</Label>
-                <Input
-                  type="number"
-                  value={discount}
-                  onChange={(e) => setDiscount(Number(e.target.value))}
-                  min={0}
-                />
-              </div>
-            </div>
-            {/* Order Items Table Section */}
-            <div className="space-y-4 border rounded p-4 flex-1 min-w-[340px] xl:w-1/3">
-              <Label>Order Items</Label>
-              <ol className="flex flex-col gap-2">
-                {wooOrder.line_items.map((item, idx) => (
-                  <li key={idx}>
-                    {idx + 1}. {item.name} ({item.quantity} x{" "}
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "DZD",
-                    }).format(item.price)}
-                    )
-                  </li>
-                ))}
-              </ol>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product Variant</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orderItems.map((item, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="min-w-[200px]">
-                          <ProductVariantCombobox
-                            variants={allVariants}
-                            value={item.product_variant_id}
-                            onChange={(variantId) => {
-                              const selectedVariant = allVariants.find(
-                                (v) => v.ID === variantId
-                              );
-                              const variantCost = variantId
-                                ? variantCostMap[variantId]
-                                : undefined;
-                              setOrderItems((items) =>
-                                items.map((it, i) =>
-                                  i === idx
-                                    ? {
-                                        ...it,
-                                        product_variant_id: variantId ?? 0,
-                                        product_id:
-                                          selectedVariant?.product_id ?? 0,
-                                        price:
-                                          variantCost !== undefined
-                                            ? variantCost * it.quantity
-                                            : it.price,
-                                      }
-                                    : it
-                                )
-                              );
-                            }}
-                            key={`variant-combobox-${idx}`}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min={1}
-                            value={item.quantity}
-                            onChange={(e) => {
-                              const quantity = Number(e.target.value);
-                              const cost = item.product_variant_id
-                                ? variantCostMap[item.product_variant_id]
-                                : undefined;
-                              setOrderItems((items) =>
-                                items.map((it, i) =>
-                                  i === idx
-                                    ? {
-                                        ...it,
-                                        quantity,
-                                        price:
-                                          cost !== undefined
-                                            ? cost * quantity
-                                            : it.price,
-                                      }
-                                    : it
-                                )
-                              );
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          {(() => {
-                            const variantCost = item.product_variant_id
-                              ? variantCostMap[item.product_variant_id]
-                              : undefined;
-                            return variantCost !== undefined
-                              ? variantCost * item.quantity
-                              : item.price;
-                          })()}
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() =>
-                              setOrderItems((items) =>
-                                items.filter((_, i) => i !== idx)
-                              )
-                            }
+                  <FormField
+                    control={form.control}
+                    name="shipping_provider"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Shipping Provider</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            value={field.value}
+                            onValueChange={val => field.onChange(val)}
+                            className="flex flex-row gap-6 mt-2"
                           >
-                            Remove
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-2"
-                  onClick={() =>
-                    setOrderItems((items) => [
-                      ...items,
-                      {
-                        product_id: 0,
-                        product_variant_id: 0,
-                        discount: 0,
-                        quantity: 1,
-                        price: 0,
-                      },
-                    ])
-                  }
-                >
-                  Add Item
-                </Button>
+                            <RadioGroupItem value="yalidine" id="yalidine" />
+                            <FormLabel htmlFor="yalidine" className="mr-4">Yalidine</FormLabel>
+                            <RadioGroupItem value="my_companies" id="my_companies" />
+                            <FormLabel htmlFor="my_companies">My Delivery Companies</FormLabel>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                {watch('shipping_provider') === 'yalidine' && (
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="delivery_type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Delivery Type</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              value={field.value}
+                              onValueChange={val => field.onChange(val)}
+                              className="flex flex-row gap-6 mt-2"
+                            >
+                              <RadioGroupItem value="home" id="home" />
+                              <FormLabel htmlFor="home" className="mr-4">Home</FormLabel>
+                              <RadioGroupItem value="stopdesk" id="stopdesk" />
+                              <FormLabel htmlFor="stopdesk">Stop Desk</FormLabel>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                {watch('shipping_provider') === 'yalidine' && watch('delivery_type') === 'home' && (
+                  <div>
+                    <FormField
+                      control={form.control}
+                      name="selected_commune"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Commune</FormLabel>
+                          <FormControl>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-full mt-1">
+                                <SelectValue placeholder={communesLoading ? "Loading..." : "Select a commune"} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {communesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
+                                {communesError && <div className="p-2 text-red-500">Error loading communes</div>}
+                                {!communesLoading && !communesError && (yalidineCommunes || []).map(commune => (
+                                  <SelectItem key={commune.id} value={String(commune.id)}>{commune.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+                {watch('shipping_provider') === 'yalidine' && watch('delivery_type') === 'stopdesk' && (
+                  <FormField
+                    control={form.control}
+                    name="selected_center"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Center</FormLabel>
+                        <FormControl>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="w-full mt-1">
+                              <SelectValue placeholder="Select a center" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(yalidineCenters?.data || []).map(center => (
+                                <SelectItem key={center.center_id} value={String(center.center_id)}>{center.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {watch('shipping_provider') === 'my_companies' && (
+                  <FormField
+                    control={form.control}
+                    name="shipping.delivery_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Delivery Company</FormLabel>
+                        <FormControl>
+                          <Select value={field.value ? String(field.value) : ""} onValueChange={val => field.onChange(val ? Number(val) : undefined)}>
+                            <SelectTrigger className="w-full mt-1">
+                              <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
+                              {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
+                              {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
+                                <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {watch('shipping_provider') === 'yalidine' && yalidinePricing && (
+                  <div>
+                    <Label>Pricing</Label>
+                    {(() => {
+                      let communePricing: any = null;
+                      if (watch('delivery_type') === 'home') {
+                        communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
+                          ? yalidinePricing.per_commune[String(watch('selected_commune'))]
+                          : undefined;
+                      } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
+                        const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
+                        if (center && center.commune_id && yalidinePricing.per_commune) {
+                          communePricing = yalidinePricing.per_commune[String(center.commune_id)];
+                        }
+                      }
+                      return communePricing ? (
+                        <div className="border rounded p-2 bg-muted/30">
+                          <div className="font-medium mb-1">{communePricing.commune_name}</div>
+                          <table className="text-sm w-full">
+                            <thead>
+                              <tr>
+                                <th className="text-left">Type</th>
+                                <th className="text-left">Home</th>
+                                <th className="text-left">Desk</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Express</td>
+                                <td>{communePricing.express_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_home) : "-"}</td>
+                                <td>{communePricing.express_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_desk) : "-"}</td>
+                              </tr>
+                              <tr>
+                                <td>Economic</td>
+                                <td>{communePricing.economic_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_home) : "-"}</td>
+                                <td>{communePricing.economic_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_desk) : "-"}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                            <div>Retour Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.retour_fee)}</span></div>
+                            <div>COD %: <span className="font-medium">{yalidinePricing.cod_percentage}%</span></div>
+                            <div>Insurance %: <span className="font-medium">{yalidinePricing.insurance_percentage}%</span></div>
+                            <div>Oversize Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.oversize_fee)}</span></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-muted-foreground">No pricing found for this {watch('delivery_type') === 'home' ? 'commune' : 'center'}.</div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </section>
+              {/* Customer/Order Info Section */}
+              <div className="space-y-4 border rounded p-4 min-w-[320px] xl:w-1/3">
+                <FormField
+                  control={form.control}
+                  name="shipping.full_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="shipping.phone_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number</FormLabel>
+                      <FormControl>
+                        <Input {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="shipping.address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div>
+                  <Combobox
+                    items={cities.map((city) => ({
+                      value: city.key,
+                      label: city.label,
+                    }))}
+                    value={shipping.state}
+                    onChange={(value: string) =>
+                      setValue('shipping.state', value)
+                    }
+                    placeholder="Select a wilaya"
+                    label="State"
+                    searchPlaceholder="Search wilaya..."
+                  />
+                </div>
+                <FormField
+                  control={form.control}
+                  name="shipping.comments"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Client Comments</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* Order Items Table Section */}
+              <div className="space-y-4 border rounded p-4 flex-1 min-w-[340px] xl:w-1/3 flex flex-col">
+                <Label>Order Items</Label>
+                <ol className="flex flex-col gap-2">
+                  {wooOrder.line_items.map((item, idx) => (
+                    <li key={idx}>
+                      {idx + 1}. {item.name} ({item.quantity} x{" "}
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "DZD",
+                      }).format(item.price)}
+                      )
+                    </li>
+                  ))}
+                </ol>
+                <div className="overflow-x-auto flex-1 flex flex-col min-h-0">
+                  <div className="flex-1 min-h-0 max-h-52 overflow-y-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Product Variant</TableHead>
+                          <TableHead>Quantity</TableHead>
+                          <TableHead>Price</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {orderItems.map((item, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell className="min-w-[200px]">
+                              <ProductVariantCombobox
+                                variants={allVariants}
+                                value={item.product_variant_id}
+                                onChange={(variantId) => {
+                                  const selectedVariant = allVariants.find(
+                                    (v) => v.ID === variantId
+                                  );
+                                  setValue(`order_items.${idx}.product_variant_id`, variantId ?? 0);
+                                  setValue(`order_items.${idx}.product_id`, selectedVariant?.product_id ?? 0);
+                                }}
+                                key={`variant-combobox-${idx}`}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                min={1}
+                                value={item.quantity}
+                                onChange={(e) => {
+                                  const quantity = Number(e.target.value);
+                                  setValue(`order_items.${idx}.quantity`, quantity);
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              {getVariantCost(item.product_variant_id) * item.quantity}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                  setValue(
+                                    "order_items",
+                                    orderItems.filter((_, i) => i !== idx)
+                                  );
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-2"
+                    onClick={() =>
+                      setValue('order_items', [
+                        ...orderItems,
+                        {
+                          product_id: 0,
+                          product_variant_id: 0,
+                          discount: 0,
+                          quantity: 1,
+                        },
+                      ])
+                    }
+                  >
+                    Add Item
+                  </Button>
+                </div>
+                {/* Summary area below the table */}
+                <div className="mt-4 p-4 bg-muted/40 rounded flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Products Total</span>
+                    <span className="font-semibold">
+                      {new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(orderItems.reduce((sum, item) => sum + (getVariantCost(item.product_variant_id) * item.quantity), 0))}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Delivery Fee</span>
+                    <>
+                      {/* Hidden input for first_delivery */}
+                      <input
+                        type="hidden"
+                        name="first_delivery"
+                        value={(() => {
+                          let deliveryFee = 0;
+                          if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
+                            let communePricing = null;
+                            if (watch('delivery_type') === 'home') {
+                              communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
+                                ? yalidinePricing.per_commune[String(watch('selected_commune'))]
+                                : undefined;
+                              deliveryFee = communePricing?.express_home ?? 0;
+                            } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
+                              const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
+                              if (center && center.commune_id && yalidinePricing.per_commune) {
+                                communePricing = yalidinePricing.per_commune[String(center.commune_id)];
+                                deliveryFee = communePricing?.express_desk ?? 0;
+                              }
+                            }
+                          }
+                          return deliveryFee;
+                        })()}
+                      />
+                      {/* Visible input for second_delivery */}
+                      <input
+                        type="number"
+                        name="second_delivery"
+                        className="max-w-[120px] text-right border rounded px-2 py-1 bg-background"
+                        value={(() => {
+                          let deliveryFee = 0;
+                          if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
+                            let communePricing = null;
+                            if (watch('delivery_type') === 'home') {
+                              communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
+                                ? yalidinePricing.per_commune[String(watch('selected_commune'))]
+                                : undefined;
+                              deliveryFee = communePricing?.express_home ?? 0;
+                            } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
+                              const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
+                              if (center && center.commune_id && yalidinePricing.per_commune) {
+                                communePricing = yalidinePricing.per_commune[String(center.commune_id)];
+                                deliveryFee = communePricing?.express_desk ?? 0;
+                              }
+                            }
+                          }
+                          return deliveryFee;
+                        })()}
+                        readOnly
+                      />
+                    </>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Discount</span>
+                    <FormField
+                      control={form.control}
+                      name="discount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input type="number" min={0} {...field} className="max-w-[120px] text-right" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-lg font-bold mt-2">
+                    <span>Total</span>
+                    <span>
+                      {(() => {
+                        let productsTotal = orderItems.reduce((sum, item) => sum + (getVariantCost(item.product_variant_id) * item.quantity), 0);
+                        let deliveryFee = 0;
+                        if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
+                          let communePricing = null;
+                          if (watch('delivery_type') === 'home') {
+                            communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
+                              ? yalidinePricing.per_commune[String(watch('selected_commune'))]
+                              : undefined;
+                            deliveryFee = communePricing?.express_home ?? 0;
+                          } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
+                            const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
+                            if (center && center.commune_id && yalidinePricing.per_commune) {
+                              communePricing = yalidinePricing.per_commune[String(center.commune_id)];
+                              deliveryFee = communePricing?.express_desk ?? 0;
+                            }
+                          }
+                        }
+                        const total = productsTotal + deliveryFee - (discount || 0);
+                        return new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(Math.max(total, 0));
+                      })()}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          {error && <div className="text-red-500 text-sm">{error}</div>}
-          <DialogFooter>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Creating..." : "Create Order"}
-            </Button>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">
-                Cancel
+            {errors && <div className="text-red-500 text-sm">{errors.root?.message}</div>}
+            <DialogFooter>
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Creating..." : "Create Order"}
               </Button>
-            </DialogClose>
-          </DialogFooter>
-        </form>
+              <DialogClose asChild>
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
       <ClientStatusDialog
         open={clientStatusDialogOpen}

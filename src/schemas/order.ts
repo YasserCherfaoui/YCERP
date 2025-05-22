@@ -14,6 +14,7 @@ export const createShippingSchema = z.object({
   city: z.string(),
   state: z.string(),
   delivery_id: z.number().optional(),
+  comments: z.string().optional(),
 });
 
 export const createOrderSchema = z.object({
@@ -24,6 +25,34 @@ export const createOrderSchema = z.object({
   status: z.string(),
   discount: z.number().optional(),
   taken_by_id: z.number().optional(),
+  shipping_provider: z.enum(['yalidine', 'my_companies']),
+  delivery_type: z.enum(['home', 'stopdesk']),
+  selected_commune: z.string().optional(),
+  selected_center: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.shipping_provider === 'yalidine') {
+    if (data.delivery_type === 'home' && !data.selected_commune) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Commune must be selected for Yalidine Home delivery',
+        path: ['selected_commune'],
+      });
+    }
+    if (data.delivery_type === 'stopdesk' && !data.selected_center) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Center must be selected for Yalidine Stop Desk delivery',
+        path: ['selected_center'],
+      });
+    }
+  }
+  if (data.shipping_provider === 'my_companies' && !data.shipping.delivery_id) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'A delivery company must be selected',
+      path: ['shipping', 'delivery_id'],
+    });
+  }
 });
 
 export type CreateOrderSchema = z.infer<typeof createOrderSchema>;
