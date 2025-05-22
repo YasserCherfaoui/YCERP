@@ -61,7 +61,7 @@ export default function IssuesReplyDialog({ open, onClose, issue, orderTicket }:
             <div><b>Name:</b> {issue.full_name}</div>
             <div><b>Phone:</b> {issue.phone}</div>
             <div><b>Comment:</b> {issue.comment}</div>
-            <div><b>Uploads:</b> {issue.issue_ticket_uploads.map((upload) => <a key={upload.id} href={upload.signed_url} className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">File #{upload.id}</a>)}</div>
+            <div><b>Uploads:</b> {issue.issue_ticket_uploads?.map((upload) => <a key={upload.id} href={upload.signed_url} className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">File #{upload.id}</a>)}</div>
           </div>
         )}
         {orderTicket && (
@@ -70,7 +70,7 @@ export default function IssuesReplyDialog({ open, onClose, issue, orderTicket }:
             <div><b>Name:</b> {orderTicket.full_name}</div>
             <div><b>Phone:</b> {orderTicket.phone}</div>
             <div><b>Comment:</b> {orderTicket.comment}</div>
-            <div><b>Uploads:</b> {orderTicket.order_ticket_uploads.map((upload) => <a key={upload.id} href={upload.signed_url} className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">File #{upload.id}</a>)}</div>
+            <div><b>Uploads:</b> {orderTicket.order_ticket_uploads?.map((upload) => <a key={upload.id} href={upload.signed_url} className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">File #{upload.id}</a>)}</div>
           </div>
         )}
         <form

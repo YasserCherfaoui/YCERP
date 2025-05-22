@@ -1,9 +1,10 @@
 import AppBarBackButton from "@/components/common/app-bar-back-button";
+import CreateDeliveryEmployeeDialog from "@/components/feature-specific/delivery/CreateDeliveryEmployeeDialog";
 import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/delivery-employee-columns";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
-import CreateDeliveryEmployeeDialog from "@/pages/delivery/create-delivery-employee-dialog";
+
 import { getDeliveryCompany, getDeliveryEmployees } from "@/services/delivery-service";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";

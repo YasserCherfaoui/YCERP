@@ -32,7 +32,7 @@ import {
 import { OrderStatus } from "@/models/data/order.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { getCompanyInventory } from "@/services/inventory-service";
-import { createOrder, getYalidineCache, getYalidineCommunes } from "@/services/order-service";
+import { createOrder, getYalidineCenters, getYalidineCommunes } from "@/services/order-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -70,11 +70,11 @@ function CreateOrderDialog({
   const [selectedCenter, setSelectedCenter] = useState<string>("");
 
   // Fetch yalidine cache with react-query (for centers only)
-  const { data: yalidineCache } = useQuery({
-    queryKey: ["yalidine-cache"],
-    queryFn: getYalidineCache,
+  const { data: yalidineCenters } = useQuery({
+    queryKey: ["yalidine-centers", shipping.state],
+    queryFn: () => getYalidineCenters(Number(shipping.state)),
     select: (res) => res.data,
-    enabled: shippingProvider === "yalidine",
+    enabled: shippingProvider === "yalidine" && deliveryType === "stopdesk" && Boolean(shipping.state) && open,
   });
 
   // Fetch communes for selected state using getYalidineCommunes
@@ -89,7 +89,7 @@ function CreateOrderDialog({
     enabled:
       shippingProvider === "yalidine" &&
       deliveryType === "home" &&
-      Boolean(shipping.state),
+      Boolean(shipping.state) && open
   });
 
   // Reset commune/center when state or delivery type changes
@@ -237,7 +237,7 @@ function CreateOrderDialog({
                   </Select>
                 </div>
               )}
-              {shippingProvider === 'yalidine' && yalidineCache && shipping.state && deliveryType === 'stopdesk' && (
+              {shippingProvider === 'yalidine' && yalidineCenters && shipping.state && deliveryType === 'stopdesk' && (
                 <div>
                   <Label>Select Center</Label>
                   <Select value={selectedCenter} onValueChange={setSelectedCenter}>
@@ -245,7 +245,7 @@ function CreateOrderDialog({
                       <SelectValue placeholder="Select a center" />
                     </SelectTrigger>
                     <SelectContent>
-                      {(yalidineCache.centers?.[Number(shipping.state)] || []).map(center => (
+                      {(yalidineCenters.data || []).map(center => (
                         <SelectItem key={center.center_id} value={String(center.center_id)}>{center.name}</SelectItem>
                       ))}
                     </SelectContent>

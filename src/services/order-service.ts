@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { Order } from "@/models/data/order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CommuneListResponse, YalidineCache } from "@/models/responses/yalidine.cache";
+import { CenterListResponse, CommuneListResponse, YalidineCache } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema } from "@/schemas/order";
 
 export const createOrder = async (orderData: CreateOrderSchema): Promise<APIResponse<Order>> => {
@@ -90,3 +90,18 @@ export const getYalidineCommunes = async (state: number): Promise<APIResponse<Co
   const cache: APIResponse<CommuneListResponse> = await response.json();
   return cache;
 }
+
+export const getYalidineCenters = async (wilaya: number): Promise<APIResponse<CenterListResponse>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/centers/${wilaya}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to get yalidine centers.");
+  }
+  const cache: APIResponse<CenterListResponse> = await response.json();
+  return cache;
+} 
