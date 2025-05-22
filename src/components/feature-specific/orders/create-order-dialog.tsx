@@ -64,6 +64,24 @@ function CreateOrderDialog({
     return null;
   }
 
+  const { data: inventoryData } = useQuery({
+    queryKey: ["inventory", company.ID],
+    queryFn: () => getCompanyInventory(company.ID),
+    enabled: Boolean(company && company.ID),
+  });
+  const allVariants =
+    inventoryData?.data?.items
+      .map((item) => item.product_variant)
+      .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
+
+  // Build a map from qr_code to ProductVariant
+  const qrCodeToVariant: Record<string, typeof allVariants[number]> = {};
+  for (const variant of allVariants) {
+    if (variant.qr_code) {
+      qrCodeToVariant[variant.qr_code] = variant;
+    }
+  }
+
   const form = useForm<CreateOrderSchema>({
     resolver: zodResolver(createOrderSchema),
     defaultValues: {
@@ -77,12 +95,15 @@ function CreateOrderDialog({
         delivery_id: undefined,
         comments: "",
       },
-      order_items: wooOrder.line_items.map((item) => ({
-        product_id: item.product_id,
-        product_variant_id: item.variation_id || 0,
-        discount: 0,
-        quantity: item.quantity,
-      })),
+      order_items: wooOrder.line_items.map((item) => {
+        const variant = item.sku ? qrCodeToVariant[item.sku] : undefined;
+        return {
+          product_id: variant?.product_id || 0,
+          product_variant_id: variant?.ID || 0,
+          discount: 0,
+          quantity: item.quantity,
+        };
+      }),
       total: Number(wooOrder.total),
       status: "unconfirmed",
       discount: 0,
@@ -166,17 +187,6 @@ function CreateOrderDialog({
     setValue('selected_commune', '');
     setValue('selected_center', '');
   }, [shipping.state, watch('delivery_type')]);
-
-  // Fetch all product variants for the company
-  const { data: inventoryData } = useQuery({
-    queryKey: ["inventory", company.ID],
-    queryFn: () => getCompanyInventory(company.ID),
-    enabled: Boolean(company && company.ID),
-  });
-  const allVariants =
-    inventoryData?.data?.items
-      .map((item) => item.product_variant)
-      .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
 
   // Map product_variant_id to cost for quick lookup
   const variantCostMap: Record<number, number> = {};
@@ -477,7 +487,7 @@ function CreateOrderDialog({
                     <FormItem>
                       <FormLabel>Client Comments</FormLabel>
                       <FormControl>
-                        <Textarea {...field} required />
+                        <Textarea {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
