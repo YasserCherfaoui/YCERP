@@ -31,8 +31,9 @@ import {
 } from "@/components/ui/table";
 import { OrderStatus } from "@/models/data/order.model";
 import { WooOrder } from "@/models/data/woo-order.model";
+import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
-import { createOrder, getYalidineCenters, getYalidineCommunes } from "@/services/order-service";
+import { createOrder, getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -69,7 +70,26 @@ function CreateOrderDialog({
   const [selectedCommune, setSelectedCommune] = useState<string>("");
   const [selectedCenter, setSelectedCenter] = useState<string>("");
 
-  // Fetch yalidine cache with react-query (for centers only)
+
+  // Fetch yalidine Pricing with react-query
+  const { data: yalidinePricing } = useQuery({
+    queryKey: [
+      "yalidine-pricing",
+      shipping.state,
+      deliveryType === "home" ? selectedCommune : selectedCenter,
+      deliveryType
+    ],
+    queryFn: () => getYalidinePricing(16, Number(shipping.state) ?? 16),
+    select: (res) => res.data,
+    enabled:
+      shippingProvider === "yalidine" &&
+      Boolean(shipping.state) &&
+      ((deliveryType === "home" && Boolean(selectedCommune)) ||
+        (deliveryType === "stopdesk" && Boolean(selectedCenter))) &&
+      open,
+  });
+
+  // Fetch yalidine Centers with react-query (for centers only)
   const { data: yalidineCenters } = useQuery({
     queryKey: ["yalidine-centers", shipping.state],
     queryFn: () => getYalidineCenters(Number(shipping.state)),
@@ -90,6 +110,18 @@ function CreateOrderDialog({
       shippingProvider === "yalidine" &&
       deliveryType === "home" &&
       Boolean(shipping.state) && open
+  });
+
+  // Fetch delivery companies for 'My Delivery Companies' option
+  const {
+    data: deliveryCompaniesData,
+    isLoading: deliveryCompaniesLoading,
+    isError: deliveryCompaniesError,
+  } = useQuery({
+    queryKey: ["delivery-companies"],
+    queryFn: getDeliveryCompanies,
+    enabled: shippingProvider === "my_companies" && open,
+    select: (res) => res.data,
   });
 
   // Reset commune/center when state or delivery type changes
@@ -169,7 +201,7 @@ function CreateOrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-4xl w-full">
+      <DialogContent className="max-w-[100rem] w-full">
         <DialogHeader>
           <DialogTitle>
             Create Order from WooOrder #{wooOrder.number}
@@ -188,9 +220,10 @@ function CreateOrderDialog({
           </Button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Shipping Section (left) */}
-            <section className="border rounded p-4 flex flex-col gap-4">
+          {/* Main sections in a row on desktop, stacked on mobile */}
+          <div className="flex flex-col gap-6 xl:flex-row xl:gap-4">
+            {/* Shipping Section */}
+            <section className="border rounded p-4 flex flex-col gap-4 min-w-[320px] xl:w-1/3">
               <h3 className="font-semibold mb-2">Shipping</h3>
               <div>
                 <Label>Shipping Provider</Label>
@@ -252,9 +285,79 @@ function CreateOrderDialog({
                   </Select>
                 </div>
               )}
+              {shippingProvider === 'my_companies' && (
+                <div>
+                  <Label>Select Delivery Company</Label>
+                  <Select
+                    value={shipping.delivery_id ? String(shipping.delivery_id) : ""}
+                    onValueChange={val => setShipping(s => ({ ...s, delivery_id: val ? Number(val) : undefined }))}
+                  >
+                    <SelectTrigger className="w-full mt-1">
+                      <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
+                      {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
+                      {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
+                        <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              {shippingProvider === 'yalidine' && yalidinePricing && (
+                <div>
+                  <Label>Pricing</Label>
+                  {(() => {
+                    let communePricing: any = null;
+                    if (deliveryType === 'home') {
+                      communePricing = yalidinePricing.per_commune?.[selectedCommune];
+                    } else if (deliveryType === 'stopdesk' && yalidineCenters && selectedCenter) {
+                      const center = (yalidineCenters.data || []).find(c => String(c.center_id) === selectedCenter);
+                      if (center) {
+                        communePricing = yalidinePricing.per_commune?.[String(center.commune_id)];
+                      }
+                    }
+                    return communePricing ? (
+                      <div className="border rounded p-2 bg-muted/30">
+                        <div className="font-medium mb-1">{communePricing.commune_name}</div>
+                        <table className="text-sm w-full">
+                          <thead>
+                            <tr>
+                              <th className="text-left">Type</th>
+                              <th className="text-left">Home</th>
+                              <th className="text-left">Desk</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>Express</td>
+                              <td>{communePricing.express_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_home) : "-"}</td>
+                              <td>{communePricing.express_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_desk) : "-"}</td>
+                            </tr>
+                            <tr>
+                              <td>Economic</td>
+                              <td>{communePricing.economic_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_home) : "-"}</td>
+                              <td>{communePricing.economic_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_desk) : "-"}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                          <div>Retour Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.retour_fee)}</span></div>
+                          <div>COD %: <span className="font-medium">{yalidinePricing.cod_percentage}%</span></div>
+                          <div>Insurance %: <span className="font-medium">{yalidinePricing.insurance_percentage}%</span></div>
+                          <div>Oversize Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.oversize_fee)}</span></div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-muted-foreground">No pricing found for this {deliveryType === 'home' ? 'commune' : 'center'}.</div>
+                    );
+                  })()}
+                </div>
+              )}
             </section>
-            {/* Customer/Order Info Section (right) */}
-            <div className="space-y-4">
+            {/* Customer/Order Info Section */}
+            <div className="space-y-4 border rounded p-4 min-w-[320px] xl:w-1/3">
               <div>
                 <Label>Full Name</Label>
                 <Input
@@ -335,140 +438,140 @@ function CreateOrderDialog({
                 />
               </div>
             </div>
-          </div>
-          {/* Order Items Table (full width below) */}
-          <div className="space-y-4">
-            <Label>Order Items</Label>
-            <ol className="flex flex-col gap-2">
-              {wooOrder.line_items.map((item, idx) => (
-                <li key={idx}>
-                  {idx + 1}. {item.name} ({item.quantity} x{" "}
-                  {new Intl.NumberFormat("en-US", {
-                    style: "currency",
-                    currency: "DZD",
-                  }).format(item.price)}
-                  )
-                </li>
-              ))}
-            </ol>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product Variant</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orderItems.map((item, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="min-w-[200px]">
-                        <ProductVariantCombobox
-                          variants={allVariants}
-                          value={item.product_variant_id}
-                          onChange={(variantId) => {
-                            const selectedVariant = allVariants.find(
-                              (v) => v.ID === variantId
-                            );
-                            const variantCost = variantId
-                              ? variantCostMap[variantId]
-                              : undefined;
-                            setOrderItems((items) =>
-                              items.map((it, i) =>
-                                i === idx
-                                  ? {
-                                      ...it,
-                                      product_variant_id: variantId ?? 0,
-                                      product_id:
-                                        selectedVariant?.product_id ?? 0,
-                                      price:
-                                        variantCost !== undefined
-                                          ? variantCost * it.quantity
-                                          : it.price,
-                                    }
-                                  : it
-                              )
-                            );
-                          }}
-                          key={`variant-combobox-${idx}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Input
-                          type="number"
-                          min={1}
-                          value={item.quantity}
-                          onChange={(e) => {
-                            const quantity = Number(e.target.value);
-                            const cost = item.product_variant_id
+            {/* Order Items Table Section */}
+            <div className="space-y-4 border rounded p-4 flex-1 min-w-[340px] xl:w-1/3">
+              <Label>Order Items</Label>
+              <ol className="flex flex-col gap-2">
+                {wooOrder.line_items.map((item, idx) => (
+                  <li key={idx}>
+                    {idx + 1}. {item.name} ({item.quantity} x{" "}
+                    {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "DZD",
+                    }).format(item.price)}
+                    )
+                  </li>
+                ))}
+              </ol>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product Variant</TableHead>
+                      <TableHead>Quantity</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {orderItems.map((item, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell className="min-w-[200px]">
+                          <ProductVariantCombobox
+                            variants={allVariants}
+                            value={item.product_variant_id}
+                            onChange={(variantId) => {
+                              const selectedVariant = allVariants.find(
+                                (v) => v.ID === variantId
+                              );
+                              const variantCost = variantId
+                                ? variantCostMap[variantId]
+                                : undefined;
+                              setOrderItems((items) =>
+                                items.map((it, i) =>
+                                  i === idx
+                                    ? {
+                                        ...it,
+                                        product_variant_id: variantId ?? 0,
+                                        product_id:
+                                          selectedVariant?.product_id ?? 0,
+                                        price:
+                                          variantCost !== undefined
+                                            ? variantCost * it.quantity
+                                            : it.price,
+                                      }
+                                    : it
+                                )
+                              );
+                            }}
+                            key={`variant-combobox-${idx}`}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const quantity = Number(e.target.value);
+                              const cost = item.product_variant_id
+                                ? variantCostMap[item.product_variant_id]
+                                : undefined;
+                              setOrderItems((items) =>
+                                items.map((it, i) =>
+                                  i === idx
+                                    ? {
+                                        ...it,
+                                        quantity,
+                                        price:
+                                          cost !== undefined
+                                            ? cost * quantity
+                                            : it.price,
+                                      }
+                                    : it
+                                )
+                              );
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                            const variantCost = item.product_variant_id
                               ? variantCostMap[item.product_variant_id]
                               : undefined;
-                            setOrderItems((items) =>
-                              items.map((it, i) =>
-                                i === idx
-                                  ? {
-                                      ...it,
-                                      quantity,
-                                      price:
-                                        cost !== undefined
-                                          ? cost * quantity
-                                          : it.price,
-                                    }
-                                  : it
+                            return variantCost !== undefined
+                              ? variantCost * item.quantity
+                              : item.price;
+                          })()}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={() =>
+                              setOrderItems((items) =>
+                                items.filter((_, i) => i !== idx)
                               )
-                            );
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {(() => {
-                          const variantCost = item.product_variant_id
-                            ? variantCostMap[item.product_variant_id]
-                            : undefined;
-                          return variantCost !== undefined
-                            ? variantCost * item.quantity
-                            : item.price;
-                        })()}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={() =>
-                            setOrderItems((items) =>
-                              items.filter((_, i) => i !== idx)
-                            )
-                          }
-                        >
-                          Remove
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <Button
-                type="button"
-                variant="outline"
-                className="mt-2"
-                onClick={() =>
-                  setOrderItems((items) => [
-                    ...items,
-                    {
-                      product_id: 0,
-                      product_variant_id: 0,
-                      discount: 0,
-                      quantity: 1,
-                      price: 0,
-                    },
-                  ])
-                }
-              >
-                Add Item
-              </Button>
+                            }
+                          >
+                            Remove
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-2"
+                  onClick={() =>
+                    setOrderItems((items) => [
+                      ...items,
+                      {
+                        product_id: 0,
+                        product_variant_id: 0,
+                        discount: 0,
+                        quantity: 1,
+                        price: 0,
+                      },
+                    ])
+                  }
+                >
+                  Add Item
+                </Button>
+              </div>
             </div>
           </div>
           {error && <div className="text-red-500 text-sm">{error}</div>}

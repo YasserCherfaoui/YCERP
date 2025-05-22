@@ -115,3 +115,23 @@ export interface YalidineCache {
   wilayas: Record<number, Wilaya>;
   last_refreshed: string;
 }
+
+export interface CommunePricing {
+  commune_id: number;
+  commune_name: string;
+  express_home: number | null;
+  express_desk: number | null;
+  economic_home: number | null;
+  economic_desk: number | null;
+}
+
+export interface PricingResponse {
+  from_wilaya_name: string;
+  to_wilaya_name: string;
+  zone: number;
+  retour_fee: number;
+  cod_percentage: number;
+  insurance_percentage: number;
+  oversize_fee: number;
+  per_commune: Record<string, CommunePricing>;
+}
