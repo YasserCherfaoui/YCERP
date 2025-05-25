@@ -5,7 +5,7 @@ export interface WooOrder {
   id: number;
   woo_id: number;
   number: string;
-  status: string;
+  order_status: string;
   total: string;
   currency: string;
   customer_id: number;

@@ -3,6 +3,7 @@ import AppBarBackButton from "@/components/common/app-bar-back-button";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
@@ -14,7 +15,7 @@ import {
   useQueryClient,
   useQuery as useUsersQuery,
 } from "@tanstack/react-query";
-import { ShuffleIcon, UserIcon } from "lucide-react";
+import { CheckCircleIcon, LoaderIcon, PackageIcon, RotateCcwIcon, SendIcon, ShuffleIcon, TruckIcon, Undo2Icon, UserIcon, XCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import AssignOrdersDialog from "./AssignOrdersDialog";
@@ -95,6 +96,23 @@ export default function CompanyOrdersPage() {
     assignOrdersMutation(data);
   };
 
+  const [selectedStatus, setSelectedStatus] = useState("unconfirmed");
+
+  // Statuses and icons
+  const statusTabs = [
+    { value: "unconfirmed", label: "Unconfirmed", icon: <PackageIcon className="w-4 h-4 mr-1" /> },
+    { value: "packing", label: "Packing", icon: <LoaderIcon className="w-4 h-4 mr-1" /> },
+    { value: "dispaching", label: "Dispaching", icon: <TruckIcon className="w-4 h-4 mr-1" /> },
+    { value: "deliviring", label: "Deliviring", icon: <SendIcon className="w-4 h-4 mr-1" /> },
+    { value: "delivered", label: "Delivered", icon: <CheckCircleIcon className="w-4 h-4 mr-1" /> },
+    { value: "returning", label: "Returning", icon: <RotateCcwIcon className="w-4 h-4 mr-1" /> },
+    { value: "returned", label: "Returned", icon: <Undo2Icon className="w-4 h-4 mr-1" /> },
+    { value: "cancelled", label: "Cancelled", icon: <XCircleIcon className="w-4 h-4 mr-1" /> },
+  ];
+
+  // Filter orders by selected status
+  const filteredOrders = (orders?.data || []).filter((order) => order.order_status == selectedStatus);
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center gap-4">
@@ -113,14 +131,30 @@ export default function CompanyOrdersPage() {
           </Button>
         </div>
       </div>
-      <DataTable
-        columns={companyOrdersColumns}
-        data={orders?.data || []}
-        searchColumn="phone"
-        getRowId={(row) => String(row.id)}
-        selectedRows={selectedRows}
-        setSelectedRows={setSelectedRows}
-      />
+      {/* Tabs for order statuses */}
+      <Tabs value={selectedStatus} onValueChange={setSelectedStatus} className="w-full mt-6">
+        <TabsList className="mb-4 flex flex-wrap gap-2">
+          {statusTabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-1">
+              {tab.icon}
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+        {statusTabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value}>
+            <DataTable
+              columns={companyOrdersColumns}
+              data={filteredOrders}
+              searchColumn="phone"
+              getRowId={(row) => String(row.id)}
+              selectedRows={selectedRows}
+              setSelectedRows={setSelectedRows}
+            />
+          </TabsContent>
+        ))}
+      </Tabs>
+      {/* Shuffle and Assign dialogs */}
       <ShuffleOrdersDialog
         open={shuffleOpen}
         onClose={() => setShuffleOpen(false)}

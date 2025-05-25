@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const createOrderItemSchema = z.object({
-  product_id: z.number(),
-  product_variant_id: z.number(),
-  discount: z.number().optional(),
-  quantity: z.number(),
+  product_id: z.number().min(1, {message: "Product is required"}),
+  product_variant_id: z.number().min(1, {message: "Product variant is required"}),
+  discount: z.number().optional().default(0),
+  quantity: z.number().min(1),
 });
 
 export const createShippingSchema = z.object({
@@ -13,11 +13,14 @@ export const createShippingSchema = z.object({
   address: z.string(),
   city: z.string(),
   state: z.string(),
+  wilaya: z.string(),
+  commune: z.string(),
   delivery_id: z.number().optional(),
   comments: z.string().optional(),
 });
 
 export const createOrderSchema = z.object({
+  woo_order_id: z.number().optional(),
   company_id: z.number(),
   shipping: createShippingSchema,
   order_items: z.array(createOrderItemSchema),
@@ -29,6 +32,8 @@ export const createOrderSchema = z.object({
   delivery_type: z.enum(['home', 'stopdesk']),
   selected_commune: z.string().optional(),
   selected_center: z.string().optional(),
+  first_delivery_cost: z.number().optional(),
+  second_delivery_cost: z.number().optional(),
 }).superRefine((data, ctx) => {
   if (data.shipping_provider === 'yalidine') {
     if (data.delivery_type === 'home' && !data.selected_commune) {
