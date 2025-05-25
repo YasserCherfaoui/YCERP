@@ -34,7 +34,14 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     accessorKey: "date_created",
     header: "Date Created",
     cell: ({ row }: { row: { original: WooOrder } }) =>
-      new Date(row.original.date_created).toLocaleDateString(),
+      new Date(row.original.date_created).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
   },
   {
     accessorKey: "client_statuses",

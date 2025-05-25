@@ -26,6 +26,8 @@ interface ProductVariantComboboxProps {
   onChange: (value: number | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
+  error?: string;
+  extraText?: string;
 }
 
 export function ProductVariantCombobox({
@@ -34,6 +36,8 @@ export function ProductVariantCombobox({
   onChange,
   placeholder = "Select variant...",
   disabled = false,
+  extraText = "",
+  error,
 }: ProductVariantComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -55,10 +59,11 @@ export function ProductVariantCombobox({
           disabled={disabled}
           type="button"
         >
-          {selectedVariant ? selectedVariant.qr_code : placeholder}
+          {selectedVariant ? selectedVariant.qr_code + " (" + extraText + ")" : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search QR code..." />

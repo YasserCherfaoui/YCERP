@@ -37,14 +37,16 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { createOrderSchema, CreateOrderSchema } from "@/schemas/order";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
-import { createOrder, getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
+import { getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
+import { confirmWooCommerceOrder } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -82,18 +84,27 @@ function CreateOrderDialog({
     }
   }
 
+  // Find the wilaya (state) object by matching the label to billing_city or shipping_city
+  const matchedWilaya = cities.find(
+    c =>
+      c.key === wooOrder.shipping_city 
+  );
+
   const form = useForm<CreateOrderSchema>({
     resolver: zodResolver(createOrderSchema),
     defaultValues: {
       company_id: company.ID,
+      woo_order_id: wooOrder.id,
       shipping: {
         full_name: wooOrder.billing_name || wooOrder.shipping_name || "",
         phone_number: wooOrder.customer_phone || "",
         address: wooOrder.shipping_address_1 || wooOrder.billing_address_1 || "",
         city: wooOrder.billing_city || "",
-        state: wooOrder.shipping_city || "",
+        state: matchedWilaya?.key || "",
         delivery_id: undefined,
         comments: "",
+        commune: "",
+        wilaya: matchedWilaya?.label || "",
       },
       order_items: wooOrder.line_items.map((item) => {
         const variant = item.sku ? qrCodeToVariant[item.sku] : undefined;
@@ -115,7 +126,7 @@ function CreateOrderDialog({
       first_delivery_cost: 0,
       second_delivery_cost: 0,
     },
-    mode: "onChange",
+    // mode: "onChange",
   });
 
   const {
@@ -190,6 +201,18 @@ function CreateOrderDialog({
     setValue('selected_center', '');
   }, [shipping.state, watch('delivery_type')]);
 
+  // Set commune when center changes
+  const yalidineCenter = watch('selected_center');
+  useEffect(() => {
+    if (yalidineCenter) {
+      const center = (yalidineCenters?.data || []).find(c => String(c.center_id) === yalidineCenter);
+      if (center) {
+        setValue('selected_commune', String(center.commune_id));
+        setValue('shipping.commune', String(center.commune_name));
+      }
+    }
+  }, [yalidineCenter]);
+
   // Map product_variant_id to cost for quick lookup
   const variantCostMap: Record<number, number> = {};
   if (inventoryData?.data?.items) {
@@ -237,20 +260,31 @@ function CreateOrderDialog({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryFee, setValue]);
-
-  const mutation = useMutation({
-    mutationFn: createOrder,
+  const {toast} = useToast();
+  const queryClient = useQueryClient();
+  const {mutate: confirmWooCommerceOrderMutation, isPending} = useMutation({
+    mutationFn: confirmWooCommerceOrder,
     onSuccess: () => {
+      toast({
+        title: "Order confirmed",
+        description: "Order confirmed successfully",
+      });
       setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
     onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
       console.error("Failed to create order:", err);
     },
   });
 
   const handleSubmitForm = (data: CreateOrderSchema) => {
     console.log(data);
-    mutation.mutate(data);
+    confirmWooCommerceOrderMutation(data);
   };
 
   return (
@@ -339,14 +373,21 @@ function CreateOrderDialog({
                         <FormItem>
                           <FormLabel>Select Commune</FormLabel>
                           <FormControl>
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value}
+                              onValueChange={(val) => {
+                                field.onChange(val);
+                                const communeName = (yalidineCommunes || []).find(c => String(c.id) === val)?.name || '';
+                                setValue('shipping.commune', communeName);
+                              }}
+                            >
                               <SelectTrigger className="w-full mt-1">
                                 <SelectValue placeholder={communesLoading ? "Loading..." : "Select a commune"} />
                               </SelectTrigger>
                               <SelectContent>
                                 {communesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
                                 {communesError && <div className="p-2 text-red-500">Error loading communes</div>}
-                                {!communesLoading && !communesError && (yalidineCommunes || []).map(commune => (
+                                {!communesLoading && !communesError && (yalidineCommunes || []).filter(c => c.is_deliverable).map(commune => (
                                   <SelectItem key={commune.id} value={String(commune.id)}>{commune.name}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -509,9 +550,11 @@ function CreateOrderDialog({
                       label: city.label,
                     }))}
                     value={shipping.state}
-                    onChange={(value: string) =>
-                      setValue('shipping.state', value)
-                    }
+                    onChange={(value: string) => {
+                      setValue('shipping.state', value);
+                      const wilayaName = cities.find(c => c.key === value)?.label || '';
+                      setValue('shipping.wilaya', wilayaName);
+                    }}
                     placeholder="Select a wilaya"
                     label="State"
                     searchPlaceholder="Search wilaya..."
@@ -572,6 +615,8 @@ function CreateOrderDialog({
                                   setValue(`order_items.${idx}.product_id`, selectedVariant?.product_id ?? 0);
                                 }}
                                 key={`variant-combobox-${idx}`}
+                                error={errors.order_items?.[idx]?.product_variant_id?.message}
+                                extraText={inventoryData?.data?.items.find(i => i.product_variant_id === item.product_variant_id)?.quantity.toString()}
                               />
                             </TableCell>
                             <TableCell>
@@ -716,8 +761,8 @@ function CreateOrderDialog({
             </div>
             {errors && <div className="text-red-500 text-sm">{errors.root?.message}</div>}
             <DialogFooter>
-              <Button type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Creating..." : "Create Order"}
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Creating..." : "Create Order"}
               </Button>
               <DialogClose asChild>
                 <Button type="button" variant="outline">
