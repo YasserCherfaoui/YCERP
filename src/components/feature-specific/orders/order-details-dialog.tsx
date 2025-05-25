@@ -29,7 +29,7 @@ export default function OrderDetailsDialog({ order, open, setOpen }: OrderDetail
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div><strong>ID:</strong> {order.id}</div>
               <div><strong>Woo ID:</strong> {order.woo_id}</div>
-              <div><strong>Status:</strong> {order.status}</div>
+              <div><strong>Status:</strong> {order.order_key}</div>
               <div><strong>Total:</strong> {order.total} {order.currency}</div>
               <div><strong>Order Key:</strong> {order.order_key}</div>
               <div><strong>Date Created:</strong> {order.date_created}</div>
