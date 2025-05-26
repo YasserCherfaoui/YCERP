@@ -4,17 +4,12 @@ import { companyOrdersColumns } from "@/components/feature-specific/orders/compa
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useOrdersWithRealtime } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
-import { getWooCommerceOrders } from "@/services/woocommerce-service";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useQuery as useUsersQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircleIcon, LoaderIcon, PackageIcon, RotateCcwIcon, SendIcon, ShuffleIcon, TruckIcon, Undo2Icon, UserIcon, XCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -27,17 +22,15 @@ export default function CompanyOrdersPage() {
   if (!company) {
     return <div>No company selected</div>;
   }
-  const { data: orders } = useQuery({
-    queryKey: ["orders"],
-    queryFn: () => getWooCommerceOrders(),
-  });
+
+  const {orders} = useOrdersWithRealtime();
   useQuery({
     queryKey: ["inventory", company.ID],
     queryFn: () => getCompanyInventory(company.ID),
     enabled: Boolean(company && company.ID),
   });  // --- Shuffle Dialog State ---
   const [shuffleOpen, setShuffleOpen] = useState(false);
-  const { data: usersData } = useUsersQuery({
+  const { data: usersData } = useQuery({
     queryKey: ["users", company.ID],
     queryFn: () => getUsersByCompany(company.ID),
   });
@@ -111,7 +104,7 @@ export default function CompanyOrdersPage() {
   ];
 
   // Filter orders by selected status
-  const filteredOrders = (orders?.data || []).filter((order) => order.order_status == selectedStatus);
+  const filteredOrders = (orders || []).filter((order) => order.order_status == selectedStatus);
 
   return (
     <div className="p-6">
@@ -159,7 +152,7 @@ export default function CompanyOrdersPage() {
         open={shuffleOpen}
         onClose={() => setShuffleOpen(false)}
         users={users}
-        orders={orders?.data || []}
+        orders={orders || []}
         onSubmit={handleShuffleSubmit}
       />
       <AssignOrdersDialog

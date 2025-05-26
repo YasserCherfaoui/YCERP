@@ -6,6 +6,7 @@ import { WooOrder } from "@/models/data/woo-order.model";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import ClientStatusDetailsDialog from "./client-status-details-dialog";
+import { ConfirmedOrderItemsAccordion } from "./order-line-items-accordion";
 export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
   { accessorKey: "id", header: "ID" },
   {
@@ -23,6 +24,18 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     cell: ({ row }: { row: { original: WooOrder } }) => (
       <OrderLineItemsAccordion
         lineItems={row.original.line_items}
+        orderNumber={row.original.number}
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    id: "confirmed_order_items",
+    header: "Confirmed Items",
+    cell: ({ row }: { row: { original: WooOrder } }) => (
+      <ConfirmedOrderItemsAccordion
+        confirmedOrderItems={row.original.confirmed_order_items || []}
         orderNumber={row.original.number}
       />
     ),
@@ -98,6 +111,13 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         </>
       );
     },
+  },
+  {
+    accessorKey: "tracking_number",
+    header: "Tracking Number",
+    cell: ({ row }: { row: { original: WooOrder } }) => (
+      <div className="text-center">{row.original.tracking_number?.toUpperCase()}</div>
+    ),
   },
   {
     accessorKey: "taken_by.full_name",
