@@ -1,12 +1,16 @@
 import { baseUrl } from "@/app/constants";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrderSchema } from "@/schemas/order";
 import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
 const token = localStorage.getItem("token");
-export const getWooCommerceOrders = async (): Promise<APIResponse<WooOrder[]>> => {
-    const response = await fetch(`${baseUrl}/woocommerce/`, {
+export const getWooCommerceOrders = async (_page = 0, status?: string, taken_by_id?: number): Promise<APIResponse<WooOrdersResponse>> => {
+    let url = `${baseUrl}/woocommerce/?page=${_page + 1}`;
+    if (status) url += `&status=${encodeURIComponent(status)}`;
+    if (taken_by_id) url += `&taken_by_id=${taken_by_id}`;
+    const response = await fetch(url, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -17,7 +21,7 @@ export const getWooCommerceOrders = async (): Promise<APIResponse<WooOrder[]>> =
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to fetch WooCommerce orders");
     }
-    const data: APIResponse<WooOrder[]> = await response.json();
+    const data: APIResponse<WooOrdersResponse> = await response.json();
     return data;
 };
 

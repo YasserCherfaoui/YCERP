@@ -79,10 +79,16 @@ export function DataTable<TData, TValue>({
 
   // Determine if manual or automatic pagination
   const isManual = !!onPageChange;
+  console.log(`isManual: ${isManual}`)
+  
   const pageIndex = isManual ? currentPage : autoPageIndex;
   const pageSize = isManual ? (paginationMeta?.per_page ?? 10) : autoPageSize;
   const pageCount = isManual ? (paginationMeta?.total_pages ?? -1) : Math.ceil(data.length / pageSize);
 
+  console.log(`currentPage: ${currentPage}`)
+  console.log(`autoPageIndex: ${autoPageIndex}`)
+  console.log(`paginationMeta: ${paginationMeta}`)
+  console.log(`pageCount: ${pageCount}`)
   const table = useReactTable({
     data,
     columns,
