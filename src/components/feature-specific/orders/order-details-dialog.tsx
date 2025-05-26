@@ -32,11 +32,11 @@ export default function OrderDetailsDialog({ order, open, setOpen }: OrderDetail
               <div><strong>Status:</strong> {order.order_key}</div>
               <div><strong>Total:</strong> {order.total} {order.currency}</div>
               <div><strong>Order Key:</strong> {order.order_key}</div>
-              <div><strong>Date Created:</strong> {order.date_created}</div>
-              <div><strong>Date Modified:</strong> {order.date_modified}</div>
+              <div><strong>Date Created:</strong> {order.date_created.toLocaleString()}</div>
+              <div><strong>Date Modified:</strong> {order.date_modified.toLocaleString()}</div>
               <div><strong>Payment Method:</strong> {order.payment_method_title} ({order.payment_method})</div>
               <div><strong>Taken By:</strong> {order.taken_by?.full_name || "-"}</div>
-              <div><strong>Taken At:</strong> {order.taken_at || "-"}</div>
+              <div><strong>Taken At:</strong> {order.taken_at?.toLocaleString() || "-"}</div>
             </div>
           </section>
           <Separator />
@@ -74,7 +74,7 @@ export default function OrderDetailsDialog({ order, open, setOpen }: OrderDetail
             <ul className="list-disc list-inside text-sm space-y-1">
               {(order.line_items ?? []).length === 0 && <li>No items</li>}
               {(order.line_items ?? []).map((item, idx) => (
-                <li key={item.ID ?? idx}>
+                <li key={item.id ?? idx}>
                   <span className="font-medium">{item.name}</span> (SKU: {item.sku}) - Qty: {item.quantity}, Price: {item.price}, Total: {item.total}
                 </li>
               ))}
@@ -87,7 +87,7 @@ export default function OrderDetailsDialog({ order, open, setOpen }: OrderDetail
             <ul className="list-disc list-inside text-sm space-y-1">
               {(order.shipping_lines ?? []).length === 0 && <li>No shipping lines</li>}
               {(order.shipping_lines ?? []).map((line, idx) => (
-                <li key={line.ID ?? idx}>
+                <li key={line.id ?? idx}>
                   {line.method_title} (ID: {line.method_id}) - Total: {line.total}
                 </li>
               ))}
@@ -100,7 +100,7 @@ export default function OrderDetailsDialog({ order, open, setOpen }: OrderDetail
             <ul className="list-disc list-inside text-sm space-y-1">
               {(order.meta_data ?? []).length === 0 && <li>No meta data</li>}
               {(order.meta_data ?? []).map((meta, idx) => (
-                <li key={meta.ID ?? idx}>
+                <li key={meta.id ?? idx}>
                   <span className="font-medium">{meta.key}</span>: {meta.value}
                 </li>
               ))}

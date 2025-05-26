@@ -37,7 +37,9 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useOrder } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
+import { Order } from "@/models/data/order.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { createOrderSchema, CreateOrderSchema } from "@/schemas/order";
 import { getDeliveryCompanies } from "@/services/delivery-service";
@@ -65,6 +67,8 @@ function CreateOrderDialog({
   if (!company) {
     return null;
   }
+  
+
 
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", company.ID],
@@ -286,6 +290,37 @@ function CreateOrderDialog({
     console.log(data);
     confirmWooCommerceOrderMutation(data);
   };
+  
+  useOrder(wooOrder.id);
+
+  useEffect(() => {
+    const handleQueryUpdate = () => {
+      // Check if the order was updated externally
+      const cachedOrder = queryClient.getQueryData(['orders', wooOrder.id]) as Order;
+      const originalOrder = queryClient.getQueryState(['orders', wooOrder.id])?.dataUpdatedAt;
+      
+      // If data was updated recently (within last 2 seconds), it might be from external source
+      if (cachedOrder && originalOrder && Date.now() - originalOrder < 2000) {
+        console.log('Order updated externally, closing dialog');
+        setOpen(false);
+      }
+    };
+
+    if (open && wooOrder.id) {
+      // Subscribe to query changes
+      const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+        if (
+          event.type === 'updated' &&
+          event.query.queryKey[0] === 'orders' &&
+          event.query.queryKey[1] === wooOrder.id
+        ) {
+          handleQueryUpdate();
+        }
+      });
+
+      return unsubscribe;
+    }
+  }, [open, wooOrder.id, queryClient]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

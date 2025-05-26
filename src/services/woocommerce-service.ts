@@ -21,6 +21,21 @@ export const getWooCommerceOrders = async (): Promise<APIResponse<WooOrder[]>> =
     return data;
 };
 
+export const getWooCommerceOrder = async (orderID: number): Promise<APIResponse<WooOrder>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/${orderID}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch WooCommerce order");
+    }
+    const data: APIResponse<WooOrder> = await response.json();
+    return data;
+};
 export const cancelWooCommerceOrder = async (orderID: number): Promise<APIResponse<void>> => {
     const response = await fetch(`${baseUrl}/woocommerce/${orderID}`, {
         method: "DELETE",
