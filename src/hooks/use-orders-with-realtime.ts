@@ -76,16 +76,14 @@ const useWebSocket = (url: string) => {
     return { isConnected, lastMessage };
 }
 
-export const useOrdersWithRealtime = () => {
+export const useOrdersWithRealtime = (page = 0, status?: string, taken_by_id?: number) => {
     const wsUrl = `${baseUrl.startsWith("https") ? "wss" : "ws"}://${baseUrl.replace("https://", "").replace("http://", "")}/woocommerce/ws/orders`;
     const queryClient = useQueryClient();
     const { lastMessage } = useWebSocket(wsUrl);
     // Main orders query
     const ordersQuery = useQuery({
-        queryKey: ['orders'],
-        queryFn: getWooCommerceOrders,
-       
-
+        queryKey: ['orders', page, status, taken_by_id],
+        queryFn: () => getWooCommerceOrders(page, status, taken_by_id),
     });
     // Handle WebSocket messages
     useEffect(() => {
@@ -97,7 +95,7 @@ export const useOrdersWithRealtime = () => {
             case 'created':
                 // Add new order to the cache
                 if (order) {
-                    queryClient.setQueryData(['orders'], (oldOrders: Order[] = []) => {
+                    queryClient.setQueryData(['orders'], (oldOrders: WooOrder[] = []) => {
                         return [order, ...oldOrders];
                     });
                 } else {
@@ -135,7 +133,8 @@ export const useOrdersWithRealtime = () => {
     }, [lastMessage, queryClient]);
 
     return {
-        orders: ordersQuery.data?.data || [],
+        orders: ordersQuery.data?.data?.orders || [],
+        meta: ordersQuery.data?.data?.meta,
         isLoading: ordersQuery.isLoading,
         error: ordersQuery.error,
         isConnected: true, // You can expose WebSocket connection status if needed
