@@ -77,7 +77,7 @@ const useWebSocket = (url: string) => {
 }
 
 export const useOrdersWithRealtime = () => {
-    const wsUrl = `ws://${baseUrl.replace("https://", "").replace("http://", "")}/woocommerce/ws/orders`;
+    const wsUrl = `${baseUrl.startsWith("https") ? "wss" : "ws"}://${baseUrl.replace("https://", "").replace("http://", "")}/woocommerce/ws/orders`;
     const queryClient = useQueryClient();
     const { lastMessage } = useWebSocket(wsUrl);
     // Main orders query
