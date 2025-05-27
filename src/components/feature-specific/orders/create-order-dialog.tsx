@@ -774,23 +774,9 @@ function CreateOrderDialog({
                     <span>
                       {(() => {
                         let productsTotal = orderItems.reduce((sum, item) => sum + (getVariantCost(item.product_variant_id) * item.quantity), 0);
-                        let deliveryFee = 0;
-                        if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
-                          let communePricing = null;
-                          if (watch('delivery_type') === 'home') {
-                            communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
-                              ? yalidinePricing.per_commune[String(watch('selected_commune'))]
-                              : undefined;
-                            deliveryFee = communePricing?.express_home ?? 0;
-                          } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
-                            const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
-                            if (center && center.commune_id && yalidinePricing.per_commune) {
-                              communePricing = yalidinePricing.per_commune[String(center.commune_id)];
-                              deliveryFee = communePricing?.express_desk ?? 0;
-                            }
-                          }
-                        }
-                        const total = productsTotal + deliveryFee - (discount || 0);
+                        // Use only the value of second_delivery_cost for the delivery part of the total
+                        const secondDeliveryCost = watch('second_delivery_cost');
+                        const total = productsTotal + (secondDeliveryCost || 0) - (discount || 0);
                         return new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(Math.max(total, 0));
                       })()}
                     </span>

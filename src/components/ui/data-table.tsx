@@ -35,9 +35,8 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
-  PaginationPrevious
+  PaginationPrevious,
 } from "./pagination";
-import { ScrollArea } from "./scroll-area";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -65,15 +64,20 @@ export function DataTable<TData, TValue>({
   searchBar = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
 
   // Only enable selection if all required props are present
   const selectionEnabled = !!selectedRows && !!setSelectedRows && !!getRowId;
 
   // Warn if selection is attempted without getRowId
   if ((!!selectedRows || !!setSelectedRows) && !getRowId) {
-    console.warn('DataTable: getRowId prop is required when using row selection.');
+    console.warn(
+      "DataTable: getRowId prop is required when using row selection."
+    );
   }
 
   // Map selectedRows to TanStack's rowSelection object
@@ -86,20 +90,24 @@ export function DataTable<TData, TValue>({
 
   // Add local pagination state for automatic mode
   const [autoPageIndex, setAutoPageIndex] = React.useState(0);
-  const [autoPageSize, setAutoPageSize] = React.useState(paginationMeta?.per_page ?? 10);
+  const [autoPageSize, setAutoPageSize] = React.useState(
+    paginationMeta?.per_page ?? 10
+  );
 
   // Determine if manual or automatic pagination
   const isManual = !!onPageChange;
-  console.log(`isManual: ${isManual}`)
-  
-  const pageIndex = isManual ? currentPage : autoPageIndex;
-  const pageSize = isManual ? (paginationMeta?.per_page ?? 10) : autoPageSize;
-  const pageCount = isManual ? (paginationMeta?.total_pages ?? -1) : Math.ceil(data.length / pageSize);
+  console.log(`isManual: ${isManual}`);
 
-  console.log(`currentPage: ${currentPage}`)
-  console.log(`autoPageIndex: ${autoPageIndex}`)
-  console.log(`paginationMeta: ${paginationMeta}`)
-  console.log(`pageCount: ${pageCount}`)
+  const pageIndex = isManual ? currentPage : autoPageIndex;
+  const pageSize = isManual ? paginationMeta?.per_page ?? 10 : autoPageSize;
+  const pageCount = isManual
+    ? paginationMeta?.total_pages ?? -1
+    : Math.ceil(data.length / pageSize);
+
+  console.log(`currentPage: ${currentPage}`);
+  console.log(`autoPageIndex: ${autoPageIndex}`);
+  console.log(`paginationMeta: ${paginationMeta}`);
+  console.log(`pageCount: ${pageCount}`);
   const table = useReactTable({
     data,
     columns,
@@ -119,12 +127,14 @@ export function DataTable<TData, TValue>({
       rowSelection,
       onRowSelectionChange: (updater: any) => {
         let newRowSelection: Record<string, boolean>;
-        if (typeof updater === 'function') {
+        if (typeof updater === "function") {
           newRowSelection = updater(rowSelection);
         } else {
           newRowSelection = updater;
         }
-        const newSelectedRows = Object.keys(newRowSelection).filter((id) => newRowSelection[id]);
+        const newSelectedRows = Object.keys(newRowSelection).filter(
+          (id) => newRowSelection[id]
+        );
         setSelectedRows?.(newSelectedRows);
       },
     }),
@@ -135,19 +145,24 @@ export function DataTable<TData, TValue>({
       ...(selectionEnabled && { rowSelection }),
       pagination: {
         pageIndex,
-        pageSize
-      }
+        pageSize,
+      },
     },
-    onPaginationChange: isManual ? undefined : (updater) => {
-      if (typeof updater === 'function') {
-        const newState = updater({ pageIndex: autoPageIndex, pageSize: autoPageSize });
-        setAutoPageIndex(newState.pageIndex);
-        setAutoPageSize(newState.pageSize);
-      } else {
-        setAutoPageIndex(updater.pageIndex);
-        setAutoPageSize(updater.pageSize);
-      }
-    },
+    onPaginationChange: isManual
+      ? undefined
+      : (updater) => {
+          if (typeof updater === "function") {
+            const newState = updater({
+              pageIndex: autoPageIndex,
+              pageSize: autoPageSize,
+            });
+            setAutoPageIndex(newState.pageIndex);
+            setAutoPageSize(newState.pageSize);
+          } else {
+            setAutoPageIndex(updater.pageIndex);
+            setAutoPageSize(updater.pageSize);
+          }
+        },
   });
 
   // Helper: get all visible row IDs (for legacy/other use)
@@ -155,7 +170,9 @@ export function DataTable<TData, TValue>({
   // Ref for select-all checkbox to set indeterminate
   const selectAllRef = useRef<HTMLInputElement>(null);
   const allChecked = selectionEnabled ? table.getIsAllRowsSelected() : false;
-  const someChecked = selectionEnabled ? (table.getIsSomeRowsSelected() && !allChecked) : false;
+  const someChecked = selectionEnabled
+    ? table.getIsSomeRowsSelected() && !allChecked
+    : false;
 
   useEffect(() => {
     if (selectAllRef.current) {
@@ -169,10 +186,12 @@ export function DataTable<TData, TValue>({
         {searchBar && (
           <Input
             placeholder="Filter Product Name..."
-            value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn(searchColumn)?.setFilterValue(event.target.value)
-          }
+            value={
+              (table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn(searchColumn)?.setFilterValue(event.target.value)
+            }
             className="max-w-sm"
           />
         )}
@@ -286,71 +305,109 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex-1 text-sm text-muted-foreground">
         {selectionEnabled
-          ? `${table.getFilteredSelectedRowModel().rows.length} of ${table.getFilteredRowModel().rows.length} row(s) selected.`
+          ? `${table.getFilteredSelectedRowModel().rows.length} of ${
+              table.getFilteredRowModel().rows.length
+            } row(s) selected.`
           : null}
       </div>
 
-      <ScrollArea className="w-full max-w-full overflow-x-auto">
-        <div className="flex items-center justify-end space-x-2 py-4 min-w-[400px]">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => {
-                    if (isManual) {
-                      const newPage = currentPage - 1;
-                      onPageChange?.(newPage);
-                    } else {
-                      table.previousPage();
-                    }
-                  }}
-                  aria-disabled={isManual ? currentPage <= 0 : !table.getCanPreviousPage()}
-                  tabIndex={(isManual ? currentPage <= 0 : !table.getCanPreviousPage()) ? -1 : 0}
-                  style={{ pointerEvents: (isManual ? currentPage <= 0 : !table.getCanPreviousPage()) ? 'none' : undefined }}
-                />
-              </PaginationItem>
-              {/* Page numbers */}
-              {Array.from({ length: pageCount > 0 ? pageCount : 1 }).map((_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    isActive={i === pageIndex}
-                    onClick={() => {
-                      if (i !== pageIndex) {
-                        if (isManual) {
-                          onPageChange?.(i);
-                        } else {
-                          table.setPageIndex(i);
+     
+        <Pagination className="flex space-x-2 py-4 w-[500px]">
+          <PaginationContent className="pb-5">
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => {
+                  if (isManual) {
+                    const newPage = currentPage - 1;
+                    onPageChange?.(newPage);
+                  } else {
+                    table.previousPage();
+                  }
+                }}
+                aria-disabled={
+                  isManual ? currentPage <= 0 : !table.getCanPreviousPage()
+                }
+                tabIndex={
+                  (isManual ? currentPage <= 0 : !table.getCanPreviousPage())
+                    ? -1
+                    : 0
+                }
+                style={{
+                  pointerEvents: (
+                    isManual ? currentPage <= 0 : !table.getCanPreviousPage()
+                  )
+                    ? "none"
+                    : undefined,
+                }}
+              />
+            </PaginationItem>
+            {/* Page numbers */}
+            <div className="flex overflow-x-scroll w-[400px]">
+              {Array.from({ length: pageCount > 0 ? pageCount : 1 }).map(
+                (_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      isActive={i === pageIndex}
+                      onClick={() => {
+                        if (i !== pageIndex) {
+                          if (isManual) {
+                            onPageChange?.(i);
+                          } else {
+                            table.setPageIndex(i);
+                          }
                         }
-                      }
-                    }}
-                    href="#"
-                    tabIndex={i === pageIndex ? -1 : 0}
-                    aria-disabled={i === pageIndex}
-                    style={{ pointerEvents: i === pageIndex ? 'none' : undefined }}
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => {
-                    if (isManual) {
-                      const newPage = currentPage + 1;
-                      onPageChange?.(newPage);
-                    } else {
-                      table.nextPage();
-                    }
-                  }}
-                  aria-disabled={isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()}
-                  tabIndex={(isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()) ? -1 : 0}
-                  style={{ pointerEvents: (isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()) ? 'none' : undefined }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </ScrollArea>
+                      }}
+                      href="#"
+                      tabIndex={i === pageIndex ? -1 : 0}
+                      aria-disabled={i === pageIndex}
+                      style={{
+                        pointerEvents: i === pageIndex ? "none" : undefined,
+                      }}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+            </div>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => {
+                  if (isManual) {
+                    const newPage = currentPage + 1;
+                    onPageChange?.(newPage);
+                  } else {
+                    table.nextPage();
+                  }
+                }}
+                aria-disabled={
+                  isManual
+                    ? currentPage >= pageCount - 1
+                    : !table.getCanNextPage()
+                }
+                tabIndex={
+                  (
+                    isManual
+                      ? currentPage >= pageCount - 1
+                      : !table.getCanNextPage()
+                  )
+                    ? -1
+                    : 0
+                }
+                style={{
+                  pointerEvents: (
+                    isManual
+                      ? currentPage >= pageCount - 1
+                      : !table.getCanNextPage()
+                  )
+                    ? "none"
+                    : undefined,
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
     </div>
   );
 }
