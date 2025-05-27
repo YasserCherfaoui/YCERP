@@ -52,6 +52,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { ClientStatusDialog } from "./client-status-dialog";
 
 function CreateOrderDialog({
@@ -63,13 +64,16 @@ function CreateOrderDialog({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  const isModerator = pathname.includes("moderator");
+  if (isModerator) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   if (!company) {
     return null;
   }
   
-
-
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", company.ID],
     queryFn: () => getCompanyInventory(company.ID),

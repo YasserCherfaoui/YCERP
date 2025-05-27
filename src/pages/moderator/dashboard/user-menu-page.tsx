@@ -5,6 +5,7 @@ import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon
 import {
   Apple,
   Handshake,
+  Package,
   ReceiptText,
   ShoppingCart,
   Store,
@@ -51,6 +52,11 @@ const quickMenu = [
     label: "Sales",
     icon: ShoppingCart,
     href: "sales",
+  },
+  {
+    label: "Orders",
+    icon: Package,
+    href: "orders",
   },
   {
     label: "Suppliers",
