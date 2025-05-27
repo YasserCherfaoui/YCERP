@@ -37,6 +37,7 @@ import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
 import DeliveryDashboardPage from "@/pages/delivery/dashboard/delivery-dashboard-page";
 import DeliveryListPage from "@/pages/delivery/delivery-list-page";
+import FeaturesPage from "@/pages/features";
 import FranchiseLoginPage from "@/pages/franchise/auth/franchise-login-page";
 import FranchiseBillsPage from "@/pages/franchise/dashboard/franchise-bills-page";
 import FranchiseInventoryPage from "@/pages/franchise/dashboard/franchise-inventory-page";
@@ -56,6 +57,7 @@ export default function AppRouter() {
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/features" element={<FeaturesPage />} />
         // ANCHOR: AUTH PAGES
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<LoginPage />} />
