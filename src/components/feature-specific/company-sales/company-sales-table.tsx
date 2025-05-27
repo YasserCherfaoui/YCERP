@@ -4,7 +4,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { getCompanySales, getSalesTotal } from "@/services/sale-service";
+import { getCompanySales, getSalesCount, getSalesTotal } from "@/services/sale-service";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
 import { useEffect, useState } from "react";
@@ -31,6 +31,30 @@ export default function () {
   const { data: rangeTotal } = useQuery({
     queryKey: ["sales-total-range", company.ID, dateRange.from, dateRange.to],
     queryFn: () => getSalesTotal(company.ID, dateRange.from, dateRange.to),
+    enabled: !!dateRange.from && !!dateRange.to,
+  });
+
+  // Query for today's sales count
+  const { data: salesCount } = useQuery({
+    queryKey: ["sales-count", company.ID, dateRange.from, dateRange.to],
+    queryFn: () => getSalesCount({
+      company_id: company.ID.toString(),
+      start_date: startOfDay(new Date()).toISOString(),
+      end_date: endOfDay(new Date()).toISOString(),
+      sale_type: "warehouse",
+    }),
+    enabled: !!dateRange.from && !!dateRange.to,
+  });
+
+  // Query for custom date range sales count
+  const { data: rangeSalesCount } = useQuery({
+    queryKey: ["sales-count-range", company.ID, dateRange.from, dateRange.to],
+    queryFn: () => getSalesCount({
+      company_id: company.ID.toString(),
+      start_date: dateRange.from.toISOString(),
+      end_date: dateRange.to.toISOString(),
+      sale_type: "warehouse",
+    }),
     enabled: !!dateRange.from && !!dateRange.to,
   });
 
@@ -70,6 +94,14 @@ export default function () {
                 }).format(todayTotal.data.total_benefit)}
               </p>
             )}
+            <div className="text-lg text-white flex items-center gap-2">
+              <p>
+                <span className="font-bold">{salesCount?.data?.sales_count}</span> sales
+              </p>
+              <p>
+                <span className="font-bold">{salesCount?.data?.sale_items_count}</span> items
+              </p>
+            </div>
           </CardContent>
         </Card>
 
@@ -107,6 +139,14 @@ export default function () {
                 }).format(rangeTotal.data.total_benefit)}
               </p>
             )}
+            <div className="text-lg text-white flex items-center gap-2">
+              <p>
+                <span className="font-bold">{rangeSalesCount?.data?.sales_count}</span> sales
+              </p>
+              <p>
+                <span className="font-bold">{rangeSalesCount?.data?.sale_items_count}</span> items
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -9,6 +9,7 @@ import {
   getCompanyFranchiseSales,
   getCompanyFranchiseSalesTotal,
 } from "@/services/franchise-service";
+import { getSalesCount } from "@/services/sale-service";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
 import { useEffect, useState } from "react";
@@ -19,7 +20,7 @@ export default function () {
   const franchise = useSelector(
     (state: RootState) => state.franchise.franchise
   );
-  const {pathname} = useLocation(); 
+  const { pathname } = useLocation();
   const isModerator = pathname.includes("moderator");
 
   if (!franchise) return;
@@ -51,6 +52,31 @@ export default function () {
       getCompanyFranchiseSalesTotal(franchise.ID, dateRange.from, dateRange.to),
     enabled: !!dateRange.from && !!dateRange.to,
   });
+
+  // Query for today's sales count
+  const { data: salesCount } = useQuery({
+    queryKey: ["sales-count", franchise.ID, dateRange.from, dateRange.to],
+    queryFn: () =>
+      getSalesCount({
+        company_id: franchise.ID.toString(),
+        start_date: startOfDay(new Date()).toISOString(),
+        end_date: endOfDay(new Date()).toISOString(),
+        sale_type: "franchise",
+      }),
+    enabled: !!dateRange.from && !!dateRange.to,
+  });
+
+  // Query for custom date range sales count
+  const {data: rangeSalesCount} = useQuery({
+    queryKey: ["sales-count-range", franchise.ID, dateRange.from, dateRange.to],
+    queryFn: () => getSalesCount({
+      company_id: franchise.ID.toString(),
+      start_date: dateRange.from.toISOString(),
+      end_date: dateRange.to.toISOString(),
+      sale_type: "franchise ",
+    }),
+    enabled: !!dateRange.from && !!dateRange.to,
+  });
   const { data } = useQuery({
     queryKey: ["sales"],
     queryFn: () => getCompanyFranchiseSales(franchise.ID),
@@ -78,7 +104,20 @@ export default function () {
                 currency: "DZD",
               }).format(todayTotal?.data?.total_amount || 0)}
             </p>
-            
+            <div className="text-lg text-white flex items-center gap-2">
+              <p>
+                <span className="font-bold">
+                  {salesCount?.data?.sales_count}
+                </span>{" "}
+                sales
+              </p>
+              <p>
+                <span className="font-bold">
+                  {salesCount?.data?.sale_items_count}
+                </span>{" "}
+                items
+              </p>
+            </div>
           </CardContent>
         </Card>
         <Card className={`${isModerator ? "hidden" : ""}`}>
@@ -129,6 +168,20 @@ export default function () {
                 currency: "DZD",
               }).format(rangeTotal?.data?.total_amount || 0)}
             </p>
+            <div className="text-lg text-white flex items-center gap-2">
+              <p>
+                <span className="font-bold">
+                  {rangeSalesCount?.data?.sales_count}
+                </span>{" "}
+                sales
+              </p>
+              <p>
+                <span className="font-bold">
+                  {rangeSalesCount?.data?.sale_items_count}
+                </span>{" "}
+                items
+              </p>
+            </div>
           </CardContent>
         </Card>
         <Card className={`${isModerator ? "hidden" : ""}`}>
@@ -165,6 +218,7 @@ export default function () {
                 }).format(rangeTotal.data.total_benefit)}
               </p>
             )}
+         
           </CardContent>
         </Card>
       </div>
