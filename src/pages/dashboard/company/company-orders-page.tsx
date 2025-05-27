@@ -3,7 +3,14 @@ import AppBarBackButton from "@/components/common/app-bar-back-button";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOrdersWithRealtime } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +18,7 @@ import { User } from "@/models/data/user.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
+import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircleIcon,
@@ -38,20 +46,42 @@ export default function CompanyOrdersPage() {
     company = useSelector((state: RootState) => state.user.company);
   }
   // Mock data for demonstration
-  
-    
+
   if (!company) {
     return <div>No company selected</div>;
   }
 
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState("unconfirmed");
-  const [selectedUser, setSelectedUser] = useState<number | undefined>(undefined);
-  const { orders, meta } = useOrdersWithRealtime(currentPage, selectedStatus, selectedUser);
+  const [selectedUser, setSelectedUser] = useState<number | undefined>(
+    undefined
+  );
+  const [selectedWilaya, setSelectedWilaya] = useState<string | undefined>(
+    undefined
+  );
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [debouncedPhoneNumber, setDebouncedPhoneNumber] = useState<string>("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedPhoneNumber(phoneNumber);
+    }, 1000);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [phoneNumber]);
+
+  const { orders, meta } = useOrdersWithRealtime(
+    currentPage,
+    selectedStatus,
+    selectedUser,
+    selectedWilaya,
+    debouncedPhoneNumber
+  );
 
   useEffect(() => {
     setCurrentPage(0);
-  }, [selectedStatus, selectedUser]);
+  }, [selectedStatus, selectedUser, selectedWilaya]);
 
   useQuery({
     queryKey: ["inventory", company.ID],
@@ -186,25 +216,61 @@ export default function CompanyOrdersPage() {
           </Button>
         </div>
       </div>
-      <div className="flex gap-2 items-center mb-4 pt-6">
-        <span>Filter by User:</span>
-        <Select
-          value={selectedUser !== undefined ? String(selectedUser) : "all"}
-          onValueChange={e => setSelectedUser(e === "all" ? undefined : Number(e))}
-        >
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="All Users" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Users</SelectItem>
-            {users.map((user: User) => (
-              <SelectItem key={user.ID} value={String(user.ID)}>
-                {user.full_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div>
+        <div className="flex gap-2 items-center mb-4 pt-6">
+          <span>Filter by User:</span>
+          <Select
+            value={selectedUser !== undefined ? String(selectedUser) : "all"}
+            onValueChange={(e) =>
+              setSelectedUser(e === "all" ? undefined : Number(e))
+            }
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="All Users" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Users</SelectItem>
+              {users.map((user: User) => (
+                <SelectItem key={user.ID} value={String(user.ID)}>
+                  {user.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span>Filter by Wilaya:</span>
+          <Select
+            value={selectedWilaya || "all"}
+            onValueChange={(e) =>
+              setSelectedWilaya(e === "all" ? undefined : e)
+            }
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="All Wilayas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Wilayas</SelectItem>
+              {cities.sort((a, b) => a.label.localeCompare(b.label)).map((city) => (
+                <SelectItem key={city.key} value={city.key}>
+                  {city.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div id="#secondary-filters">
+          <div className="flex gap-2 items-center mb-4">
+            <span>Filter by Phone Number:</span>
+            <Input
+              type="text"
+              className="border rounded px-2 py-1 w-[200px]"
+              placeholder="Enter phone number"
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
+
       {/* Tabs for order statuses */}
       <Tabs
         value={selectedStatus}
@@ -235,29 +301,30 @@ export default function CompanyOrdersPage() {
               paginationMeta={meta}
               onPageChange={setCurrentPage}
               currentPage={currentPage}
+              searchBar={false}
             />
           </TabsContent>
         ))}
       </Tabs>
       {/* Shuffle and Assign dialogs */}
-     {!isModerator && (
-      <>
-       <ShuffleOrdersDialog
-        open={shuffleOpen}
-        onClose={() => setShuffleOpen(false)}
-        users={users}
-        orders={orders || []}
-        onSubmit={handleShuffleSubmit}
-      />
-      <AssignOrdersDialog
-        open={assignOpen}
-        onClose={() => setAssignOpen(false)}
-        users={users}
-        orderIds={selectedRows.map(Number)}
-        onSubmit={handleAssignSubmit}
-      />
-      </>
-     )}
+      {!isModerator && (
+        <>
+          <ShuffleOrdersDialog
+            open={shuffleOpen}
+            onClose={() => setShuffleOpen(false)}
+            users={users}
+            orders={orders || []}
+            onSubmit={handleShuffleSubmit}
+          />
+          <AssignOrdersDialog
+            open={assignOpen}
+            onClose={() => setAssignOpen(false)}
+            users={users}
+            orderIds={selectedRows.map(Number)}
+            onSubmit={handleAssignSubmit}
+          />
+        </>
+      )}
     </div>
   );
 }

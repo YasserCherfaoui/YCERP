@@ -6,10 +6,18 @@ import { CreateOrderSchema } from "@/schemas/order";
 import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
 const token = localStorage.getItem("token");
-export const getWooCommerceOrders = async (_page = 0, status?: string, taken_by_id?: number): Promise<APIResponse<WooOrdersResponse>> => {
+export const getWooCommerceOrders = async (
+  _page = 0,
+  status?: string,
+  taken_by_id?: number,
+  wilaya?: string,
+  phone_number?: string
+): Promise<APIResponse<WooOrdersResponse>> => {
     let url = `${baseUrl}/woocommerce/?page=${_page + 1}`;
     if (status) url += `&status=${encodeURIComponent(status)}`;
     if (taken_by_id) url += `&taken_by_id=${taken_by_id}`;
+    if (wilaya) url += `&wilaya=${encodeURIComponent(wilaya)}`;
+    if (phone_number) url += `&phone_number=${encodeURIComponent(phone_number)}`;
     const response = await fetch(url, {
         method: "GET",
         headers: {
