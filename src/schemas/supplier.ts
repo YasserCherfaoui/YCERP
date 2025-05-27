@@ -24,7 +24,7 @@ export const createSupplierBillSchema = z.object({
 
 export const createSupplierPayment = z.object({
     company_id: z.number(),
-    supplier_id: z.number().min(1),
+    supplier_id: z.number().nullable(),
     administrator_id: z.number().nullable(),
     amount: z.number().min(1),
     comment: z.string()
