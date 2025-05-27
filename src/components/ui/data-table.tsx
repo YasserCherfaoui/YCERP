@@ -29,6 +29,14 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { Input } from "./input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from "./pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -282,41 +290,63 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            if (isManual) {
-              const newPage = currentPage - 1;
-              onPageChange?.(newPage);
-            } else {
-              table.previousPage();
-            }
-          }}
-          disabled={isManual ? currentPage <= 0 : !table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <div className="flex items-center gap-2 mx-2">
-          <span className="text-sm">
-            Page {pageIndex + 1} of {pageCount > 0 ? pageCount : 1}
-          </span>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            if (isManual) {
-              const newPage = currentPage + 1;
-              onPageChange?.(newPage);
-            } else {
-              table.nextPage();
-            }
-          }}
-          disabled={isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()}
-        >
-          Next
-        </Button>
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => {
+                  if (isManual) {
+                    const newPage = currentPage - 1;
+                    onPageChange?.(newPage);
+                  } else {
+                    table.previousPage();
+                  }
+                }}
+                aria-disabled={isManual ? currentPage <= 0 : !table.getCanPreviousPage()}
+                tabIndex={(isManual ? currentPage <= 0 : !table.getCanPreviousPage()) ? -1 : 0}
+                style={{ pointerEvents: (isManual ? currentPage <= 0 : !table.getCanPreviousPage()) ? 'none' : undefined }}
+              />
+            </PaginationItem>
+            {/* Page numbers */}
+            {Array.from({ length: pageCount > 0 ? pageCount : 1 }).map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  isActive={i === pageIndex}
+                  onClick={() => {
+                    if (i !== pageIndex) {
+                      if (isManual) {
+                        onPageChange?.(i);
+                      } else {
+                        table.setPageIndex(i);
+                      }
+                    }
+                  }}
+                  href="#"
+                  tabIndex={i === pageIndex ? -1 : 0}
+                  aria-disabled={i === pageIndex}
+                  style={{ pointerEvents: i === pageIndex ? 'none' : undefined }}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => {
+                  if (isManual) {
+                    const newPage = currentPage + 1;
+                    onPageChange?.(newPage);
+                  } else {
+                    table.nextPage();
+                  }
+                }}
+                aria-disabled={isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()}
+                tabIndex={(isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()) ? -1 : 0}
+                style={{ pointerEvents: (isManual ? currentPage >= (pageCount - 1) : !table.getCanNextPage()) ? 'none' : undefined }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );

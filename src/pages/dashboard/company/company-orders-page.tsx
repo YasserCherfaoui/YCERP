@@ -1,5 +1,6 @@
 import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
+import BulkOperationsDialog from "@/components/feature-specific/orders/bulk-operations-dialog";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -18,6 +19,7 @@ import { User } from "@/models/data/user.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
+import { dispatchWooCommerceOrders, exportWooCommerceOrders } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -151,6 +153,53 @@ export default function CompanyOrdersPage() {
     assignOrdersMutation(data);
   };
 
+  // --- Bulk Operations Dialog State ---
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+
+  const { mutate: dispatchWooCommerceOrdersMutation } = useMutation({
+    mutationFn: dispatchWooCommerceOrders,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast({
+        title: "Orders dispatched successfully",
+        description: "Orders have been dispatched successfully",
+      });
+      setBulkDialogOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Failed to dispatch orders",
+        description: "Failed to dispatch orders",
+        variant: "destructive",
+      });
+    },
+  });
+  const { mutate: exportWooCommerceOrdersMutation } = useMutation({
+    mutationFn: exportWooCommerceOrders,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast({
+        title: "Orders exported successfully",
+        description: "Orders have been exported successfully",
+      });
+      setBulkDialogOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Failed to export orders",
+        description: "Failed to export orders",
+        variant: "destructive",
+      });
+    },
+  });
+  const handleExportSubmit = (orderIDs: number[]) => {
+    exportWooCommerceOrdersMutation(orderIDs);
+  }
+  const handleDispatchSubmit = (orderIDs: number[]) => {
+    dispatchWooCommerceOrdersMutation(orderIDs);
+  };
+
+
   // Statuses and icons
   const statusTabs = [
     {
@@ -213,6 +262,12 @@ export default function CompanyOrdersPage() {
           >
             <UserIcon className="w-4 h-4" />
             Assign Orders
+          </Button>
+          <Button
+            onClick={() => setBulkDialogOpen(true)}
+            disabled={selectedRows.length === 0}
+          >
+            Bulk Operations
           </Button>
         </div>
       </div>
@@ -322,6 +377,13 @@ export default function CompanyOrdersPage() {
             users={users}
             orderIds={selectedRows.map(Number)}
             onSubmit={handleAssignSubmit}
+          />
+          <BulkOperationsDialog
+            open={bulkDialogOpen}
+            setOpen={setBulkDialogOpen}
+            selectedCount={selectedRows.length}
+            onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
+            onExport={() => handleExportSubmit(selectedRows.map(Number))}
           />
         </>
       )}

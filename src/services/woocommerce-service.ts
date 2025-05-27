@@ -146,3 +146,37 @@ export const exportWooCommerceOrder = async (orderID: number): Promise<APIRespon
     const data: APIResponse<void> = await response.json();
     return data;
 };  
+
+export const dispatchWooCommerceOrders = async (orderIDs: number[]): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/dispatch`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify({ order_ids: orderIDs }),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to dispatch WooCommerce orders");
+    }
+    const data: APIResponse<void> = await response.json();
+    return data;
+};
+
+export const exportWooCommerceOrders = async (orderIDs: number[]): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/export`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify({ order_ids: orderIDs }),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to export WooCommerce orders");
+    }
+    const data: APIResponse<void> = await response.json();
+    return data;
+};
