@@ -82,6 +82,7 @@ export default function AppRouter() {
           </Route>
           <Route element={<UserPrivateRoute />}>
             <Route index element={<UserMenuPage />} />
+            <Route path="orders" element={<CompanyOrdersPage />} />
             <Route path="sales">
               <Route index element={<CompanySalesSwitchPage />} />
               <Route path="warehouse" element={<UserSalesPage />} />

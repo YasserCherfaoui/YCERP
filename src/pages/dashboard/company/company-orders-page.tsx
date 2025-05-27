@@ -26,12 +26,20 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import AssignOrdersDialog from "./AssignOrdersDialog";
 import ShuffleOrdersDialog from "./ShuffleOrdersDialog";
 
 export default function CompanyOrdersPage() {
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  const isModerator = pathname.includes("moderator");
+  if (isModerator) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   // Mock data for demonstration
-  const company = useSelector((state: RootState) => state.company.company);
+  
+    
   if (!company) {
     return <div>No company selected</div>;
   }
@@ -165,13 +173,13 @@ export default function CompanyOrdersPage() {
           <h1 className="text-2xl font-bold">WooCommerce Orders</h1>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setShuffleOpen(true)}>
+          <Button disabled={isModerator} onClick={() => setShuffleOpen(true)}>
             <ShuffleIcon className="w-4 h-4" />
             Shuffle Orders
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
-            disabled={selectedRows.length === 0}
+            disabled={isModerator || selectedRows.length === 0}
           >
             <UserIcon className="w-4 h-4" />
             Assign Orders
@@ -232,7 +240,9 @@ export default function CompanyOrdersPage() {
         ))}
       </Tabs>
       {/* Shuffle and Assign dialogs */}
-      <ShuffleOrdersDialog
+     {!isModerator && (
+      <>
+       <ShuffleOrdersDialog
         open={shuffleOpen}
         onClose={() => setShuffleOpen(false)}
         users={users}
@@ -246,6 +256,8 @@ export default function CompanyOrdersPage() {
         orderIds={selectedRows.map(Number)}
         onSubmit={handleAssignSubmit}
       />
+      </>
+     )}
     </div>
   );
 }
