@@ -76,14 +76,14 @@ const useWebSocket = (url: string) => {
     return { isConnected, lastMessage };
 }
 
-export const useOrdersWithRealtime = (page = 0, status?: string, taken_by_id?: number) => {
+export const useOrdersWithRealtime = (page = 0, status?: string, taken_by_id?: number, wilaya?: string, phone_number?: string) => {
     const wsUrl = `${baseUrl.startsWith("https") ? "wss" : "ws"}://${baseUrl.replace("https://", "").replace("http://", "")}/woocommerce/ws/orders`;
     const queryClient = useQueryClient();
     const { lastMessage } = useWebSocket(wsUrl);
     // Main orders query
     const ordersQuery = useQuery({
-        queryKey: ['orders', page, status, taken_by_id],
-        queryFn: () => getWooCommerceOrders(page, status, taken_by_id),
+        queryKey: ['orders', page, status, taken_by_id, wilaya, phone_number],
+        queryFn: () => getWooCommerceOrders(page, status, taken_by_id, wilaya, phone_number),
     });
     // Handle WebSocket messages
     useEffect(() => {

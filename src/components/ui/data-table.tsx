@@ -40,6 +40,7 @@ interface DataTableProps<TData, TValue> {
   selectedRows?: string[]; // List of selected row IDs
   setSelectedRows?: (ids: string[]) => void; // Setter for selected row IDs
   getRowId?: (row: TData) => string; // Function to get row ID
+  searchBar?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -51,7 +52,8 @@ export function DataTable<TData, TValue>({
   currentPage = 0,
   selectedRows,
   setSelectedRows,
-  getRowId
+  getRowId,
+  searchBar = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -155,14 +157,16 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter Product Name..."
-          value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""}
+        {searchBar && (
+          <Input
+            placeholder="Filter Product Name..."
+            value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn(searchColumn)?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
-        />
+            className="max-w-sm"
+          />
+        )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
