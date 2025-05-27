@@ -41,7 +41,7 @@ export default function () {
     queryKey: ["sales-count", franchise.ID, dateRange.from, dateRange.to],
     queryFn: () =>
       getSalesCount({
-        company_id: franchise.ID.toString(),
+        franchise_id: franchise.ID.toString(),
         start_date: startOfDay(new Date()).toISOString(),
         end_date: endOfDay(new Date()).toISOString(),
         sale_type: "franchise",
@@ -54,7 +54,7 @@ export default function () {
     queryKey: ["sales-count-range", franchise.ID, dateRange.from, dateRange.to],
     queryFn: () =>
       getSalesCount({
-        company_id: franchise.ID.toString(),
+        franchise_id: franchise.ID.toString(),
         start_date: dateRange.from.toISOString(),
         end_date: dateRange.to.toISOString(),
         sale_type: "franchise ",
