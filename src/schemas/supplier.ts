@@ -6,7 +6,7 @@ export const createSupplierSchema = z.object({
     address: z.string().min(3, { message: "Address must be at least 3 characters" }),
     company_id: z.number(),
     administrator_id: z.number().nullable(),
-    user_id: z.number(),
+    user_id: z.number().nullable(),
 });
 
 export const createSupplierBillSchema = z.object({
