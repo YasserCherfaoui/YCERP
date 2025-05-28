@@ -45,7 +45,7 @@ export default function () {
     defaultValues: {
       company_id: company.ID,
       administrator_id: administrator?.ID ?? null,
-      user_id: user?.ID,
+      user_id: user?.ID ?? null,
     },
   });
   const queryClient = useQueryClient();
