@@ -426,7 +426,7 @@ function CreateOrderDialog({
                               <SelectContent>
                                 {communesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
                                 {communesError && <div className="p-2 text-red-500">Error loading communes</div>}
-                                {!communesLoading && !communesError && (yalidineCommunes || []).filter(c => c.is_deliverable).map(commune => (
+                                {!communesLoading && !communesError && (yalidineCommunes || []).sort((a, b) => a.name.localeCompare(b.name)).filter(c => c.is_deliverable).map(commune => (
                                   <SelectItem key={commune.id} value={String(commune.id)}>{commune.name}</SelectItem>
                                 ))}
                               </SelectContent>
