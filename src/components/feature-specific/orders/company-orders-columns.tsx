@@ -63,6 +63,8 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       const [open, setOpen] = useState(false);
       const [setStatusOpen, setSetStatusOpen] = useState(false);
       const statuses = row.original.client_statuses;
+      const sortedStatuses = [...statuses].sort((a, b) => new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime());
+      const lastStatus = sortedStatuses[0];
       return (
         <>
           <div
@@ -75,10 +77,10 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
             style={
               statuses.length > 0
                 ? {
-                    backgroundColor: statuses[statuses.length - 1]?.sub_qualification
-                      ? statuses[statuses.length - 1]?.sub_qualification?.color
-                      : statuses[statuses.length - 1]?.qualification?.color?.startsWith("#")
-                      ? statuses[statuses.length - 1]?.qualification?.color
+                    backgroundColor: lastStatus?.sub_qualification
+                      ? lastStatus?.sub_qualification?.color
+                      : lastStatus?.qualification?.color?.startsWith("#")
+                      ? lastStatus?.qualification?.color
                       : "gray",
                   }
                 : {}
@@ -90,9 +92,9 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
             ) : (
               <>
                 <span className="font-bold">
-                  {statuses[statuses.length - 1]?.qualification?.name}
+                  {lastStatus?.qualification?.name}
                 </span>
-                <span>{statuses[statuses.length - 1]?.sub_qualification?.name}</span>
+                <span>{lastStatus?.sub_qualification?.name}</span>
               </>
             )}
           </div>
