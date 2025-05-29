@@ -762,7 +762,13 @@ function CreateOrderDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input type="number" min={0} {...field} className="max-w-[120px] text-right" />
+                            <Input 
+                              type="number" 
+                              min={0} 
+                              {...field} 
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              className="max-w-[120px] text-right" 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
