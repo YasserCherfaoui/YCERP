@@ -426,7 +426,7 @@ function CreateOrderDialog({
                               <SelectContent>
                                 {communesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
                                 {communesError && <div className="p-2 text-red-500">Error loading communes</div>}
-                                {!communesLoading && !communesError && (yalidineCommunes || []).filter(c => c.is_deliverable).map(commune => (
+                                {!communesLoading && !communesError && (yalidineCommunes || []).sort((a, b) => a.name.localeCompare(b.name)).filter(c => c.is_deliverable).map(commune => (
                                   <SelectItem key={commune.id} value={String(commune.id)}>{commune.name}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -762,7 +762,13 @@ function CreateOrderDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input type="number" min={0} {...field} className="max-w-[120px] text-right" />
+                            <Input 
+                              type="number" 
+                              min={0} 
+                              {...field} 
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                              className="max-w-[120px] text-right" 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

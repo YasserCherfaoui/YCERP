@@ -378,15 +378,16 @@ export default function CompanyOrdersPage() {
             orderIds={selectedRows.map(Number)}
             onSubmit={handleAssignSubmit}
           />
-          <BulkOperationsDialog
+        
+        </>
+      )}
+        <BulkOperationsDialog
             open={bulkDialogOpen}
             setOpen={setBulkDialogOpen}
             selectedCount={selectedRows.length}
             onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
             onExport={() => handleExportSubmit(selectedRows.map(Number))}
           />
-        </>
-      )}
     </div>
   );
 }

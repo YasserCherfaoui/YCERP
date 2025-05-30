@@ -14,6 +14,7 @@ export const createSaleSchema = z.object({
     sale_items: z.array(saleItemSchema),
     discount: z.number(),
     sale_type: z.string(),
+    phone_number: z.string().optional(),
 })
 
 export type CreateSaleSchema = z.infer<typeof createSaleSchema>;
