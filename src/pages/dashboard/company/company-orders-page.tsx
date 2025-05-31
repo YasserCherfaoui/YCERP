@@ -157,7 +157,7 @@ export default function CompanyOrdersPage() {
   // --- Bulk Operations Dialog State ---
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
 
-  const { mutate: dispatchWooCommerceOrdersMutation } = useMutation({
+  const { mutate: dispatchWooCommerceOrdersMutation, isPending: dispatchWooCommerceOrdersLoading } = useMutation({
     mutationFn: dispatchWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -175,7 +175,7 @@ export default function CompanyOrdersPage() {
       });
     },
   });
-  const { mutate: exportWooCommerceOrdersMutation } = useMutation({
+  const { mutate: exportWooCommerceOrdersMutation, isPending: exportWooCommerceOrdersLoading } = useMutation({
     mutationFn: exportWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -412,6 +412,8 @@ export default function CompanyOrdersPage() {
             selectedCount={selectedRows.length}
             onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
             onExport={() => handleExportSubmit(selectedRows.map(Number))}
+            dispatchLoading={dispatchWooCommerceOrdersLoading}
+            exportLoading={exportWooCommerceOrdersLoading}
           />
 
     </div>
