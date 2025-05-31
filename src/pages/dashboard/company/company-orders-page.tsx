@@ -19,13 +19,14 @@ import { User } from "@/models/data/user.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
-import { dispatchWooCommerceOrders, exportWooCommerceOrders } from "@/services/woocommerce-service";
+import { dispatchWooCommerceOrders, exportWooCommerceOrders, refreshWooCommerceStatus } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircleIcon,
   LoaderIcon,
   PackageIcon,
+  RefreshCcwIcon,
   RotateCcwIcon,
   SendIcon,
   ShuffleIcon,
@@ -192,6 +193,26 @@ export default function CompanyOrdersPage() {
       });
     },
   });
+
+
+  const { mutate: refreshWooCommerceStatusMutation } = useMutation({
+    mutationFn: refreshWooCommerceStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast({
+        title: "WooCommerce status refreshed successfully",
+        description: "WooCommerce status has been refreshed successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to refresh WooCommerce status",
+        description: "Failed to refresh WooCommerce status",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleExportSubmit = (orderIDs: number[]) => {
     exportWooCommerceOrdersMutation(orderIDs);
   }
@@ -255,6 +276,10 @@ export default function CompanyOrdersPage() {
           <Button disabled={isModerator} onClick={() => setShuffleOpen(true)}>
             <ShuffleIcon className="w-4 h-4" />
             Shuffle Orders
+          </Button>
+          <Button onClick={() => refreshWooCommerceStatusMutation()}>
+            <RefreshCcwIcon className="w-4 h-4" />
+            Refresh Status
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
@@ -388,6 +413,7 @@ export default function CompanyOrdersPage() {
             onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
             onExport={() => handleExportSubmit(selectedRows.map(Number))}
           />
+
     </div>
   );
 }
