@@ -3,6 +3,7 @@ import OrderLineItemsAccordion from "@/components/feature-specific/orders/order-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { WooOrder } from "@/models/data/woo-order.model";
+import { cities } from "@/utils/algeria-cities";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import ClientStatusDetailsDialog from "./client-status-details-dialog";
@@ -112,6 +113,14 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
           />
         </>
       );
+    },
+  },
+  {
+    header:"Wilaya",
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const wilaya = row.original.shipping_city;
+      const wilayaName = cities.find((city) => city.key == wilaya)?.label;
+      return <div className="text-center">{wilayaName}</div>;
     },
   },
   {

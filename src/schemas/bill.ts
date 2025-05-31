@@ -30,7 +30,21 @@ export const createFranchisePaymentSchema = z.object({
     comment: z.string(),
 });
 
+export const updateExitBillSchema = z.object({
+    exit_bill_id: z.number(),
+    franchise_id: z.number(),
+    company_id: z.number(),
+    bill_items: z.array(
+        z.object({
+            id: z.number().optional(),
+            product_variant_id: z.number(),
+            quantity: z.number(),
+        })
+    ),
+});
+
 export type CreateFranchisePayment = z.infer<typeof createFranchisePaymentSchema>;
 export type CreateExitBillSchema = z.infer<typeof createExitBillSchema>
 export type CreateEntryBillSchema = z.infer<typeof createEntryBillSchema>
+export type UpdateExitBillSchema = z.infer<typeof updateExitBillSchema>;
 

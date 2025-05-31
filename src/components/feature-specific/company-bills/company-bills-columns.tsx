@@ -1,5 +1,4 @@
 import RemoveBillActionDialog from "@/components/feature-specific/company-bills/remove-bill-action-dialog";
-import UpdateBillActionDialog from "@/components/feature-specific/company-bills/update-bill-action-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -140,7 +139,7 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <CompanyBillDialog bill={exitBill} />
-            <UpdateBillActionDialog bill={exitBill} />
+            {/* <UpdateBillActionDialog bill={exitBill} /> */}
             <RemoveBillActionDialog bill={exitBill} />
           </DropdownMenuContent>
         </DropdownMenu>
