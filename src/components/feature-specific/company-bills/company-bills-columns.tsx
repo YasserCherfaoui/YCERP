@@ -1,4 +1,5 @@
 import RemoveBillActionDialog from "@/components/feature-specific/company-bills/remove-bill-action-dialog";
+import UpdateBillActionDialog from "@/components/feature-specific/company-bills/update-bill-action-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -16,6 +17,13 @@ import CompanyBillDialog from "./company-bill-dialog";
 
 
 export const companyBillColumns: ColumnDef<ExitBill>[] = [
+  {
+    id: "bill_number",
+    header: () => <div>Bill Number</div>,
+    cell: ({ row }) => {
+      return <div>EXB-{row.original.ID}</div>;
+    },
+  },
   {
     id: "select",
     header: ({ table }) => (
@@ -132,6 +140,7 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <CompanyBillDialog bill={exitBill} />
+            <UpdateBillActionDialog bill={exitBill} />
             <RemoveBillActionDialog bill={exitBill} />
           </DropdownMenuContent>
         </DropdownMenu>
