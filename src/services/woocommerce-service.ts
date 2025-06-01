@@ -1,5 +1,6 @@
 import { baseUrl } from "@/app/constants";
-import { WooOrder } from "@/models/data/woo-order.model";
+import { AddOrderHistoryRequest } from "@/components/feature-specific/orders/add-order-history-dialog";
+import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrderSchema } from "@/schemas/order";
@@ -7,11 +8,11 @@ import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
 const token = localStorage.getItem("token");
 export const getWooCommerceOrders = async (
-  _page = 0,
-  status?: string,
-  taken_by_id?: number,
-  wilaya?: string,
-  phone_number?: string
+    _page = 0,
+    status?: string,
+    taken_by_id?: number,
+    wilaya?: string,
+    phone_number?: string
 ): Promise<APIResponse<WooOrdersResponse>> => {
     let url = `${baseUrl}/woocommerce/?page=${_page + 1}`;
     if (status) url += `&status=${encodeURIComponent(status)}`;
@@ -129,7 +130,7 @@ export const dispatchWooCommerceOrder = async (orderID: number): Promise<APIResp
     }
     const data: APIResponse<void> = await response.json();
     return data;
-}; 
+};
 
 export const exportWooCommerceOrder = async (orderID: number): Promise<APIResponse<void>> => {
     const response = await fetch(`${baseUrl}/woocommerce/export/${orderID}`, {
@@ -145,7 +146,7 @@ export const exportWooCommerceOrder = async (orderID: number): Promise<APIRespon
     }
     const data: APIResponse<void> = await response.json();
     return data;
-};  
+};
 
 export const dispatchWooCommerceOrders = async (orderIDs: number[]): Promise<APIResponse<void>> => {
     const response = await fetch(`${baseUrl}/woocommerce/dispatch`, {
@@ -180,3 +181,36 @@ export const exportWooCommerceOrders = async (orderIDs: number[]): Promise<APIRe
     const data: APIResponse<void> = await response.json();
     return data;
 };
+
+export const refreshWooCommerceStatus = async () => {
+    const response = await fetch(`${baseUrl}/woocommerce/update-status`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to refresh WooCommerce status");
+    }
+    const data: APIResponse<void> = await response.json();
+    return data;
+}
+
+export const addOrderHistory = async (request: AddOrderHistoryRequest): Promise<APIResponse<OrderHistory>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/create-order-history`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify(request),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add order history");
+    }
+    const data: APIResponse<OrderHistory> = await response.json();
+    return data;
+}

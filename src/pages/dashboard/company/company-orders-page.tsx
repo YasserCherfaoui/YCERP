@@ -19,13 +19,14 @@ import { User } from "@/models/data/user.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
-import { dispatchWooCommerceOrders, exportWooCommerceOrders } from "@/services/woocommerce-service";
+import { dispatchWooCommerceOrders, exportWooCommerceOrders, refreshWooCommerceStatus } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircleIcon,
   LoaderIcon,
   PackageIcon,
+  RefreshCcwIcon,
   RotateCcwIcon,
   SendIcon,
   ShuffleIcon,
@@ -156,7 +157,7 @@ export default function CompanyOrdersPage() {
   // --- Bulk Operations Dialog State ---
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
 
-  const { mutate: dispatchWooCommerceOrdersMutation } = useMutation({
+  const { mutate: dispatchWooCommerceOrdersMutation, isPending: dispatchWooCommerceOrdersLoading } = useMutation({
     mutationFn: dispatchWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -174,7 +175,7 @@ export default function CompanyOrdersPage() {
       });
     },
   });
-  const { mutate: exportWooCommerceOrdersMutation } = useMutation({
+  const { mutate: exportWooCommerceOrdersMutation, isPending: exportWooCommerceOrdersLoading } = useMutation({
     mutationFn: exportWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -192,11 +193,33 @@ export default function CompanyOrdersPage() {
       });
     },
   });
+
+
+  const { mutate: refreshWooCommerceStatusMutation } = useMutation({
+    mutationFn: refreshWooCommerceStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast({
+        title: "WooCommerce status refreshed successfully",
+        description: "WooCommerce status has been refreshed successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Failed to refresh WooCommerce status",
+        description: "Failed to refresh WooCommerce status",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleExportSubmit = (orderIDs: number[]) => {
     exportWooCommerceOrdersMutation(orderIDs);
+    setSelectedRows([]);
   }
   const handleDispatchSubmit = (orderIDs: number[]) => {
     dispatchWooCommerceOrdersMutation(orderIDs);
+    setSelectedRows([]);
   };
 
 
@@ -255,6 +278,10 @@ export default function CompanyOrdersPage() {
           <Button disabled={isModerator} onClick={() => setShuffleOpen(true)}>
             <ShuffleIcon className="w-4 h-4" />
             Shuffle Orders
+          </Button>
+          <Button onClick={() => refreshWooCommerceStatusMutation()}>
+            <RefreshCcwIcon className="w-4 h-4" />
+            Refresh Status
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
@@ -387,7 +414,10 @@ export default function CompanyOrdersPage() {
             selectedCount={selectedRows.length}
             onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
             onExport={() => handleExportSubmit(selectedRows.map(Number))}
+            dispatchLoading={dispatchWooCommerceOrdersLoading}
+            exportLoading={exportWooCommerceOrdersLoading}
           />
+
     </div>
   );
 }

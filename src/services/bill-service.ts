@@ -2,7 +2,7 @@ import { baseUrl } from "@/app/constants";
 import { ExitBill } from "@/models/data/bill.model";
 import { FranchisePayment } from "@/models/data/franchise.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CreateExitBillSchema, CreateFranchisePayment } from "@/schemas/bill";
+import { CreateExitBillSchema, CreateFranchisePayment, UpdateExitBillSchema } from "@/schemas/bill";
 
 export const createExitBill = async (data: CreateExitBillSchema): Promise<APIResponse<ExitBill>> => {
     const response = await fetch(`${baseUrl}/bills/exit`, {
@@ -141,4 +141,23 @@ export const downloadExitBillPDF = async (exitBillID: number): Promise<void> => 
         throw error;
     }
 };
+
+export const updateExitBill = async (data: UpdateExitBillSchema): Promise<APIResponse<ExitBill>> => {
+    const response = await fetch(`${baseUrl}/bills/exit`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update exit bill.");
+    }
+
+    const apiResponse: APIResponse<ExitBill> = await response.json();
+    return apiResponse;
+}
 

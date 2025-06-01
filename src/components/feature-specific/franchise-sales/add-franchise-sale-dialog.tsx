@@ -28,7 +28,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
-import { createFranchiseSale, downloadAndPrintFranchisePDF, getFranchiseInventory } from "@/services/franchise-service";
+import {
+  createFranchiseSale,
+  downloadAndPrintFranchisePDF,
+  getFranchiseInventory,
+} from "@/services/franchise-service";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -38,7 +42,9 @@ import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 
 export default function () {
-  const franchise = useSelector((state: RootState) => state.franchise.franchise);
+  const franchise = useSelector(
+    (state: RootState) => state.franchise.franchise
+  );
   if (!franchise) return;
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -140,9 +146,8 @@ export default function () {
     );
   }
   const queryClient = useQueryClient();
-  const {mutate: downloadAndPrintFranchisePDFMutation }= useMutation({
-    mutationFn: downloadAndPrintFranchisePDF
-    
+  const { mutate: downloadAndPrintFranchisePDFMutation } = useMutation({
+    mutationFn: downloadAndPrintFranchisePDF,
   });
   const { mutate: createFranchiseSaleMutation, isPending } = useMutation({
     mutationFn: createFranchiseSale,
@@ -152,7 +157,7 @@ export default function () {
         title: "Sale Created",
         description: "Sale was created successfully",
       });
-      downloadAndPrintFranchisePDFMutation(data?.data?.ID ?? 0)
+      downloadAndPrintFranchisePDFMutation(data?.data?.ID ?? 0);
       form.reset();
       setSaleItems([]);
       queryClient.invalidateQueries({
@@ -267,7 +272,26 @@ export default function () {
                 </TableBody>
               </Table>
             </ScrollArea>
-
+            <div className="flex gap-2 items-center text-lg">Phone Number:</div>
+            <FormField
+              name={`phone_number`}
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        form.setValue("phone_number", value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-2 gap-2 w-fit self-end">
               <div className="text-lg">Amount: </div>
               <span className="text-lg font-bold">
@@ -287,30 +311,7 @@ export default function () {
                   )
                 )}
               </span>
-              <div className="flex gap-2 items-center text-lg">Phone Number:</div>
-              <FormField
-                name={`phone_number`}
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        className="w-20"
-                        {...field}
-                        value={field.value}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          form.setValue(
-                            "phone_number",
-                            value
-                          );
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               <div className="flex gap-2 items-center text-lg">Discount:</div>
               <FormField
                 name={`discount`}

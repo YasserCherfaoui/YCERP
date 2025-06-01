@@ -127,7 +127,7 @@ export function ClientStatusDialog({
                     </SelectTrigger>
                     <SelectContent>
                       {qualifications?.data
-                        ?.filter((q: Qualification) => q.parent_id === null)
+                        ?.filter((q: Qualification) => q.parent_id === null && !q.is_order_history)
                         .map((q: Qualification) => (
                           <SelectItem key={q.ID} value={q.ID.toString()}>
                             {q.name}

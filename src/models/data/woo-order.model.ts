@@ -1,6 +1,7 @@
 import { ClientStatus } from "@/models/data/client-status.model";
 import { DeliveryCompany } from "@/models/data/delivery.model";
 import { Product, ProductVariant } from "@/models/data/product.model";
+import { Qualification } from "@/models/data/qualification.model";
 import { User } from "./user.model";
 
 export interface WooOrder {
@@ -40,7 +41,34 @@ export interface WooOrder {
   tracking_number?: string;
   amount?: number;
   final_price?: number;
+  order_histories?: OrderHistory[];
+  yalidine_order_histories?: YalidineOrderHistory[];
 }
+
+export interface YalidineOrderHistory {
+  ID: number;
+  woo_order_id: number;
+  woo_order?: WooOrder;
+  status: string;
+  date: string | Date;
+  CreatedAt: string | Date;
+  UpdatedAt: string | Date;
+  DeletedAt?: string | Date | null;
+}
+
+export interface OrderHistory {
+  ID: number;
+  woo_order_id: number;
+  woo_order?: WooOrder;
+  status: string;
+  date: string | Date;
+  qualification_id: number;
+  qualification?: Qualification;
+  CreatedAt: string | Date;
+  UpdatedAt: string | Date;
+  DeletedAt?: string | Date | null;
+}
+
 
 export interface WooOrderItem {
   id: number;

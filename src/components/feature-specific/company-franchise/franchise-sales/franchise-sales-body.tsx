@@ -73,6 +73,7 @@ export default function () {
       franchise_id: franchise.ID.toString(),
       start_date: dateRange.from.toISOString(),
       end_date: dateRange.to.toISOString(),
+      sale_type: "franchise",
     }),
     enabled: !!dateRange.from && !!dateRange.to,
   });

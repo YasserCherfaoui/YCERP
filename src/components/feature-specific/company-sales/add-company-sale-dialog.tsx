@@ -266,7 +266,29 @@ export default function () {
                 </TableBody>
               </Table>
             </ScrollArea>
-
+            <div className="flex gap-2 items-center text-lg">Phone Number:</div>
+              <FormField
+                name={`phone_number`}
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          form.setValue(
+                            "phone_number",
+                            value
+                          );
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             <div className="grid grid-cols-2 gap-2 w-fit self-end">
               <div className="text-lg">Amount: </div>
               <span className="text-lg font-bold">
@@ -286,30 +308,7 @@ export default function () {
                   )
                 )}
               </span>
-              <div className="flex gap-2 items-center text-lg">Phone Number:</div>
-              <FormField
-                name={`phone_number`}
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        className="w-20"
-                        {...field}
-                        value={field.value}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          form.setValue(
-                            "phone_number",
-                            value
-                          );
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+             
               <div className="flex gap-2 items-center text-lg">Discount:</div>
               <FormField
                 name={`discount`}

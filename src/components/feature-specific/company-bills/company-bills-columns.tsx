@@ -17,6 +17,13 @@ import CompanyBillDialog from "./company-bill-dialog";
 
 export const companyBillColumns: ColumnDef<ExitBill>[] = [
   {
+    id: "bill_number",
+    header: () => <div>Bill Number</div>,
+    cell: ({ row }) => {
+      return <div>EXB-{row.original.ID}</div>;
+    },
+  },
+  {
     id: "select",
     header: ({ table }) => (
       <Checkbox
@@ -132,6 +139,7 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <CompanyBillDialog bill={exitBill} />
+            {/* <UpdateBillActionDialog bill={exitBill} /> */}
             <RemoveBillActionDialog bill={exitBill} />
           </DropdownMenuContent>
         </DropdownMenu>
