@@ -1,12 +1,15 @@
 import { useAppDispatch } from "@/app/hooks";
 import { RootState } from "@/app/store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { logout } from "@/features/auth/auth-slice";
 import { LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { ModeToggle } from "./mode-toggle";
 
 export default function AuthAppBar() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -26,6 +29,60 @@ export default function AuthAppBar() {
     fullName = user?.full_name;
   }
 
+  const [bgColor, setBgColor] = useState(() => localStorage.getItem("custom-bg") || "#ffffff");
+  const [textColor, setTextColor] = useState(() => localStorage.getItem("custom-text") || "#0a0a0a");
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--background", hexToHsl(bgColor));
+    document.documentElement.style.setProperty("--foreground", hexToHsl(textColor));
+    localStorage.setItem("custom-bg", bgColor);
+    localStorage.setItem("custom-text", textColor);
+  }, [bgColor, textColor]);
+
+  const handleBgColorChange = (color: string) => setBgColor(color);
+  const handleTextColorChange = (color: string) => setTextColor(color);
+  const resetColors = () => {
+    setBgColor("#ffffff");
+    setTextColor("#0a0a0a");
+    document.documentElement.style.removeProperty("--background");
+    document.documentElement.style.removeProperty("--foreground");
+    localStorage.removeItem("custom-bg");
+    localStorage.removeItem("custom-text");
+  };
+
+  // Helper to convert hex to HSL string for CSS variable
+  function hexToHsl(hex: string) {
+    // Remove # if present
+    hex = hex.replace('#', '');
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    } else if (hex.length === 6) {
+      r = parseInt(hex.substring(0,2), 16);
+      g = parseInt(hex.substring(2,4), 16);
+      b = parseInt(hex.substring(4,6), 16);
+    }
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch(max){
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    h = Math.round(h * 360);
+    s = Math.round(s * 100);
+    l = Math.round(l * 100);
+    return `${h} ${s}% ${l}%`;
+  }
+
   const handleLogout = () => {
     dispatch(logout());
     if (isModerator) {
@@ -43,7 +100,34 @@ export default function AuthAppBar() {
   return fullName ? (
     <div className="flex items-center justify-between p-4 w-1/2 m-auto">
       <div>Welcome, {fullName}</div>
-      <div>
+      <div className="flex items-center gap-4">
+        {/* Theme toggle */}
+        <ModeToggle />
+        {/* Color pickers */}
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1 text-xs">
+            BG
+            <input
+              type="color"
+              value={bgColor}
+              onChange={e => handleBgColorChange(e.target.value)}
+              aria-label="Pick background color"
+              className="w-6 h-6 p-0 border-none bg-transparent cursor-pointer"
+            />
+          </label>
+          <label className="flex items-center gap-1 text-xs">
+            Text
+            <input
+              type="color"
+              value={textColor}
+              onChange={e => handleTextColorChange(e.target.value)}
+              aria-label="Pick text color"
+              className="w-6 h-6 p-0 border-none bg-transparent cursor-pointer"
+            />
+          </label>
+          <Button size="sm" variant="ghost" onClick={resetColors} className="text-xs px-2">Reset</Button>
+        </div>
+        {/* User dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar>
