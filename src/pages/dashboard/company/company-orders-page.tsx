@@ -215,9 +215,11 @@ export default function CompanyOrdersPage() {
 
   const handleExportSubmit = (orderIDs: number[]) => {
     exportWooCommerceOrdersMutation(orderIDs);
+    setSelectedRows([]);
   }
   const handleDispatchSubmit = (orderIDs: number[]) => {
     dispatchWooCommerceOrdersMutation(orderIDs);
+    setSelectedRows([]);
   };
 
 
