@@ -24,6 +24,7 @@ import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircleIcon,
+  Loader2,
   LoaderIcon,
   PackageIcon,
   RefreshCcwIcon,
@@ -195,7 +196,7 @@ export default function CompanyOrdersPage() {
   });
 
 
-  const { mutate: refreshWooCommerceStatusMutation } = useMutation({
+  const { mutate: refreshWooCommerceStatusMutation, isPending: refreshWooCommerceStatusLoading } = useMutation({
     mutationFn: refreshWooCommerceStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -279,9 +280,9 @@ export default function CompanyOrdersPage() {
             <ShuffleIcon className="w-4 h-4" />
             Shuffle Orders
           </Button>
-          <Button onClick={() => refreshWooCommerceStatusMutation()}>
+          <Button onClick={() => refreshWooCommerceStatusMutation()} disabled={refreshWooCommerceStatusLoading}>
             <RefreshCcwIcon className="w-4 h-4" />
-            Refresh Status
+            Refresh Status {refreshWooCommerceStatusLoading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
