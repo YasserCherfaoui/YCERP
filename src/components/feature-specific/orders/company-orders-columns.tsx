@@ -1,4 +1,5 @@
 import OrderActions from "@/components/feature-specific/orders/order-actions";
+import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
 import OrderLineItemsAccordion from "@/components/feature-specific/orders/order-line-items-accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -64,7 +65,10 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       const [open, setOpen] = useState(false);
       const [setStatusOpen, setSetStatusOpen] = useState(false);
       const statuses = row.original.client_statuses;
-      const sortedStatuses = [...statuses].sort((a, b) => new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime());
+      const sortedStatuses = [...statuses].sort(
+        (a, b) =>
+          new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
+      );
       const lastStatus = sortedStatuses[0];
       return (
         <>
@@ -116,7 +120,7 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     },
   },
   {
-    header:"Wilaya",
+    header: "Wilaya",
     cell: ({ row }: { row: { original: WooOrder } }) => {
       const wilaya = row.original.shipping_city;
       const wilayaName = cities.find((city) => city.key == wilaya)?.label;
@@ -124,10 +128,40 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     },
   },
   {
+    header: "Order History",
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const [open, setOpen] = useState(false);
+      const order = row.original;
+      const statuses = order.yalidine_order_histories || [];
+      const lastStatus = statuses[statuses.length - 1];
+      const isHidden = ["unconfirmed", "packing", "dispatching"].includes(
+        order.order_status || ""
+      );
+
+      if (isHidden) {
+        return null;
+      }
+
+      return (
+        <>
+          <div
+            className="flex flex-col items-center justify-center p-2 rounded cursor-pointer hover:bg-accent"
+            onClick={() => setOpen(true)}
+          >
+            {statuses.length === 0 ? "No status" : <>{lastStatus.status}</>}
+          </div>
+          <OrderHistoryDialog order={order} open={open} setOpen={setOpen} />
+        </>
+      );
+    },
+  },
+  {
     accessorKey: "tracking_number",
     header: "Tracking Number",
     cell: ({ row }: { row: { original: WooOrder } }) => (
-      <div className="text-center">{row.original.tracking_number?.toUpperCase()}</div>
+      <div className="text-center">
+        {row.original.tracking_number?.toUpperCase()}
+      </div>
     ),
   },
   {
@@ -153,4 +187,4 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-]; 
+];

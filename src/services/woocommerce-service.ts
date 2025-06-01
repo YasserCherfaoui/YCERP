@@ -1,5 +1,6 @@
 import { baseUrl } from "@/app/constants";
-import { WooOrder } from "@/models/data/woo-order.model";
+import { AddOrderHistoryRequest } from "@/components/feature-specific/orders/add-order-history-dialog";
+import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrderSchema } from "@/schemas/order";
@@ -194,5 +195,22 @@ export const refreshWooCommerceStatus = async () => {
         throw new Error(errorData.message || "Failed to refresh WooCommerce status");
     }
     const data: APIResponse<void> = await response.json();
+    return data;
+}
+
+export const addOrderHistory = async (request: AddOrderHistoryRequest): Promise<APIResponse<OrderHistory>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/create-order-history`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify(request),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add order history");
+    }
+    const data: APIResponse<OrderHistory> = await response.json();
     return data;
 }

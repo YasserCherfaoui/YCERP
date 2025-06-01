@@ -8,4 +8,5 @@ export interface Qualification {
     parent?: Qualification;
     children?: Qualification[];
     color?: string;
+    is_order_history: boolean;
 } 
