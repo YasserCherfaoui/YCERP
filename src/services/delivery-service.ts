@@ -1,5 +1,6 @@
 import { baseUrl } from "@/app/constants";
 import { DeliveryCompany, DeliveryEmployee } from "@/models/data/delivery.model";
+import { WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateDeliveryCompanySchema, CreateEmployeeSchema } from "@/schemas/delivery";
 
@@ -81,3 +82,19 @@ export const getDeliveryEmployees = async (companyId: number): Promise<APIRespon
   }
   return response.json();
 }; 
+
+export const exportOrdersAlgiers = async (data: {order_ids: number[]}): Promise<APIResponse<WooOrder[]>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/export-algiers`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to export orders.");
+  }
+  return response.json();
+};

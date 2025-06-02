@@ -12,13 +12,17 @@ export const getWooCommerceOrders = async (
     status?: string,
     taken_by_id?: number,
     wilaya?: string,
-    phone_number?: string
+    phone_number?: string,
+    shipping_provider?: string,
+    delivery_company_id?: number
 ): Promise<APIResponse<WooOrdersResponse>> => {
     let url = `${baseUrl}/woocommerce/?page=${_page + 1}`;
     if (status) url += `&status=${encodeURIComponent(status)}`;
     if (taken_by_id) url += `&taken_by_id=${taken_by_id}`;
     if (wilaya) url += `&wilaya=${encodeURIComponent(wilaya)}`;
     if (phone_number) url += `&phone_number=${encodeURIComponent(phone_number)}`;
+    if (shipping_provider) url += `&shipping_provider=${encodeURIComponent(shipping_provider)}`;
+    if (delivery_company_id) url += `&delivery_company_id=${delivery_company_id}`;
     const response = await fetch(url, {
         method: "GET",
         headers: {

@@ -46,7 +46,7 @@ import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
 import { confirmWooCommerceOrder } from "@/services/woocommerce-service";
-import { cities } from "@/utils/algeria-cities";
+import { algerCities, cities } from "@/utils/algeria-cities";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -463,30 +463,58 @@ function CreateOrderDialog({
                   />
                 )}
                 {watch('shipping_provider') === 'my_companies' && (
-                  <FormField
-                    control={form.control}
-                    name="shipping.delivery_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Delivery Company</FormLabel>
-                        <FormControl>
-                          <Select value={field.value ? String(field.value) : ""} onValueChange={val => field.onChange(val ? Number(val) : undefined)}>
-                            <SelectTrigger className="w-full mt-1">
-                              <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
-                              {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
-                              {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
-                                <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="shipping.delivery_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Delivery Company</FormLabel>
+                          <FormControl>
+                            <Select value={field.value ? String(field.value) : ""} onValueChange={val => field.onChange(val ? Number(val) : undefined)}>
+                              <SelectTrigger className="w-full mt-1">
+                                <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
+                                {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
+                                {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
+                                  <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Algerian Cities Select for My Delivery Companies */}
+                    <FormField
+                      control={form.control}
+                      name="shipping.commune"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select City (Commune)</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value || ""}
+                              onValueChange={val => field.onChange(val)}
+                            >
+                              <SelectTrigger className="w-full mt-1">
+                                <SelectValue placeholder="Select a city (commune)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {algerCities.map(city => (
+                                  <SelectItem key={city.key} value={city.key}>{city.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
                 )}
                 {watch('shipping_provider') === 'yalidine' && yalidinePricing && (
                   <div>

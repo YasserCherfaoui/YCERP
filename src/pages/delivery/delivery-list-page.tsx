@@ -60,10 +60,10 @@ export default function DeliveryListPage() {
               {company.name}
             </CardTitle>
             <CardContent className="p-0">
-              <div className="flex flex-col">
+              <div className="flex gap-2">
                 <span className="font-bold">ID:</span> {company.ID}
               </div>
-              <div className="flex flex-col">
+              <div className="flex gap-2">
                 <span className="font-bold">Created:</span>{" "}
                 {new Date(company.CreatedAt).toLocaleDateString()}
               </div>
