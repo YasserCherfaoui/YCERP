@@ -299,13 +299,18 @@ function CreateOrderDialog({
 
   useEffect(() => {
     const handleQueryUpdate = () => {
-      // Check if the order was updated externally
+      // Check if the order was updated externally and status changed from 'unconfirmed'
       const cachedOrder = queryClient.getQueryData(['orders', wooOrder.id]) as Order;
       const originalOrder = queryClient.getQueryState(['orders', wooOrder.id])?.dataUpdatedAt;
-      
-      // If data was updated recently (within last 2 seconds), it might be from external source
-      if (cachedOrder && originalOrder && Date.now() - originalOrder < 2000) {
-        console.log('Order updated externally, closing dialog');
+      // Only close if status is no longer 'unconfirmed'
+      if (
+        cachedOrder &&
+        cachedOrder.status &&
+        cachedOrder.status !== 'unconfirmed' &&
+        originalOrder &&
+        Date.now() - originalOrder < 2000
+      ) {
+        console.log('Order status changed from unconfirmed, closing dialog');
         setOpen(false);
       }
     };
