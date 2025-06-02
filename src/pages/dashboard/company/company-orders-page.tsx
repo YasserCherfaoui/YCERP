@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOrdersWithRealtime } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "@/models/data/user.model";
+import { YALIDINE_STATUSES } from "@/models/data/woo-order.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
@@ -24,6 +25,7 @@ import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CheckCircleIcon,
+  Loader2,
   LoaderIcon,
   PackageIcon,
   RefreshCcwIcon,
@@ -64,6 +66,7 @@ export default function CompanyOrdersPage() {
   );
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [debouncedPhoneNumber, setDebouncedPhoneNumber] = useState<string>("");
+  const [selectedYalidineStatus, setSelectedYalidineStatus] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -79,7 +82,8 @@ export default function CompanyOrdersPage() {
     selectedStatus,
     selectedUser,
     selectedWilaya,
-    debouncedPhoneNumber
+    debouncedPhoneNumber,
+    selectedYalidineStatus
   );
 
   useEffect(() => {
@@ -195,7 +199,7 @@ export default function CompanyOrdersPage() {
   });
 
 
-  const { mutate: refreshWooCommerceStatusMutation } = useMutation({
+  const { mutate: refreshWooCommerceStatusMutation, isPending: refreshWooCommerceStatusLoading } = useMutation({
     mutationFn: refreshWooCommerceStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -279,9 +283,9 @@ export default function CompanyOrdersPage() {
             <ShuffleIcon className="w-4 h-4" />
             Shuffle Orders
           </Button>
-          <Button onClick={() => refreshWooCommerceStatusMutation()}>
+          <Button onClick={() => refreshWooCommerceStatusMutation()} disabled={refreshWooCommerceStatusLoading}>
             <RefreshCcwIcon className="w-4 h-4" />
-            Refresh Status
+            Refresh Status {refreshWooCommerceStatusLoading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
@@ -335,6 +339,23 @@ export default function CompanyOrdersPage() {
                 <SelectItem key={city.key} value={city.key}>
                   {city.label}
                 </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span>Filter by Yalidine Status:</span>
+          <Select
+            value={selectedYalidineStatus || "all"}
+            onValueChange={(e) =>
+              setSelectedYalidineStatus(e === "all" ? undefined : e)
+            }
+          >
+            <SelectTrigger className="w-[220px]">
+              <SelectValue placeholder="All Yalidine Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Yalidine Statuses</SelectItem>
+              {Object.values(YALIDINE_STATUSES).map((status) => (
+                <SelectItem key={status} value={status}>{status}</SelectItem>
               ))}
             </SelectContent>
           </Select>

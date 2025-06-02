@@ -49,7 +49,7 @@ export interface YalidineOrderHistory {
   ID: number;
   woo_order_id: number;
   woo_order?: WooOrder;
-  status: string;
+  status: YalidineStatusType;
   date: string | Date;
   CreatedAt: string | Date;
   UpdatedAt: string | Date;
@@ -126,3 +126,69 @@ export interface WooShipping {
   delivery_company?: DeliveryCompany;
 }
 
+export type YalidineStatusType = 
+  | "Pas encore expédié"
+  | "A vérifier"
+  | "En préparation"
+  | "Pas encore ramassé"
+  | "Prêt à expédier"
+  | "Ramassé"
+  | "Bloqué"
+  | "Débloqué"
+  | "Transfert"
+  | "Expédié"
+  | "Centre"
+  | "En localisation"
+  | "Vers Wilaya"
+  | "Reçu à Wilaya"
+  | "En attente du client"
+  | "Prêt pour livreur"
+  | "Sorti en livraison"
+  | "En attente"
+  | "En alerte"
+  | "Alerte résolue"
+  | "Tentative échouée"
+  | "Livré"
+  | "Echèc livraison"
+  | "Retour vers centre"
+  | "Retourné au centre"
+  | "Retour transfert"
+  | "Retour groupé"
+  | "Retour à retirer"
+  | "Retour vers vendeur"
+  | "Retourné au vendeur"
+  | "Echange échoué";
+
+export const YALIDINE_STATUSES: Record<string, YalidineStatusType> = {
+  PAS_ENCORE_EXPEDIE: "Pas encore expédié",
+  A_VERIFIER: "A vérifier",
+  EN_PREPARATION: "En préparation",
+  PAS_ENCORE_RAMASSE: "Pas encore ramassé",
+  PRET_A_EXPEDIER: "Prêt à expédier",
+  RAMASSE: "Ramassé",
+  BLOQUE: "Bloqué",
+  DEBLOQUE: "Débloqué",
+  TRANSFERT: "Transfert",
+  EXPEDIE: "Expédié",
+  CENTRE: "Centre",
+  EN_LOCALISATION: "En localisation",
+  VERS_WILAYA: "Vers Wilaya",
+  RECU_A_WILAYA: "Reçu à Wilaya",
+  EN_ATTENTE_DU_CLIENT: "En attente du client",
+  PRET_POUR_LIVREUR: "Prêt pour livreur",
+  SORTI_EN_LIVRAISON: "Sorti en livraison",
+  EN_ATTENTE: "En attente",
+  EN_ALERTE: "En alerte",
+  ALERTE_RESOLUE: "Alerte résolue",
+  TENTATIVE_ECHOUEE: "Tentative échouée",
+  LIVRE: "Livré",
+  ECHEC_LIVRAISON: "Echèc livraison",
+  RETOUR_VERS_CENTRE: "Retour vers centre",
+  RETOURNE_AU_CENTRE: "Retourné au centre",
+  RETOUR_TRANSFERT: "Retour transfert",
+  RETOUR_GROUPE: "Retour groupé",
+  RETOUR_A_RETIRER: "Retour à retirer",
+  RETOUR_VERS_VENDEUR: "Retour vers vendeur",
+  RETOURNE_AU_VENDEUR: "Retourné au vendeur",
+  ECHANGE_ECHOUE: "Echange échoué"
+};

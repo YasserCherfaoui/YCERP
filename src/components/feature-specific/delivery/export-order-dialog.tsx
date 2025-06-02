@@ -1,0 +1,76 @@
+import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { WooOrder } from "@/models/data/woo-order.model";
+import { exportOrdersAlgiers } from "@/services/delivery-service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+interface ExportConfirmDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  order: WooOrder;
+}
+
+export default function ExportOrderDialog({
+  open,
+  setOpen,
+  order,
+}: ExportConfirmDialogProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { mutate: exportOrdersAlgiersMutation, isPending } = useMutation({
+    mutationFn: exportOrdersAlgiers,
+    onSuccess: () => {
+      toast({
+        title: "Order exported",
+        description: "Order exported successfully",
+      });
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+      console.error("Failed to export order:", err);
+    },
+  });
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Export Order?</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to export order{" "}
+            <span className="font-bold">#{order.id}</span>? This action will
+            export the order data.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            disabled={isPending}
+            variant="default"
+            onClick={() => {
+              setOpen(false);
+              exportOrdersAlgiersMutation({order_ids: [order.id]});
+            }}
+          >
+            {isPending ? "Exporting..." : "Yes, Export"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

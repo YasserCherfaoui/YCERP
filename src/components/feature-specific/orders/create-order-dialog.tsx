@@ -39,14 +39,13 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useOrder } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
-import { Order } from "@/models/data/order.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { createOrderSchema, CreateOrderSchema } from "@/schemas/order";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
 import { confirmWooCommerceOrder } from "@/services/woocommerce-service";
-import { cities } from "@/utils/algeria-cities";
+import { algerCities, cities } from "@/utils/algeria-cities";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -299,13 +298,20 @@ function CreateOrderDialog({
 
   useEffect(() => {
     const handleQueryUpdate = () => {
-      // Check if the order was updated externally
-      const cachedOrder = queryClient.getQueryData(['orders', wooOrder.id]) as Order;
+      // Check if the WooOrder was updated externally and order_status changed from 'unconfirmed'
+      const cachedOrderResponse = queryClient.getQueryData(['orders', wooOrder.id]) as { data?: WooOrder };
+      const cachedOrder = cachedOrderResponse?.data;
       const originalOrder = queryClient.getQueryState(['orders', wooOrder.id])?.dataUpdatedAt;
-      
-      // If data was updated recently (within last 2 seconds), it might be from external source
-      if (cachedOrder && originalOrder && Date.now() - originalOrder < 2000) {
-        console.log('Order updated externally, closing dialog');
+      const orderStatus = cachedOrder?.order_status ?? cachedOrder?.status;
+      // Only close if order_status is no longer 'unconfirmed'
+      if (
+        cachedOrder &&
+        orderStatus &&
+        orderStatus !== 'unconfirmed' &&
+        originalOrder &&
+        Date.now() - originalOrder < 2000
+      ) {
+        console.log('WooOrder status changed from unconfirmed, closing dialog');
         setOpen(false);
       }
     };
@@ -463,30 +469,58 @@ function CreateOrderDialog({
                   />
                 )}
                 {watch('shipping_provider') === 'my_companies' && (
-                  <FormField
-                    control={form.control}
-                    name="shipping.delivery_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Delivery Company</FormLabel>
-                        <FormControl>
-                          <Select value={field.value ? String(field.value) : ""} onValueChange={val => field.onChange(val ? Number(val) : undefined)}>
-                            <SelectTrigger className="w-full mt-1">
-                              <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
-                              {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
-                              {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
-                                <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="shipping.delivery_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Delivery Company</FormLabel>
+                          <FormControl>
+                            <Select value={field.value ? String(field.value) : ""} onValueChange={val => field.onChange(val ? Number(val) : undefined)}>
+                              <SelectTrigger className="w-full mt-1">
+                                <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
+                                {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
+                                {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
+                                  <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Algerian Cities Select for My Delivery Companies */}
+                    <FormField
+                      control={form.control}
+                      name="shipping.commune"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select City (Commune)</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value || ""}
+                              onValueChange={val => field.onChange(val)}
+                            >
+                              <SelectTrigger className="w-full mt-1">
+                                <SelectValue placeholder="Select a city (commune)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {algerCities.map(city => (
+                                  <SelectItem key={city.key} value={city.key}>{city.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </>
                 )}
                 {watch('shipping_provider') === 'yalidine' && yalidinePricing && (
                   <div>

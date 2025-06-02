@@ -29,3 +29,12 @@ export const cities: City[] = Array.from(
     ])
   ).values()
 );
+
+export const algerCities: City[] = Array.from(
+  new Map(
+    algeriaCities.filter((city) => city.wilaya_code === "16").sort((a, b) => a.commune_name_ascii.localeCompare(b.commune_name_ascii)).map((city) => [
+      city.commune_name_ascii,
+      { key: city.commune_name_ascii, label: city.commune_name_ascii }
+    ])
+  ).values()
+);

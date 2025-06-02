@@ -155,6 +155,37 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       );
     },
   },
+{
+    header: "Latest Status",
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const order = row.original;
+      const statuses = order.order_histories || [];
+      const lastStatus = statuses[statuses.length - 1];
+      
+      return (
+        <div className="flex flex-col justify-between items-center text-sm p-2 rounded bg-accent">
+          <span>{!lastStatus && "No status"}</span>
+          {lastStatus?.qualification && (
+            <span 
+              style={{
+                color: "black",
+                backgroundColor: lastStatus.qualification.color || "gray",
+                padding: "2px 4px",
+                borderRadius: "4px",
+              }}
+            >
+              {lastStatus.qualification.name} <span>{lastStatus.status && "(" + lastStatus.status + ")"}</span>
+            </span>
+          )}
+          {lastStatus && (
+            <span className="text-xs text-muted-foreground">
+              {typeof lastStatus.date === 'string' ? new Date(lastStatus.date).toLocaleString() : lastStatus.date.toLocaleString()}
+            </span>
+          )}
+        </div>
+      );
+    },
+},
   {
     accessorKey: "tracking_number",
     header: "Tracking Number",
