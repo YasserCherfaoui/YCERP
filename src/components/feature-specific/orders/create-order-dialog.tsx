@@ -39,7 +39,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useOrder } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
-import { Order } from "@/models/data/order.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { createOrderSchema, CreateOrderSchema } from "@/schemas/order";
 import { getDeliveryCompanies } from "@/services/delivery-service";
@@ -299,18 +298,20 @@ function CreateOrderDialog({
 
   useEffect(() => {
     const handleQueryUpdate = () => {
-      // Check if the order was updated externally and status changed from 'unconfirmed'
-      const cachedOrder = queryClient.getQueryData(['orders', wooOrder.id]) as Order;
+      // Check if the WooOrder was updated externally and order_status changed from 'unconfirmed'
+      const cachedOrderResponse = queryClient.getQueryData(['orders', wooOrder.id]) as { data?: WooOrder };
+      const cachedOrder = cachedOrderResponse?.data;
       const originalOrder = queryClient.getQueryState(['orders', wooOrder.id])?.dataUpdatedAt;
-      // Only close if status is no longer 'unconfirmed'
+      const orderStatus = cachedOrder?.order_status ?? cachedOrder?.status;
+      // Only close if order_status is no longer 'unconfirmed'
       if (
         cachedOrder &&
-        cachedOrder.status &&
-        cachedOrder.status !== 'unconfirmed' &&
+        orderStatus &&
+        orderStatus !== 'unconfirmed' &&
         originalOrder &&
         Date.now() - originalOrder < 2000
       ) {
-        console.log('Order status changed from unconfirmed, closing dialog');
+        console.log('WooOrder status changed from unconfirmed, closing dialog');
         setOpen(false);
       }
     };
