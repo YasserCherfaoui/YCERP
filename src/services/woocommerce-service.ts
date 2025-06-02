@@ -14,7 +14,8 @@ export const getWooCommerceOrders = async (
     wilaya?: string,
     phone_number?: string,
     shipping_provider?: string,
-    delivery_company_id?: number
+    delivery_company_id?: number,
+    yalidine_status?:string
 ): Promise<APIResponse<WooOrdersResponse>> => {
     let url = `${baseUrl}/woocommerce/?page=${_page + 1}`;
     if (status) url += `&status=${encodeURIComponent(status)}`;
@@ -23,6 +24,7 @@ export const getWooCommerceOrders = async (
     if (phone_number) url += `&phone_number=${encodeURIComponent(phone_number)}`;
     if (shipping_provider) url += `&shipping_provider=${encodeURIComponent(shipping_provider)}`;
     if (delivery_company_id) url += `&delivery_company_id=${delivery_company_id}`;
+    if (yalidine_status) url += `&yalidine_status=${encodeURIComponent(yalidine_status)}`;
     const response = await fetch(url, {
         method: "GET",
         headers: {
