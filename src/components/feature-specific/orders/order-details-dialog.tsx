@@ -65,6 +65,11 @@ export default function OrderDetailsDialog({ order, open, setOpen }: OrderDetail
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div><strong>Name:</strong> {order.shipping_name}</div>
               <div><strong>Address:</strong> {order.shipping_address_1}, {order.shipping_city}</div>
+              <div><strong>State:</strong> {order.woo_shipping?.wilaya_name}</div>
+              <div><strong>Commune:</strong> {order.woo_shipping?.commune_name}</div>
+              <div><strong>Delivery Type:</strong> {order.woo_shipping?.delivery_type}</div>
+              <div><strong>Selected Center:</strong> {order.woo_shipping?.selected_center}</div>
+
             </div>
           </section>
           <Separator />
