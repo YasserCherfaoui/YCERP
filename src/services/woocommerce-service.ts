@@ -3,6 +3,7 @@ import { AddOrderHistoryRequest } from "@/components/feature-specific/orders/add
 import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
+import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
 import { CreateOrderSchema } from "@/schemas/order";
 import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
@@ -220,3 +221,24 @@ export const addOrderHistory = async (request: AddOrderHistoryRequest): Promise<
     const data: APIResponse<OrderHistory> = await response.json();
     return data;
 }
+
+export const createOrdersFromCSV = async (file: File): Promise<APIResponse<CreateOrdersFromCSVResponse>> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${baseUrl}/woocommerce/create-from-csv`, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to create orders from CSV');
+  }
+
+  const data: APIResponse<CreateOrdersFromCSVResponse> = await response.json();
+  return data;
+};

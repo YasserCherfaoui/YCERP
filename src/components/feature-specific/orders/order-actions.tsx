@@ -45,7 +45,7 @@ function OrderActions({ order }: { order: WooOrder }) {
             <TooltipContent>Order History</TooltipContent>
           </Tooltip>
           {/* Create Order - only if unconfirmed */}
-          {order.order_status === "unconfirmed" && (
+          {order.order_status === "unconfirmed" || order.order_status === "relaunched" && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" onClick={() => setCreateDialogOpen(true)}>
