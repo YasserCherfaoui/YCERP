@@ -27,7 +27,11 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  { accessorKey: "customer_phone", header: "Customer Phone", id: "customer_phone" },
+  {
+    accessorKey: "customer_phone",
+    header: "Customer Phone",
+    id: "customer_phone",
+  },
   {
     accessorKey: "date_created",
     header: "Date Created",
@@ -48,7 +52,15 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       return <div className="text-center">{communeName}</div>;
     },
   },
-
+  {
+    header: "Price",
+    accessorKey: "final_price",
+    cell: ({ row }: { row: { original: WooOrder } }) =>
+      new Intl.NumberFormat("en-DZ", {
+        style: "currency",
+        currency: "DZD",
+      }).format(Number(row.original.final_price)),
+  },
   {
     id: "actions",
     header: "Actions",

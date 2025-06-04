@@ -155,18 +155,18 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       );
     },
   },
-{
+  {
     header: "Latest Status",
     cell: ({ row }: { row: { original: WooOrder } }) => {
       const order = row.original;
       const statuses = order.order_histories || [];
       const lastStatus = statuses[statuses.length - 1];
-      
+
       return (
         <div className="flex flex-col justify-between items-center text-sm p-2 rounded bg-accent">
           <span>{!lastStatus && "No status"}</span>
           {lastStatus?.qualification && (
-            <span 
+            <span
               style={{
                 color: "black",
                 backgroundColor: lastStatus.qualification.color || "gray",
@@ -174,18 +174,21 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
                 borderRadius: "4px",
               }}
             >
-              {lastStatus.qualification.name} <span>{lastStatus.status && "(" + lastStatus.status + ")"}</span>
+              {lastStatus.qualification.name}{" "}
+              <span>{lastStatus.status && "(" + lastStatus.status + ")"}</span>
             </span>
           )}
           {lastStatus && (
             <span className="text-xs text-muted-foreground">
-              {typeof lastStatus.date === 'string' ? new Date(lastStatus.date).toLocaleString() : lastStatus.date.toLocaleString()}
+              {typeof lastStatus.date === "string"
+                ? new Date(lastStatus.date).toLocaleString()
+                : lastStatus.date.toLocaleString()}
             </span>
           )}
         </div>
       );
     },
-},
+  },
   {
     accessorKey: "tracking_number",
     header: "Tracking Number",
@@ -208,6 +211,15 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         <span>{row.original.taken_by?.full_name || "-"}</span>
       </div>
     ),
+  },
+  {
+    header: "Price",
+    accessorKey: "final_price",
+    cell: ({ row }: { row: { original: WooOrder } }) =>
+      new Intl.NumberFormat("en-DZ", {
+        style: "currency",
+        currency: "DZD",
+      }).format(Number(row.original.final_price)),
   },
   {
     id: "actions",
