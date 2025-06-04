@@ -1,24 +1,57 @@
+import { RootState } from "@/app/store";
 import { ProductVariantCombobox } from "@/components/feature-specific/company-products/product-variant-combobox";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox-standalone";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
-import { getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
+import {
+    getYalidineCenters,
+    getYalidineCommunes,
+    getYalidinePricing,
+} from "@/services/order-service";
 import { updateWooCommerceOrder } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
 // --- Types matching backend Go schemas ---
 export interface UpdateWooOrderItemSchema {
@@ -88,12 +121,16 @@ function mapFormToApiPayload(form: any): UpdateWooOrderSchema {
   // Map order_items
   let order_items: UpdateWooOrderItemSchema[] | undefined = undefined;
   if (Array.isArray(form.order_items)) {
-    order_items = form.order_items.map((item: any) => clean({
-      id: item.id,
-      product_id: item.product_id,
-      product_variant_id: item.product_variant_id,
-      quantity: item.quantity,
-    })).filter(Boolean);
+    order_items = form.order_items
+      .map((item: any) =>
+        clean({
+          id: item.id,
+          product_id: item.product_id,
+          product_variant_id: item.product_variant_id,
+          quantity: item.quantity,
+        })
+      )
+      .filter(Boolean);
   }
 
   // Map shipping
@@ -153,7 +190,12 @@ function useDeliveryCompanies(enabled: boolean) {
   });
 }
 
-function useYalidineData(state: string | number, deliveryType: string, shippingProvider: string, open: boolean) {
+function useYalidineData(
+  state: string | number,
+  deliveryType: string,
+  shippingProvider: string,
+  open: boolean
+) {
   const yalidinePricing = useQuery({
     queryKey: ["yalidine-pricing", state, deliveryType],
     queryFn: () => getYalidinePricing(16, Number(state) ?? 16),
@@ -164,28 +206,47 @@ function useYalidineData(state: string | number, deliveryType: string, shippingP
     queryKey: ["yalidine-centers", state],
     queryFn: () => getYalidineCenters(Number(state)),
     select: (res) => res.data,
-    enabled: shippingProvider === "yalidine" && deliveryType === "stopdesk" && Boolean(state) && open,
+    enabled:
+      shippingProvider === "yalidine" &&
+      deliveryType === "stopdesk" &&
+      Boolean(state) &&
+      open,
   });
   const yalidineCommunes = useQuery({
     queryKey: ["yalidine-communes", state],
     queryFn: () => getYalidineCommunes(Number(state)),
     select: (res) => res.data?.data ?? [],
-    enabled: shippingProvider === "yalidine" && deliveryType === "home" && Boolean(state) && open,
+    enabled:
+      shippingProvider === "yalidine" &&
+      deliveryType === "home" &&
+      Boolean(state) &&
+      open,
   });
   return { yalidinePricing, yalidineCenters, yalidineCommunes };
 }
 
 // --- Main Dialog Component ---
-export default function UpdateOrderDialog({ order, open, setOpen }: UpdateOrderDialogProps) {
+export default function UpdateOrderDialog({
+  order,
+  open,
+  setOpen,
+}: UpdateOrderDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const params = useParams();
-  const companyId = Number(params.companyID);
+  let company = useSelector((state: RootState) => state.company.company);
+  const { pathname } = useLocation();
+  if (pathname.includes("moderator")) {
+    company = useSelector((state: RootState) => state.user.company);
+  } 
+  const companyId = Number(company?.ID);
   if (!companyId) return null;
 
   // Find matched wilaya
   const matchedWilaya = cities.find(
-    (c) => c.key === order.woo_shipping?.wilaya_name || c.key === order.billing_city || c.key === order.shipping_city
+    (c) =>
+      c.key === order.woo_shipping?.wilaya_name ||
+      c.key === order.billing_city ||
+      c.key === order.shipping_city
   );
 
   // --- Form Setup ---
@@ -215,20 +276,43 @@ export default function UpdateOrderDialog({ order, open, setOpen }: UpdateOrderD
       second_delivery_cost: order.woo_shipping?.second_delivery_cost || 0,
     },
   });
-  const { setValue, watch, reset, handleSubmit, formState: { errors } } = methods;
+  const {
+    setValue,
+    watch,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = methods;
 
   // --- Data Fetching ---
   const { data: inventoryData } = useCompanyInventory(companyId);
-  const allVariants: any[] = inventoryData?.data?.items?.map((item: any) => item.product_variant).filter(Boolean) || [];
+  const allVariants: any[] =
+    inventoryData?.data?.items
+      ?.map((item: any) => item.product_variant)
+      .filter(Boolean) || [];
 
   // Helper to get price from inventoryData
   const getVariantCost = (variantId: number) => {
-    const item = inventoryData?.data?.items?.find((i: any) => i.product_variant_id === variantId);
+    const item = inventoryData?.data?.items?.find(
+      (i: any) => i.product_variant_id === variantId
+    );
     return item?.product?.price || 0;
   };
 
-  const { data: deliveryCompaniesData, isLoading: deliveryCompaniesLoading, isError: deliveryCompaniesError } = useDeliveryCompanies(watch("shipping_provider") === "my_companies" && open);
-  const { yalidinePricing, yalidineCenters, yalidineCommunes } = useYalidineData(watch("shipping.state"), watch("delivery_type"), watch("shipping_provider"), open);
+  const {
+    data: deliveryCompaniesData,
+    isLoading: deliveryCompaniesLoading,
+    isError: deliveryCompaniesError,
+  } = useDeliveryCompanies(
+    watch("shipping_provider") === "my_companies" && open
+  );
+  const { yalidinePricing, yalidineCenters, yalidineCommunes } =
+    useYalidineData(
+      watch("shipping.state"),
+      watch("delivery_type"),
+      watch("shipping_provider"),
+      open
+    );
 
   // --- Effects ---
   useEffect(() => {
@@ -269,12 +353,19 @@ export default function UpdateOrderDialog({ order, open, setOpen }: UpdateOrderD
   const { mutate: updateOrder, isPending } = useMutation<any, any, any>({
     mutationFn: updateWooCommerceOrder,
     onSuccess: () => {
-      toast({ title: "Order updated", description: "Order updated successfully" });
+      toast({
+        title: "Order updated",
+        description: "Order updated successfully",
+      });
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
     onError: (err: any) => {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -305,10 +396,19 @@ export default function UpdateOrderDialog({ order, open, setOpen }: UpdateOrderD
                 yalidineCommunes={yalidineCommunes.data}
               />
               <CustomerInfoSection />
-              <OrderItemsSection allVariants={allVariants} getVariantCost={getVariantCost} inventoryData={inventoryData} />
+              <OrderItemsSection
+                allVariants={allVariants}
+                getVariantCost={getVariantCost}
+                inventoryData={inventoryData}
+              />
             </div>
-            <SummarySection allVariants={allVariants} getVariantCost={getVariantCost} />
-            {errors && <div className="text-red-500 text-sm">{errors.root?.message}</div>}
+            <SummarySection
+              allVariants={allVariants}
+              getVariantCost={getVariantCost}
+            />
+            {errors && (
+              <div className="text-red-500 text-sm">{errors.root?.message}</div>
+            )}
             <input type="hidden" {...methods.register("company_id")} />
             <DialogFooter>
               <Button type="submit" disabled={isPending}>
@@ -331,7 +431,13 @@ export default function UpdateOrderDialog({ order, open, setOpen }: UpdateOrderD
 // ShippingSection, CustomerInfoSection, OrderItemsSection, SummarySection
 // For brevity, these are stubs. You can expand them as needed.
 
-function ShippingSection({ deliveryCompaniesData, deliveryCompaniesLoading, deliveryCompaniesError, yalidineCenters, yalidineCommunes }: any) {
+function ShippingSection({
+  deliveryCompaniesData,
+  deliveryCompaniesLoading,
+  deliveryCompaniesError,
+  yalidineCenters,
+  yalidineCommunes,
+}: any) {
   const { control, watch, setValue } = useFormContext();
   const shippingProvider = watch("shipping_provider");
   const deliveryType = watch("delivery_type");
@@ -348,13 +454,17 @@ function ShippingSection({ deliveryCompaniesData, deliveryCompaniesLoading, deli
             <FormControl>
               <RadioGroup
                 value={field.value}
-                onValueChange={val => field.onChange(val)}
+                onValueChange={(val) => field.onChange(val)}
                 className="flex flex-row gap-6 mt-2"
               >
                 <RadioGroupItem value="yalidine" id="yalidine" />
-                <FormLabel htmlFor="yalidine" className="mr-4">Yalidine</FormLabel>
+                <FormLabel htmlFor="yalidine" className="mr-4">
+                  Yalidine
+                </FormLabel>
                 <RadioGroupItem value="my_companies" id="my_companies" />
-                <FormLabel htmlFor="my_companies">My Delivery Companies</FormLabel>
+                <FormLabel htmlFor="my_companies">
+                  My Delivery Companies
+                </FormLabel>
               </RadioGroup>
             </FormControl>
             <FormMessage />
@@ -371,11 +481,13 @@ function ShippingSection({ deliveryCompaniesData, deliveryCompaniesLoading, deli
               <FormControl>
                 <RadioGroup
                   value={field.value}
-                  onValueChange={val => field.onChange(val)}
+                  onValueChange={(val) => field.onChange(val)}
                   className="flex flex-row gap-6 mt-2"
                 >
                   <RadioGroupItem value="home" id="home" />
-                  <FormLabel htmlFor="home" className="mr-4">Home</FormLabel>
+                  <FormLabel htmlFor="home" className="mr-4">
+                    Home
+                  </FormLabel>
                   <RadioGroupItem value="stopdesk" id="stopdesk" />
                   <FormLabel htmlFor="stopdesk">Stop Desk</FormLabel>
                 </RadioGroup>
@@ -395,19 +507,27 @@ function ShippingSection({ deliveryCompaniesData, deliveryCompaniesLoading, deli
               <FormControl>
                 <Select
                   value={field.value}
-                  onValueChange={val => {
+                  onValueChange={(val) => {
                     field.onChange(val);
-                    const communeName = (yalidineCommunes || []).find((c: any) => String(c.id) === val)?.name || '';
-                    setValue('shipping.commune', communeName);
+                    const communeName =
+                      (yalidineCommunes || []).find(
+                        (c: any) => String(c.id) === val
+                      )?.name || "";
+                    setValue("shipping.commune", communeName);
                   }}
                 >
                   <SelectTrigger className="w-full mt-1">
                     <SelectValue placeholder="Select a commune" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(yalidineCommunes || []).sort((a: any, b: any) => a.name.localeCompare(b.name)).filter((c: any) => c.is_deliverable).map((commune: any) => (
-                      <SelectItem key={commune.id} value={String(commune.id)}>{commune.name}</SelectItem>
-                    ))}
+                    {(yalidineCommunes || [])
+                      .sort((a: any, b: any) => a.name.localeCompare(b.name))
+                      .filter((c: any) => c.is_deliverable)
+                      .map((commune: any) => (
+                        <SelectItem key={commune.id} value={String(commune.id)}>
+                          {commune.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -430,7 +550,12 @@ function ShippingSection({ deliveryCompaniesData, deliveryCompaniesLoading, deli
                   </SelectTrigger>
                   <SelectContent>
                     {(yalidineCenters?.data || []).map((center: any) => (
-                      <SelectItem key={center.center_id} value={String(center.center_id)}>{center.name}</SelectItem>
+                      <SelectItem
+                        key={center.center_id}
+                        value={String(center.center_id)}
+                      >
+                        {center.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -449,16 +574,42 @@ function ShippingSection({ deliveryCompaniesData, deliveryCompaniesLoading, deli
               <FormItem>
                 <FormLabel>Select Delivery Company</FormLabel>
                 <FormControl>
-                  <Select value={field.value ? String(field.value) : ""} onValueChange={val => field.onChange(val ? Number(val) : undefined)}>
+                  <Select
+                    value={field.value ? String(field.value) : ""}
+                    onValueChange={(val) =>
+                      field.onChange(val ? Number(val) : undefined)
+                    }
+                  >
                     <SelectTrigger className="w-full mt-1">
-                      <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
+                      <SelectValue
+                        placeholder={
+                          deliveryCompaniesLoading
+                            ? "Loading..."
+                            : "Select a delivery company"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
-                      {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
-                      {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map((company: any) => (
-                        <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
-                      ))}
+                      {deliveryCompaniesLoading && (
+                        <div className="p-2 text-muted-foreground">
+                          Loading...
+                        </div>
+                      )}
+                      {deliveryCompaniesError && (
+                        <div className="p-2 text-red-500">
+                          Error loading companies
+                        </div>
+                      )}
+                      {!deliveryCompaniesLoading &&
+                        !deliveryCompaniesError &&
+                        (deliveryCompaniesData || []).map((company: any) => (
+                          <SelectItem
+                            key={company.ID}
+                            value={String(company.ID)}
+                          >
+                            {company.name}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -475,14 +626,16 @@ function ShippingSection({ deliveryCompaniesData, deliveryCompaniesLoading, deli
                 <FormControl>
                   <Select
                     value={field.value || ""}
-                    onValueChange={val => field.onChange(val)}
+                    onValueChange={(val) => field.onChange(val)}
                   >
                     <SelectTrigger className="w-full mt-1">
                       <SelectValue placeholder="Select a city (commune)" />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((city: any) => (
-                        <SelectItem key={city.key} value={city.key}>{city.label}</SelectItem>
+                        <SelectItem key={city.key} value={city.key}>
+                          {city.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -549,9 +702,9 @@ function CustomerInfoSection() {
           }))}
           value={shipping.state}
           onChange={(value: string) => {
-            setValue('shipping.state', value);
-            const wilayaName = cities.find(c => c.key === value)?.label || '';
-            setValue('shipping.wilaya', wilayaName);
+            setValue("shipping.state", value);
+            const wilayaName = cities.find((c) => c.key === value)?.label || "";
+            setValue("shipping.wilaya", wilayaName);
           }}
           placeholder="Select a wilaya"
           label="State"
@@ -575,8 +728,20 @@ function CustomerInfoSection() {
   );
 }
 
-function OrderItemsSection({ allVariants, getVariantCost, inventoryData }: { allVariants: any[], getVariantCost: (variantId: number) => number, inventoryData: any }) {
-  const { watch, setValue, formState: { errors } } = useFormContext();
+function OrderItemsSection({
+  allVariants,
+  getVariantCost,
+  inventoryData,
+}: {
+  allVariants: any[];
+  getVariantCost: (variantId: number) => number;
+  inventoryData: any;
+}) {
+  const {
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext();
   const orderItems = watch("order_items") || [];
 
   return (
@@ -595,7 +760,9 @@ function OrderItemsSection({ allVariants, getVariantCost, inventoryData }: { all
             </TableHeader>
             <TableBody>
               {orderItems.map((item: any, idx: number) => {
-                const inventoryItem = inventoryData?.data?.items?.find((i: any) => i.product_variant_id === item.product_variant_id);
+                const inventoryItem = inventoryData?.data?.items?.find(
+                  (i: any) => i.product_variant_id === item.product_variant_id
+                );
                 return (
                   <TableRow key={idx}>
                     <TableCell className="min-w-[200px]">
@@ -603,13 +770,31 @@ function OrderItemsSection({ allVariants, getVariantCost, inventoryData }: { all
                         variants={allVariants}
                         value={item.product_variant_id}
                         onChange={(variantId: number | undefined) => {
-                          const selectedVariant = allVariants.find((v: any) => v.ID === variantId);
-                          setValue(`order_items.${idx}.product_variant_id`, variantId ?? 0);
-                          setValue(`order_items.${idx}.product_id`, selectedVariant?.product_id ?? 0);
+                          const selectedVariant = allVariants.find(
+                            (v: any) => v.ID === variantId
+                          );
+                          setValue(
+                            `order_items.${idx}.product_variant_id`,
+                            variantId ?? 0
+                          );
+                          setValue(
+                            `order_items.${idx}.product_id`,
+                            selectedVariant?.product_id ?? 0
+                          );
                         }}
                         key={`variant-combobox-${idx}`}
-                        error={Array.isArray(errors.order_items) && errors.order_items[idx]?.product_variant_id ? errors.order_items[idx]?.product_variant_id?.message : undefined}
-                        extraText={inventoryItem ? inventoryItem.quantity.toString() : undefined}
+                        error={
+                          Array.isArray(errors.order_items) &&
+                          errors.order_items[idx]?.product_variant_id
+                            ? errors.order_items[idx]?.product_variant_id
+                                ?.message
+                            : undefined
+                        }
+                        extraText={
+                          inventoryItem
+                            ? inventoryItem.quantity.toString()
+                            : undefined
+                        }
                       />
                     </TableCell>
                     <TableCell>
@@ -617,11 +802,17 @@ function OrderItemsSection({ allVariants, getVariantCost, inventoryData }: { all
                         type="number"
                         min={1}
                         value={item.quantity}
-                        onChange={e => setValue(`order_items.${idx}.quantity`, Number(e.target.value))}
+                        onChange={(e) =>
+                          setValue(
+                            `order_items.${idx}.quantity`,
+                            Number(e.target.value)
+                          )
+                        }
                       />
                     </TableCell>
                     <TableCell>
-                      {getVariantCost(item.product_variant_id) * (item.quantity || 1)}
+                      {getVariantCost(item.product_variant_id) *
+                        (item.quantity || 1)}
                     </TableCell>
                     <TableCell>
                       <Button
@@ -667,17 +858,26 @@ function OrderItemsSection({ allVariants, getVariantCost, inventoryData }: { all
   );
 }
 
-function SummarySection({ getVariantCost }: { allVariants: any[], getVariantCost: (variantId: number) => number }) {
+function SummarySection({
+  getVariantCost,
+}: {
+  allVariants: any[];
+  getVariantCost: (variantId: number) => number;
+}) {
   const { control, watch, setValue } = useFormContext();
   const orderItems = watch("order_items") || [];
   const discount = watch("discount") || 0;
   const secondDeliveryCost = watch("second_delivery_cost") || 0;
 
-  const productsTotal = orderItems.reduce((sum: number, item: any) => sum + (getVariantCost(item.product_variant_id) * (item.quantity || 1)), 0);
+  const productsTotal = orderItems.reduce(
+    (sum: number, item: any) =>
+      sum + getVariantCost(item.product_variant_id) * (item.quantity || 1),
+    0
+  );
   const total = productsTotal + secondDeliveryCost - discount;
 
   useEffect(() => {
-    setValue('total', total);
+    setValue("total", total);
   }, [productsTotal, secondDeliveryCost, discount, total, setValue]);
 
   return (
@@ -685,13 +885,19 @@ function SummarySection({ getVariantCost }: { allVariants: any[], getVariantCost
       <div className="flex justify-between items-center">
         <span className="font-semibold">Products Total</span>
         <span className="font-semibold">
-          {new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(productsTotal)}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "DZD",
+          }).format(productsTotal)}
         </span>
       </div>
       <div className="flex justify-between items-center">
         <span>Delivery Fee</span>
         <span>
-          {new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(secondDeliveryCost)}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "DZD",
+          }).format(secondDeliveryCost)}
         </span>
       </div>
       <div className="flex justify-between items-center">
@@ -706,7 +912,7 @@ function SummarySection({ getVariantCost }: { allVariants: any[], getVariantCost
                   type="number"
                   min={0}
                   {...field}
-                  onChange={e => field.onChange(Number(e.target.value))}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
                   className="max-w-[120px] text-right"
                 />
               </FormControl>
@@ -718,9 +924,12 @@ function SummarySection({ getVariantCost }: { allVariants: any[], getVariantCost
       <div className="flex justify-between items-center text-lg font-bold mt-2">
         <span>Total</span>
         <span>
-          {new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(Math.max(total, 0))}
+          {new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "DZD",
+          }).format(Math.max(total, 0))}
         </span>
       </div>
     </section>
   );
-} 
+}
