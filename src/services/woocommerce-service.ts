@@ -262,3 +262,42 @@ export const updateWooCommerceOrder = async (request: UpdateWooOrderSchema): Pro
   const data: APIResponse<WooOrder> = await response.json();
   return data;
 };
+
+export const printDeliveryEmployeeTable = async (request: {
+  delivery_employee_id: number;
+  delivery_date: string;
+}): Promise<void> => {
+  const response = await fetch(`${baseUrl}/woocommerce/print-delivery-employee-table`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to print delivery employee table");
+  }
+
+  // Get the PDF blob
+  const blob = await response.blob();
+  
+  // Create a URL for the blob
+  const url = window.URL.createObjectURL(blob);
+  
+  // Create a temporary link element
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'delivery_table.pdf';
+  
+  // Append to body, click and remove
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Clean up the URL
+  window.URL.revokeObjectURL(url);
+};
+

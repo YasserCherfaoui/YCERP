@@ -2,6 +2,7 @@ import AppBarBackButton from "@/components/common/app-bar-back-button";
 import CreateDeliveryEmployeeDialog from "@/components/feature-specific/delivery/CreateDeliveryEmployeeDialog";
 import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/delivery-employee-columns";
 import { deliveryOrdersColumns } from "@/components/feature-specific/delivery/delivery-orders-columns";
+import PrintDeliveryEmployeeTableDialog from "@/components/feature-specific/delivery/PrintDeliveryEmployeeTableDialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ export default function DeliveryDashboardPage() {
   const params = useParams();
   const companyId = Number(params.id);
   const [employeeDialogOpen, setEmployeeDialogOpen] = useState(false);
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [ordersStatus, setOrdersStatus] = useState(ORDER_STATUSES[0].value);
   const [page, setPage] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -105,10 +107,20 @@ export default function DeliveryDashboardPage() {
             {company ? company.name : "Delivery Company"}
           </span>
         </div>
-        <Button onClick={() => setEmployeeDialogOpen(true)}>
-          Add Employee
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setPrintDialogOpen(true)}>
+            Print Employee Table
+          </Button>
+          <Button onClick={() => setEmployeeDialogOpen(true)}>
+            Add Employee
+          </Button>
+        </div>
       </div>
+      <PrintDeliveryEmployeeTableDialog
+        open={printDialogOpen}
+        onOpenChange={setPrintDialogOpen}
+        employees={employees}
+      />
       <CreateDeliveryEmployeeDialog
         open={employeeDialogOpen}
         onOpenChange={setEmployeeDialogOpen}
