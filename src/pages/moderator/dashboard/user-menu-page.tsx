@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   Store,
   Ticket,
+  Truck,
   Undo2,
   Warehouse,
 } from "lucide-react";
@@ -82,5 +83,10 @@ const quickMenu = [
     label: "Order Tickets",
     icon: Ticket,
     href: "order-tickets",
+  },
+  {
+    label: "Delivery",
+    icon: Truck,
+    href: "delivery",
   },
 ];

@@ -114,6 +114,10 @@ export default function AppRouter() {
               </Route>
             </Route>
             <Route path="order-tickets" element={<OrderTicketsPage />} />
+            <Route path="delivery">
+                <Route index element={<DeliveryListPage />} />
+                <Route path=":id" element={<DeliveryDashboardPage />} />
+              </Route>
           </Route>
           <Route path="issues" element={<IssuesPage />} />
         </Route>
