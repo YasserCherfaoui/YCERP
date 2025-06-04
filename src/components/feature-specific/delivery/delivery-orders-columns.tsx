@@ -186,8 +186,8 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     header: "Comments",
     cell: ({ row }: { row: { original: WooOrder } }) => {
       const [open, setOpen] = useState(false);
-      const [comment, setComment] = useState(row.original.woo_shipping?.comments || "");
-      const [input, setInput] = useState(row.original.woo_shipping?.comments || "");
+      const [comment, setComment] = useState(row.original.comments || "");
+      const [input, setInput] = useState(row.original.comments || "");
       const { toast } = useToast();
       const queryClient = useQueryClient();
       const mutation = useMutation({
@@ -207,8 +207,8 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
           id: row.original.id,
           shipping: {
             ...row.original.woo_shipping,
-            comments: input,
           },
+          comments: input,
         });
       };
       return (

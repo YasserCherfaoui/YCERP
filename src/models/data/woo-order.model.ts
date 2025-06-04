@@ -43,6 +43,7 @@ export interface WooOrder {
   final_price?: number;
   order_histories?: OrderHistory[];
   yalidine_order_histories?: YalidineOrderHistory[];
+  comments?: string;
 }
 
 export interface YalidineOrderHistory {
