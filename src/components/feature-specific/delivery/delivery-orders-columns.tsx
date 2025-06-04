@@ -1,7 +1,18 @@
 import DeliveryOrdersActions from "@/components/feature-specific/delivery/delivery-orders-actions";
 import { ConfirmedOrderItemsAccordion } from "@/components/feature-specific/orders/order-line-items-accordion";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { DeliveryEmployee } from "@/models/data/delivery.model";
 import { WooOrder } from "@/models/data/woo-order.model";
+import { getDeliveryEmployees } from "@/services/delivery-service";
+import { updateWooCommerceOrder } from "@/services/woocommerce-service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
   { accessorKey: "id", header: "ID" },
@@ -60,6 +71,111 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         style: "currency",
         currency: "DZD",
       }).format(Number(row.original.final_price)),
+  },
+  {
+    id: "delivery_employee",
+    header: "Delivery Employee",
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const [employees, setEmployees] = useState<DeliveryEmployee[]>([]);
+      const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>(row.original.woo_shipping?.employee_id);
+      const { toast } = useToast();
+      const queryClient = useQueryClient();
+      const mutation = useMutation({
+        mutationFn: updateWooCommerceOrder,
+        onSuccess: () => {
+          toast({ title: "Success", description: "Employee updated successfully" });
+          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+        },
+        onError: (err: any) => {
+          toast({ title: "Error", description: err.message, variant: "destructive" });
+        },
+      });
+      useEffect(() => {
+        getDeliveryEmployees(1).then(res => setEmployees(res.data || []));
+      }, []);
+      const handleChange = (val: string) => {
+        const employeeId = val ? Number(val) : undefined;
+        setSelectedEmployee(employeeId);
+        mutation.mutate({
+          id: row.original.id,
+          shipping: {
+            ...row.original.woo_shipping,
+            employee_id: employeeId,
+          },
+        });
+      };
+      return (
+        <Select
+          value={selectedEmployee ? String(selectedEmployee) : ""}
+          onValueChange={handleChange}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Select employee" />
+          </SelectTrigger>
+          <SelectContent>
+            {employees.map(emp => (
+              <SelectItem key={emp.ID} value={String(emp.ID)}>
+                {emp.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    id: "expected_delivery_date",
+    header: "Expected Delivery Date",
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const [date, setDate] = useState<Date | undefined>(row.original.woo_shipping?.expected_delivery_date ? new Date(row.original.woo_shipping?.expected_delivery_date) : undefined);
+      const { toast } = useToast();
+      const queryClient = useQueryClient();
+      const mutation = useMutation({
+        mutationFn: updateWooCommerceOrder,
+        onSuccess: () => {
+          toast({ title: "Success", description: "Expected delivery date updated successfully" });
+          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+        },
+        onError: (err: any) => {
+          toast({ title: "Error", description: err.message, variant: "destructive" });
+        },
+      });
+      const handleDateChange = (selected?: Date) => {
+        setDate(selected);
+        mutation.mutate({
+          id: row.original.id,
+          shipping: {
+            ...row.original.woo_shipping,
+            expected_delivery_date: selected ? selected.toISOString() : undefined,
+          },
+        });
+      };
+      return (
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={"w-44 justify-start text-left font-normal" + (!date ? " text-muted-foreground" : "")}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date ? date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : <span>Pick a date</span>}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={handleDateChange}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     id: "actions",

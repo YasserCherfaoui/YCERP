@@ -126,6 +126,7 @@ export interface WooShipping {
   delivery_company?: DeliveryCompany;
   employee_id?: number;
   employee?: DeliveryEmployee;
+  expected_delivery_date?: string;
 }
 
 export type YalidineStatusType = 

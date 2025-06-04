@@ -73,6 +73,8 @@ export interface UpdateWooShippingSchema {
   wilaya_name?: string;
   commune_name?: string;
   comments?: string;
+  employee_id?: number;
+  expected_delivery_date?: string;
 }
 
 export interface UpdateWooOrderSchema {
