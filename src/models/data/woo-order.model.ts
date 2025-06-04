@@ -1,5 +1,5 @@
 import { ClientStatus } from "@/models/data/client-status.model";
-import { DeliveryCompany } from "@/models/data/delivery.model";
+import { DeliveryCompany, DeliveryEmployee } from "@/models/data/delivery.model";
 import { Product, ProductVariant } from "@/models/data/product.model";
 import { Qualification } from "@/models/data/qualification.model";
 import { User } from "./user.model";
@@ -124,6 +124,9 @@ export interface WooShipping {
   commune_name: string;
   delivery_company_id?: number;
   delivery_company?: DeliveryCompany;
+  employee_id?: number;
+  employee?: DeliveryEmployee;
+  expected_delivery_date?: string;
 }
 
 export type YalidineStatusType = 

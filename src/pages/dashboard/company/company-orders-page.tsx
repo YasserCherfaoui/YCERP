@@ -2,6 +2,7 @@ import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
 import BulkOperationsDialog from "@/components/feature-specific/orders/bulk-operations-dialog";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
+import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
@@ -29,11 +30,13 @@ import {
   LoaderIcon,
   PackageIcon,
   RefreshCcwIcon,
+  Rocket,
   RotateCcwIcon,
   SendIcon,
   ShuffleIcon,
   TruckIcon,
   Undo2Icon,
+  Upload,
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -226,6 +229,10 @@ export default function CompanyOrdersPage() {
     setSelectedRows([]);
   };
 
+  
+
+  // --- Import Orders CSV Dialog State ---
+  const [importCSVOpen, setImportCSVOpen] = useState(false);
 
   // Statuses and icons
   const statusTabs = [
@@ -269,6 +276,11 @@ export default function CompanyOrdersPage() {
       label: "Cancelled",
       icon: <XCircleIcon className="w-4 h-4 mr-1" />,
     },
+    {
+      value: "relaunched",
+      label: "Relaunched",
+      icon: <Rocket className="w-4 h-4 mr-1" />, 
+    }
   ];
 
   return (
@@ -300,6 +312,15 @@ export default function CompanyOrdersPage() {
           >
             Bulk Operations
           </Button>
+          {!isModerator && (
+            <Button
+              variant="secondary"
+              onClick={() => setImportCSVOpen(true)}
+            >
+              <Upload className="w-4 h-4 mr-1" />
+              Import CSV
+            </Button>
+          )}
         </div>
       </div>
       <div>
@@ -438,7 +459,9 @@ export default function CompanyOrdersPage() {
             dispatchLoading={dispatchWooCommerceOrdersLoading}
             exportLoading={exportWooCommerceOrdersLoading}
           />
-
+      {!isModerator && (
+        <ImportOrdersCSVDialog open={importCSVOpen} setOpen={setImportCSVOpen} />
+      )}
     </div>
   );
 }

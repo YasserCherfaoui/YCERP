@@ -817,8 +817,10 @@ function CreateOrderDialog({
                         // Use only the value of second_delivery_cost for the delivery part of the total
                         const secondDeliveryCost = watch('second_delivery_cost');
                         const total = productsTotal + (secondDeliveryCost || 0) - (discount || 0);
+                        setValue('total', total);
                         return new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(Math.max(total, 0));
                       })()}
+                      <input type="hidden"  {...form.register('total')} />
                     </span>
                   </div>
                 </div>

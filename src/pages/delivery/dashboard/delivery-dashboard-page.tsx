@@ -2,8 +2,10 @@ import AppBarBackButton from "@/components/common/app-bar-back-button";
 import CreateDeliveryEmployeeDialog from "@/components/feature-specific/delivery/CreateDeliveryEmployeeDialog";
 import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/delivery-employee-columns";
 import { deliveryOrdersColumns } from "@/components/feature-specific/delivery/delivery-orders-columns";
+import PrintDeliveryEmployeeTableDialog from "@/components/feature-specific/delivery/PrintDeliveryEmployeeTableDialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
 import { APIResponse } from "@/models/responses/api-response.model";
@@ -21,7 +23,7 @@ import {
   TruckIcon,
   Undo2Icon
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const ORDER_STATUSES = [
@@ -37,8 +39,20 @@ export default function DeliveryDashboardPage() {
   const params = useParams();
   const companyId = Number(params.id);
   const [employeeDialogOpen, setEmployeeDialogOpen] = useState(false);
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [ordersStatus, setOrdersStatus] = useState(ORDER_STATUSES[0].value);
   const [page, setPage] = useState(0);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [debouncedPhoneNumber, setDebouncedPhoneNumber] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedPhoneNumber(phoneNumber);
+    }, 1000);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [phoneNumber]);
 
   // Company info
   const {
@@ -66,14 +80,14 @@ export default function DeliveryDashboardPage() {
     isLoading: ordersLoading,
     isError: ordersError,
   } = useQuery<APIResponse<WooOrdersResponse>>({
-    queryKey: ["delivery-orders", companyId, ordersStatus, page],
+    queryKey: ["delivery-orders", companyId, ordersStatus, page, debouncedPhoneNumber],
     queryFn: () =>
       getWooCommerceOrders(
         page,
         ordersStatus,
         undefined,
         undefined,
-        undefined,
+        debouncedPhoneNumber || undefined,
         "my_companies",
         companyId
       ),
@@ -93,10 +107,20 @@ export default function DeliveryDashboardPage() {
             {company ? company.name : "Delivery Company"}
           </span>
         </div>
-        <Button onClick={() => setEmployeeDialogOpen(true)}>
-          Add Employee
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setPrintDialogOpen(true)}>
+            Print Employee Table
+          </Button>
+          <Button onClick={() => setEmployeeDialogOpen(true)}>
+            Add Employee
+          </Button>
+        </div>
       </div>
+      <PrintDeliveryEmployeeTableDialog
+        open={printDialogOpen}
+        onOpenChange={setPrintDialogOpen}
+        employees={employees}
+      />
       <CreateDeliveryEmployeeDialog
         open={employeeDialogOpen}
         onOpenChange={setEmployeeDialogOpen}
@@ -109,6 +133,17 @@ export default function DeliveryDashboardPage() {
           <TabsTrigger value="employees">Employees</TabsTrigger>
         </TabsList>
         <TabsContent value="orders">
+          {/* Phone number filter */}
+          <div className="flex gap-2 items-center mb-4">
+            <span>Filter by Phone Number:</span>
+            <Input
+              type="text"
+              className="border rounded px-2 py-1 w-[200px]"
+              placeholder="Enter phone number"
+              value={phoneNumber}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)}
+            />
+          </div>
           {/* Nested status tabs */}
           <Tabs value={ordersStatus} onValueChange={(v) => { setOrdersStatus(v); setPage(0); }} className="w-full">
             <TabsList className="mb-4 flex flex-wrap gap-2">
@@ -128,6 +163,7 @@ export default function DeliveryDashboardPage() {
                     columns={deliveryOrdersColumns}
                     data={ordersData?.data?.orders || []}
                     searchColumn="customer_phone"
+                    searchBar={false}
                     currentPage={page}
                     onPageChange={setPage}
                     paginationMeta={ordersData?.data?.meta}

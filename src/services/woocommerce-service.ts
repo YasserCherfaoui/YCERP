@@ -1,8 +1,10 @@
 import { baseUrl } from "@/app/constants";
 import { AddOrderHistoryRequest } from "@/components/feature-specific/orders/add-order-history-dialog";
+import { UpdateWooOrderSchema } from "@/components/feature-specific/orders/update-order-dialog";
 import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
+import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
 import { CreateOrderSchema } from "@/schemas/order";
 import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
@@ -220,3 +222,82 @@ export const addOrderHistory = async (request: AddOrderHistoryRequest): Promise<
     const data: APIResponse<OrderHistory> = await response.json();
     return data;
 }
+
+export const createOrdersFromCSV = async (file: File): Promise<APIResponse<CreateOrdersFromCSVResponse>> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${baseUrl}/woocommerce/create-from-csv`, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to create orders from CSV');
+  }
+
+  const data: APIResponse<CreateOrdersFromCSVResponse> = await response.json();
+  return data;
+};
+
+
+
+export const updateWooCommerceOrder = async (request: UpdateWooOrderSchema): Promise<APIResponse<WooOrder>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/update`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to update WooCommerce order");
+  }
+  const data: APIResponse<WooOrder> = await response.json();
+  return data;
+};
+
+export const printDeliveryEmployeeTable = async (request: {
+  delivery_employee_id: number;
+  delivery_date: string;
+}): Promise<void> => {
+  const response = await fetch(`${baseUrl}/woocommerce/print-delivery-employee-table`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to print delivery employee table");
+  }
+
+  // Get the PDF blob
+  const blob = await response.blob();
+  
+  // Create a URL for the blob
+  const url = window.URL.createObjectURL(blob);
+  
+  // Create a temporary link element
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'delivery_table.pdf';
+  
+  // Append to body, click and remove
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  // Clean up the URL
+  window.URL.revokeObjectURL(url);
+};
+
