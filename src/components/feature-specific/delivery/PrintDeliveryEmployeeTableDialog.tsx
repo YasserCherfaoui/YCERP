@@ -50,7 +50,8 @@ export default function PrintDeliveryEmployeeTableDialog({ open, onOpenChange, e
   const mutation = useMutation({
     mutationFn: async (data: PrintDeliveryEmployeeTableForm) => {
       const d = data.delivery_date;
-      const localDate = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      if (!d) throw new Error("Date is required");
+      const localDate = d.toLocaleDateString("fr-DZ"); // YYYY-MM-DD, no time, no timezone
       await printDeliveryEmployeeTable({
         delivery_employee_id: data.delivery_employee_id,
         delivery_date: localDate,

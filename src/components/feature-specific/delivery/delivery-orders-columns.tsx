@@ -148,7 +148,9 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
           id: row.original.id,
           shipping: {
             ...row.original.woo_shipping,
-            expected_delivery_date: selected ? selected.toISOString() : undefined,
+            expected_delivery_date: selected
+              ? selected.toLocaleDateString("fr-DZ")
+              : undefined,
           },
         });
       };
