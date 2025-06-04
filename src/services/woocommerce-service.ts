@@ -1,5 +1,6 @@
 import { baseUrl } from "@/app/constants";
 import { AddOrderHistoryRequest } from "@/components/feature-specific/orders/add-order-history-dialog";
+import { UpdateWooOrderSchema } from "@/components/feature-specific/orders/update-order-dialog";
 import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
@@ -240,5 +241,24 @@ export const createOrdersFromCSV = async (file: File): Promise<APIResponse<Creat
   }
 
   const data: APIResponse<CreateOrdersFromCSVResponse> = await response.json();
+  return data;
+};
+
+
+
+export const updateWooCommerceOrder = async (request: UpdateWooOrderSchema): Promise<APIResponse<WooOrder>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/update`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to update WooCommerce order");
+  }
+  const data: APIResponse<WooOrder> = await response.json();
   return data;
 };
