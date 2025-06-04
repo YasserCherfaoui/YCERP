@@ -4,6 +4,7 @@ import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/
 import { deliveryOrdersColumns } from "@/components/feature-specific/delivery/delivery-orders-columns";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
 import { APIResponse } from "@/models/responses/api-response.model";
@@ -21,7 +22,7 @@ import {
   TruckIcon,
   Undo2Icon
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 const ORDER_STATUSES = [
@@ -39,6 +40,17 @@ export default function DeliveryDashboardPage() {
   const [employeeDialogOpen, setEmployeeDialogOpen] = useState(false);
   const [ordersStatus, setOrdersStatus] = useState(ORDER_STATUSES[0].value);
   const [page, setPage] = useState(0);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [debouncedPhoneNumber, setDebouncedPhoneNumber] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedPhoneNumber(phoneNumber);
+    }, 1000);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [phoneNumber]);
 
   // Company info
   const {
@@ -66,14 +78,14 @@ export default function DeliveryDashboardPage() {
     isLoading: ordersLoading,
     isError: ordersError,
   } = useQuery<APIResponse<WooOrdersResponse>>({
-    queryKey: ["delivery-orders", companyId, ordersStatus, page],
+    queryKey: ["delivery-orders", companyId, ordersStatus, page, debouncedPhoneNumber],
     queryFn: () =>
       getWooCommerceOrders(
         page,
         ordersStatus,
         undefined,
         undefined,
-        undefined,
+        debouncedPhoneNumber || undefined,
         "my_companies",
         companyId
       ),
@@ -109,6 +121,17 @@ export default function DeliveryDashboardPage() {
           <TabsTrigger value="employees">Employees</TabsTrigger>
         </TabsList>
         <TabsContent value="orders">
+          {/* Phone number filter */}
+          <div className="flex gap-2 items-center mb-4">
+            <span>Filter by Phone Number:</span>
+            <Input
+              type="text"
+              className="border rounded px-2 py-1 w-[200px]"
+              placeholder="Enter phone number"
+              value={phoneNumber}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)}
+            />
+          </div>
           {/* Nested status tabs */}
           <Tabs value={ordersStatus} onValueChange={(v) => { setOrdersStatus(v); setPage(0); }} className="w-full">
             <TabsList className="mb-4 flex flex-wrap gap-2">
@@ -128,6 +151,7 @@ export default function DeliveryDashboardPage() {
                     columns={deliveryOrdersColumns}
                     data={ordersData?.data?.orders || []}
                     searchColumn="customer_phone"
+                    searchBar={false}
                     currentPage={page}
                     onPageChange={setPage}
                     paginationMeta={ordersData?.data?.meta}

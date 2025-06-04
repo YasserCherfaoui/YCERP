@@ -27,7 +27,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  { accessorKey: "customer_phone", header: "Customer Phone", id: "phone" },
+  { accessorKey: "customer_phone", header: "Customer Phone", id: "customer_phone" },
   {
     accessorKey: "date_created",
     header: "Date Created",
