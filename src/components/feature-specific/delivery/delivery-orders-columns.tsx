@@ -2,8 +2,10 @@ import DeliveryOrdersActions from "@/components/feature-specific/delivery/delive
 import { ConfirmedOrderItemsAccordion } from "@/components/feature-specific/orders/order-line-items-accordion";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
 import { WooOrder } from "@/models/data/woo-order.model";
@@ -174,6 +176,71 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
             />
           </PopoverContent>
         </Popover>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    id: "comments",
+    header: "Comments",
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const [open, setOpen] = useState(false);
+      const [comment, setComment] = useState(row.original.woo_shipping?.comments || "");
+      const [input, setInput] = useState(row.original.woo_shipping?.comments || "");
+      const { toast } = useToast();
+      const queryClient = useQueryClient();
+      const mutation = useMutation({
+        mutationFn: updateWooCommerceOrder,
+        onSuccess: () => {
+          toast({ title: "Success", description: "Comment updated successfully" });
+          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          setComment(input);
+          setOpen(false);
+        },
+        onError: (err: any) => {
+          toast({ title: "Error", description: err.message, variant: "destructive" });
+        },
+      });
+      const handleSave = () => {
+        mutation.mutate({
+          id: row.original.id,
+          shipping: {
+            ...row.original.woo_shipping,
+            comments: input,
+          },
+        });
+      };
+      return (
+        <>
+          <span
+            className="underline cursor-pointer text-blue-600"
+            onClick={() => setOpen(true)}
+          >
+            {comment ? comment : <span className="text-muted-foreground">Add comment</span>}
+          </span>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Comment</DialogTitle>
+              </DialogHeader>
+              <Textarea
+                value={input}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
+                placeholder="Enter comment..."
+                rows={5}
+              />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" type="button">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleSave} disabled={mutation.status === 'pending'}>
+                  {mutation.status === 'pending' ? "Saving..." : "Save"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
       );
     },
     enableSorting: false,
