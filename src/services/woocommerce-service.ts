@@ -5,6 +5,7 @@ import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
+import { CenterListResponse } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema } from "@/schemas/order";
 import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
@@ -301,3 +302,18 @@ export const printDeliveryEmployeeTable = async (request: {
   window.URL.revokeObjectURL(url);
 };
 
+export const getYalidineCenter = async (id:string): Promise<APIResponse<CenterListResponse>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/centers/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to get Yalidine center");
+  }
+  const data: APIResponse<CenterListResponse> = await response.json();
+  return data;
+}
