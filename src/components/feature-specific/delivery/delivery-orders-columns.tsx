@@ -164,7 +164,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
               className={"w-44 justify-start text-left font-normal" + (!date ? " text-muted-foreground" : "")}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : <span>Pick a date</span>}
+              {date ? date.toLocaleDateString("fr-DZ", { year: "numeric", month: "long", day: "numeric" }) : <span>Pick a date</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
