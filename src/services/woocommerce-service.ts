@@ -303,7 +303,7 @@ export const printDeliveryEmployeeTable = async (request: {
 };
 
 export const getYalidineCenter = async (id:string): Promise<APIResponse<CenterListResponse>> => {
-  const response = await fetch(`${baseUrl}/woocommerce/centers/${id}`, {
+  const response = await fetch(`${baseUrl}/woocommerce/stop-desk/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
