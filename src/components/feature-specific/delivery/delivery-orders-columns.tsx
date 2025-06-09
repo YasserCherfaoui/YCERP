@@ -19,6 +19,10 @@ import { useEffect, useState } from "react";
 export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
   { accessorKey: "id", header: "ID" },
   {
+    accessorKey: "billing_name",
+    header: "Full Name",
+  },
+  {
     accessorKey: "total",
     header: "Total",
     cell: ({ row }: { row: { original: WooOrder } }) =>

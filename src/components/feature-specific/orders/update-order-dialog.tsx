@@ -3,37 +3,37 @@ import { ProductVariantCombobox } from "@/components/feature-specific/company-pr
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox-standalone";
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -41,12 +41,12 @@ import { WooOrder } from "@/models/data/woo-order.model";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
 import {
-    getYalidineCenters,
-    getYalidineCommunes,
-    getYalidinePricing,
+  getYalidineCenters,
+  getYalidineCommunes,
+  getYalidinePricing,
 } from "@/services/order-service";
 import { updateWooCommerceOrder } from "@/services/woocommerce-service";
-import { cities } from "@/utils/algeria-cities";
+import { algerCities, cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
@@ -634,7 +634,7 @@ function ShippingSection({
                       <SelectValue placeholder="Select a city (commune)" />
                     </SelectTrigger>
                     <SelectContent>
-                      {cities.map((city: any) => (
+                      {algerCities.map((city: any) => (
                         <SelectItem key={city.key} value={city.key}>
                           {city.label}
                         </SelectItem>
