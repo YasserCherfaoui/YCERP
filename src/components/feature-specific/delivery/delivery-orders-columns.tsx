@@ -90,7 +90,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Employee updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
         },
         onError: (err: any) => {
           toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -142,7 +142,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Expected delivery date updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
         },
         onError: (err: any) => {
           toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -198,7 +198,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Comment updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ["orders"] });
           setComment(input);
           setOpen(false);
         },
