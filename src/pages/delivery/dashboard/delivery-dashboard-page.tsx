@@ -6,6 +6,13 @@ import PrintDeliveryEmployeeTableDialog from "@/components/feature-specific/deli
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
 import { APIResponse } from "@/models/responses/api-response.model";
@@ -18,21 +25,46 @@ import { getWooCommerceOrders } from "@/services/woocommerce-service";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircleIcon,
-  LoaderIcon, RotateCcwIcon,
+  LoaderIcon,
+  RotateCcwIcon,
   SendIcon,
   TruckIcon,
-  Undo2Icon
+  Undo2Icon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 const ORDER_STATUSES = [
-  { value: "packing", label: "Packing", icon: <LoaderIcon className="w-4 h-4 mr-1" /> },
-  { value: "dispaching", label: "Dispatching", icon: <TruckIcon className="w-4 h-4 mr-1" /> },
-  { value: "deliviring", label: "Delivering", icon: <SendIcon className="w-4 h-4 mr-1" /> },
-  { value: "delivered", label: "Delivered", icon: <CheckCircleIcon className="w-4 h-4 mr-1" /> },
-  { value: "returning", label: "Returning", icon: <RotateCcwIcon className="w-4 h-4 mr-1" /> },
-  { value: "returned", label: "Returned", icon: <Undo2Icon className="w-4 h-4 mr-1" /> },
+  {
+    value: "packing",
+    label: "Packing",
+    icon: <LoaderIcon className="w-4 h-4 mr-1" />,
+  },
+  {
+    value: "dispaching",
+    label: "Dispatching",
+    icon: <TruckIcon className="w-4 h-4 mr-1" />,
+  },
+  {
+    value: "deliviring",
+    label: "Delivering",
+    icon: <SendIcon className="w-4 h-4 mr-1" />,
+  },
+  {
+    value: "delivered",
+    label: "Delivered",
+    icon: <CheckCircleIcon className="w-4 h-4 mr-1" />,
+  },
+  {
+    value: "returning",
+    label: "Returning",
+    icon: <RotateCcwIcon className="w-4 h-4 mr-1" />,
+  },
+  {
+    value: "returned",
+    label: "Returned",
+    icon: <Undo2Icon className="w-4 h-4 mr-1" />,
+  },
 ];
 
 export default function DeliveryDashboardPage() {
@@ -43,16 +75,7 @@ export default function DeliveryDashboardPage() {
   const [ordersStatus, setOrdersStatus] = useState(ORDER_STATUSES[0].value);
   const [page, setPage] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [debouncedPhoneNumber, setDebouncedPhoneNumber] = useState("");
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedPhoneNumber(phoneNumber);
-    }, 1000);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [phoneNumber]);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("all");
 
   // Company info
   const {
@@ -80,17 +103,23 @@ export default function DeliveryDashboardPage() {
     isLoading: ordersLoading,
     isError: ordersError,
   } = useQuery<APIResponse<WooOrdersResponse>>({
-    queryKey: ["delivery-orders", companyId, ordersStatus, page, debouncedPhoneNumber],
+    queryKey: [
+      "delivery-orders",
+      companyId,
+      ordersStatus,
+      page,
+      phoneNumber,
+      selectedEmployeeId,
+    ],
     queryFn: () =>
-      getWooCommerceOrders(
-        page,
-        ordersStatus,
-        undefined,
-        undefined,
-        debouncedPhoneNumber || undefined,
-        "my_companies",
-        companyId
-      ),
+      getWooCommerceOrders({
+        _page: page,
+        status: ordersStatus,
+        employee_id: selectedEmployeeId === "all" ? undefined : Number(selectedEmployeeId),
+        phone_number: phoneNumber || undefined,
+        delivery_company_id: companyId,
+        shipping_provider: "my_companies",
+      }),
     enabled: !!companyId,
   });
 
@@ -133,6 +162,31 @@ export default function DeliveryDashboardPage() {
           <TabsTrigger value="employees">Employees</TabsTrigger>
         </TabsList>
         <TabsContent value="orders">
+          {/* Delivery Employee filter */}
+          <div className="flex gap-2 items-center mb-4">
+            <span>Filter by Delivery Employee:</span>
+            <div className="w-[220px]">
+              <Select
+                value={selectedEmployeeId}
+                onValueChange={(v) => {
+                  setSelectedEmployeeId(v);
+                  setPage(0);
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Employees</SelectItem>
+                  {employees.map((emp) => (
+                    <SelectItem key={emp.ID} value={String(emp.ID)}>
+                      {emp.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           {/* Phone number filter */}
           <div className="flex gap-2 items-center mb-4">
             <span>Filter by Phone Number:</span>
@@ -141,14 +195,27 @@ export default function DeliveryDashboardPage() {
               className="border rounded px-2 py-1 w-[200px]"
               placeholder="Enter phone number"
               value={phoneNumber}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPhoneNumber(e.target.value)
+              }
             />
           </div>
           {/* Nested status tabs */}
-          <Tabs value={ordersStatus} onValueChange={(v) => { setOrdersStatus(v); setPage(0); }} className="w-full">
+          <Tabs
+            value={ordersStatus}
+            onValueChange={(v) => {
+              setOrdersStatus(v);
+              setPage(0);
+            }}
+            className="w-full"
+          >
             <TabsList className="mb-4 flex flex-wrap gap-2">
               {ORDER_STATUSES.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value} className="capitalize flex items-center gap-1">
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="capitalize flex items-center gap-1"
+                >
                   {tab.icon}
                   {tab.label}
                 </TabsTrigger>

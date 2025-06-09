@@ -11,23 +11,27 @@ import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
 const token = localStorage.getItem("token");
 export const getWooCommerceOrders = async (
-    _page = 0,
-    status?: string,
-    taken_by_id?: number,
-    wilaya?: string,
-    phone_number?: string,
-    shipping_provider?: string,
-    delivery_company_id?: number,
-    yalidine_status?:string
+    params: {
+        _page: number;
+        status?: string;
+        taken_by_id?: number;
+        wilaya?: string;
+        phone_number?: string;
+        shipping_provider?: string;
+        delivery_company_id?: number;
+        yalidine_status?:string;
+        employee_id?:number
+    }
 ): Promise<APIResponse<WooOrdersResponse>> => {
-    let url = `${baseUrl}/woocommerce/?page=${_page + 1}`;
-    if (status) url += `&status=${encodeURIComponent(status)}`;
-    if (taken_by_id) url += `&taken_by_id=${taken_by_id}`;
-    if (wilaya) url += `&wilaya=${encodeURIComponent(wilaya)}`;
-    if (phone_number) url += `&phone_number=${encodeURIComponent(phone_number)}`;
-    if (shipping_provider) url += `&shipping_provider=${encodeURIComponent(shipping_provider)}`;
-    if (delivery_company_id) url += `&delivery_company_id=${delivery_company_id}`;
-    if (yalidine_status) url += `&yalidine_status=${encodeURIComponent(yalidine_status)}`;
+    let url = `${baseUrl}/woocommerce/?page=${params._page + 1}`;
+    if (params.status) url += `&status=${encodeURIComponent(params.status)}`;
+    if (params.taken_by_id) url += `&taken_by_id=${params.taken_by_id}`;
+    if (params.wilaya) url += `&wilaya=${encodeURIComponent(params.wilaya)}`;
+    if (params.phone_number) url += `&phone_number=${encodeURIComponent(params.phone_number)}`;
+    if (params.shipping_provider) url += `&shipping_provider=${encodeURIComponent(params.shipping_provider)}`;
+    if (params.delivery_company_id) url += `&delivery_company_id=${params.delivery_company_id}`;
+    if (params.yalidine_status) url += `&yalidine_status=${encodeURIComponent(params.yalidine_status)}`;
+    if (params.employee_id) url += `&employee_id=${params.employee_id}`;
     const response = await fetch(url, {
         method: "GET",
         headers: {
