@@ -103,7 +103,14 @@ export default function DeliveryDashboardPage() {
     isLoading: ordersLoading,
     isError: ordersError,
   } = useQuery<APIResponse<WooOrdersResponse>>({
-    queryKey: ["orders", companyId, ordersStatus, page, phoneNumber, selectedEmployeeId],
+    queryKey: [
+      "delivery-orders",
+      companyId,
+      ordersStatus,
+      page,
+      phoneNumber,
+      selectedEmployeeId,
+    ],
     queryFn: () =>
       getWooCommerceOrders({
         _page: page,
