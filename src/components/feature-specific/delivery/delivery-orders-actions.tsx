@@ -3,6 +3,7 @@ import DispatchConfirmDialog from "@/components/feature-specific/orders/dispatch
 import ExportConfirmDialog from "@/components/feature-specific/orders/export-confirm-dialog";
 import OrderDetailsDialog from "@/components/feature-specific/orders/order-details-dialog";
 import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
+import UpdateOrderDialog from "@/components/feature-specific/orders/update-order-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WooOrder } from "@/models/data/woo-order.model";
@@ -16,6 +17,8 @@ function DeliveryOrdersActions({ order }: { order: WooOrder }) {
   const [dispatchDialogOpen, setDispatchDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [orderHistoryDialogOpen, setOrderHistoryDialogOpen] = useState(false);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+
   return (
     <>
       <OrderDetailsDialog order={order} open={open} setOpen={setOpen} />
@@ -23,6 +26,8 @@ function DeliveryOrdersActions({ order }: { order: WooOrder }) {
       <DispatchConfirmDialog order={order} open={dispatchDialogOpen} setOpen={setDispatchDialogOpen} />
       <ExportConfirmDialog order={order} open={exportDialogOpen} setOpen={setExportDialogOpen} />
       <OrderHistoryDialog order={order} open={orderHistoryDialogOpen} setOpen={setOrderHistoryDialogOpen} />
+      <UpdateOrderDialog order={order} open={updateDialogOpen} setOpen={setUpdateDialogOpen} />
+
       <TooltipProvider>
         <div className="flex gap-2">
           {/* Show Order Details - always available */}
@@ -79,6 +84,18 @@ function DeliveryOrdersActions({ order }: { order: WooOrder }) {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Export Order</TooltipContent>
+            </Tooltip>
+          )}
+          {/* Update Order - always available */}
+          {(order.order_status === "packing" || order.order_status === "dispaching") && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setUpdateDialogOpen(true)}>
+                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z"/></svg>
+                  <span className="sr-only">Update Order</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Update Order</TooltipContent>
             </Tooltip>
           )}
         </div>
