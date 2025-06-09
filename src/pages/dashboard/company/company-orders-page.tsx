@@ -21,7 +21,11 @@ import { YALIDINE_STATUSES } from "@/models/data/woo-order.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
-import { dispatchWooCommerceOrders, exportWooCommerceOrders, refreshWooCommerceStatus } from "@/services/woocommerce-service";
+import {
+  dispatchWooCommerceOrders,
+  exportWooCommerceOrders,
+  refreshWooCommerceStatus,
+} from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -69,7 +73,9 @@ export default function CompanyOrdersPage() {
   );
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [debouncedPhoneNumber, setDebouncedPhoneNumber] = useState<string>("");
-  const [selectedYalidineStatus, setSelectedYalidineStatus] = useState<string | undefined>(undefined);
+  const [selectedYalidineStatus, setSelectedYalidineStatus] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -164,7 +170,10 @@ export default function CompanyOrdersPage() {
   // --- Bulk Operations Dialog State ---
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
 
-  const { mutate: dispatchWooCommerceOrdersMutation, isPending: dispatchWooCommerceOrdersLoading } = useMutation({
+  const {
+    mutate: dispatchWooCommerceOrdersMutation,
+    isPending: dispatchWooCommerceOrdersLoading,
+  } = useMutation({
     mutationFn: dispatchWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -182,7 +191,10 @@ export default function CompanyOrdersPage() {
       });
     },
   });
-  const { mutate: exportWooCommerceOrdersMutation, isPending: exportWooCommerceOrdersLoading } = useMutation({
+  const {
+    mutate: exportWooCommerceOrdersMutation,
+    isPending: exportWooCommerceOrdersLoading,
+  } = useMutation({
     mutationFn: exportWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -201,8 +213,10 @@ export default function CompanyOrdersPage() {
     },
   });
 
-
-  const { mutate: refreshWooCommerceStatusMutation, isPending: refreshWooCommerceStatusLoading } = useMutation({
+  const {
+    mutate: refreshWooCommerceStatusMutation,
+    isPending: refreshWooCommerceStatusLoading,
+  } = useMutation({
     mutationFn: refreshWooCommerceStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -223,13 +237,11 @@ export default function CompanyOrdersPage() {
   const handleExportSubmit = (orderIDs: number[]) => {
     exportWooCommerceOrdersMutation(orderIDs);
     setSelectedRows([]);
-  }
+  };
   const handleDispatchSubmit = (orderIDs: number[]) => {
     dispatchWooCommerceOrdersMutation(orderIDs);
     setSelectedRows([]);
-  };
-
-  
+    };
 
   // --- Import Orders CSV Dialog State ---
   const [importCSVOpen, setImportCSVOpen] = useState(false);
@@ -279,8 +291,8 @@ export default function CompanyOrdersPage() {
     {
       value: "relaunched",
       label: "Relaunched",
-      icon: <Rocket className="w-4 h-4 mr-1" />, 
-    }
+      icon: <Rocket className="w-4 h-4 mr-1" />,
+    },
   ];
 
   return (
@@ -295,9 +307,15 @@ export default function CompanyOrdersPage() {
             <ShuffleIcon className="w-4 h-4" />
             Shuffle Orders
           </Button>
-          <Button onClick={() => refreshWooCommerceStatusMutation()} disabled={refreshWooCommerceStatusLoading}>
+          <Button
+            onClick={() => refreshWooCommerceStatusMutation()}
+            disabled={refreshWooCommerceStatusLoading}
+          >
             <RefreshCcwIcon className="w-4 h-4" />
-            Refresh Status {refreshWooCommerceStatusLoading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+            Refresh Status{" "}
+            {refreshWooCommerceStatusLoading && (
+              <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+            )}
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
@@ -313,10 +331,7 @@ export default function CompanyOrdersPage() {
             Bulk Operations
           </Button>
           {!isModerator && (
-            <Button
-              variant="secondary"
-              onClick={() => setImportCSVOpen(true)}
-            >
+            <Button variant="secondary" onClick={() => setImportCSVOpen(true)}>
               <Upload className="w-4 h-4 mr-1" />
               Import CSV
             </Button>
@@ -356,11 +371,13 @@ export default function CompanyOrdersPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Wilayas</SelectItem>
-              {cities.sort((a, b) => a.label.localeCompare(b.label)).map((city) => (
-                <SelectItem key={city.key} value={city.key}>
-                  {city.label}
-                </SelectItem>
-              ))}
+              {cities
+                .sort((a, b) => a.label.localeCompare(b.label))
+                .map((city) => (
+                  <SelectItem key={city.key} value={city.key}>
+                    {city.label}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
           <span>Filter by Yalidine Status:</span>
@@ -376,7 +393,9 @@ export default function CompanyOrdersPage() {
             <SelectContent>
               <SelectItem value="all">All Yalidine Statuses</SelectItem>
               {Object.values(YALIDINE_STATUSES).map((status) => (
-                <SelectItem key={status} value={status}>{status}</SelectItem>
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -389,7 +408,7 @@ export default function CompanyOrdersPage() {
               className="border rounded px-2 py-1 w-[200px]"
               placeholder="Enter phone number"
               value={phoneNumber}
-              onChange={e => setPhoneNumber(e.target.value)}
+              onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
         </div>
@@ -447,20 +466,22 @@ export default function CompanyOrdersPage() {
             orderIds={selectedRows.map(Number)}
             onSubmit={handleAssignSubmit}
           />
-        
         </>
       )}
-        <BulkOperationsDialog
-            open={bulkDialogOpen}
-            setOpen={setBulkDialogOpen}
-            selectedCount={selectedRows.length}
-            onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
-            onExport={() => handleExportSubmit(selectedRows.map(Number))}
-            dispatchLoading={dispatchWooCommerceOrdersLoading}
-            exportLoading={exportWooCommerceOrdersLoading}
-          />
+      <BulkOperationsDialog
+        open={bulkDialogOpen}
+        setOpen={setBulkDialogOpen}
+        selectedCount={selectedRows.length}
+        onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
+        onExport={() => handleExportSubmit(selectedRows.map(Number))}
+        dispatchLoading={dispatchWooCommerceOrdersLoading}
+        exportLoading={exportWooCommerceOrdersLoading}
+      />
       {!isModerator && (
-        <ImportOrdersCSVDialog open={importCSVOpen} setOpen={setImportCSVOpen} />
+        <ImportOrdersCSVDialog
+          open={importCSVOpen}
+          setOpen={setImportCSVOpen}
+        />
       )}
     </div>
   );

@@ -48,10 +48,11 @@ import {
 import { updateWooCommerceOrder } from "@/services/woocommerce-service";
 import { algerCities, cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import { ClientStatusDialog } from "./client-status-dialog";
 
 // --- Types matching backend Go schemas ---
 export interface UpdateWooOrderItemSchema {
@@ -260,6 +261,9 @@ export default function UpdateOrderDialog({
   const companyId = Number(company?.ID);
   if (!companyId) return null;
 
+  // Add state for client status dialog
+  const [clientStatusDialogOpen, setClientStatusDialogOpen] = useState(false);
+
   // Find matched wilaya
   const matchedWilaya = cities.find(
     (c) =>
@@ -404,6 +408,15 @@ export default function UpdateOrderDialog({
           <DialogTitle>Update Order #{order.number}</DialogTitle>
           <DialogDescription>Update the order details below.</DialogDescription>
         </DialogHeader>
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setClientStatusDialogOpen(true)}
+          >
+            Set Client Status
+          </Button>
+        </div>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="flex flex-col gap-6 xl:flex-row xl:gap-4">
@@ -443,6 +456,11 @@ export default function UpdateOrderDialog({
           </form>
         </FormProvider>
       </DialogContent>
+      <ClientStatusDialog
+        open={clientStatusDialogOpen}
+        setOpen={setClientStatusDialogOpen}
+        orderID={order.id}
+      />
     </Dialog>
   );
 }
@@ -950,6 +968,7 @@ function SummarySection({
           }).format(Math.max(total, 0))}
         </span>
       </div>
+     
     </section>
   );
 }
