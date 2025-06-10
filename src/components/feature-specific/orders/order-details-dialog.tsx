@@ -24,7 +24,7 @@ export default function OrderDetailsDialog({
   const { data: center } = useQuery({
     queryKey: ["yalidine-center", order.woo_shipping?.selected_center],
     queryFn: () => getYalidineCenter(order.woo_shipping?.selected_center ?? ""),
-    enabled: !!order.woo_shipping?.selected_center,
+    enabled: false,
   });
   return (
     <Dialog open={open} onOpenChange={setOpen}>
