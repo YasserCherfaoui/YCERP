@@ -59,6 +59,19 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       }),
   },
   {
+    accessorKey: "updated_at",
+    header: "Updated At",
+    cell: ({ row }: { row: { original: WooOrder } }) =>
+      new Date(row.original.updated_at).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+  },
+  {
     accessorKey: "client_statuses",
     header: "Client Status",
     cell: ({ row }: { row: { original: WooOrder } }) => {
