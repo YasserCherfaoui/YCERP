@@ -39,7 +39,7 @@ function HistoryList({ title, histories }: { title: string; histories: { status:
   );
 }
 
-export default function OrderHistoryDialog({ order, open, setOpen }: { order: WooOrder; open: boolean; setOpen: (open: boolean) => void }) {
+export default function OrderHistoryDialog({ order, open, setOpen }: { order: WooOrder; open: boolean; setOpen: (open: boolean) => void; ordersQueryKey?: any[] }) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>

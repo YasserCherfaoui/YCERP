@@ -254,7 +254,7 @@ export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[
     id: "actions",
     header: "Actions",
     cell: ({ row }: { row: { original: WooOrder } }) => (
-      <DeliveryOrdersActions order={row.original} />
+      <DeliveryOrdersActions order={row.original} ordersQueryKey={ordersQueryKey} />
     ),
     enableSorting: false,
     enableHiding: false,

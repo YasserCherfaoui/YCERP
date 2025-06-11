@@ -11,7 +11,8 @@ import { Download, Eye, History, PlusCircle, Truck } from "lucide-react";
 import { useState } from "react";
 
 
-function DeliveryOrdersActions({ order }: { order: WooOrder }) {
+function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }) {
+  const { order, ordersQueryKey } = props;
   const [open, setOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [dispatchDialogOpen, setDispatchDialogOpen] = useState(false);
@@ -21,12 +22,12 @@ function DeliveryOrdersActions({ order }: { order: WooOrder }) {
 
   return (
     <>
-      <OrderDetailsDialog order={order} open={open} setOpen={setOpen} />
-      <CreateOrderDialog wooOrder={order} open={createDialogOpen} setOpen={setCreateDialogOpen} />
-      <DispatchConfirmDialog order={order} open={dispatchDialogOpen} setOpen={setDispatchDialogOpen} />
-      <ExportConfirmDialog order={order} open={exportDialogOpen} setOpen={setExportDialogOpen} />
-      <OrderHistoryDialog order={order} open={orderHistoryDialogOpen} setOpen={setOrderHistoryDialogOpen} />
-      <UpdateOrderDialog order={order} open={updateDialogOpen} setOpen={setUpdateDialogOpen} />
+      <OrderDetailsDialog order={order} open={open} setOpen={setOpen} ordersQueryKey={ordersQueryKey} />
+      <CreateOrderDialog wooOrder={order} open={createDialogOpen} setOpen={setCreateDialogOpen} ordersQueryKey={ordersQueryKey} />
+      <DispatchConfirmDialog order={order} open={dispatchDialogOpen} setOpen={setDispatchDialogOpen} ordersQueryKey={ordersQueryKey} />
+      <ExportConfirmDialog order={order} open={exportDialogOpen} setOpen={setExportDialogOpen} ordersQueryKey={ordersQueryKey} />
+      <OrderHistoryDialog order={order} open={orderHistoryDialogOpen} setOpen={setOrderHistoryDialogOpen} ordersQueryKey={ordersQueryKey} />
+      <UpdateOrderDialog order={order} open={updateDialogOpen} setOpen={setUpdateDialogOpen} ordersQueryKey={ordersQueryKey} />
 
       <TooltipProvider>
         <div className="flex gap-2">

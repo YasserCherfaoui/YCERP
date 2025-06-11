@@ -14,6 +14,7 @@ interface OrderDetailsDialogProps {
   order: WooOrder;
   open: boolean;
   setOpen: (open: boolean) => void;
+  ordersQueryKey?: any[];
 }
 
 export default function OrderDetailsDialog({

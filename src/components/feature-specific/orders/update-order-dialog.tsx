@@ -190,6 +190,7 @@ interface UpdateOrderDialogProps {
   order: WooOrder;
   open: boolean;
   setOpen: (open: boolean) => void;
+  ordersQueryKey?: any[];
 }
 
 // --- Custom Hooks for Data Fetching ---
@@ -250,6 +251,7 @@ export default function UpdateOrderDialog({
   order,
   open,
   setOpen,
+  ordersQueryKey,
 }: UpdateOrderDialogProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -382,7 +384,7 @@ export default function UpdateOrderDialog({
         description: "Order updated successfully",
       });
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ordersQueryKey || ["orders"] });
     },
     onError: (err: any) => {
       toast({

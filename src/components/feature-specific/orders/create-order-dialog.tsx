@@ -58,10 +58,12 @@ function CreateOrderDialog({
   wooOrder,
   open,
   setOpen,
+  ordersQueryKey,
 }: {
   wooOrder: WooOrder;
   open: boolean;
   setOpen: (open: boolean) => void;
+  ordersQueryKey?: any[];
 }) {
   let company = useSelector((state: RootState) => state.company.company);
   const { pathname } = useLocation();
@@ -277,7 +279,11 @@ function CreateOrderDialog({
         description: "Order confirmed successfully",
       });
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      if (ordersQueryKey) {
+        queryClient.invalidateQueries({ queryKey: ordersQueryKey });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["orders"] });
+      }
     },
     onError: (err: any) => {
       toast({
