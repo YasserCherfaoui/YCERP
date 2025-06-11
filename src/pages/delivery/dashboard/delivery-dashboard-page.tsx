@@ -228,7 +228,16 @@ export default function DeliveryDashboardPage() {
                 {ordersError && <div>Error loading orders.</div>}
                 {!ordersLoading && !ordersError && (
                   <DataTable
-                    columns={deliveryOrdersColumns}
+                    columns={deliveryOrdersColumns({
+                      ordersQueryKey: [
+                        "delivery-orders",
+                        companyId,
+                        ordersStatus,
+                        page,
+                        phoneNumber,
+                        selectedEmployeeId,
+                      ],
+                    })}
                     data={ordersData?.data?.orders || []}
                     searchColumn="customer_phone"
                     searchBar={false}

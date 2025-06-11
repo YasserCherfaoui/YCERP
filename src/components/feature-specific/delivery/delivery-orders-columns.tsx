@@ -16,7 +16,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
+export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[] }) : ColumnDef<WooOrder, { id: number }>[] => [
   { accessorKey: "id", header: "ID" },
   {
     accessorKey: "billing_name",
@@ -90,7 +90,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Employee updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ordersQueryKey });
         },
         onError: (err: any) => {
           toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -142,7 +142,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Expected delivery date updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ordersQueryKey });
         },
         onError: (err: any) => {
           toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -198,7 +198,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Comment updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ordersQueryKey });
           setComment(input);
           setOpen(false);
         },
