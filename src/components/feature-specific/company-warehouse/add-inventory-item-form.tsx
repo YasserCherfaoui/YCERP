@@ -103,7 +103,7 @@ export default function ({disabled} : Props) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {company.products?.find(product => product.ID == parseInt(form.getValues("product")))?.variants.map((v) => (
+                        {company.products?.find(product => product.ID == parseInt(form.getValues("product")))?.product_variants.map((v) => (
                           <SelectItem value={v.ID.toString()}>
                             {v.color} - {v.size}
                           </SelectItem>
