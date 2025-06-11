@@ -44,7 +44,35 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  { accessorKey: "customer_phone", header: "Customer Phone", id: "phone" },
+  {
+    header: "Customer Phone",
+    id: "phone",
+    cell: ({ row }: { row: { original: WooOrder } }) => (
+      <div
+        className="text-center"
+        style={{
+          border:
+            row.original.customer_phone_count &&
+            row.original.customer_phone_count > 1
+              ? "1px solid red"
+              : "none",
+          padding:
+            row.original.customer_phone_count &&
+            row.original.customer_phone_count > 1
+              ? "6px"
+              : "0px",
+          borderRadius: "4px",
+        }}
+      >
+        {row.original.customer_phone}{" "}
+        {row.original.customer_phone_count &&
+          row.original.customer_phone_count > 1 &&
+          `(${row.original.customer_phone_count})`}
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "date_created",
     header: "Date Created",
@@ -138,8 +166,10 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       const wilaya = row.original.shipping_city;
       const wilayaName = cities.find((city) => city.key == wilaya)?.label;
       // if wilayaName is empty insert shipping_address_1
-      if(!wilayaName){
-        return <div className="text-center">{row.original.shipping_address_1}</div>;
+      if (!wilayaName) {
+        return (
+          <div className="text-center">{row.original.shipping_address_1}</div>
+        );
       }
       return <div className="text-center">{wilayaName}</div>;
     },

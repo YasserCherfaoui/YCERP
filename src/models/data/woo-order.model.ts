@@ -44,6 +44,7 @@ export interface WooOrder {
   order_histories?: OrderHistory[];
   yalidine_order_histories?: YalidineOrderHistory[];
   comments?: string;
+  customer_phone_count?: number;
 }
 
 export interface YalidineOrderHistory {
