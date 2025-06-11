@@ -10,7 +10,7 @@ export interface Product {
     price: number;
     description: string;
     images: ProductImage[];
-    variants: ProductVariant[];
+    product_variants: ProductVariant[];
 
 }
 

@@ -83,14 +83,16 @@ export const useOrdersWithRealtime = (
     wilaya?: string,
     phone_number?: string,
     yalidine_status?: string,
-    employee_id?: number
+    employee_id?: number,
+    delivery_date?: string,
+    confirmed_variant_id?: number
 ) => {
     const wsUrl = `${baseUrl.startsWith("https") ? "wss" : "ws"}://${baseUrl.replace("https://", "").replace("http://", "")}/woocommerce/ws/orders`;
     const queryClient = useQueryClient();
     const { lastMessage } = useWebSocket(wsUrl);
     // Main orders query
     const ordersQuery = useQuery({
-        queryKey: ['orders', page, status, taken_by_id, wilaya, phone_number, yalidine_status, employee_id],
+        queryKey: ['orders', page, status, taken_by_id, wilaya, phone_number, yalidine_status, employee_id, delivery_date, confirmed_variant_id],
         queryFn: () => getWooCommerceOrders({
             _page: page,
             status: status,
@@ -99,6 +101,8 @@ export const useOrdersWithRealtime = (
             phone_number: phone_number,
             yalidine_status: yalidine_status,
             employee_id: employee_id,
+            delivery_date: delivery_date,
+            confirmed_variant_id: confirmed_variant_id,
         }),
     });
     // Handle WebSocket messages

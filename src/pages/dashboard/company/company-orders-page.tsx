@@ -1,5 +1,6 @@
 import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
+import { ProductVariantCombobox } from "@/components/feature-specific/company-products/product-variant-combobox";
 import BulkOperationsDialog from "@/components/feature-specific/orders/bulk-operations-dialog";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
@@ -76,6 +77,7 @@ export default function CompanyOrdersPage() {
   const [selectedYalidineStatus, setSelectedYalidineStatus] = useState<
     string | undefined
   >(undefined);
+  const [selectedConfirmedVariant, setSelectedConfirmedVariant] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -92,7 +94,10 @@ export default function CompanyOrdersPage() {
     selectedUser,
     selectedWilaya,
     debouncedPhoneNumber,
-    selectedYalidineStatus
+    selectedYalidineStatus,
+    undefined,
+    undefined,
+    selectedConfirmedVariant
   );
 
   useEffect(() => {
@@ -295,6 +300,17 @@ export default function CompanyOrdersPage() {
     },
   ];
 
+  
+  const { data: inventoryData } = useQuery({
+    queryKey: ["inventory", company.ID],
+    queryFn: () => getCompanyInventory(company.ID),
+    enabled: Boolean(company && company.ID),
+  });
+  const allVariants =
+    inventoryData?.data?.items
+      .map((item) => item.product_variant)
+      .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center gap-4">
@@ -399,6 +415,17 @@ export default function CompanyOrdersPage() {
               ))}
             </SelectContent>
           </Select>
+          <span>Confirmed Order Item:</span>
+          <div style={{ minWidth: 220 }}>
+            <ProductVariantCombobox
+              variants={allVariants}
+              value={selectedConfirmedVariant}
+              onChange={setSelectedConfirmedVariant}
+              placeholder="Select confirmed item..."
+              extraText={inventoryData?.data?.items.find(i => i.product_variant_id === selectedConfirmedVariant)?.quantity.toString()}
+
+            />
+          </div>
         </div>
         <div id="#secondary-filters">
           <div className="flex gap-2 items-center mb-4">
