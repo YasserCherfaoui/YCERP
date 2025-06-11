@@ -56,6 +56,14 @@ export interface YalidineOrderHistory {
   CreatedAt: string | Date;
   UpdatedAt: string | Date;
   DeletedAt?: string | Date | null;
+  center_id: number;
+  center_name: string;
+  wilaya_id: number;
+  wilaya_name: string;
+  commune_id: number;
+  commune_name: string;
+  reason: string;
+  tracking: string;
 }
 
 export interface OrderHistory {
