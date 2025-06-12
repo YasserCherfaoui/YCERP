@@ -133,6 +133,23 @@ export const confirmWooCommerceOrder = async (request: CreateOrderSchema): Promi
     return data;
 };
 
+export const confirmWooCommerceOrderFromScratch = async (request: CreateOrderSchema): Promise<APIResponse<WooOrder>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/confirm-from-scratch`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify(request),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to confirm WooCommerce order from scratch");
+    }
+    const data: APIResponse<WooOrder> = await response.json();
+    return data;
+};
+
 export const dispatchWooCommerceOrder = async (orderID: number): Promise<APIResponse<void>> => {
     const response = await fetch(`${baseUrl}/woocommerce/dispatch/${orderID}`, {
         method: "POST",

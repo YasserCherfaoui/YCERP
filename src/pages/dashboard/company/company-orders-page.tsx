@@ -3,6 +3,7 @@ import AppBarBackButton from "@/components/common/app-bar-back-button";
 import { ProductVariantCombobox } from "@/components/feature-specific/company-products/product-variant-combobox";
 import BulkOperationsDialog from "@/components/feature-specific/orders/bulk-operations-dialog";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
+import CreateOrderFromScratchDialog from "@/components/feature-specific/orders/create-order-from-scratch-dialog.tsx";
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -250,6 +251,8 @@ export default function CompanyOrdersPage() {
 
   // --- Import Orders CSV Dialog State ---
   const [importCSVOpen, setImportCSVOpen] = useState(false);
+  // Add state for create order dialog
+  const [createOrderOpen, setCreateOrderOpen] = useState(false);
 
   // Statuses and icons
   const statusTabs = [
@@ -346,11 +349,17 @@ export default function CompanyOrdersPage() {
           >
             Bulk Operations
           </Button>
+          {/* Add Create Order button here, only if not isModerator */}
           {!isModerator && (
-            <Button variant="secondary" onClick={() => setImportCSVOpen(true)}>
-              <Upload className="w-4 h-4 mr-1" />
-              Import CSV
-            </Button>
+            <>
+              <Button variant="default" onClick={() => setCreateOrderOpen(true)}>
+                + Create Order
+              </Button>
+              <Button variant="secondary" onClick={() => setImportCSVOpen(true)}>
+                <Upload className="w-4 h-4 mr-1" />
+                Import CSV
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -510,6 +519,10 @@ export default function CompanyOrdersPage() {
           setOpen={setImportCSVOpen}
         />
       )}
+      <CreateOrderFromScratchDialog
+        open={createOrderOpen}
+        setOpen={setCreateOrderOpen}
+      />
     </div>
   );
 }
