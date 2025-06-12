@@ -78,7 +78,9 @@ export default function CompanyOrdersPage() {
   const [selectedYalidineStatus, setSelectedYalidineStatus] = useState<
     string | undefined
   >(undefined);
-  const [selectedConfirmedVariant, setSelectedConfirmedVariant] = useState<number | undefined>(undefined);
+  const [selectedConfirmedVariant, setSelectedConfirmedVariant] = useState<
+    number | undefined
+  >(undefined);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -247,7 +249,7 @@ export default function CompanyOrdersPage() {
   const handleDispatchSubmit = (orderIDs: number[]) => {
     dispatchWooCommerceOrdersMutation(orderIDs);
     setSelectedRows([]);
-    };
+  };
 
   // --- Import Orders CSV Dialog State ---
   const [importCSVOpen, setImportCSVOpen] = useState(false);
@@ -303,7 +305,6 @@ export default function CompanyOrdersPage() {
     },
   ];
 
-  
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", company.ID],
     queryFn: () => getCompanyInventory(company.ID),
@@ -349,13 +350,16 @@ export default function CompanyOrdersPage() {
           >
             Bulk Operations
           </Button>
+          <Button variant="default" onClick={() => setCreateOrderOpen(true)}>
+            + Create Order
+          </Button>
           {/* Add Create Order button here, only if not isModerator */}
           {!isModerator && (
             <>
-              <Button variant="default" onClick={() => setCreateOrderOpen(true)}>
-                + Create Order
-              </Button>
-              <Button variant="secondary" onClick={() => setImportCSVOpen(true)}>
+              <Button
+                variant="secondary"
+                onClick={() => setImportCSVOpen(true)}
+              >
                 <Upload className="w-4 h-4 mr-1" />
                 Import CSV
               </Button>
@@ -431,8 +435,9 @@ export default function CompanyOrdersPage() {
               value={selectedConfirmedVariant}
               onChange={setSelectedConfirmedVariant}
               placeholder="Select confirmed item..."
-              extraText={inventoryData?.data?.items.find(i => i.product_variant_id === selectedConfirmedVariant)?.quantity.toString()}
-
+              extraText={inventoryData?.data?.items
+                .find((i) => i.product_variant_id === selectedConfirmedVariant)
+                ?.quantity.toString()}
             />
           </div>
         </div>
