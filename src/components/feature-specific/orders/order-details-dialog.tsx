@@ -1,7 +1,10 @@
+import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -9,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { getYalidineCenter } from "@/services/woocommerce-service";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 interface OrderDetailsDialogProps {
   order: WooOrder;
@@ -27,6 +31,7 @@ export default function OrderDetailsDialog({
     queryFn: () => getYalidineCenter(order.woo_shipping?.selected_center ?? ""),
     enabled: false,
   });
+  const [orderHistoryOpen, setOrderHistoryOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-2xl">
@@ -180,6 +185,15 @@ export default function OrderDetailsDialog({
             </ul>
           </section>
         </div>
+        <DialogFooter>
+          <Button onClick={() => setOrderHistoryOpen(true)}>
+            Order History
+          </Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Close
+          </Button>
+        </DialogFooter>
+        <OrderHistoryDialog order={order} open={orderHistoryOpen} setOpen={setOrderHistoryOpen} />
       </DialogContent>
     </Dialog>
   );

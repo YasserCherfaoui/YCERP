@@ -1,4 +1,5 @@
 import { ClientStatus } from "@/models/data/client-status.model";
+import { Company } from "@/models/data/company.model";
 import { DeliveryCompany, DeliveryEmployee } from "@/models/data/delivery.model";
 import { Product, ProductVariant } from "@/models/data/product.model";
 import { Qualification } from "@/models/data/qualification.model";
@@ -45,6 +46,10 @@ export interface WooOrder {
   yalidine_order_histories?: YalidineOrderHistory[];
   comments?: string;
   customer_phone_count?: number;
+  company_id?: number | null;
+  company?: Company | null;
+  discount?: number;
+  is_exchange?: boolean;
 }
 
 export interface YalidineOrderHistory {
@@ -139,7 +144,7 @@ export interface WooShipping {
   expected_delivery_date?: string;
 }
 
-export type YalidineStatusType = 
+export type YalidineStatusType =
   | "Pas encore expédié"
   | "A vérifier"
   | "En préparation"

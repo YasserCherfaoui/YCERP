@@ -12,7 +12,7 @@ function HistoryList({ title, histories }: { title: string; histories: { status:
   return (
     <div className="flex-1 min-w-0">
       <h3 className="font-semibold mb-2">{title}</h3>
-      <ScrollArea className="max-h-40 border rounded p-2">
+      <ScrollArea className="max-h-40 border rounded p-2 overflow-y-auto">
         {histories && histories.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {histories.map((h) => (
@@ -53,7 +53,9 @@ export default function OrderHistoryDialog({ order, open, setOpen }: { order: Wo
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Order Histories</DialogTitle>
-          <DialogDescription>View and manage order history records for this order.</DialogDescription>
+          <DialogDescription>View and manage order history records for this order.
+      
+          </DialogDescription>
         </DialogHeader>
         <div className="flex gap-6 flex-col md:flex-row">
           <HistoryList title="Yalidine Order Histories" histories={order.yalidine_order_histories || []} />

@@ -1,7 +1,9 @@
+import DeclareExchangeDialog from "@/components/feature-specific/orders/declare-exchange-dialog";
 import OrderActions from "@/components/feature-specific/orders/order-actions";
 import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
 import OrderLineItemsAccordion from "@/components/feature-specific/orders/order-line-items-accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { cities } from "@/utils/algeria-cities";
@@ -9,6 +11,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import ClientStatusDetailsDialog from "./client-status-details-dialog";
 import { ConfirmedOrderItemsAccordion } from "./order-line-items-accordion";
+
 export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
   { accessorKey: "id", header: "ID" },
   {
@@ -271,9 +274,33 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }: { row: { original: WooOrder } }) => (
-      <OrderActions order={row.original} />
-    ),
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const order = row.original;
+      const [exchangeDialogOpen, setExchangeDialogOpen] = useState(false);
+      return (
+        <div className="flex gap-2 items-center">
+          <OrderActions order={order} />
+              {order.order_status === "delivered" && (
+                <>
+                  <Button
+                    className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    onClick={() => setExchangeDialogOpen(true)}
+                    type="button"
+                  >
+                    Declare Exchange
+                  </Button>
+                  {exchangeDialogOpen && (
+                    <DeclareExchangeDialog
+                      open={exchangeDialogOpen}
+                      onOpenChange={setExchangeDialogOpen}
+                      order={order}
+                    />
+                  )}
+                </>
+              )}
+        </div>
+      );
+    },
     enableSorting: false,
     enableHiding: false,
   },
