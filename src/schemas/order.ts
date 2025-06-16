@@ -15,7 +15,7 @@ export const createShippingSchema = z.object({
   state: z.string(),
   wilaya: z.string(),
   commune: z.string(),
-  delivery_id: z.number().optional(),
+  delivery_id: z.number().optional().nullable(),
   comments: z.string().optional(),
 });
 

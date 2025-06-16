@@ -1029,7 +1029,10 @@ export default function DeclareExchangeDialog({
             <Button
               variant="default"
               onClick={handleSubmit((data) =>
-                exchangeWooCommerceOrderMutation(data)
+                exchangeWooCommerceOrderMutation(data), (err) => {
+                    console.error(err);
+                    
+                }
               )}
             >
               Submit
