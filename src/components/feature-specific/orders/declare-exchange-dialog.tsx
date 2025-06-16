@@ -52,6 +52,8 @@ import { algerCities } from "@/utils/algeria-cities";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+
 interface DeclareExchangeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -63,7 +65,12 @@ export default function DeclareExchangeDialog({
   onOpenChange,
   order,
 }: DeclareExchangeDialogProps) {
-  const company = useSelector((state: RootState) => state.company.company);
+  let company = useSelector((state: RootState) => state.company.company);
+  const {pathname} = useLocation();
+  const isModerator = pathname.includes("moderator");
+  if (isModerator) {
+    company = useSelector((state: RootState) => state.user.company);
+  }
   if (!company) {
     return null;
   }
