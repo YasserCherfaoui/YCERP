@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
@@ -23,8 +24,9 @@ import {
 } from "@/schemas/order";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
+import { Combobox } from "@/components/ui/combobox-standalone";
 import {
     Form,
     FormControl,
@@ -42,13 +44,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import {
     getYalidineCenters,
     getYalidineCommunes,
     getYalidinePricing,
 } from "@/services/order-service";
-import { algerCities } from "@/utils/algeria-cities";
+import { exchangeWooCommerceOrder } from "@/services/woocommerce-service";
+import { algerCities, cities } from "@/utils/algeria-cities";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -66,7 +70,7 @@ export default function DeclareExchangeDialog({
   order,
 }: DeclareExchangeDialogProps) {
   let company = useSelector((state: RootState) => state.company.company);
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
   const isModerator = pathname.includes("moderator");
   if (isModerator) {
     company = useSelector((state: RootState) => state.user.company);
@@ -124,7 +128,7 @@ export default function DeclareExchangeDialog({
     },
   });
 
-  const { watch, setValue, control } = form;
+  const { watch, setValue, control, handleSubmit } = form;
 
   const shipping = watch("shipping");
   const exchangeItems = watch("exchange_items");
@@ -220,6 +224,25 @@ export default function DeclareExchangeDialog({
     }
     return deliveryFee;
   };
+  const { toast } = useToast();
+  // Mutation
+  const { mutate: exchangeWooCommerceOrderMutation } = useMutation({
+    mutationFn: exchangeWooCommerceOrder,
+    onSuccess: () => {
+      onOpenChange(false);
+      toast({
+        title: "Order exchanged successfully",
+        description: "The order has been exchanged successfully",
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to exchange order",
+      });
+    },
+  });
 
   const userEditedSecondDelivery = useRef(false);
   const deliveryFee = computeDeliveryFee();
@@ -484,6 +507,22 @@ export default function DeclareExchangeDialog({
               <div className="font-semibold mb-2">Shipping</div>
               {/* Shipping Section */}
               <section className="border rounded p-4 flex flex-col gap-4 min-w-[320px] xl:w-1/3">
+                <Combobox
+                  items={cities.map((city) => ({
+                    value: city.key,
+                    label: city.label,
+                  }))}
+                  value={shipping.state}
+                  onChange={(value: string) => {
+                    setValue("shipping.state", value);
+                    const wilayaName =
+                      cities.find((c) => c.key === value)?.label || "";
+                    setValue("shipping.wilaya", wilayaName);
+                  }}
+                  placeholder="Select a wilaya"
+                  label="State"
+                  searchPlaceholder="Search wilaya..."
+                />
                 <div>
                   <FormField
                     control={control}
@@ -981,12 +1020,21 @@ export default function DeclareExchangeDialog({
               </div>
             </div>
           </section>
-          {/* 7. Optional Fields */}
-          <section className="mb-4">
-            <div className="font-semibold mb-2">Other Details (Optional)</div>
-            {/* TODO: reason, return_type, comment, exchange_type, exchange_reason */}
-          </section>
+
           {/* TODO: Form submit button */}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleSubmit((data) =>
+                exchangeWooCommerceOrderMutation(data)
+              )}
+            >
+              Submit
+            </Button>
+          </DialogFooter>
         </Form>
       </DialogContent>
     </Dialog>

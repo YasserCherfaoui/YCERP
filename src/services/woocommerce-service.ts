@@ -1,12 +1,14 @@
 import { baseUrl } from "@/app/constants";
 import { AddOrderHistoryRequest } from "@/components/feature-specific/orders/add-order-history-dialog";
 import { UpdateWooOrderSchema } from "@/components/feature-specific/orders/update-order-dialog";
+import { Exchange } from "@/models/data/exchange.model";
+import { Return } from "@/models/data/return.model";
 import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
 import { CenterListResponse } from "@/models/responses/yalidine.cache";
-import { CreateOrderSchema } from "@/schemas/order";
+import { CreateOrderSchema, ExchangeWooOrderSchema } from "@/schemas/order";
 import { AssignRequest, ShuffleRequest } from "@/schemas/woocommerce";
 
 const token = localStorage.getItem("token");
@@ -342,3 +344,30 @@ export const getYalidineCenter = async (id:string): Promise<APIResponse<CenterLi
   const data: APIResponse<CenterListResponse> = await response.json();
   return data;
 }
+
+export const exchangeWooCommerceOrder = async (request: ExchangeWooOrderSchema): Promise<APIResponse<{
+  order: WooOrder;
+  return: Return;
+  exchange: Exchange;
+}>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/exchange`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to exchange WooCommerce order");
+  }
+
+  const data: APIResponse<{
+    order: WooOrder;
+    return: Return;
+    exchange: Exchange;
+  }> = await response.json();
+  return data;
+};
