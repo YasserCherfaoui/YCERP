@@ -87,7 +87,6 @@ export default function DeclareExchangeDialog({
     inventoryData?.data?.items
       .map((item) => item.product_variant)
       .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
-
   // EXCHANGE FORM
   const form = useForm<ExchangeWooOrderSchema>({
     resolver: zodResolver(exchangeWooOrderSchema),
@@ -104,8 +103,8 @@ export default function DeclareExchangeDialog({
             phone_number: order.customer_phone,
             address: order.billing_address_1,
             city: order.woo_shipping.commune_name,
-            state: order.shipping_city,
-            wilaya: order.shipping_city,
+            state: order.woo_shipping.state_id,
+            wilaya: order.woo_shipping.wilaya_name,
             commune: order.woo_shipping.commune_name,
             delivery_id: order.woo_shipping.delivery_company_id,
             comments: order.comments,
@@ -317,6 +316,17 @@ export default function DeclareExchangeDialog({
               <div>
                 <span className="font-medium">Address:</span>{" "}
                 {order.billing_address_1}
+              </div>
+              <div>
+                <span className="font-medium">Selected Center:</span>{" "}
+                {order.woo_shipping?.selected_center || "N/A"}
+              </div><div>
+                <span className="font-medium">Selected Commune:</span>{" "}
+                {order.woo_shipping?.selected_commune || "N/A"}
+              </div>
+              <div>
+                <span className="font-medium">Delivery Type:</span>{" "}
+                {order.woo_shipping?.delivery_type || "N/A"}
               </div>
             </div>
           </section>
