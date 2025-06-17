@@ -31,10 +31,14 @@ import {
 } from "@/services/delivery-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Clock, LogOut, MessageCircle, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function () {
+  useEffect(() => {
+    document.title = "COSMOS Delivery App";
+  }, []);
+
   const deliveryEmployee = useSelector(
     (state: RootState) => state.delivery.delivery_employee
   );
