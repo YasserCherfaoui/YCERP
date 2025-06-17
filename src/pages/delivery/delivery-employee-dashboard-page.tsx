@@ -119,7 +119,7 @@ export default function () {
                         className={`py-2 px-4 rounded-md ${
                           order.order_status === "delivered"
                             ? "bg-green-500 text-white"
-                            : isToday
+                            : !isToday
                             ? "bg-yellow-500 text-white"
                             : order.order_status === "cancelled"
                             ? "bg-red-500 text-white"
