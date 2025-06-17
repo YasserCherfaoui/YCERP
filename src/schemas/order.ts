@@ -64,7 +64,7 @@ export const exchangeWooOrderSchema = z.object({
   original_order_id: z.number(),
   returned_items: z.array(z.object({
     product_variant_id: z.number(),
-    quantity: z.number()
+    quantity: z.number().nullable().default(0)
   })),
   exchange_items: z.array(z.object({
     product_variant_id: z.number(),
@@ -110,6 +110,14 @@ export const exchangeWooOrderSchema = z.object({
       code: z.ZodIssueCode.custom,
       message: 'A delivery company must be selected',
       path: ['shipping', 'delivery_id'],
+    });
+  }
+  // check if the sum of the returned items is not zero
+  if (data.returned_items.reduce((acc, item) => acc + (item.quantity || 0), 0) === 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'The sum of the returned items must be greater than zero',
+      path: ['returned_items'],
     });
   }
 });

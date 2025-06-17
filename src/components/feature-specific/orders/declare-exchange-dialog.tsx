@@ -53,6 +53,7 @@ import {
 } from "@/services/order-service";
 import { exchangeWooCommerceOrder } from "@/services/woocommerce-service";
 import { algerCities, cities } from "@/utils/algeria-cities";
+import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -225,7 +226,7 @@ export default function DeclareExchangeDialog({
   };
   const { toast } = useToast();
   // Mutation
-  const { mutate: exchangeWooCommerceOrderMutation } = useMutation({
+  const { mutate: exchangeWooCommerceOrderMutation, isPending } = useMutation({
     mutationFn: exchangeWooCommerceOrder,
     onSuccess: () => {
       onOpenChange(false);
@@ -322,7 +323,7 @@ export default function DeclareExchangeDialog({
                 {order.woo_shipping?.selected_center || "N/A"}
               </div><div>
                 <span className="font-medium">Selected Commune:</span>{" "}
-                {order.woo_shipping?.selected_commune || "N/A"}
+                {order.woo_shipping?.commune_name || "N/A"}
               </div>
               <div>
                 <span className="font-medium">Delivery Type:</span>{" "}
@@ -366,19 +367,19 @@ export default function DeclareExchangeDialog({
                       </tr>
                     </thead>
                     <tbody>
-                      {order.confirmed_order_items.map(
-                        (item: ConfirmedOrderItem) => (
+                      {returnedItems.map(
+                        (item) => (
                           <tr key={item.product_variant_id}>
                             <td className="px-3 py-2">
-                              {item?.product_variant?.qr_code || "N/A"}
+                              {inventoryData?.data?.items.find((i) => i.product_variant_id === item.product_variant_id)?.product_variant?.qr_code || "N/A"}
                             </td>
                             <td className="px-3 py-2">
                               <Input
                                 type="number"
                                 min={1}
-                                value={item.quantity}
+                                value={item.quantity ?? 0}
                                 onChange={(e) => {
-                                  console.log(e.target.value);
+                                  setValue("returned_items", returnedItems.map((i) => i.product_variant_id === item.product_variant_id ? { ...i, quantity: Number(e.target.value) } : i));
                                 }}
                               />
                             </td>
@@ -999,7 +1000,7 @@ export default function DeclareExchangeDialog({
                     let returnTotals = returnedItems.reduce(
                       (sum, item) =>
                         sum +
-                        getVariantCost(item.product_variant_id) * item.quantity,
+                        getVariantCost(item.product_variant_id) * (item.quantity ?? 0),
                       0
                     );
                     console.log("returnedItems", returnedItems);
@@ -1044,8 +1045,9 @@ export default function DeclareExchangeDialog({
                     
                 }
               )}
+              disabled={isPending}
             >
-              Submit
+              {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit"}
             </Button>
           </DialogFooter>
         </Form>
