@@ -146,14 +146,14 @@ export const getDeliveryOrders = async (employeeId: number): Promise<APIResponse
   return response.json();
 };
 
-export const updateOrderStatus = async (orderId: number, status: string): Promise<APIResponse<WooOrder>> => {
+export const updateOrderStatus = async (orderId: number, status: string, reason?: string): Promise<APIResponse<WooOrder>> => {
   const response = await fetch(`${baseUrl}/delivery/employee/status`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
     },
-    body: JSON.stringify({ status, order_id: orderId }),
+    body: JSON.stringify({ status, order_id: orderId, comments: reason }),
   });
   if (!response.ok) {
     const errorData = await response.json();
