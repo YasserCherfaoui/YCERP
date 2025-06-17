@@ -24,6 +24,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { logout } from "@/features/auth/delivery-slice";
 import { useToast } from "@/hooks/use-toast";
 import {
     getDeliveryOrders,
@@ -32,16 +33,26 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Clock, LogOut, MessageCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function () {
   useEffect(() => {
     document.title = "COSMOS Delivery App";
   }, []);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const deliveryEmployee = useSelector(
     (state: RootState) => state.delivery.delivery_employee
   );
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    dispatch(logout());
+    navigate("/delivery/login");
+  };
+
   if (!deliveryEmployee) {
     return <div>Loading...</div>;
   }
@@ -54,7 +65,7 @@ export default function () {
   const [open, setOpen] = useState(false);
   const { mutate: updateOrderStatusMutation } = useMutation({
     mutationFn: (data: { order_id: number; status: string; reason?: string }) =>
-      updateOrderStatus(data.order_id, data.status, data.reason ),
+      updateOrderStatus(data.order_id, data.status, data.reason),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["delivery-orders", deliveryEmployee?.ID],
@@ -80,8 +91,9 @@ export default function () {
         <h1 className="text-2xl font-bold">
           Good Morning, {deliveryEmployee?.name}
         </h1>
-        <Button variant="outline">
-          <LogOut />
+        <Button variant="outline" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Logout
         </Button>
       </nav>
       <h1 className="text-2xl font-bold">Delivery Employee Dashboard</h1>
@@ -142,21 +154,21 @@ export default function () {
                           </DialogHeader>
                           <div className="grid grid-cols-2 gap-4">
                             {order.order_status !== "delivered" && (
-                            <Button
-                              variant="outline"
-                              className="bg-green-500 text-white"
-                              onClick={() => {
-                                if (confirm("Confirm delivery?")) {
-                                  updateOrderStatusMutation({
-                                    order_id: order.id,
-                                    status: "delivered",
-                                  });
-                                }
-                              }}
-                            >
-                              <Check />
-                              Delivered
-                            </Button>
+                              <Button
+                                variant="outline"
+                                className="bg-green-500 text-white"
+                                onClick={() => {
+                                  if (confirm("Confirm delivery?")) {
+                                    updateOrderStatusMutation({
+                                      order_id: order.id,
+                                      status: "delivered",
+                                    });
+                                  }
+                                }}
+                              >
+                                <Check />
+                                Delivered
+                              </Button>
                             )}
                             {isToday && (
                               <Dialog>
@@ -171,11 +183,15 @@ export default function () {
                                 </DialogTrigger>
                                 <DialogContent>
                                   <DialogHeader>
-                                    <DialogTitle>Reschedule for Tomorrow</DialogTitle>
+                                    <DialogTitle>
+                                      Reschedule for Tomorrow
+                                    </DialogTitle>
                                   </DialogHeader>
                                   <div className="grid gap-4 py-4">
                                     <div className="grid gap-2">
-                                      <Label htmlFor="reason">Reason for rescheduling</Label>
+                                      <Label htmlFor="reason">
+                                        Reason for rescheduling
+                                      </Label>
                                       <Textarea
                                         id="reason"
                                         placeholder="Enter reason for rescheduling..."
@@ -183,7 +199,11 @@ export default function () {
                                     </div>
                                     <Button
                                       onClick={() => {
-                                        const reason = (document.getElementById('reason') as HTMLTextAreaElement).value;
+                                        const reason = (
+                                          document.getElementById(
+                                            "reason"
+                                          ) as HTMLTextAreaElement
+                                        ).value;
                                         if (reason.trim()) {
                                           updateOrderStatusMutation({
                                             order_id: order.id,
@@ -191,7 +211,9 @@ export default function () {
                                             reason,
                                           });
                                         } else {
-                                          alert("Please provide a reason for rescheduling");
+                                          alert(
+                                            "Please provide a reason for rescheduling"
+                                          );
                                         }
                                       }}
                                     >
