@@ -1,3 +1,5 @@
+import DeliveryPrivateRoute from "@/components/feature-specific/delivery-employee/delivery-private-route";
+import DeliveryPublicRoute from "@/components/feature-specific/delivery-employee/delivery-public-route";
 import FranchisePrivateRoute from "@/components/feature-specific/franchise-private-route";
 import FranchisePublicRoute from "@/components/feature-specific/franchise-public-route";
 import UserPrivateRoute from "@/components/feature-specific/moderator/user-private-route";
@@ -36,7 +38,9 @@ import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
 import DeliveryDashboardPage from "@/pages/delivery/dashboard/delivery-dashboard-page";
+import DeliveryEmployeeDashboardPage from "@/pages/delivery/delivery-employee-dashboard-page";
 import DeliveryListPage from "@/pages/delivery/delivery-list-page";
+import DeliveryLoginPage from "@/pages/delivery/delivery-login-page";
 import FeaturesPage from "@/pages/features";
 import FranchiseLoginPage from "@/pages/franchise/auth/franchise-login-page";
 import FranchiseBillsPage from "@/pages/franchise/dashboard/franchise-bills-page";
@@ -50,6 +54,7 @@ import UserAlgiersSalesPage from "@/pages/moderator/dashboard/user-algiers-sales
 import UserMenuPage from "@/pages/moderator/dashboard/user-menu-page";
 import UserSalesPage from "@/pages/moderator/dashboard/user-sales-page";
 import ModFranchiseRoute from "@/pages/moderator/mod-franchise-route";
+import NotFoundPage from "@/pages/not-found-page";
 import { Route, Routes } from "react-router-dom";
 
 export default function AppRouter() {
@@ -180,6 +185,18 @@ export default function AppRouter() {
           <Route path="/inventory" element={<MenuPage />} />
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
+        </Route>
+        <Route path="*" element={<NotFoundPage />} />
+        // ANCHOR: DELIVERY ROUTES
+        <Route path="/delivery">
+          // ! PRIVATE ROUTES
+          <Route element={<DeliveryPrivateRoute />}>
+            <Route index element={<DeliveryEmployeeDashboardPage />} />
+          </Route>
+          // ? PUBLIC ROUTES
+          <Route element={<DeliveryPublicRoute />}>
+            <Route path="login" element={<DeliveryLoginPage />} />
           </Route>
         </Route>
       </Route>

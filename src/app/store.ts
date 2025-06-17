@@ -1,5 +1,6 @@
 // src/app/store.ts
 import authReducer from '@/features/auth/auth-slice';
+import deliverySlice from '@/features/auth/delivery-slice';
 import franchiseSlice from '@/features/auth/franchise-slice';
 import userSlice from '@/features/auth/user-slice';
 import companySlice from '@/features/company/company-slice';
@@ -12,6 +13,7 @@ export const store = configureStore({
     company: companySlice,
     franchise: franchiseSlice,
     user: userSlice,
+    delivery: deliverySlice,
     // Add other reducers here
   },
 });
