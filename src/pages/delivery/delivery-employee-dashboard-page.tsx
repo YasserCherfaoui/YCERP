@@ -119,12 +119,12 @@ export default function () {
                         className={`py-2 px-4 rounded-md ${
                           order.order_status === "delivered"
                             ? "bg-green-500 text-white"
-                            : order.order_status === "tomorrow"
+                            : isToday
                             ? "bg-yellow-500 text-white"
                             : order.order_status === "cancelled"
                             ? "bg-red-500 text-white"
                             : order.order_status === "no_reply"
-                            ? "bg-gray-500 text-white"
+                            ? "bg-blue-500 text-white"
                             : "bg-transparent"
                         }`}
                       >

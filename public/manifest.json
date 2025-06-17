@@ -1,8 +1,8 @@
 {
   "name": "COSMOSCHISE",
-  "short_name": "COSMOSCHISE",
+  "short_name": "Cosmos Delivery App",
   "description": "Made by Cosmos Algerie",
-  "start_url": "/",
+  "start_url": "/delivery",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4F46E5",
