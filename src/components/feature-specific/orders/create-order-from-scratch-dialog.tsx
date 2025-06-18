@@ -3,39 +3,39 @@ import { ProductVariantCombobox } from "@/components/feature-specific/company-pr
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox-standalone";
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -43,9 +43,9 @@ import { createOrderSchema, CreateOrderSchema } from "@/schemas/order";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
 import {
-    getYalidineCenters,
-    getYalidineCommunes,
-    getYalidinePricing,
+  getYalidineCenters,
+  getYalidineCommunes,
+  getYalidinePricing,
 } from "@/services/order-service";
 import { confirmWooCommerceOrderFromScratch } from "@/services/woocommerce-service";
 import { algerCities, cities } from "@/utils/algeria-cities";
@@ -719,6 +719,19 @@ function CreateOrderFromScratchDialog({
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
                         <Input {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="shipping.phone_number_2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number 2</FormLabel>
+                      <FormControl>
+                        <Input {...field}  />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
