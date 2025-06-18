@@ -107,6 +107,7 @@ function CreateOrderDialog({
       shipping: {
         full_name: wooOrder.billing_name || wooOrder.shipping_name || "",
         phone_number: wooOrder.customer_phone || "",
+        phone_number_2: wooOrder.customer_phone_2 || "",
         address: wooOrder.shipping_address_1 || wooOrder.billing_address_1 || "",
         city: wooOrder.billing_city || "",
         state: matchedWilaya?.key || "",
@@ -604,6 +605,19 @@ function CreateOrderDialog({
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
                         <Input {...field} required />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="shipping.phone_number_2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone Number 2</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

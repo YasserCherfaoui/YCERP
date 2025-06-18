@@ -15,6 +15,7 @@ export interface WooOrder {
   customer_id: number;
   customer_email: string;
   customer_phone: string;
+  customer_phone_2: string;
   billing_name: string;
   billing_address_1: string;
   billing_city: string;

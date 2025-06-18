@@ -10,6 +10,7 @@ export const createOrderItemSchema = z.object({
 export const createShippingSchema = z.object({
   full_name: z.string(),
   phone_number: z.string(),
+  phone_number_2: z.string().optional(),
   address: z.string(),
   city: z.string(),
   state: z.string(),

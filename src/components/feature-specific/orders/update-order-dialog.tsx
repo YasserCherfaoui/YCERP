@@ -88,6 +88,7 @@ export interface UpdateWooOrderSchema {
   customer_id?: number;
   customer_email?: string;
   customer_phone?: string;
+  customer_phone_2?: string;
   billing_name?: string;
   billing_address_1?: string;
   billing_city?: string;
@@ -165,6 +166,7 @@ function mapFormToApiPayload(form: any): UpdateWooOrderSchema {
     shipping,
     // Add more fields as needed from form if you want to support them
     customer_phone: form.customer_phone,
+    customer_phone_2: form.customer_phone_2,
     customer_email: form.customer_email,
     customer_id: form.customer_id,
     billing_name: form.billing_name,
@@ -290,6 +292,7 @@ export default function UpdateOrderDialog({
         delivery_id: order.woo_shipping?.delivery_company_id,
       },
       customer_phone: order.customer_phone,
+      customer_phone_2: order.customer_phone_2,
       order_items: order.confirmed_order_items || [],
       total: Number(order.total),
       discount: (order as any).discount || 0,
@@ -716,6 +719,19 @@ function CustomerInfoSection() {
             <FormLabel>Phone Number</FormLabel>
             <FormControl>
               <Input {...field} required />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="customer_phone_2"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Phone Number 2</FormLabel>
+            <FormControl>
+              <Input {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

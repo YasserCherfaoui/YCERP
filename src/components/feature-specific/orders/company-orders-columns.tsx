@@ -76,6 +76,11 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         {row.original.customer_phone_count &&
           row.original.customer_phone_count > 1 &&
           `(${row.original.customer_phone_count})`}
+        {row.original.customer_phone_2 && (
+          <div className="text-center">
+            {row.original.customer_phone_2}
+          </div>
+        )}
       </div>
     ),
     enableSorting: false,

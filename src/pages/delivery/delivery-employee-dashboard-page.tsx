@@ -1,34 +1,34 @@
 import { RootState } from "@/app/store";
 import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { logout } from "@/features/auth/delivery-slice";
 import { useToast } from "@/hooks/use-toast";
 import {
-    getDeliveryOrders,
-    updateOrderStatus,
+  getDeliveryOrders,
+  updateOrderStatus,
 } from "@/services/delivery-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Clock, LogOut, MessageCircle, X } from "lucide-react";
@@ -119,12 +119,12 @@ export default function () {
                         className={`py-2 px-4 rounded-md ${
                           order.order_status === "delivered"
                             ? "bg-green-500 text-white"
-                            : !isToday
-                            ? "bg-yellow-500 text-white"
                             : order.order_status === "cancelled"
                             ? "bg-red-500 text-white"
                             : order.order_status === "no_reply"
                             ? "bg-blue-500 text-white"
+                            : !isToday
+                            ? "bg-yellow-500 text-white"
                             : "bg-transparent"
                         }`}
                       >
@@ -144,6 +144,13 @@ export default function () {
                           Call Customer
                         </a>
                       </Button>
+                      {order.customer_phone_2 && (
+                        <Button asChild>
+                          <a href={`tel:${order.customer_phone_2}`}>
+                            Call Customer 2
+                          </a>
+                        </Button>
+                      )}
                       <Dialog open={open} onOpenChange={setOpen}>
                         <DialogTrigger asChild>
                           <Button variant="outline">Set Client Status</Button>
@@ -154,21 +161,49 @@ export default function () {
                           </DialogHeader>
                           <div className="grid grid-cols-2 gap-4">
                             {order.order_status !== "delivered" && (
-                              <Button
-                                variant="outline"
-                                className="bg-green-500 text-white"
-                                onClick={() => {
-                                  if (confirm("Confirm delivery?")) {
-                                    updateOrderStatusMutation({
-                                      order_id: order.id,
-                                      status: "delivered",
-                                    });
-                                  }
-                                }}
-                              >
-                                <Check />
-                                Delivered
-                              </Button>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    className="bg-green-500 text-white"
+                                  >
+                                    <Check />
+                                    Delivered
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Confirm Delivery</DialogTitle>
+                                  </DialogHeader>
+                                  <div className="grid gap-4 py-4">
+                                    <div className="grid gap-2">
+                                      <Label htmlFor="delivery-comment">
+                                        Delivery Comment (Optional)
+                                      </Label>
+                                      <Textarea
+                                        id="delivery-comment"
+                                        placeholder="Add any notes about the delivery..."
+                                      />
+                                    </div>
+                                    <Button
+                                      onClick={() => {
+                                        const comment = (
+                                          document.getElementById(
+                                            "delivery-comment"
+                                          ) as HTMLTextAreaElement
+                                        ).value;
+                                        updateOrderStatusMutation({
+                                          order_id: order.id,
+                                          status: "delivered",
+                                          reason: comment,
+                                        });
+                                      }}
+                                    >
+                                      Confirm Delivery
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
                             )}
                             {isToday && (
                               <Dialog>
