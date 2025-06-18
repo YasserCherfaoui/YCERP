@@ -8,25 +8,32 @@ import { useState } from "react";
 import AddOrderHistoryDialog from "./add-order-history-dialog";
 
 
-function HistoryList({ title, histories }: { title: string; histories: { status: string; date: string | Date; ID: number ; qualification?: Qualification}[] }) {
+function HistoryList({ title, histories }: { title: string; histories: { status: string; date: string | Date; ID: number ; qualification?: Qualification; wilaya_name?: string; commune_name?: string; center_name?: string }[] }) {
   return (
     <div className="flex-1 min-w-0">
       <h3 className="font-semibold mb-2">{title}</h3>
-      <ScrollArea className="max-h-40 border rounded p-2">
+      <ScrollArea className="max-h-40 border rounded p-2 overflow-y-auto">
         {histories && histories.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {histories.map((h) => (
-              <li key={h.ID} className="flex justify-between items-center text-sm">
-                <span>{h.status || "No status"}</span>
-                <span 
-                style={{
-                  display: h.qualification ? "block" : "none",
-                  color:"black",
-                  backgroundColor: h.qualification?.color || "gray",
-                  padding: "2px 4px",
-                  borderRadius: "4px",
-                }}
-                >{h.qualification?.name || "No qualification"}</span>
+              <li key={h.ID} className="flex flex-col md:flex-row md:justify-between md:items-center text-sm gap-1 md:gap-0">
+                <div className="flex items-center gap-2">
+                  <span>{h.status || "No status"}</span>
+                  <span 
+                    style={{
+                      display: h.qualification ? "block" : "none",
+                      color: "black",
+                      backgroundColor: h.qualification?.color || "gray",
+                      padding: "2px 4px",
+                      borderRadius: "4px",
+                    }}
+                  >{h.qualification?.name || "No qualification"}</span>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {h.wilaya_name && <span>Wilaya: {h.wilaya_name}</span>}
+                  {h.commune_name && <span>Commune: {h.commune_name}</span>}
+                  {h.center_name && <span>Center: {h.center_name}</span>}
+                </div>
                 <span className="text-xs text-muted-foreground">{typeof h.date === 'string' ? new Date(h.date).toLocaleString() : h.date.toLocaleString()}</span>
               </li>
             ))}
@@ -39,14 +46,16 @@ function HistoryList({ title, histories }: { title: string; histories: { status:
   );
 }
 
-export default function OrderHistoryDialog({ order, open, setOpen }: { order: WooOrder; open: boolean; setOpen: (open: boolean) => void }) {
+export default function OrderHistoryDialog({ order, open, setOpen }: { order: WooOrder; open: boolean; setOpen: (open: boolean) => void; ordersQueryKey?: any[] }) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Order Histories</DialogTitle>
-          <DialogDescription>View and manage order history records for this order.</DialogDescription>
+          <DialogDescription>View and manage order history records for this order.
+      
+          </DialogDescription>
         </DialogHeader>
         <div className="flex gap-6 flex-col md:flex-row">
           <HistoryList title="Yalidine Order Histories" histories={order.yalidine_order_histories || []} />

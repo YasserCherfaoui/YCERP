@@ -1,7 +1,9 @@
+import DeclareExchangeDialog from "@/components/feature-specific/orders/declare-exchange-dialog";
 import OrderActions from "@/components/feature-specific/orders/order-actions";
 import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
 import OrderLineItemsAccordion from "@/components/feature-specific/orders/order-line-items-accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { cities } from "@/utils/algeria-cities";
@@ -9,8 +11,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import ClientStatusDetailsDialog from "./client-status-details-dialog";
 import { ConfirmedOrderItemsAccordion } from "./order-line-items-accordion";
+
 export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
-  { accessorKey: "id", header: "ID" },
+  { accessorKey: "id", header: "ID", cell: ({ row }: { row: { original: WooOrder } }) => <div className="text-center" style={{
+    backgroundColor: row.original.is_exchange ? "red" : "transparent",
+    color: "white",
+    padding: "2px 4px",
+    borderRadius: "4px",
+  }}>{row.original.id}</div> },
   {
     accessorKey: "total",
     header: "Total",
@@ -44,12 +52,58 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     enableSorting: false,
     enableHiding: false,
   },
-  { accessorKey: "customer_phone", header: "Customer Phone", id: "phone" },
+  {
+    header: "Customer Phone",
+    id: "phone",
+    cell: ({ row }: { row: { original: WooOrder } }) => (
+      <div
+        className="text-center"
+        style={{
+          border:
+            row.original.customer_phone_count &&
+            row.original.customer_phone_count > 1
+              ? "1px solid red"
+              : "none",
+          padding:
+            row.original.customer_phone_count &&
+            row.original.customer_phone_count > 1
+              ? "6px"
+              : "0px",
+          borderRadius: "4px",
+        }}
+      >
+        {row.original.customer_phone}{" "}
+        {row.original.customer_phone_count &&
+          row.original.customer_phone_count > 1 &&
+          `(${row.original.customer_phone_count})`}
+        {row.original.customer_phone_2 && (
+          <div className="text-center">
+            {row.original.customer_phone_2}
+          </div>
+        )}
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "date_created",
     header: "Date Created",
     cell: ({ row }: { row: { original: WooOrder } }) =>
       new Date(row.original.date_created).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }),
+  },
+  {
+    accessorKey: "updated_at",
+    header: "Updated At",
+    cell: ({ row }: { row: { original: WooOrder } }) =>
+      new Date(row.original.updated_at).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -124,6 +178,12 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     cell: ({ row }: { row: { original: WooOrder } }) => {
       const wilaya = row.original.shipping_city;
       const wilayaName = cities.find((city) => city.key == wilaya)?.label;
+      // if wilayaName is empty insert shipping_address_1
+      if (!wilayaName) {
+        return (
+          <div className="text-center">{row.original.shipping_address_1}</div>
+        );
+      }
       return <div className="text-center">{wilayaName}</div>;
     },
   },
@@ -224,9 +284,33 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }: { row: { original: WooOrder } }) => (
-      <OrderActions order={row.original} />
-    ),
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const order = row.original;
+      const [exchangeDialogOpen, setExchangeDialogOpen] = useState(false);
+      return (
+        <div className="flex gap-2 items-center">
+          <OrderActions order={order} />
+              {order.order_status === "delivered" && (
+                <>
+                  <Button
+                    className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    onClick={() => setExchangeDialogOpen(true)}
+                    type="button"
+                  >
+                    Declare Exchange
+                  </Button>
+                  {exchangeDialogOpen && (
+                    <DeclareExchangeDialog
+                      open={exchangeDialogOpen}
+                      onOpenChange={setExchangeDialogOpen}
+                      order={order}
+                    />
+                  )}
+                </>
+              )}
+        </div>
+      );
+    },
     enableSorting: false,
     enableHiding: false,
   },

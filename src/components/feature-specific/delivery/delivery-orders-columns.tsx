@@ -2,8 +2,10 @@ import DeliveryOrdersActions from "@/components/feature-specific/delivery/delive
 import { ConfirmedOrderItemsAccordion } from "@/components/feature-specific/orders/order-line-items-accordion";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
 import { WooOrder } from "@/models/data/woo-order.model";
@@ -14,8 +16,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
+export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[] }) : ColumnDef<WooOrder, { id: number }>[] => [
   { accessorKey: "id", header: "ID" },
+  {
+    accessorKey: "billing_name",
+    header: "Full Name",
+  },
   {
     accessorKey: "total",
     header: "Total",
@@ -84,7 +90,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Employee updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ordersQueryKey });
         },
         onError: (err: any) => {
           toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -136,7 +142,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
         mutationFn: updateWooCommerceOrder,
         onSuccess: () => {
           toast({ title: "Success", description: "Expected delivery date updated successfully" });
-          queryClient.invalidateQueries({ queryKey: ["delivery-orders"] });
+          queryClient.invalidateQueries({ queryKey: ordersQueryKey });
         },
         onError: (err: any) => {
           toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -149,7 +155,7 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
           shipping: {
             ...row.original.woo_shipping,
             expected_delivery_date: selected
-              ? selected.toLocaleDateString("fr-DZ")
+              ? selected.toLocaleDateString("en-US")
               : undefined,
           },
         });
@@ -180,10 +186,75 @@ export const deliveryOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     enableHiding: false,
   },
   {
+    id: "comments",
+    header: "Comments",
+    cell: ({ row }: { row: { original: WooOrder } }) => {
+      const [open, setOpen] = useState(false);
+      const [comment, setComment] = useState(row.original.comments || "");
+      const [input, setInput] = useState(row.original.comments || "");
+      const { toast } = useToast();
+      const queryClient = useQueryClient();
+      const mutation = useMutation({
+        mutationFn: updateWooCommerceOrder,
+        onSuccess: () => {
+          toast({ title: "Success", description: "Comment updated successfully" });
+          queryClient.invalidateQueries({ queryKey: ordersQueryKey });
+          setComment(input);
+          setOpen(false);
+        },
+        onError: (err: any) => {
+          toast({ title: "Error", description: err.message, variant: "destructive" });
+        },
+      });
+      const handleSave = () => {
+        mutation.mutate({
+          id: row.original.id,
+          shipping: {
+            ...row.original.woo_shipping,
+          },
+          comments: input,
+        });
+      };
+      return (
+        <>
+          <span
+            className="underline cursor-pointer text-blue-600"
+            onClick={() => setOpen(true)}
+          >
+            {comment ? comment : <span className="text-muted-foreground">Add comment</span>}
+          </span>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Comment</DialogTitle>
+              </DialogHeader>
+              <Textarea
+                value={input}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setInput(e.target.value)}
+                placeholder="Enter comment..."
+                rows={5}
+              />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" type="button">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleSave} disabled={mutation.status === 'pending'}>
+                  {mutation.status === 'pending' ? "Saving..." : "Save"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
+      );
+    },
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     id: "actions",
     header: "Actions",
     cell: ({ row }: { row: { original: WooOrder } }) => (
-      <DeliveryOrdersActions order={row.original} />
+      <DeliveryOrdersActions order={row.original} ordersQueryKey={ordersQueryKey} />
     ),
     enableSorting: false,
     enableHiding: false,

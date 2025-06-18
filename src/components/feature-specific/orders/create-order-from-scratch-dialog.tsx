@@ -32,35 +32,35 @@ import {
 import {
   Table,
   TableBody,
-  TableCell, TableHead,
+  TableCell,
+  TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { useOrder } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
-import { WooOrder } from "@/models/data/woo-order.model";
 import { createOrderSchema, CreateOrderSchema } from "@/schemas/order";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
-import { getYalidineCenters, getYalidineCommunes, getYalidinePricing } from "@/services/order-service";
-import { confirmWooCommerceOrder } from "@/services/woocommerce-service";
+import {
+  getYalidineCenters,
+  getYalidineCommunes,
+  getYalidinePricing,
+} from "@/services/order-service";
+import { confirmWooCommerceOrderFromScratch } from "@/services/woocommerce-service";
 import { algerCities, cities } from "@/utils/algeria-cities";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { ClientStatusDialog } from "./client-status-dialog";
 
-function CreateOrderDialog({
-  wooOrder,
+function CreateOrderFromScratchDialog({
   open,
   setOpen,
   ordersQueryKey,
 }: {
-  wooOrder: WooOrder;
   open: boolean;
   setOpen: (open: boolean) => void;
   ordersQueryKey?: any[];
@@ -74,7 +74,7 @@ function CreateOrderDialog({
   if (!company) {
     return null;
   }
-  
+
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", company.ID],
     queryFn: () => getCompanyInventory(company.ID),
@@ -86,53 +86,38 @@ function CreateOrderDialog({
       .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
 
   // Build a map from qr_code to ProductVariant
-  const qrCodeToVariant: Record<string, typeof allVariants[number]> = {};
+  const qrCodeToVariant: Record<string, (typeof allVariants)[number]> = {};
   for (const variant of allVariants) {
     if (variant.qr_code) {
       qrCodeToVariant[variant.qr_code] = variant;
     }
   }
 
-  // Find the wilaya (state) object by matching the label to billing_city or shipping_city
-  const matchedWilaya = cities.find(
-    c =>
-      c.key === wooOrder.shipping_city 
-  );
-
   const form = useForm<CreateOrderSchema>({
     resolver: zodResolver(createOrderSchema),
     defaultValues: {
       company_id: company.ID,
-      woo_order_id: wooOrder.id,
+      woo_order_id: undefined,
       shipping: {
-        full_name: wooOrder.billing_name || wooOrder.shipping_name || "",
-        phone_number: wooOrder.customer_phone || "",
-        phone_number_2: wooOrder.customer_phone_2 || "",
-        address: wooOrder.shipping_address_1 || wooOrder.billing_address_1 || "",
-        city: wooOrder.billing_city || "",
-        state: matchedWilaya?.key || "",
+        full_name: "",
+        phone_number: "",
+        address: "",
+        city: "",
+        state: "",
         delivery_id: undefined,
         comments: "",
         commune: "",
-        wilaya: matchedWilaya?.label || "",
+        wilaya: "",
       },
-      order_items: wooOrder.line_items.map((item) => {
-        const variant = item.sku ? qrCodeToVariant[item.sku] : undefined;
-        return {
-          product_id: variant?.product_id || 0,
-          product_variant_id: variant?.ID || 0,
-          discount: 0,
-          quantity: item.quantity,
-        };
-      }),
-      total: Number(wooOrder.total),
+      order_items: [],
+      total: 0,
       status: "unconfirmed",
       discount: 0,
-      taken_by_id: wooOrder.taken_by_id || undefined,
-      shipping_provider: 'yalidine',
-      delivery_type: 'home',
-      selected_commune: '',
-      selected_center: '',
+      taken_by_id: undefined,
+      shipping_provider: "yalidine",
+      delivery_type: "home",
+      selected_commune: "",
+      selected_center: "",
       first_delivery_cost: 0,
       second_delivery_cost: 0,
     },
@@ -150,23 +135,25 @@ function CreateOrderDialog({
   const discount = watch("discount");
   const orderItems = watch("order_items");
 
-  const [clientStatusDialogOpen, setClientStatusDialogOpen] = useState(false);
-
   // Fetch yalidine Pricing with react-query
   const { data: yalidinePricing } = useQuery({
     queryKey: [
       "yalidine-pricing",
       shipping.state,
-      watch('delivery_type') === "home" ? watch('selected_commune') : watch('selected_center'),
-      watch('delivery_type')
+      watch("delivery_type") === "home"
+        ? watch("selected_commune")
+        : watch("selected_center"),
+      watch("delivery_type"),
     ],
     queryFn: () => getYalidinePricing(16, Number(shipping.state) ?? 16),
     select: (res) => res.data,
     enabled:
-      watch('shipping_provider') === "yalidine" &&
+      watch("shipping_provider") === "yalidine" &&
       Boolean(shipping.state) &&
-      ((watch('delivery_type') === "home" && Boolean(watch('selected_commune'))) ||
-        (watch('delivery_type') === "stopdesk" && Boolean(watch('selected_center')))) &&
+      ((watch("delivery_type") === "home" &&
+        Boolean(watch("selected_commune"))) ||
+        (watch("delivery_type") === "stopdesk" &&
+          Boolean(watch("selected_center")))) &&
       open,
   });
 
@@ -175,7 +162,11 @@ function CreateOrderDialog({
     queryKey: ["yalidine-centers", shipping.state],
     queryFn: () => getYalidineCenters(Number(shipping.state)),
     select: (res) => res.data,
-    enabled: watch('shipping_provider') === "yalidine" && watch('delivery_type') === "stopdesk" && Boolean(shipping.state) && open,
+    enabled:
+      watch("shipping_provider") === "yalidine" &&
+      watch("delivery_type") === "stopdesk" &&
+      Boolean(shipping.state) &&
+      open,
   });
 
   // Fetch communes for selected state using getYalidineCommunes
@@ -188,9 +179,10 @@ function CreateOrderDialog({
     queryFn: () => getYalidineCommunes(Number(shipping.state)),
     select: (res) => res.data?.data ?? [],
     enabled:
-      watch('shipping_provider') === "yalidine" &&
-      watch('delivery_type') === "home" &&
-      Boolean(shipping.state) && open
+      watch("shipping_provider") === "yalidine" &&
+      watch("delivery_type") === "home" &&
+      Boolean(shipping.state) &&
+      open,
   });
 
   // Fetch delivery companies for 'My Delivery Companies' option
@@ -201,24 +193,26 @@ function CreateOrderDialog({
   } = useQuery({
     queryKey: ["delivery-companies"],
     queryFn: getDeliveryCompanies,
-    enabled: watch('shipping_provider') === "my_companies" && open,
+    enabled: watch("shipping_provider") === "my_companies" && open,
     select: (res) => res.data,
   });
 
   // Reset commune/center when state or delivery type changes
   useEffect(() => {
-    setValue('selected_commune', '');
-    setValue('selected_center', '');
-  }, [shipping.state, watch('delivery_type')]);
+    setValue("selected_commune", "");
+    setValue("selected_center", "");
+  }, [shipping.state, watch("delivery_type")]);
 
   // Set commune when center changes
-  const yalidineCenter = watch('selected_center');
+  const yalidineCenter = watch("selected_center");
   useEffect(() => {
     if (yalidineCenter) {
-      const center = (yalidineCenters?.data || []).find(c => String(c.center_id) === yalidineCenter);
+      const center = (yalidineCenters?.data || []).find(
+        (c) => String(c.center_id) === yalidineCenter
+      );
       if (center) {
-        setValue('selected_commune', String(center.commune_id));
-        setValue('shipping.commune', String(center.commune_name));
+        setValue("selected_commune", String(center.commune_id));
+        setValue("shipping.commune", String(center.commune_name));
       }
     }
   }, [yalidineCenter]);
@@ -239,17 +233,25 @@ function CreateOrderDialog({
   // Compute the delivery fee
   const computeDeliveryFee = () => {
     let deliveryFee = 0;
-    if (watch('shipping_provider') === 'yalidine' && yalidinePricing) {
+    if (watch("shipping_provider") === "yalidine" && yalidinePricing) {
       let communePricing = null;
-      if (watch('delivery_type') === 'home') {
-        communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
-          ? yalidinePricing.per_commune[String(watch('selected_commune'))]
-          : undefined;
+      if (watch("delivery_type") === "home") {
+        communePricing =
+          watch("selected_commune") && yalidinePricing.per_commune
+            ? yalidinePricing.per_commune[String(watch("selected_commune"))]
+            : undefined;
         deliveryFee = communePricing?.express_home ?? 0;
-      } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
-        const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
+      } else if (
+        watch("delivery_type") === "stopdesk" &&
+        yalidineCenters &&
+        watch("selected_center")
+      ) {
+        const center = (yalidineCenters.data || []).find(
+          (c) => String(c.center_id) === watch("selected_center")
+        );
         if (center && center.commune_id && yalidinePricing.per_commune) {
-          communePricing = yalidinePricing.per_commune[String(center.commune_id)];
+          communePricing =
+            yalidinePricing.per_commune[String(center.commune_id)];
           deliveryFee = communePricing?.express_desk ?? 0;
         }
       }
@@ -263,21 +265,21 @@ function CreateOrderDialog({
   const userEditedSecondDelivery = useRef(false);
 
   useEffect(() => {
-    setValue('first_delivery_cost', deliveryFee);
+    setValue("first_delivery_cost", deliveryFee);
     // Only set second_delivery_cost if the user hasn't edited it
     if (!userEditedSecondDelivery.current) {
-      setValue('second_delivery_cost', deliveryFee);
+      setValue("second_delivery_cost", deliveryFee);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryFee, setValue]);
-  const {toast} = useToast();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
-  const {mutate: confirmWooCommerceOrderMutation, isPending} = useMutation({
-    mutationFn: confirmWooCommerceOrder,
+  const { mutate: confirmWooCommerceOrderMutation, isPending } = useMutation({
+    mutationFn: confirmWooCommerceOrderFromScratch,
     onSuccess: () => {
       toast({
-        title: "Order confirmed",
-        description: "Order confirmed successfully",
+        title: "Order created",
+        description: "Order created successfully",
       });
       setOpen(false);
       if (ordersQueryKey) {
@@ -297,68 +299,19 @@ function CreateOrderDialog({
   });
 
   const handleSubmitForm = (data: CreateOrderSchema) => {
-    console.log(data);
     confirmWooCommerceOrderMutation(data);
   };
-  
-  useOrder(wooOrder.id);
-
-  useEffect(() => {
-    const handleQueryUpdate = () => {
-      // Check if the WooOrder was updated externally and order_status changed from 'unconfirmed'
-      const cachedOrderResponse = queryClient.getQueryData(['orders', wooOrder.id]) as { data?: WooOrder };
-      const cachedOrder = cachedOrderResponse?.data;
-      const originalOrder = queryClient.getQueryState(['orders', wooOrder.id])?.dataUpdatedAt;
-      const orderStatus = cachedOrder?.order_status ?? cachedOrder?.status;
-      // Only close if order_status is no longer 'unconfirmed'
-      if (
-        cachedOrder &&
-        orderStatus &&
-        orderStatus !== 'unconfirmed' &&
-        originalOrder &&
-        Date.now() - originalOrder < 2000
-      ) {
-        console.log('WooOrder status changed from unconfirmed, closing dialog');
-        setOpen(false);
-      }
-    };
-
-    if (open && wooOrder.id) {
-      // Subscribe to query changes
-      const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
-        if (
-          event.type === 'updated' &&
-          event.query.queryKey[0] === 'orders' &&
-          event.query.queryKey[1] === wooOrder.id
-        ) {
-          handleQueryUpdate();
-        }
-      });
-
-      return unsubscribe;
-    }
-  }, [open, wooOrder.id, queryClient]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-[100rem] w-full overflow-y-auto max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>
-            Create Order from WooOrder #{wooOrder.number}
-          </DialogTitle>
+          <DialogTitle>Create New Order</DialogTitle>
           <DialogDescription>
-            Fill or adjust the details below to create a new Order.
+            Fill the details below to create a new Order from scratch.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => setClientStatusDialogOpen(true)}
-          >
-            Set Client Status
-          </Button>
-        </div>
+
         <Form {...form}>
           <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4">
             {/* Main sections in a row on desktop, stacked on mobile */}
@@ -376,13 +329,20 @@ function CreateOrderDialog({
                         <FormControl>
                           <RadioGroup
                             value={field.value}
-                            onValueChange={val => field.onChange(val)}
+                            onValueChange={(val) => field.onChange(val)}
                             className="flex flex-row gap-6 mt-2"
                           >
                             <RadioGroupItem value="yalidine" id="yalidine" />
-                            <FormLabel htmlFor="yalidine" className="mr-4">Yalidine</FormLabel>
-                            <RadioGroupItem value="my_companies" id="my_companies" />
-                            <FormLabel htmlFor="my_companies">My Delivery Companies</FormLabel>
+                            <FormLabel htmlFor="yalidine" className="mr-4">
+                              Yalidine
+                            </FormLabel>
+                            <RadioGroupItem
+                              value="my_companies"
+                              id="my_companies"
+                            />
+                            <FormLabel htmlFor="my_companies">
+                              My Delivery Companies
+                            </FormLabel>
                           </RadioGroup>
                         </FormControl>
                         <FormMessage />
@@ -390,7 +350,7 @@ function CreateOrderDialog({
                     )}
                   />
                 </div>
-                {watch('shipping_provider') === 'yalidine' && (
+                {watch("shipping_provider") === "yalidine" && (
                   <div>
                     <FormField
                       control={form.control}
@@ -401,13 +361,17 @@ function CreateOrderDialog({
                           <FormControl>
                             <RadioGroup
                               value={field.value}
-                              onValueChange={val => field.onChange(val)}
+                              onValueChange={(val) => field.onChange(val)}
                               className="flex flex-row gap-6 mt-2"
                             >
                               <RadioGroupItem value="home" id="home" />
-                              <FormLabel htmlFor="home" className="mr-4">Home</FormLabel>
+                              <FormLabel htmlFor="home" className="mr-4">
+                                Home
+                              </FormLabel>
                               <RadioGroupItem value="stopdesk" id="stopdesk" />
-                              <FormLabel htmlFor="stopdesk">Stop Desk</FormLabel>
+                              <FormLabel htmlFor="stopdesk">
+                                Stop Desk
+                              </FormLabel>
                             </RadioGroup>
                           </FormControl>
                           <FormMessage />
@@ -416,31 +380,95 @@ function CreateOrderDialog({
                     />
                   </div>
                 )}
-                {watch('shipping_provider') === 'yalidine' && watch('delivery_type') === 'home' && (
-                  <div>
+                {watch("shipping_provider") === "yalidine" &&
+                  watch("delivery_type") === "home" && (
+                    <div>
+                      <FormField
+                        control={form.control}
+                        name="selected_commune"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Select Commune</FormLabel>
+                            <FormControl>
+                              <Select
+                                value={field.value}
+                                onValueChange={(val) => {
+                                  field.onChange(val);
+                                  const communeName =
+                                    (yalidineCommunes || []).find(
+                                      (c) => String(c.id) === val
+                                    )?.name || "";
+                                  setValue("shipping.commune", communeName);
+                                }}
+                              >
+                                <SelectTrigger className="w-full mt-1">
+                                  <SelectValue
+                                    placeholder={
+                                      communesLoading
+                                        ? "Loading..."
+                                        : "Select a commune"
+                                    }
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {communesLoading && (
+                                    <div className="p-2 text-muted-foreground">
+                                      Loading...
+                                    </div>
+                                  )}
+                                  {communesError && (
+                                    <div className="p-2 text-red-500">
+                                      Error loading communes
+                                    </div>
+                                  )}
+                                  {!communesLoading &&
+                                    !communesError &&
+                                    (yalidineCommunes || [])
+                                      .sort((a, b) =>
+                                        a.name.localeCompare(b.name)
+                                      )
+                                      .filter((c) => c.is_deliverable)
+                                      .map((commune) => (
+                                        <SelectItem
+                                          key={commune.id}
+                                          value={String(commune.id)}
+                                        >
+                                          {commune.name}
+                                        </SelectItem>
+                                      ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+                {watch("shipping_provider") === "yalidine" &&
+                  watch("delivery_type") === "stopdesk" && (
                     <FormField
                       control={form.control}
-                      name="selected_commune"
+                      name="selected_center"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Select Commune</FormLabel>
+                          <FormLabel>Select Center</FormLabel>
                           <FormControl>
                             <Select
                               value={field.value}
-                              onValueChange={(val) => {
-                                field.onChange(val);
-                                const communeName = (yalidineCommunes || []).find(c => String(c.id) === val)?.name || '';
-                                setValue('shipping.commune', communeName);
-                              }}
+                              onValueChange={field.onChange}
                             >
                               <SelectTrigger className="w-full mt-1">
-                                <SelectValue placeholder={communesLoading ? "Loading..." : "Select a commune"} />
+                                <SelectValue placeholder="Select a center" />
                               </SelectTrigger>
                               <SelectContent>
-                                {communesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
-                                {communesError && <div className="p-2 text-red-500">Error loading communes</div>}
-                                {!communesLoading && !communesError && (yalidineCommunes || []).sort((a, b) => a.name.localeCompare(b.name)).filter(c => c.is_deliverable).map(commune => (
-                                  <SelectItem key={commune.id} value={String(commune.id)}>{commune.name}</SelectItem>
+                                {(yalidineCenters?.data || []).map((center) => (
+                                  <SelectItem
+                                    key={center.center_id}
+                                    value={String(center.center_id)}
+                                  >
+                                    {center.name}
+                                  </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -449,33 +477,8 @@ function CreateOrderDialog({
                         </FormItem>
                       )}
                     />
-                  </div>
-                )}
-                {watch('shipping_provider') === 'yalidine' && watch('delivery_type') === 'stopdesk' && (
-                  <FormField
-                    control={form.control}
-                    name="selected_center"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Center</FormLabel>
-                        <FormControl>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-full mt-1">
-                              <SelectValue placeholder="Select a center" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {(yalidineCenters?.data || []).map(center => (
-                                <SelectItem key={center.center_id} value={String(center.center_id)}>{center.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-                {watch('shipping_provider') === 'my_companies' && (
+                  )}
+                {watch("shipping_provider") === "my_companies" && (
                   <>
                     <FormField
                       control={form.control}
@@ -484,16 +487,44 @@ function CreateOrderDialog({
                         <FormItem>
                           <FormLabel>Select Delivery Company</FormLabel>
                           <FormControl>
-                            <Select value={field.value ? String(field.value) : ""} onValueChange={val => field.onChange(val ? Number(val) : undefined)}>
+                            <Select
+                              value={field.value ? String(field.value) : ""}
+                              onValueChange={(val) =>
+                                field.onChange(val ? Number(val) : undefined)
+                              }
+                            >
                               <SelectTrigger className="w-full mt-1">
-                                <SelectValue placeholder={deliveryCompaniesLoading ? "Loading..." : "Select a delivery company"} />
+                                <SelectValue
+                                  placeholder={
+                                    deliveryCompaniesLoading
+                                      ? "Loading..."
+                                      : "Select a delivery company"
+                                  }
+                                />
                               </SelectTrigger>
                               <SelectContent>
-                                {deliveryCompaniesLoading && <div className="p-2 text-muted-foreground">Loading...</div>}
-                                {deliveryCompaniesError && <div className="p-2 text-red-500">Error loading companies</div>}
-                                {!deliveryCompaniesLoading && !deliveryCompaniesError && (deliveryCompaniesData || []).map(company => (
-                                  <SelectItem key={company.ID} value={String(company.ID)}>{company.name}</SelectItem>
-                                ))}
+                                {deliveryCompaniesLoading && (
+                                  <div className="p-2 text-muted-foreground">
+                                    Loading...
+                                  </div>
+                                )}
+                                {deliveryCompaniesError && (
+                                  <div className="p-2 text-red-500">
+                                    Error loading companies
+                                  </div>
+                                )}
+                                {!deliveryCompaniesLoading &&
+                                  !deliveryCompaniesError &&
+                                  (deliveryCompaniesData || []).map(
+                                    (company) => (
+                                      <SelectItem
+                                        key={company.ID}
+                                        value={String(company.ID)}
+                                      >
+                                        {company.name}
+                                      </SelectItem>
+                                    )
+                                  )}
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -511,14 +542,16 @@ function CreateOrderDialog({
                           <FormControl>
                             <Select
                               value={field.value || ""}
-                              onValueChange={val => field.onChange(val)}
+                              onValueChange={(val) => field.onChange(val)}
                             >
                               <SelectTrigger className="w-full mt-1">
                                 <SelectValue placeholder="Select a city (commune)" />
                               </SelectTrigger>
                               <SelectContent>
-                                {algerCities.map(city => (
-                                  <SelectItem key={city.key} value={city.key}>{city.label}</SelectItem>
+                                {algerCities.map((city) => (
+                                  <SelectItem key={city.key} value={city.key}>
+                                    {city.label}
+                                  </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
@@ -529,58 +562,139 @@ function CreateOrderDialog({
                     />
                   </>
                 )}
-                {watch('shipping_provider') === 'yalidine' && yalidinePricing && (
-                  <div>
-                    <Label>Pricing</Label>
-                    {(() => {
-                      let communePricing: any = null;
-                      if (watch('delivery_type') === 'home') {
-                        communePricing = (watch('selected_commune') && yalidinePricing.per_commune)
-                          ? yalidinePricing.per_commune[String(watch('selected_commune'))]
-                          : undefined;
-                      } else if (watch('delivery_type') === 'stopdesk' && yalidineCenters && watch('selected_center')) {
-                        const center = (yalidineCenters.data || []).find(c => String(c.center_id) === watch('selected_center'));
-                        if (center && center.commune_id && yalidinePricing.per_commune) {
-                          communePricing = yalidinePricing.per_commune[String(center.commune_id)];
+                {watch("shipping_provider") === "yalidine" &&
+                  yalidinePricing && (
+                    <div>
+                      <Label>Pricing</Label>
+                      {(() => {
+                        let communePricing: any = null;
+                        if (watch("delivery_type") === "home") {
+                          communePricing =
+                            watch("selected_commune") &&
+                            yalidinePricing.per_commune
+                              ? yalidinePricing.per_commune[
+                                  String(watch("selected_commune"))
+                                ]
+                              : undefined;
+                        } else if (
+                          watch("delivery_type") === "stopdesk" &&
+                          yalidineCenters &&
+                          watch("selected_center")
+                        ) {
+                          const center = (yalidineCenters.data || []).find(
+                            (c) =>
+                              String(c.center_id) === watch("selected_center")
+                          );
+                          if (
+                            center &&
+                            center.commune_id &&
+                            yalidinePricing.per_commune
+                          ) {
+                            communePricing =
+                              yalidinePricing.per_commune[
+                                String(center.commune_id)
+                              ];
+                          }
                         }
-                      }
-                      return communePricing ? (
-                        <div className="border rounded p-2 bg-muted/30">
-                          <div className="font-medium mb-1">{communePricing.commune_name}</div>
-                          <table className="text-sm w-full">
-                            <thead>
-                              <tr>
-                                <th className="text-left">Type</th>
-                                <th className="text-left">Home</th>
-                                <th className="text-left">Desk</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>Express</td>
-                                <td>{communePricing.express_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_home) : "-"}</td>
-                                <td>{communePricing.express_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.express_desk) : "-"}</td>
-                              </tr>
-                              <tr>
-                                <td>Economic</td>
-                                <td>{communePricing.economic_home !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_home) : "-"}</td>
-                                <td>{communePricing.economic_desk !== null ? new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(communePricing.economic_desk) : "-"}</td>
-                              </tr>
-                            </tbody>
-                          </table>
-                          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-                            <div>Retour Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.retour_fee)}</span></div>
-                            <div>COD %: <span className="font-medium">{yalidinePricing.cod_percentage}%</span></div>
-                            <div>Insurance %: <span className="font-medium">{yalidinePricing.insurance_percentage}%</span></div>
-                            <div>Oversize Fee: <span className="font-medium">{new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(yalidinePricing.oversize_fee)}</span></div>
+                        return communePricing ? (
+                          <div className="border rounded p-2 bg-muted/30">
+                            <div className="font-medium mb-1">
+                              {communePricing.commune_name}
+                            </div>
+                            <table className="text-sm w-full">
+                              <thead>
+                                <tr>
+                                  <th className="text-left">Type</th>
+                                  <th className="text-left">Home</th>
+                                  <th className="text-left">Desk</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td>Express</td>
+                                  <td>
+                                    {communePricing.express_home !== null
+                                      ? new Intl.NumberFormat("en-US", {
+                                          style: "currency",
+                                          currency: "DZD",
+                                        }).format(communePricing.express_home)
+                                      : "-"}
+                                  </td>
+                                  <td>
+                                    {communePricing.express_desk !== null
+                                      ? new Intl.NumberFormat("en-US", {
+                                          style: "currency",
+                                          currency: "DZD",
+                                        }).format(communePricing.express_desk)
+                                      : "-"}
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>Economic</td>
+                                  <td>
+                                    {communePricing.economic_home !== null
+                                      ? new Intl.NumberFormat("en-US", {
+                                          style: "currency",
+                                          currency: "DZD",
+                                        }).format(communePricing.economic_home)
+                                      : "-"}
+                                  </td>
+                                  <td>
+                                    {communePricing.economic_desk !== null
+                                      ? new Intl.NumberFormat("en-US", {
+                                          style: "currency",
+                                          currency: "DZD",
+                                        }).format(communePricing.economic_desk)
+                                      : "-"}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                Retour Fee:{" "}
+                                <span className="font-medium">
+                                  {new Intl.NumberFormat("en-US", {
+                                    style: "currency",
+                                    currency: "DZD",
+                                  }).format(yalidinePricing.retour_fee)}
+                                </span>
+                              </div>
+                              <div>
+                                COD %:{" "}
+                                <span className="font-medium">
+                                  {yalidinePricing.cod_percentage}%
+                                </span>
+                              </div>
+                              <div>
+                                Insurance %:{" "}
+                                <span className="font-medium">
+                                  {yalidinePricing.insurance_percentage}%
+                                </span>
+                              </div>
+                              <div>
+                                Oversize Fee:{" "}
+                                <span className="font-medium">
+                                  {new Intl.NumberFormat("en-US", {
+                                    style: "currency",
+                                    currency: "DZD",
+                                  }).format(yalidinePricing.oversize_fee)}
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="text-xs text-muted-foreground">No pricing found for this {watch('delivery_type') === 'home' ? 'commune' : 'center'}.</div>
-                      );
-                    })()}
-                  </div>
-                )}
+                        ) : (
+                          <div className="text-xs text-muted-foreground">
+                            No pricing found for this{" "}
+                            {watch("delivery_type") === "home"
+                              ? "commune"
+                              : "center"}
+                            .
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
               </section>
               {/* Customer/Order Info Section */}
               <div className="space-y-4 border rounded p-4 min-w-[320px] xl:w-1/3">
@@ -617,7 +731,7 @@ function CreateOrderDialog({
                     <FormItem>
                       <FormLabel>Phone Number 2</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field}  />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -644,9 +758,10 @@ function CreateOrderDialog({
                     }))}
                     value={shipping.state}
                     onChange={(value: string) => {
-                      setValue('shipping.state', value);
-                      const wilayaName = cities.find(c => c.key === value)?.label || '';
-                      setValue('shipping.wilaya', wilayaName);
+                      setValue("shipping.state", value);
+                      const wilayaName =
+                        cities.find((c) => c.key === value)?.label || "";
+                      setValue("shipping.wilaya", wilayaName);
                     }}
                     placeholder="Select a wilaya"
                     label="State"
@@ -671,13 +786,19 @@ function CreateOrderDialog({
               <div className="space-y-4 border rounded p-4 flex-1 min-w-[340px] xl:w-1/3 flex flex-col">
                 <Label>Order Items</Label>
                 <ol className="flex flex-col gap-2">
-                  {wooOrder.line_items.map((item, idx) => (
+                  {orderItems.length === 0 && (
+                    <li className="text-muted-foreground">No items yet.</li>
+                  )}
+                  {orderItems.map((item, idx) => (
                     <li key={idx}>
-                      {idx + 1}. {item.name} ({item.quantity} x{" "}
+                      {idx + 1}.{" "}
+                      {allVariants.find((v) => v.ID === item.product_variant_id)
+                        ?.qr_code || "(Select variant)"}{" "}
+                      ({item.quantity} x{" "}
                       {new Intl.NumberFormat("en-US", {
                         style: "currency",
                         currency: "DZD",
-                      }).format(item.price)}
+                      }).format(getVariantCost(item.product_variant_id))}
                       )
                     </li>
                   ))}
@@ -704,12 +825,27 @@ function CreateOrderDialog({
                                   const selectedVariant = allVariants.find(
                                     (v) => v.ID === variantId
                                   );
-                                  setValue(`order_items.${idx}.product_variant_id`, variantId ?? 0);
-                                  setValue(`order_items.${idx}.product_id`, selectedVariant?.product_id ?? 0);
+                                  setValue(
+                                    `order_items.${idx}.product_variant_id`,
+                                    variantId ?? 0
+                                  );
+                                  setValue(
+                                    `order_items.${idx}.product_id`,
+                                    selectedVariant?.product_id ?? 0
+                                  );
                                 }}
                                 key={`variant-combobox-${idx}`}
-                                error={errors.order_items?.[idx]?.product_variant_id?.message}
-                                extraText={inventoryData?.data?.items.find(i => i.product_variant_id === item.product_variant_id)?.quantity.toString()}
+                                error={
+                                  errors.order_items?.[idx]?.product_variant_id
+                                    ?.message
+                                }
+                                extraText={inventoryData?.data?.items
+                                  .find(
+                                    (i) =>
+                                      i.product_variant_id ===
+                                      item.product_variant_id
+                                  )
+                                  ?.quantity.toString()}
                               />
                             </TableCell>
                             <TableCell>
@@ -719,12 +855,16 @@ function CreateOrderDialog({
                                 value={item.quantity}
                                 onChange={(e) => {
                                   const quantity = Number(e.target.value);
-                                  setValue(`order_items.${idx}.quantity`, quantity);
+                                  setValue(
+                                    `order_items.${idx}.quantity`,
+                                    quantity
+                                  );
                                 }}
                               />
                             </TableCell>
                             <TableCell>
-                              {getVariantCost(item.product_variant_id) * item.quantity}
+                              {getVariantCost(item.product_variant_id) *
+                                item.quantity}
                             </TableCell>
                             <TableCell>
                               <Button
@@ -751,7 +891,7 @@ function CreateOrderDialog({
                     variant="outline"
                     className="mt-2"
                     onClick={() =>
-                      setValue('order_items', [
+                      setValue("order_items", [
                         ...orderItems,
                         {
                           product_id: 0,
@@ -770,7 +910,18 @@ function CreateOrderDialog({
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Products Total</span>
                     <span className="font-semibold">
-                      {new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(orderItems.reduce((sum, item) => sum + (getVariantCost(item.product_variant_id) * item.quantity), 0))}
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: "DZD",
+                      }).format(
+                        orderItems.reduce(
+                          (sum, item) =>
+                            sum +
+                            getVariantCost(item.product_variant_id) *
+                              item.quantity,
+                          0
+                        )
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -797,7 +948,7 @@ function CreateOrderDialog({
                               type="number"
                               className="max-w-[120px] text-right border rounded px-2 py-1 bg-background"
                               value={field.value}
-                              onChange={e => {
+                              onChange={(e) => {
                                 userEditedSecondDelivery.current = true;
                                 field.onChange(Number(e.target.value));
                               }}
@@ -816,12 +967,14 @@ function CreateOrderDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              min={0} 
-                              {...field} 
-                              onChange={(e) => field.onChange(Number(e.target.value))}
-                              className="max-w-[120px] text-right" 
+                            <Input
+                              type="number"
+                              min={0}
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(Number(e.target.value))
+                              }
+                              className="max-w-[120px] text-right"
                             />
                           </FormControl>
                           <FormMessage />
@@ -833,20 +986,36 @@ function CreateOrderDialog({
                     <span>Total</span>
                     <span>
                       {(() => {
-                        let productsTotal = orderItems.reduce((sum, item) => sum + (getVariantCost(item.product_variant_id) * item.quantity), 0);
+                        let productsTotal = orderItems.reduce(
+                          (sum, item) =>
+                            sum +
+                            getVariantCost(item.product_variant_id) *
+                              item.quantity,
+                          0
+                        );
                         // Use only the value of second_delivery_cost for the delivery part of the total
-                        const secondDeliveryCost = watch('second_delivery_cost');
-                        const total = productsTotal + (secondDeliveryCost || 0) - (discount || 0);
-                        setValue('total', total);
-                        return new Intl.NumberFormat("en-US", { style: "currency", currency: "DZD" }).format(Math.max(total, 0));
+                        const secondDeliveryCost = watch(
+                          "second_delivery_cost"
+                        );
+                        const total =
+                          productsTotal +
+                          (secondDeliveryCost || 0) -
+                          (discount || 0);
+                        setValue("total", total);
+                        return new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "DZD",
+                        }).format(Math.max(total, 0));
                       })()}
-                      <input type="hidden"  {...form.register('total')} />
+                      <input type="hidden" {...form.register("total")} />
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-            {errors && <div className="text-red-500 text-sm">{errors.root?.message}</div>}
+            {errors && (
+              <div className="text-red-500 text-sm">{errors.root?.message}</div>
+            )}
             <DialogFooter>
               <Button type="submit" disabled={isPending}>
                 {isPending ? "Creating..." : "Create Order"}
@@ -860,13 +1029,8 @@ function CreateOrderDialog({
           </form>
         </Form>
       </DialogContent>
-      <ClientStatusDialog
-        open={clientStatusDialogOpen}
-        setOpen={setClientStatusDialogOpen}
-        orderID={wooOrder.id}
-      />
     </Dialog>
   );
 }
 
-export default CreateOrderDialog;
+export default CreateOrderFromScratchDialog;

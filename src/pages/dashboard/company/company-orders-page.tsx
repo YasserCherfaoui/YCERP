@@ -1,7 +1,9 @@
 import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
+import { ProductVariantCombobox } from "@/components/feature-specific/company-products/product-variant-combobox";
 import BulkOperationsDialog from "@/components/feature-specific/orders/bulk-operations-dialog";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
+import CreateOrderFromScratchDialog from "@/components/feature-specific/orders/create-order-from-scratch-dialog.tsx";
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
@@ -21,7 +23,11 @@ import { YALIDINE_STATUSES } from "@/models/data/woo-order.model";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
-import { dispatchWooCommerceOrders, exportWooCommerceOrders, refreshWooCommerceStatus } from "@/services/woocommerce-service";
+import {
+  dispatchWooCommerceOrders,
+  exportWooCommerceOrders,
+  refreshWooCommerceStatus,
+} from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -69,7 +75,12 @@ export default function CompanyOrdersPage() {
   );
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [debouncedPhoneNumber, setDebouncedPhoneNumber] = useState<string>("");
-  const [selectedYalidineStatus, setSelectedYalidineStatus] = useState<string | undefined>(undefined);
+  const [selectedYalidineStatus, setSelectedYalidineStatus] = useState<
+    string | undefined
+  >(undefined);
+  const [selectedConfirmedVariant, setSelectedConfirmedVariant] = useState<
+    number | undefined
+  >(undefined);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -86,7 +97,10 @@ export default function CompanyOrdersPage() {
     selectedUser,
     selectedWilaya,
     debouncedPhoneNumber,
-    selectedYalidineStatus
+    selectedYalidineStatus,
+    undefined,
+    undefined,
+    selectedConfirmedVariant
   );
 
   useEffect(() => {
@@ -164,7 +178,10 @@ export default function CompanyOrdersPage() {
   // --- Bulk Operations Dialog State ---
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
 
-  const { mutate: dispatchWooCommerceOrdersMutation, isPending: dispatchWooCommerceOrdersLoading } = useMutation({
+  const {
+    mutate: dispatchWooCommerceOrdersMutation,
+    isPending: dispatchWooCommerceOrdersLoading,
+  } = useMutation({
     mutationFn: dispatchWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -182,7 +199,10 @@ export default function CompanyOrdersPage() {
       });
     },
   });
-  const { mutate: exportWooCommerceOrdersMutation, isPending: exportWooCommerceOrdersLoading } = useMutation({
+  const {
+    mutate: exportWooCommerceOrdersMutation,
+    isPending: exportWooCommerceOrdersLoading,
+  } = useMutation({
     mutationFn: exportWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -201,8 +221,10 @@ export default function CompanyOrdersPage() {
     },
   });
 
-
-  const { mutate: refreshWooCommerceStatusMutation, isPending: refreshWooCommerceStatusLoading } = useMutation({
+  const {
+    mutate: refreshWooCommerceStatusMutation,
+    isPending: refreshWooCommerceStatusLoading,
+  } = useMutation({
     mutationFn: refreshWooCommerceStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -223,16 +245,16 @@ export default function CompanyOrdersPage() {
   const handleExportSubmit = (orderIDs: number[]) => {
     exportWooCommerceOrdersMutation(orderIDs);
     setSelectedRows([]);
-  }
+  };
   const handleDispatchSubmit = (orderIDs: number[]) => {
     dispatchWooCommerceOrdersMutation(orderIDs);
     setSelectedRows([]);
   };
 
-  
-
   // --- Import Orders CSV Dialog State ---
   const [importCSVOpen, setImportCSVOpen] = useState(false);
+  // Add state for create order dialog
+  const [createOrderOpen, setCreateOrderOpen] = useState(false);
 
   // Statuses and icons
   const statusTabs = [
@@ -279,9 +301,19 @@ export default function CompanyOrdersPage() {
     {
       value: "relaunched",
       label: "Relaunched",
-      icon: <Rocket className="w-4 h-4 mr-1" />, 
-    }
+      icon: <Rocket className="w-4 h-4 mr-1" />,
+    },
   ];
+
+  const { data: inventoryData } = useQuery({
+    queryKey: ["inventory", company.ID],
+    queryFn: () => getCompanyInventory(company.ID),
+    enabled: Boolean(company && company.ID),
+  });
+  const allVariants =
+    inventoryData?.data?.items
+      .map((item) => item.product_variant)
+      .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
 
   return (
     <div className="p-6">
@@ -295,9 +327,15 @@ export default function CompanyOrdersPage() {
             <ShuffleIcon className="w-4 h-4" />
             Shuffle Orders
           </Button>
-          <Button onClick={() => refreshWooCommerceStatusMutation()} disabled={refreshWooCommerceStatusLoading}>
+          <Button
+            onClick={() => refreshWooCommerceStatusMutation()}
+            disabled={refreshWooCommerceStatusLoading}
+          >
             <RefreshCcwIcon className="w-4 h-4" />
-            Refresh Status {refreshWooCommerceStatusLoading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+            Refresh Status{" "}
+            {refreshWooCommerceStatusLoading && (
+              <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+            )}
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
@@ -312,14 +350,20 @@ export default function CompanyOrdersPage() {
           >
             Bulk Operations
           </Button>
+          <Button variant="default" onClick={() => setCreateOrderOpen(true)}>
+            + Create Order
+          </Button>
+          {/* Add Create Order button here, only if not isModerator */}
           {!isModerator && (
-            <Button
-              variant="secondary"
-              onClick={() => setImportCSVOpen(true)}
-            >
-              <Upload className="w-4 h-4 mr-1" />
-              Import CSV
-            </Button>
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => setImportCSVOpen(true)}
+              >
+                <Upload className="w-4 h-4 mr-1" />
+                Import CSV
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -356,11 +400,13 @@ export default function CompanyOrdersPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Wilayas</SelectItem>
-              {cities.sort((a, b) => a.label.localeCompare(b.label)).map((city) => (
-                <SelectItem key={city.key} value={city.key}>
-                  {city.label}
-                </SelectItem>
-              ))}
+              {cities
+                .sort((a, b) => a.label.localeCompare(b.label))
+                .map((city) => (
+                  <SelectItem key={city.key} value={city.key}>
+                    {city.label}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
           <span>Filter by Yalidine Status:</span>
@@ -376,10 +422,24 @@ export default function CompanyOrdersPage() {
             <SelectContent>
               <SelectItem value="all">All Yalidine Statuses</SelectItem>
               {Object.values(YALIDINE_STATUSES).map((status) => (
-                <SelectItem key={status} value={status}>{status}</SelectItem>
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          <span>Confirmed Order Item:</span>
+          <div style={{ minWidth: 220 }}>
+            <ProductVariantCombobox
+              variants={allVariants}
+              value={selectedConfirmedVariant}
+              onChange={setSelectedConfirmedVariant}
+              placeholder="Select confirmed item..."
+              extraText={inventoryData?.data?.items
+                .find((i) => i.product_variant_id === selectedConfirmedVariant)
+                ?.quantity.toString()}
+            />
+          </div>
         </div>
         <div id="#secondary-filters">
           <div className="flex gap-2 items-center mb-4">
@@ -389,7 +449,7 @@ export default function CompanyOrdersPage() {
               className="border rounded px-2 py-1 w-[200px]"
               placeholder="Enter phone number"
               value={phoneNumber}
-              onChange={e => setPhoneNumber(e.target.value)}
+              onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
         </div>
@@ -447,21 +507,27 @@ export default function CompanyOrdersPage() {
             orderIds={selectedRows.map(Number)}
             onSubmit={handleAssignSubmit}
           />
-        
         </>
       )}
-        <BulkOperationsDialog
-            open={bulkDialogOpen}
-            setOpen={setBulkDialogOpen}
-            selectedCount={selectedRows.length}
-            onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
-            onExport={() => handleExportSubmit(selectedRows.map(Number))}
-            dispatchLoading={dispatchWooCommerceOrdersLoading}
-            exportLoading={exportWooCommerceOrdersLoading}
-          />
+      <BulkOperationsDialog
+        open={bulkDialogOpen}
+        setOpen={setBulkDialogOpen}
+        selectedCount={selectedRows.length}
+        onDispatch={() => handleDispatchSubmit(selectedRows.map(Number))}
+        onExport={() => handleExportSubmit(selectedRows.map(Number))}
+        dispatchLoading={dispatchWooCommerceOrdersLoading}
+        exportLoading={exportWooCommerceOrdersLoading}
+      />
       {!isModerator && (
-        <ImportOrdersCSVDialog open={importCSVOpen} setOpen={setImportCSVOpen} />
+        <ImportOrdersCSVDialog
+          open={importCSVOpen}
+          setOpen={setImportCSVOpen}
+        />
       )}
+      <CreateOrderFromScratchDialog
+        open={createOrderOpen}
+        setOpen={setCreateOrderOpen}
+      />
     </div>
   );
 }

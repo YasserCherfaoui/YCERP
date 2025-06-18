@@ -17,3 +17,11 @@ export const createEmployeeSchema = z.object({
 });
 
 export type CreateEmployeeSchema = z.infer<typeof createEmployeeSchema>;
+
+
+export const loginEmployeeSchema = z.object({
+  email: z.string().email({ message: "Invalid email format" }),
+  password: z.string().min(1, { message: "Password is required" }),
+});
+
+export type LoginEmployeeSchema = z.infer<typeof loginEmployeeSchema>;

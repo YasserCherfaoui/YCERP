@@ -180,6 +180,15 @@ export function DataTable<TData, TValue>({
     }
   }, [someChecked]);
 
+  useEffect(() => {
+    if (table.getState().pagination.pageIndex !== 0) {
+      table.setPageIndex(0);
+    }
+  }, [columnFilters]);
+
+  console.log("Filter value:", table.getColumn(searchColumn)?.getFilterValue());
+  console.log("Filtered rows:", table.getFilteredRowModel().rows);
+
   return (
     <div>
       <div className="flex items-center py-4">
@@ -311,7 +320,6 @@ export function DataTable<TData, TValue>({
           : null}
       </div>
 
-     
         <Pagination className="flex space-x-2 py-4 w-[500px]">
           <PaginationContent className="pb-5">
             <PaginationItem>

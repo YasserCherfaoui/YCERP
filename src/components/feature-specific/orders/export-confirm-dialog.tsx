@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { WooOrder } from "@/models/data/woo-order.model";
@@ -16,9 +16,10 @@ interface ExportConfirmDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   order: WooOrder;
+  ordersQueryKey?: any[];
 }
 
-export default function ExportConfirmDialog({ open, setOpen, order }: ExportConfirmDialogProps) {
+export default function ExportConfirmDialog({ open, setOpen, order, ordersQueryKey }: ExportConfirmDialogProps) {
     const {toast} = useToast();
     const queryClient = useQueryClient()
     const {mutate: exportWooCommerceOrderMutation, isPending} = useMutation({
@@ -29,7 +30,11 @@ export default function ExportConfirmDialog({ open, setOpen, order }: ExportConf
                 description: "Order exported successfully",
             });
             setOpen(false);
-            queryClient.invalidateQueries({ queryKey: ["orders"] });
+            if (ordersQueryKey) {
+              queryClient.invalidateQueries({ queryKey: ordersQueryKey });
+            } else {
+              queryClient.invalidateQueries({ queryKey: ["orders"] });
+            }
         },
         onError: (err: any) => {
             toast({

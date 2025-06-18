@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { WooOrder } from "@/models/data/woo-order.model";
@@ -16,9 +16,10 @@ interface DispatchConfirmDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   order: WooOrder;
+  ordersQueryKey?: any[];
 }
 
-export default function DispatchConfirmDialog({ open, setOpen, order }: DispatchConfirmDialogProps) {
+export default function DispatchConfirmDialog({ open, setOpen, order, ordersQueryKey }: DispatchConfirmDialogProps) {
   const {toast} = useToast();
   const queryClient = useQueryClient();
   const {mutate: dispatchWooCommerceOrderMutation, isPending} = useMutation({
@@ -29,7 +30,11 @@ export default function DispatchConfirmDialog({ open, setOpen, order }: Dispatch
         description: "Order dispatched successfully",
       });
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      if (ordersQueryKey) {
+        queryClient.invalidateQueries({ queryKey: ordersQueryKey });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["orders"] });
+      }
     },
     onError: (err: any) => {
       toast({

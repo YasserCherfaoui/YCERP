@@ -1,22 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -51,7 +51,7 @@ export default function PrintDeliveryEmployeeTableDialog({ open, onOpenChange, e
     mutationFn: async (data: PrintDeliveryEmployeeTableForm) => {
       const d = data.delivery_date;
       if (!d) throw new Error("Date is required");
-      const localDate = d.toLocaleDateString("fr-DZ"); // YYYY-MM-DD, no time, no timezone
+      const localDate = d.toLocaleDateString("en-US"); // YYYY-MM-DD, no time, no timezone
       await printDeliveryEmployeeTable({
         delivery_employee_id: data.delivery_employee_id,
         delivery_date: localDate,
