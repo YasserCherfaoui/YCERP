@@ -297,6 +297,9 @@ export default function () {
                     <div className="mb-4 border border-red-200 p-4">
                       Comments: {order.comments}
                     </div>
+                    <div className="mb-4 border border-green-200 p-4">
+                      Customer Name: {order.billing_name}
+                    </div>
                     <Table>
                       <TableHeader>
                         <TableRow>
