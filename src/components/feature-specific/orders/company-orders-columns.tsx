@@ -13,12 +13,23 @@ import ClientStatusDetailsDialog from "./client-status-details-dialog";
 import { ConfirmedOrderItemsAccordion } from "./order-line-items-accordion";
 
 export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
-  { accessorKey: "id", header: "ID", cell: ({ row }: { row: { original: WooOrder } }) => <div className="text-center" style={{
-    backgroundColor: row.original.is_exchange ? "red" : "transparent",
-    color: "white",
-    padding: "2px 4px",
-    borderRadius: "4px",
-  }}>{row.original.id}</div> },
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }: { row: { original: WooOrder } }) => (
+      <div
+        className="text-center"
+        style={{
+          backgroundColor: row.original.is_exchange ? "red" : "transparent",
+          color: "white",
+          padding: "2px 4px",
+          borderRadius: "4px",
+        }}
+      >
+        {row.original.id}
+      </div>
+    ),
+  },
   {
     accessorKey: "total",
     header: "Total",
@@ -77,9 +88,7 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
           row.original.customer_phone_count > 1 &&
           `(${row.original.customer_phone_count})`}
         {row.original.customer_phone_2 && (
-          <div className="text-center">
-            {row.original.customer_phone_2}
-          </div>
+          <div className="text-center">{row.original.customer_phone_2}</div>
         )}
       </div>
     ),
@@ -290,24 +299,24 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       return (
         <div className="flex gap-2 items-center">
           <OrderActions order={order} />
-              {order.order_status === "delivered" && (
-                <>
-                  <Button
-                    className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                    onClick={() => setExchangeDialogOpen(true)}
-                    type="button"
-                  >
-                    Declare Exchange
-                  </Button>
-                  {exchangeDialogOpen && (
-                    <DeclareExchangeDialog
-                      open={exchangeDialogOpen}
-                      onOpenChange={setExchangeDialogOpen}
-                      order={order}
-                    />
-                  )}
-                </>
+          {order.order_status === "delivered" && (
+            <>
+              <Button
+                className="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                onClick={() => setExchangeDialogOpen(true)}
+                type="button"
+              >
+                Declare Exchange
+              </Button>
+              {exchangeDialogOpen && (
+                <DeclareExchangeDialog
+                  open={exchangeDialogOpen}
+                  onOpenChange={setExchangeDialogOpen}
+                  order={order}
+                />
               )}
+            </>
+          )}
         </div>
       );
     },

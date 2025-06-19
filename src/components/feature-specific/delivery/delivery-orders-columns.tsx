@@ -17,7 +17,23 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[] }) : ColumnDef<WooOrder, { id: number }>[] => [
-  { accessorKey: "id", header: "ID" },
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }: { row: { original: WooOrder } }) => (
+      <div
+        className="text-center"
+        style={{
+          backgroundColor: row.original.is_exchange ? "red" : "transparent",
+          color: "white",
+          padding: "2px 4px",
+          borderRadius: "4px",
+        }}
+      >
+        {row.original.id}
+      </div>
+    ),
+  },
   {
     accessorKey: "billing_name",
     header: "Full Name",
