@@ -3,13 +3,14 @@ import DispatchConfirmDialog from "@/components/feature-specific/orders/dispatch
 import ExportConfirmDialog from "@/components/feature-specific/orders/export-confirm-dialog";
 import OrderDetailsDialog from "@/components/feature-specific/orders/order-details-dialog";
 import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
+import SetCancelledStatusDialog from "@/components/feature-specific/orders/set-cancelled-status-dialog";
+import SetPackingStatusDialog from "@/components/feature-specific/orders/set-packing-status-dialog";
 import UpdateOrderDialog from "@/components/feature-specific/orders/update-order-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WooOrder } from "@/models/data/woo-order.model";
-import { Download, Eye, History, PlusCircle, Truck } from "lucide-react";
+import { Download, Eye, History, PackageOpen, PlusCircle, Truck, X } from "lucide-react";
 import { useState } from "react";
-
 
 function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }) {
   const { order, ordersQueryKey } = props;
@@ -19,6 +20,8 @@ function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [orderHistoryDialogOpen, setOrderHistoryDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [setPackingDialogOpen, setSetPackingDialogOpen] = useState(false);
+  const [setCancelledDialogOpen, setSetCancelledDialogOpen] = useState(false);
 
   return (
     <>
@@ -28,6 +31,8 @@ function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }
       <ExportConfirmDialog order={order} open={exportDialogOpen} setOpen={setExportDialogOpen} ordersQueryKey={ordersQueryKey} />
       <OrderHistoryDialog order={order} open={orderHistoryDialogOpen} setOpen={setOrderHistoryDialogOpen} ordersQueryKey={ordersQueryKey} />
       <UpdateOrderDialog order={order} open={updateDialogOpen} setOpen={setUpdateDialogOpen} ordersQueryKey={ordersQueryKey} />
+      <SetPackingStatusDialog order={order} open={setPackingDialogOpen} setOpen={setSetPackingDialogOpen} ordersQueryKey={ordersQueryKey} />
+      <SetCancelledStatusDialog order={order} open={setCancelledDialogOpen} setOpen={setSetCancelledDialogOpen} ordersQueryKey={ordersQueryKey} />
 
       <TooltipProvider>
         <div className="flex gap-2">
@@ -63,6 +68,18 @@ function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }
               <TooltipContent>Create Order</TooltipContent>
             </Tooltip>
           )}
+          {/* Set to Packing - show everywhere except when status is packing */}
+          {order.order_status !== "packing" && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setSetPackingDialogOpen(true)}>
+                  <PackageOpen className="h-4 w-4" />
+                  <span className="sr-only">Set to Packing</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Set to Packing</TooltipContent>
+            </Tooltip>
+          )}
           {/* Dispatch Order - only if packing */}
           {order.order_status === "packing" && (
             <Tooltip>
@@ -87,7 +104,19 @@ function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }
               <TooltipContent>Export Order</TooltipContent>
             </Tooltip>
           )}
-          {/* Update Order - always available */}
+          {/* Cancel Order - show everywhere except when status is cancelled */}
+          {order.order_status !== "cancelled" && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setSetCancelledDialogOpen(true)}>
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Cancel Order</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Cancel Order</TooltipContent>
+            </Tooltip>
+          )}
+          {/* Update Order - only if packing or dispaching */}
           {(order.order_status === "packing" || order.order_status === "dispaching") && (
             <Tooltip>
               <TooltipTrigger asChild>

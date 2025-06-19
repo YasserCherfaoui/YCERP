@@ -14,4 +14,10 @@ export const shuffleRequest = z.object({
 export type ShuffleRequest = z.infer<typeof shuffleRequest>;
 
 
+export const updateWooCommerceOrderStatusRequest = z.object({
+  order_id: z.number(),
+  status: z.string(),
+});
+
+export type UpdateWooCommerceOrderStatusRequest = z.infer<typeof updateWooCommerceOrderStatusRequest>;
 

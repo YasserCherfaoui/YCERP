@@ -30,6 +30,7 @@ import {
   SendIcon,
   TruckIcon,
   Undo2Icon,
+  XIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -64,6 +65,11 @@ const ORDER_STATUSES = [
     value: "returned",
     label: "Returned",
     icon: <Undo2Icon className="w-4 h-4 mr-1" />,
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+    icon: <XIcon className="w-4 h-4 mr-1" />,
   },
 ];
 
