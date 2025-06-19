@@ -21,3 +21,10 @@ export const updateWooCommerceOrderStatusRequest = z.object({
 
 export type UpdateWooCommerceOrderStatusRequest = z.infer<typeof updateWooCommerceOrderStatusRequest>;
 
+export const declareEmptyExchangeRequest = z.object({
+  woo_order_id: z.number(),
+  reason: z.string(),
+  comments: z.string().optional(),
+});
+
+export type DeclareEmptyExchangeRequest = z.infer<typeof declareEmptyExchangeRequest>;

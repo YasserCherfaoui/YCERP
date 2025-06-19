@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import DeclareEmptyExchangeDialog from "@/components/feature-specific/orders/declare-empty-exchange-dialog";
 import {
   Accordion,
   AccordionContent,
@@ -31,7 +32,7 @@ import {
   updateOrderStatus,
 } from "@/services/delivery-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Clock, LogOut, MessageCircle, X } from "lucide-react";
+import { Check, Clock, LogOut, MessageCircle, RefreshCw, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -63,6 +64,7 @@ export default function () {
   });
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [exchangeDialogOpen, setExchangeDialogOpen] = useState(false);
   const { mutate: updateOrderStatusMutation } = useMutation({
     mutationFn: (data: { order_id: number; status: string; reason?: string }) =>
       updateOrderStatus(data.order_id, data.status, data.reason),
@@ -290,6 +292,27 @@ export default function () {
                               <MessageCircle />
                               No Reply
                             </Button>
+                            {order.order_status === "delivered" && (
+                              <Dialog open={exchangeDialogOpen} onOpenChange={setExchangeDialogOpen}>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    className="bg-blue-500 text-white col-span-2"
+                                  >
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    Declare Exchange
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DeclareEmptyExchangeDialog 
+                                    order={order} 
+                                    open={exchangeDialogOpen} 
+                                    setOpen={setExchangeDialogOpen} 
+                                    queryKey={["delivery-orders", deliveryEmployee?.ID]}
+                                  />
+                                </DialogContent>
+                              </Dialog>
+                            )}
                           </div>
                         </DialogContent>
                       </Dialog>

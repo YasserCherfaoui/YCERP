@@ -9,7 +9,7 @@ import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
 import { CenterListResponse } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema, ExchangeWooOrderSchema } from "@/schemas/order";
-import { AssignRequest, ShuffleRequest, UpdateWooCommerceOrderStatusRequest } from "@/schemas/woocommerce";
+import { AssignRequest, DeclareEmptyExchangeRequest, ShuffleRequest, UpdateWooCommerceOrderStatusRequest } from "@/schemas/woocommerce";
 
 const token = localStorage.getItem("token");
 export const getWooCommerceOrders = async (
@@ -385,6 +385,23 @@ export const updateWooCommerceOrderStatus = async (request: UpdateWooCommerceOrd
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Failed to update WooCommerce order status");
+  }
+  const data: APIResponse<void> = await response.json();
+  return data;
+}
+
+export const declareEmptyExchange = async (request: DeclareEmptyExchangeRequest): Promise<APIResponse<void>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/declare-empty-exchange`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token,
+    },
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to declare empty exchange");
   }
   const data: APIResponse<void> = await response.json();
   return data;
