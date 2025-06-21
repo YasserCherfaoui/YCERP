@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { Return } from "@/models/data/return.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CreateSaleReturnSchema, CreateUnknownReturnSchema } from "@/schemas/return-schema";
+import { CreateSaleReturnSchema, CreateUnknownReturnSchema, UpdateReturnSchema } from "@/schemas/return-schema";
 
 
 export const createReturnSale = async (data: CreateSaleReturnSchema) => {
@@ -43,6 +43,25 @@ export const createFranchiseReturnSale = async (data: CreateSaleReturnSchema) =>
     return createdReturn;
 }
 
+export const updateFranchiseReturnSale = async (data: UpdateReturnSchema) => {
+    const response = await fetch(`${baseUrl}/returns/${data.id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update return.");
+    }
+
+    const updatedReturn = await response.json();
+    return updatedReturn;
+}
+
 export const createCompanyUnknownReturn = async (data: CreateUnknownReturnSchema): Promise<APIResponse<Return>> => {
     const response = await fetch(`${baseUrl}/company-unknown-returns`, {
         method: 'POST',
@@ -60,7 +79,6 @@ export const createCompanyUnknownReturn = async (data: CreateUnknownReturnSchema
 
     const createdReturn = await response.json();
     return createdReturn;
-
 }
 
 export const getCompanyUnknownReturns = async (comapnyID: number): Promise<APIResponse<Return[]>> => {
