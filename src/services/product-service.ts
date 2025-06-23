@@ -102,7 +102,7 @@ export const deleteProducts = async (productIds: number[]): Promise<APIResponse<
 }
 
 export const generateBarcodes = async (data: GenerateBarcodePDFSchema): Promise<void> => {
-    const response = await fetch(`${baseUrl}/products/barcodes`, {
+    const response = await fetch(`${baseUrl}/products/qrcodes`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
