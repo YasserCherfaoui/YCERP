@@ -29,7 +29,7 @@ import * as z from "zod";
 
 const affiliatePropSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  creatives_link: z.string().url("Must be a valid URL"),
+  creatives_link: z.string().url("Must be a valid URL").optional(),
   product_link: z.string().url("Must be a valid URL"),
   commission: z.coerce.number().int().min(0, "Commission cannot be negative"),
 });
