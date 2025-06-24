@@ -123,7 +123,7 @@ export default function () {
                             ? "bg-green-500 text-white"
                             : order.order_status === "cancelled"
                             ? "bg-red-500 text-white"
-                            : order.order_status === "no_reply"
+                            : order.order_status === "deliviring"
                             ? "bg-blue-500 text-white"
                             : !isToday
                             ? "bg-yellow-500 text-white"
