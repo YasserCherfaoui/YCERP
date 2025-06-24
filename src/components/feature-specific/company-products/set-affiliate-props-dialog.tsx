@@ -1,25 +1,29 @@
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/models/data/product.model";
+import { setAffiliateProps } from "@/services/product-service";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -32,9 +36,10 @@ const affiliatePropSchema = z.object({
 
 const formSchema = z.object({
   affiliate_props: z.array(affiliatePropSchema),
+  product_id: z.number(),
 });
 
-type AffiliateFormValues = z.infer<typeof formSchema>;
+export type AffiliateFormValues = z.infer<typeof formSchema>;
 
 interface SetAffiliatePropsDialogProps {
   product: Product;
@@ -52,6 +57,7 @@ export function SetAffiliatePropsDialog({
   ];
 
   const defaultValues: Partial<AffiliateFormValues> = {
+    product_id: product.ID,
     affiliate_props: uniqueColors.map((color) => {
       const existingProp = product.affiliate_props?.find(
         (p) => p.name === color
@@ -74,17 +80,32 @@ export function SetAffiliatePropsDialog({
     control: form.control,
     name: "affiliate_props",
   });
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { mutate: setAffiliatePropsMutation } = useMutation({
+    mutationFn: setAffiliateProps,
+    onSuccess: () => {
+      toast({
+        title: "Affiliate props updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      setOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to update affiliate props",
+        description: error.message,
+      });
+    },
+  });
 
   function onSubmit(data: AffiliateFormValues) {
-    console.log({
-      product_id: product.ID,
-      ...data,
-    });
-    // Here we'd call the service to update affiliate props
+    setAffiliatePropsMutation(data);
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={(e: Event) => e.preventDefault()}>
           Set Affiliate Props

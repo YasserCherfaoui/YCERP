@@ -1,4 +1,5 @@
 import { baseUrl } from "@/app/constants";
+import { AffiliateFormValues } from "@/components/feature-specific/company-products/set-affiliate-props-dialog";
 import { Product, ProductVariant } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CompanyStatsResponse, ProductPurchasesResponse } from "@/models/responses/company-stats.model";
@@ -41,7 +42,7 @@ export const getAllProducts = async (): Promise<APIResponse<Product[]>> => {
     return apiResponse;
 
 }
-export const getFranchiseAllProducts = async (companyID:number): Promise<APIResponse<Product[]>> => {
+export const getFranchiseAllProducts = async (companyID: number): Promise<APIResponse<Product[]>> => {
     const response = await fetch(`${baseUrl}/products/${companyID}`, {
         method: 'GET',
         headers: {
@@ -221,7 +222,7 @@ export const createProductVariant = async (productVariantData: CreateProductVari
 
 
 export const getProductSales = async (data: SalesQuantityRequestSchema): Promise<APIResponse<CompanyStatsResponse>> => {
-    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit??10}`, {
+    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit ?? 10}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -240,7 +241,7 @@ export const getProductSales = async (data: SalesQuantityRequestSchema): Promise
 
 
 export const getProductSalesByFranchise = async (data: SalesQuantityRequestSchema): Promise<APIResponse<CompanyStatsResponse>> => {
-    const response = await fetch(`${baseUrl}/products/sales-quantities-franchise/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit??10}`, {
+    const response = await fetch(`${baseUrl}/products/sales-quantities-franchise/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit ?? 10}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -259,7 +260,7 @@ export const getProductSalesByFranchise = async (data: SalesQuantityRequestSchem
 
 
 export const getProductPurchases = async (data: SalesQuantityRequestSchema): Promise<APIResponse<ProductPurchasesResponse>> => {
-    const response = await fetch(`${baseUrl}/supplier-bills/quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit??10}`, {
+    const response = await fetch(`${baseUrl}/supplier-bills/quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit ?? 10}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -273,5 +274,24 @@ export const getProductPurchases = async (data: SalesQuantityRequestSchema): Pro
     }
 
     const apiResponse: APIResponse<ProductPurchasesResponse> = await response.json();
+    return apiResponse;
+}
+
+export const setAffiliateProps = async (data: AffiliateFormValues): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/products/affiliate-props`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to set affiliate props.");
+    }
+
+    const apiResponse: APIResponse<void> = await response.json();
     return apiResponse;
 }
