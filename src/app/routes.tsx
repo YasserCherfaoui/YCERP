@@ -1,3 +1,5 @@
+import AffiliatePrivateRoute from "@/components/feature-specific/affiliate/affiliate-private-route";
+import AffiliatePublicRoute from "@/components/feature-specific/affiliate/affiliate-public-route";
 import DeliveryPrivateRoute from "@/components/feature-specific/delivery-employee/delivery-private-route";
 import DeliveryPublicRoute from "@/components/feature-specific/delivery-employee/delivery-public-route";
 import FranchisePrivateRoute from "@/components/feature-specific/franchise-private-route";
@@ -7,9 +9,14 @@ import UserPublicRoute from "@/components/feature-specific/moderator/user-public
 import PrivateRoute from "@/components/feature-specific/private-route";
 import PublicRoute from "@/components/feature-specific/public-route";
 import SuperFranchiseRoute from "@/components/feature-specific/super-franchise-route";
+import { AffiliateDashboardLayout } from "@/layouts/affiliate-layout";
 import CompanyLayout from "@/layouts/company-layout";
 import DashboardLayout from "@/layouts/dashboard-layout";
 import MainLayout from "@/layouts/main-layout";
+import { AffiliateLoginPage } from "@/pages/affiliate/auth/affiliate-login-page";
+import { AffiliateRegisterPage } from "@/pages/affiliate/auth/affiliate-register-page";
+import { AffiliateDashboardPage } from "@/pages/affiliate/dashboard/affiliate-dashboard-page";
+import AffiliateMyLinksPage from "@/pages/affiliate/dashboard/affiliate-my-links-page";
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
 import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
@@ -120,9 +127,9 @@ export default function AppRouter() {
             </Route>
             <Route path="order-tickets" element={<OrderTicketsPage />} />
             <Route path="delivery">
-                <Route index element={<DeliveryListPage />} />
-                <Route path=":id" element={<DeliveryDashboardPage />} />
-              </Route>
+              <Route index element={<DeliveryListPage />} />
+              <Route path=":id" element={<DeliveryDashboardPage />} />
+            </Route>
           </Route>
           <Route path="issues" element={<IssuesPage />} />
         </Route>
@@ -188,6 +195,20 @@ export default function AppRouter() {
           </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
+        {/* Affiliate Routes */}
+        <Route path="/affiliate">
+          <Route element={<AffiliatePublicRoute />}>
+            <Route path="login" element={<AffiliateLoginPage />} />
+            <Route path="register" element={<AffiliateRegisterPage />} />
+          </Route>
+          <Route element={<AffiliatePrivateRoute />}>
+            <Route element={<AffiliateDashboardLayout />}>
+              <Route index element={<AffiliateDashboardPage />} />
+              <Route path="my-links" element={<AffiliateMyLinksPage />} />
+              {/* Add other affiliate dashboard pages here */}
+            </Route>
+          </Route>
+        </Route>
         // ANCHOR: DELIVERY ROUTES
         <Route path="/delivery">
           // ! PRIVATE ROUTES

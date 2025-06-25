@@ -9,9 +9,11 @@ export interface Product {
     franchise_price: number;
     price: number;
     description: string;
-    images: ProductImage[];
+    company_id: number;
+    is_woo_picture: boolean;
+    product_images: ProductImage[];
     product_variants: ProductVariant[];
-
+    affiliate_props?: AffiliateProp[];
 }
 
 export interface ProductImage {
@@ -33,5 +35,18 @@ export interface ProductVariant {
     color: string;
     size: number;
     qr_code: string;
+}
 
+export interface AffiliateProp {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt?: string;
+    product_id: number;
+    product?: Product;
+    images?: ProductImage[];
+    product_link: string;
+    name: string;
+    creatives_link: string;
+    commission: number;
 }

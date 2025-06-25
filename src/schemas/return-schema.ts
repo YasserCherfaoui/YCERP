@@ -1,4 +1,3 @@
-
 import { Sale } from "@/models/data/sale.model";
 import * as z from "zod";
 
@@ -76,6 +75,29 @@ export const makeCreateSaleReturnSchema = (sale: Sale) => z.object({
 });
 
 export type CreateSaleReturnSchema = z.infer<typeof createSaleReturnSchema>;
+
+
+export const updateReturnSchema = z.object({
+    id: z.number(),
+    sale_id: z.number(),
+    reason: z.string().optional(),
+    type: z.string().optional(),
+    comment: z.string().optional(),
+    return_items: z.array(z.object({
+        product_variant_id: z.number(),
+        quantity: z.number(),
+    })),
+    cost: z.number().int(),
+    exchange_items: z.array(z.object({
+        product_variant_id: z.number(),
+        quantity: z.number(),
+        discount: z.number().int(),
+    })),
+    exchange_discount: z.number().int().optional(),
+    extra_costs: z.number().int(),
+});
+
+export type UpdateReturnSchema = z.infer<typeof updateReturnSchema>;
 
 
 export const createUnknownReturnSchema = z.object({

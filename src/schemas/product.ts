@@ -61,6 +61,7 @@ export const updateProductSchema = z.object({
     franchise_price: z.number().optional(),
     price: z.number().optional(),
     description: z.string().optional(),
+    is_woo_picture: z.boolean().optional(),
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>

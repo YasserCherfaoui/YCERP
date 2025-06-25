@@ -12,6 +12,7 @@ import { Product } from "@/models/data/product.model";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import RemoveProductActionDialog from "./remove-product-action-dialog";
+import { SetAffiliatePropsDialog } from "./set-affiliate-props-dialog";
 import UpdateProductForm from "./update-product-form";
 
 export const columns: ColumnDef<Product>[] = [
@@ -123,6 +124,7 @@ export const columns: ColumnDef<Product>[] = [
             <DropdownMenuItem>View customer</DropdownMenuItem>
             <UpdateProductForm product={product} />
             <RemoveProductActionDialog product={product} />
+            <SetAffiliatePropsDialog product={product} />
           </DropdownMenuContent>
         </DropdownMenu>
       );

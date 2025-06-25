@@ -1,12 +1,14 @@
+import CreateFranchiseReturnDialog from "@/components/feature-specific/company-franchise/franchise-sales/create-franchise-return-dialog";
+import UpdateFranchiseReturnDialog from "@/components/feature-specific/company-franchise/franchise-sales/update-franchise-return-dialog";
 import CompanySaleDetailsDialog from "@/components/feature-specific/company-sales/company-sale-details-dialog";
 import FranchiseRemoveSaleDialog from "@/components/feature-specific/franchise-sales/franchise-remove-sale-dialog";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sale } from "@/models/data/sale.model";
 import { MoreHorizontal } from "lucide-react";
@@ -33,7 +35,7 @@ export default function ({ sale }: Props) {
           Copy sale ID
         </DropdownMenuItem>
         <CompanySaleDetailsDialog sale={sale} />
-        {/* <CreateSaleReturnDialog sale={sale} /> */}
+        {sale.return ? <UpdateFranchiseReturnDialog sale={sale} /> : <CreateFranchiseReturnDialog sale={sale} />}
         <FranchiseRemoveSaleDialog sale={sale} />
       </DropdownMenuContent>
 

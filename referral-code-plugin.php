@@ -27,7 +27,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 
 class SimpleWooCommerceReferralTracker {
     
-    private $cookie_name = 'wc_referral_code';
+    private $cookie_name = 'cosmos_referral_code';
     private $cookie_duration = 30; // days
     
     public function __construct() {
@@ -252,8 +252,9 @@ class SimpleWooCommerceReferralTracker {
             return;
         }
         
-        // Save referral code to order meta
+        // Save referral code to order meta with both keys
         $order->update_meta_data('_referral_code', $referral_code);
+        $order->update_meta_data('cosmos_referral_code', $referral_code);
         
         // Save timestamp when referral was applied
         $order->update_meta_data('_referral_applied_date', current_time('mysql'));

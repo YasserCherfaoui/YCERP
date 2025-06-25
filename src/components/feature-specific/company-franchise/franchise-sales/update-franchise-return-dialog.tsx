@@ -1,47 +1,47 @@
 import { RootState } from "@/app/store";
 import { ProductVariantCombobox } from "@/components/feature-specific/company-products/product-variant-combobox";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Sale } from "@/models/data/sale.model";
 import {
-  CreateSaleReturnSchema,
-  makeCreateSaleReturnSchema,
+    UpdateReturnSchema,
+    updateReturnSchema,
 } from "@/schemas/return-schema";
 import { getFranchiseInventory } from "@/services/franchise-service";
-import { createFranchiseReturnSale } from "@/services/return-service";
+import { updateFranchiseReturnSale } from "@/services/return-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PackageMinus, Plus, X } from "lucide-react";
@@ -56,21 +56,26 @@ interface Props {
 export default function ({ sale }: Props) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  const form = useForm<CreateSaleReturnSchema>({
-    resolver: zodResolver(makeCreateSaleReturnSchema(sale)),
+  const form = useForm<UpdateReturnSchema>({
+    resolver: zodResolver(updateReturnSchema),
     defaultValues: {
+      id: sale.return?.ID,
       sale_id: sale.ID,
-      return_items: sale.sale_items.map((s) => ({
+      return_items: sale.return?.items.map((s) => ({
         product_variant_id: s.product_variant_id,
-        quantity: 0,
+        quantity: s.quantity,
       })),
-      exchange_items: [],
-      comment: "",
-      type: "",
-      cost: 0,
-      exchange_discount: 0,
-      extra_costs: 0,
-      reason: "",
+      exchange_items: sale.return?.exchange?.exchange_items.map((ei) => ({
+        product_variant_id: ei.product_variant_id,
+        quantity: ei.quantity,
+        discount: ei.discount,
+      })),
+      comment: sale.return?.comment,
+      type: sale.return?.type,
+      cost: sale.return?.cost,
+      exchange_discount: sale.return?.exchange?.discount,
+      extra_costs: sale.return?.exchange?.extra_costs,
+      reason: sale.return?.reason,
     },
   });
   const franchise = useSelector((state: RootState) => state.franchise.franchise);
@@ -79,15 +84,15 @@ export default function ({ sale }: Props) {
     queryFn: () => getFranchiseInventory(franchise?.ID ?? 0),
   });
   const queryClient = useQueryClient();
-  const { mutate: CreateReturnMutation, isPending } = useMutation({
-    mutationFn: createFranchiseReturnSale,
+  const { mutate: updateReturnMutation, isPending } = useMutation({
+    mutationFn: updateFranchiseReturnSale,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["sales"],
       });
       toast({
-        title: "Return created",
-        description: "Return created successfully",
+        title: "Return updated",
+        description: "Return updated successfully",
       });
       setOpen(false);
     },
@@ -100,21 +105,24 @@ export default function ({ sale }: Props) {
     },
   });
 
+  if (!sale.return) {
+    return null;
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <DropdownMenuItem
           className="text-blue-500"
-          disabled={sale.return != null}
           onSelect={(e) => e.preventDefault()}
         >
           <PackageMinus />
-          Make a return
+          Update return
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create a return for sale S-{sale.ID}</DialogTitle>
+          <DialogTitle>Update return for sale S-{sale.ID}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <ScrollArea className="max-h-[400px]">
@@ -343,14 +351,14 @@ export default function ({ sale }: Props) {
           <Button
             disabled={isPending}
             onClick={form.handleSubmit(
-              (data) => CreateReturnMutation(data),
+              (data) => updateReturnMutation(data),
               console.error
             )}
           >
-            Create
+            Update
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+} 

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +40,7 @@ export default function MyForm({ product }: Props) {
       franchise_price: product.franchise_price,
       price: product.price,
       description: product.description,
+      is_woo_picture: product.is_woo_picture,
     },
   });
   const queryClient = useQueryClient();
@@ -180,6 +182,25 @@ export default function MyForm({ product }: Props) {
                   />
                 </FormControl>
 
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="is_woo_picture"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center gap-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel>
+                  Do you want to bring the product pictures from WooCommerce?
+                </FormLabel>
                 <FormMessage />
               </FormItem>
             )}
