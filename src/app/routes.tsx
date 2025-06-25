@@ -15,8 +15,11 @@ import DashboardLayout from "@/layouts/dashboard-layout";
 import MainLayout from "@/layouts/main-layout";
 import { AffiliateLoginPage } from "@/pages/affiliate/auth/affiliate-login-page";
 import { AffiliateRegisterPage } from "@/pages/affiliate/auth/affiliate-register-page";
+import AffiliateCommissionsPage from "@/pages/affiliate/dashboard/affiliate-commissions-page";
 import { AffiliateDashboardPage } from "@/pages/affiliate/dashboard/affiliate-dashboard-page";
 import AffiliateMyLinksPage from "@/pages/affiliate/dashboard/affiliate-my-links-page";
+import AffiliatePaymentsPage from "@/pages/affiliate/dashboard/affiliate-payments-page";
+import AffiliateSettingsPage from "@/pages/affiliate/dashboard/affiliate-settings-page";
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
 import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
@@ -205,6 +208,9 @@ export default function AppRouter() {
             <Route element={<AffiliateDashboardLayout />}>
               <Route index element={<AffiliateDashboardPage />} />
               <Route path="my-links" element={<AffiliateMyLinksPage />} />
+              <Route path="commissions" element={<AffiliateCommissionsPage />} />
+              <Route path="payments" element={<AffiliatePaymentsPage />} />
+              <Route path="settings" element={<AffiliateSettingsPage />} />
               {/* Add other affiliate dashboard pages here */}
             </Route>
           </Route>

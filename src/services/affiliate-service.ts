@@ -1,7 +1,8 @@
 import { baseUrl } from "@/app/constants";
-import { Affiliate } from "@/models/data/affiliate/affiliate.model";
+import { Affiliate, AffiliatePaymentInfo, Commission, Payment } from "@/models/data/affiliate";
 import { Product } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { PaymentInfoFormData } from "@/pages/affiliate/dashboard/affiliate-settings-page";
 import { RegisterAffiliateSchema } from "@/schemas/affiliate";
 
 const getAffiliateToken = () => localStorage.getItem("affiliate_token");
@@ -78,8 +79,37 @@ export const getAffiliateProducts = async (): Promise<APIResponse<Product[]>> =>
     return result;
 };
 
-export const getCommissions = async (): Promise<APIResponse<any[]>> => {
-     const response = await fetch(`${baseUrl}/affiliates/me/commissions`, {
+export interface CommissionsPaginatedResponse {
+    commissions: Commission[];
+    pagination: {
+        current_page: number;
+        total_pages: number;
+        total_count: number;
+        limit: number;
+        has_next: boolean;
+        has_previous: boolean;
+    };
+}
+
+export interface GetCommissionsParams {
+    page?: number;
+    limit?: number;
+    status?: string;
+}
+
+export const getCommissions = async (params: GetCommissionsParams = {}): Promise<APIResponse<CommissionsPaginatedResponse>> => {
+    const { page = 1, limit = 20, status } = params;
+    
+    const searchParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    if (status) {
+        searchParams.append('status', status);
+    }
+
+    const response = await fetch(`${baseUrl}/affiliates/commissions?${searchParams}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -92,12 +122,36 @@ export const getCommissions = async (): Promise<APIResponse<any[]>> => {
         throw new Error(errorData.message || "Failed to fetch commissions.");
     }
 
-    const result: APIResponse<any[]> = await response.json();
+    const result: APIResponse<CommissionsPaginatedResponse> = await response.json();
     return result;
 };
 
-export const getPayments = async (): Promise<APIResponse<any[]>> => {
-    const response = await fetch(`${baseUrl}/affiliates/me/payments`, {
+export interface PaymentsPaginatedResponse {
+    payments: Payment[];
+    pagination: {
+        current_page: number;
+        total_pages: number;
+        total_count: number;
+        limit: number;
+        has_next: boolean;
+        has_previous: boolean;
+    };
+}
+
+export interface GetPaymentsParams {
+    page?: number;
+    limit?: number;
+}
+
+export const getPayments = async (params: GetPaymentsParams = {}): Promise<APIResponse<PaymentsPaginatedResponse>> => {
+    const { page = 1, limit = 20 } = params;
+    
+    const searchParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    const response = await fetch(`${baseUrl}/affiliates/payments?${searchParams}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -110,12 +164,12 @@ export const getPayments = async (): Promise<APIResponse<any[]>> => {
         throw new Error(errorData.message || "Failed to fetch payments.");
     }
 
-    const result: APIResponse<any[]> = await response.json();
+    const result: APIResponse<PaymentsPaginatedResponse> = await response.json();
     return result;
 };
 
-export const updatePaymentInfo = async (data: any): Promise<APIResponse<any>> => {
-    const response = await fetch(`${baseUrl}/affiliates/payment-info`, {
+export const updatePaymentInfo = async (affiliateID: number, data: PaymentInfoFormData): Promise<APIResponse<AffiliatePaymentInfo>> => {
+    const response = await fetch(`${baseUrl}/affiliates/payment-info/${affiliateID}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

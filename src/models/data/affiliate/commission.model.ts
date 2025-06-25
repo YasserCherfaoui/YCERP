@@ -1,3 +1,7 @@
+import { WooOrder } from "../woo-order.model";
+import { Affiliate } from "./affiliate.model";
+import { Payment } from "./payment.model";
+
 export type CommissionStatus =
   | "pending"
   | "paid"
@@ -11,8 +15,11 @@ export interface Commission {
   UpdatedAt: string;
   DeletedAt?: string;
   affiliate_id: number;
+  affiliate?: Affiliate;
   woo_order_id: number;
+  woo_order?: WooOrder;
   amount: number;
   paid_amount: number;
   status: CommissionStatus;
+  payments?: Payment[];
 } 
