@@ -1,9 +1,10 @@
 import CreateOrderDialog from "@/components/feature-specific/orders/create-order-dialog";
 import DispatchConfirmDialog from "@/components/feature-specific/orders/dispatch-confirm-dialog";
+import SetUnconfirmedStatusDialog from "@/components/feature-specific/orders/set-unconfirmed-status-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WooOrder } from "@/models/data/woo-order.model";
-import { Download, Eye, History, PlusCircle, Truck } from "lucide-react";
+import { Download, Eye, History, PlusCircle, Truck, Undo } from "lucide-react";
 import { useState } from "react";
 import ExportConfirmDialog from "./export-confirm-dialog";
 import OrderDetailsDialog from "./order-details-dialog";
@@ -17,6 +18,7 @@ function OrderActions({ order, ordersQueryKey }: { order: WooOrder, ordersQueryK
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [orderHistoryDialogOpen, setOrderHistoryDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [setUnconfirmedDialogOpen, setSetUnconfirmedDialogOpen] = useState(false);
   return (
     <>
       <OrderDetailsDialog order={order} open={open} setOpen={setOpen} ordersQueryKey={ordersQueryKey} />
@@ -25,6 +27,7 @@ function OrderActions({ order, ordersQueryKey }: { order: WooOrder, ordersQueryK
       <ExportConfirmDialog order={order} open={exportDialogOpen} setOpen={setExportDialogOpen} ordersQueryKey={ordersQueryKey} />
       <OrderHistoryDialog order={order} open={orderHistoryDialogOpen} setOpen={setOrderHistoryDialogOpen} ordersQueryKey={ordersQueryKey} />
       <UpdateOrderDialog order={order} open={updateDialogOpen} setOpen={setUpdateDialogOpen} ordersQueryKey={ordersQueryKey} />
+      <SetUnconfirmedStatusDialog order={order} open={setUnconfirmedDialogOpen} setOpen={setSetUnconfirmedDialogOpen} ordersQueryKey={ordersQueryKey} />
       <TooltipProvider>
         <div className="flex gap-2">
           {/* Show Order Details - always available */}
@@ -93,6 +96,15 @@ function OrderActions({ order, ordersQueryKey }: { order: WooOrder, ordersQueryK
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Update Order</TooltipContent>
+            </Tooltip>
+          )}
+          {order.order_status == "cancelled" && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setSetUnconfirmedDialogOpen(true)}>
+                  <Undo className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
             </Tooltip>
           )}
         </div>
