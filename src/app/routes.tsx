@@ -23,6 +23,9 @@ import AffiliateSettingsPage from "@/pages/affiliate/dashboard/affiliate-setting
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
 import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
+import CompanyAffiliateApplicationsPage from "@/pages/dashboard/company/company-affiliate-applications-page";
+import CompanyAffiliateDetailsPage from "@/pages/dashboard/company/company-affiliate-details-page";
+import CompanyAffiliatesPage from "@/pages/dashboard/company/company-affiliates-page";
 import CompanyAlgiersSalesPage from "@/pages/dashboard/company/company-algiers-sales-page";
 import CompanyBillsPage from "@/pages/dashboard/company/company-bills-page";
 import CompanyControlPanelPage from "@/pages/dashboard/company/company-control-panel-page";
@@ -189,6 +192,11 @@ export default function AppRouter() {
                 <Route path=":id" element={<DeliveryDashboardPage />} />
               </Route>
               <Route path="order-tickets" element={<OrderTicketsPage />} />
+              <Route path="affiliates">
+                <Route index element={<CompanyAffiliatesPage />} />
+                <Route path=":affiliateID" element={<CompanyAffiliateDetailsPage />} />
+              </Route>
+              <Route path="affiliate-applications" element={<CompanyAffiliateApplicationsPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />

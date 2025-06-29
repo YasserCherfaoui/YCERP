@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   ChartNoAxesCombined,
   ChartPie,
+  FileCheck,
   Handshake,
   Package,
   ReceiptText,
@@ -17,10 +18,11 @@ import {
   Truck,
   Undo2,
   UserCog,
+  Users,
   Warehouse,
 } from "lucide-react";
 import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function () {
   const { pathname } = useLocation();
@@ -45,6 +47,28 @@ export default function () {
             <WideButton key={index} item={item} />
           ))}
         </div>
+        <div className="text-sm text-muted-foreground mt-2">
+          View and manage your affiliate network
+        </div>
+        <Link
+          to={`/company/${company.ID}/affiliate-applications`}
+          className="bg-card rounded-lg p-6 hover:bg-accent transition-colors border"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="bg-yellow-100 p-3 rounded-lg">
+              <FileCheck className="h-6 w-6 text-yellow-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">Affiliate Applications</h3>
+              <p className="text-sm text-muted-foreground">
+                Review and approve affiliate applications
+              </p>
+            </div>
+          </div>
+          <div className="text-sm text-muted-foreground mt-2">
+            Manage pending affiliate applications
+          </div>
+        </Link>
       </div>
     </div>
   );
@@ -80,6 +104,11 @@ const quickMenu = [
     label: "Suppliers",
     icon: Handshake,
     href: "suppliers",
+  },
+  {
+    label: "Affiliates",
+    icon: Users,
+    href: "affiliates",
   },
   {
     label: "Unkown Returns",
