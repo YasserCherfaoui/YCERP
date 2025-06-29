@@ -5,53 +5,53 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Affiliate } from "@/models/data/affiliate/affiliate.model";
 import {
-    getCompanyAffiliates,
-    GetCompanyAffiliatesParams,
-    updateAffiliate,
-    UpdateAffiliateRequest,
+  getCompanyAffiliates,
+  GetCompanyAffiliatesParams,
+  updateAffiliate,
+  UpdateAffiliateRequest,
 } from "@/services/affiliate-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -86,7 +86,7 @@ export default function CompanyAffiliatesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [editingAffiliate, setEditingAffiliate] = useState<Affiliate | null>(null);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
+
 
   // Enhanced search that looks in multiple fields
   const queryParams: GetCompanyAffiliatesParams = {
