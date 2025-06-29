@@ -23,6 +23,7 @@ import { getCommissions } from "@/services/affiliate-service";
 import { useQuery } from "@tanstack/react-query";
 import {
     AlertCircle,
+    CheckCircle,
     ChevronLeft,
     ChevronRight,
     DollarSign,
@@ -89,6 +90,9 @@ export default function AffiliateCommissionsPage() {
   // Calculate summary stats
   const totalEarnings = commissions.reduce((sum: number, c: Commission) => sum + c.amount, 0);
   const paidEarnings = commissions.reduce((sum: number, c: Commission) => sum + c.paid_amount, 0);
+  const approvedEarnings = commissions
+    .filter((c: Commission) => c.status === "approved")
+    .reduce((sum: number, c: Commission) => sum + (c.amount - c.paid_amount), 0);
   const pendingEarnings = commissions
     .filter((c: Commission) => c.status === "pending" || c.status === "approved")
     .reduce((sum: number, c: Commission) => sum + (c.amount - c.paid_amount), 0);
@@ -155,7 +159,7 @@ export default function AffiliateCommissionsPage() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="rounded-2xl shadow-md border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-700">
@@ -189,6 +193,23 @@ export default function AffiliateCommissionsPage() {
                   `${((paidEarnings / totalEarnings) * 100).toFixed(1)}% of total` : 
                   "No payments received yet"
                 }
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl shadow-md border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">
+                Approved Earnings
+              </CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900">
+                {formatCurrency(approvedEarnings)}
+              </div>
+              <p className="text-xs text-gray-600 mt-1">
+                Ready for payment
               </p>
             </CardContent>
           </Card>
