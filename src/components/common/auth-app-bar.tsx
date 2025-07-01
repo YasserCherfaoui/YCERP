@@ -31,8 +31,23 @@ export default function AuthAppBar() {
     fullName = user?.full_name;
   }
 
-  const [bgColor, setBgColor] = useState(() => localStorage.getItem("custom-bg") || "#000000");
-  const [textColor, setTextColor] = useState(() => localStorage.getItem("custom-text") || "#ffffff");
+  // Migration: Update old default colors to new defaults
+  const getUpdatedColor = (key: string, newDefault: string, oldDefault: string) => {
+    const stored = localStorage.getItem(key);
+    if (stored === oldDefault) {
+      // Replace old default with new default
+      localStorage.setItem(key, newDefault);
+      return newDefault;
+    }
+    return stored || newDefault;
+  };
+
+  const [bgColor, setBgColor] = useState(() => 
+    getUpdatedColor("custom-bg", "#000000", "#ffffff")
+  );
+  const [textColor, setTextColor] = useState(() => 
+    getUpdatedColor("custom-text", "#ffffff", "#0a0a0a")
+  );
 
   useEffect(() => {
     document.documentElement.style.setProperty("--background", hexToHsl(bgColor));
