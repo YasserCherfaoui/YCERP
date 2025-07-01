@@ -25,12 +25,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function () {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+  
+  // Get the page user was trying to access before being redirected to login
+  const from = location.state?.from?.pathname || "/moderator";
+  
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginSchema),
   });
@@ -46,7 +51,8 @@ export default function () {
         title: "Login Successful",
         description: "You have been logged in successfully.",
       });
-      navigate("/");
+      // Navigate back to the page user was originally trying to access
+      navigate(from, { replace: true });
     },
     onError: (error) => {
       toast({
