@@ -130,3 +130,20 @@ export const getFranchiseInventoryTotalCost = async (franchiseID: number): Promi
     return apiResponse;
 }
 
+export const getInventoryByVariant = async (productVariantId: number): Promise<APIResponse<InventoryItem[]>> => {
+    const response = await fetch(`${baseUrl}/inventory/variant/${productVariantId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory by variant.");
+    }
+    const apiResponse: APIResponse<InventoryItem[]> = await response.json();
+    return apiResponse;
+}
+

@@ -63,6 +63,7 @@ import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-product
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import HomePage from "@/pages/home-page";
 import UserLoginPage from "@/pages/moderator/auth/login-page";
+import ModeratorMobilePage from "@/pages/moderator/dashboard/moderator-mobile-page";
 import UserAlgiersSalesPage from "@/pages/moderator/dashboard/user-algiers-sales-page";
 import UserMenuPage from "@/pages/moderator/dashboard/user-menu-page";
 import UserSalesPage from "@/pages/moderator/dashboard/user-sales-page";
@@ -119,6 +120,7 @@ export default function AppRouter() {
               element={<CompanyUnknownReturnsPage />}
             />
             <Route path="products" element={<CompanyProductsPage />} />
+            <Route path="mobile" element={<ModeratorMobilePage />} />
             <Route path="franchises">
               <Route index element={<CompanyFranchisesPage />} />
               <Route path=":franchiseID" element={<ModFranchiseRoute />}>
