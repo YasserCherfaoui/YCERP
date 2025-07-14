@@ -251,11 +251,11 @@ export const addOrderHistory = async (request: AddOrderHistoryRequest): Promise<
     return data;
 }
 
-export const createOrdersFromCSV = async (file: File): Promise<APIResponse<CreateOrdersFromCSVResponse>> => {
+export const createOrdersFromCSV = async (file: File, company_id: number): Promise<APIResponse<CreateOrdersFromCSVResponse>> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch(`${baseUrl}/woocommerce/create-from-csv`, {
+  const response = await fetch(`${baseUrl}/woocommerce/create-from-csv/${company_id}`, {
     method: 'POST',
     headers: {
       'Authorization': 'Bearer ' + token,
