@@ -100,7 +100,8 @@ export default function CompanyOrdersPage() {
     selectedYalidineStatus,
     undefined,
     undefined,
-    selectedConfirmedVariant
+    selectedConfirmedVariant,
+    company.ID
   );
 
   useEffect(() => {

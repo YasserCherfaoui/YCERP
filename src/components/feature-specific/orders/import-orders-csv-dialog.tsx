@@ -1,16 +1,18 @@
+import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import { createOrdersFromCSV } from "@/services/woocommerce-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Upload } from "lucide-react";
 import { useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 interface ImportOrdersCSVDialogProps {
   open: boolean;
@@ -20,11 +22,15 @@ interface ImportOrdersCSVDialogProps {
 export default function ImportOrdersCSVDialog({ open, setOpen }: ImportOrdersCSVDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
+  useToast();
   const queryClient = useQueryClient();
-
+  const company = useSelector((state: RootState) => state.company.company);
+  if (!company) {
+    return null;
+  }
+  const company_id = company.ID;
   const { mutate: importCSV, isPending } = useMutation({
-    mutationFn: createOrdersFromCSV,
+    mutationFn: (file: File) => createOrdersFromCSV(file, company_id),
     onSuccess: () => {
       toast({
         title: "Orders Imported",
