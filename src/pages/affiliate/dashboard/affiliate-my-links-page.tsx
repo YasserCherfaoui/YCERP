@@ -1,11 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import useAffiliate from "@/hooks/use-affiliate";
@@ -67,11 +73,8 @@ export default function AffiliateMyLinksPage() {
       return;
     }
 
-    // Construct website referral link (you can modify this URL as needed)
-    const websiteUrl = `${window.location.origin}?ref=${affiliate.slug}`;
-
     try {
-      await navigator.clipboard.writeText(websiteUrl);
+      await navigator.clipboard.writeText(websiteReferralUrl);
       toast({
         title: "Referral Link Copied!",
         description: "Website referral link has been copied to your clipboard",
@@ -107,7 +110,9 @@ export default function AffiliateMyLinksPage() {
 
   // Get company name from affiliate data
   const companyName = affiliate?.company?.company_name || "Our";
-  const websiteReferralUrl = affiliate?.slug ? `${affiliate.company?.woo_company?.woo_url}?ref=${affiliate.slug}` : "";
+  const websiteReferralUrl = affiliate?.slug
+    ? `${affiliate.company?.woo_company?.woo_url}?ref=${affiliate.slug}`
+    : "";
 
   if (isLoading) {
     return (
@@ -187,7 +192,8 @@ export default function AffiliateMyLinksPage() {
                 </Button>
               </div>
               <p className="text-sm text-gray-500 mt-2">
-                Share this link to earn commissions on all purchases made through it.
+                Share this link to earn commissions on all purchases made
+                through it.
               </p>
             </CardContent>
           </Card>
