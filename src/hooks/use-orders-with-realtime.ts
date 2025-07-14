@@ -85,7 +85,8 @@ export const useOrdersWithRealtime = (
     yalidine_status?: string,
     employee_id?: number,
     delivery_date?: string,
-    confirmed_variant_id?: number
+    confirmed_variant_id?: number,
+    company_id?: number
 ) => {
     const wsUrl = `${baseUrl.startsWith("https") ? "wss" : "ws"}://${baseUrl.replace("https://", "").replace("http://", "")}/woocommerce/ws/orders`;
     const queryClient = useQueryClient();
@@ -103,6 +104,7 @@ export const useOrdersWithRealtime = (
             employee_id: employee_id,
             delivery_date: delivery_date,
             confirmed_variant_id: confirmed_variant_id,
+            company_id: company_id,
         }),
     });
     // Handle WebSocket messages
