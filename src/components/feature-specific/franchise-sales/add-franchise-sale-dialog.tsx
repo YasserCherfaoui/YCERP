@@ -90,8 +90,10 @@ export default function () {
         myProcessBarcode();
       }
     };
-
-    window.addEventListener("keypress", handleKeyPress);
+    const barcodeInput = document.getElementById("barcde-input");
+    if (barcodeInput) {
+      barcodeInput.addEventListener("keypress", handleKeyPress);
+    }
 
     // Barcode scanners typically send data quickly, so we use a timeout
     // to determine when the full barcode has been entered
@@ -196,6 +198,7 @@ export default function () {
         <div className="flex flex-col gap-2">
           <span></span>
           <Input
+            id="barcde-input"
             value={input}
             placeholder="Scan barcode..."
             className="w-full"

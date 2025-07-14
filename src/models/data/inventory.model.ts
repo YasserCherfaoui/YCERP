@@ -28,6 +28,8 @@ export interface InventoryItem {
     product?: Product;
     product_variant?: ProductVariant;
     quantity: number
+
+    inventory?: Inventory;
 }
 
 

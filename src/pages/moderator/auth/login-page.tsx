@@ -31,6 +31,7 @@ export default function () {
   const navigate = useNavigate();
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+  
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginSchema),
   });
@@ -46,7 +47,22 @@ export default function () {
         title: "Login Successful",
         description: "You have been logged in successfully.",
       });
-      navigate("/");
+      
+      // Use setTimeout to ensure the authentication state is updated before redirecting
+      setTimeout(() => {
+        // Get the redirect path from sessionStorage
+        const redirectPath = sessionStorage.getItem('moderatorRedirectPath');
+        console.log('Redirect path from sessionStorage:', redirectPath);
+        
+        if (redirectPath) {
+          console.log('Redirecting to:', redirectPath);
+          sessionStorage.removeItem('moderatorRedirectPath');
+          navigate(redirectPath, { replace: true });
+        } else {
+          console.log('No redirect path found, going to /moderator');
+          navigate("/moderator", { replace: true });
+        }
+      }, 100);
     },
     onError: (error) => {
       toast({

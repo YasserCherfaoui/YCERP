@@ -15,11 +15,17 @@ import DashboardLayout from "@/layouts/dashboard-layout";
 import MainLayout from "@/layouts/main-layout";
 import { AffiliateLoginPage } from "@/pages/affiliate/auth/affiliate-login-page";
 import { AffiliateRegisterPage } from "@/pages/affiliate/auth/affiliate-register-page";
+import AffiliateCommissionsPage from "@/pages/affiliate/dashboard/affiliate-commissions-page";
 import { AffiliateDashboardPage } from "@/pages/affiliate/dashboard/affiliate-dashboard-page";
 import AffiliateMyLinksPage from "@/pages/affiliate/dashboard/affiliate-my-links-page";
+import AffiliatePaymentsPage from "@/pages/affiliate/dashboard/affiliate-payments-page";
+import AffiliateSettingsPage from "@/pages/affiliate/dashboard/affiliate-settings-page";
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
 import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
+import CompanyAffiliateApplicationsPage from "@/pages/dashboard/company/company-affiliate-applications-page";
+import CompanyAffiliateDetailsPage from "@/pages/dashboard/company/company-affiliate-details-page";
+import CompanyAffiliatesPage from "@/pages/dashboard/company/company-affiliates-page";
 import CompanyAlgiersSalesPage from "@/pages/dashboard/company/company-algiers-sales-page";
 import CompanyBillsPage from "@/pages/dashboard/company/company-bills-page";
 import CompanyControlPanelPage from "@/pages/dashboard/company/company-control-panel-page";
@@ -57,6 +63,7 @@ import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-product
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import HomePage from "@/pages/home-page";
 import UserLoginPage from "@/pages/moderator/auth/login-page";
+import ModeratorMobilePage from "@/pages/moderator/dashboard/moderator-mobile-page";
 import UserAlgiersSalesPage from "@/pages/moderator/dashboard/user-algiers-sales-page";
 import UserMenuPage from "@/pages/moderator/dashboard/user-menu-page";
 import UserSalesPage from "@/pages/moderator/dashboard/user-sales-page";
@@ -113,6 +120,7 @@ export default function AppRouter() {
               element={<CompanyUnknownReturnsPage />}
             />
             <Route path="products" element={<CompanyProductsPage />} />
+            <Route path="mobile" element={<ModeratorMobilePage />} />
             <Route path="franchises">
               <Route index element={<CompanyFranchisesPage />} />
               <Route path=":franchiseID" element={<ModFranchiseRoute />}>
@@ -186,6 +194,11 @@ export default function AppRouter() {
                 <Route path=":id" element={<DeliveryDashboardPage />} />
               </Route>
               <Route path="order-tickets" element={<OrderTicketsPage />} />
+              <Route path="affiliates">
+                <Route index element={<CompanyAffiliatesPage />} />
+                <Route path=":affiliateID" element={<CompanyAffiliateDetailsPage />} />
+              </Route>
+              <Route path="affiliate-applications" element={<CompanyAffiliateApplicationsPage />} />
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
@@ -205,6 +218,9 @@ export default function AppRouter() {
             <Route element={<AffiliateDashboardLayout />}>
               <Route index element={<AffiliateDashboardPage />} />
               <Route path="my-links" element={<AffiliateMyLinksPage />} />
+              <Route path="commissions" element={<AffiliateCommissionsPage />} />
+              <Route path="payments" element={<AffiliatePaymentsPage />} />
+              <Route path="settings" element={<AffiliateSettingsPage />} />
               {/* Add other affiliate dashboard pages here */}
             </Route>
           </Route>

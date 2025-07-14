@@ -1,12 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Input } from "@/components/ui/input";
 import useAffiliate from "@/hooks/use-affiliate";
 import { useToast } from "@/hooks/use-toast";
 import { AffiliateProp, Product } from "@/models/data/product.model";
@@ -56,6 +63,31 @@ export default function AffiliateMyLinksPage() {
     }
   };
 
+  const handleCopyWebsiteLink = async () => {
+    if (!affiliate?.slug) {
+      toast({
+        title: "Error",
+        description: "Affiliate slug not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(websiteReferralUrl);
+      toast({
+        title: "Referral Link Copied!",
+        description: "Website referral link has been copied to your clipboard",
+      });
+    } catch (err) {
+      toast({
+        title: "Copy Failed",
+        description: "Failed to copy link to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleOpenCreatives = (affiliateProp: AffiliateProp) => {
     if (affiliateProp.creatives_link) {
       window.open(affiliateProp.creatives_link, "_blank");
@@ -75,6 +107,12 @@ export default function AffiliateMyLinksPage() {
       affiliateProps.push(...product.affiliate_props);
     }
   });
+
+  // Get company name from affiliate data
+  const companyName = affiliate?.company?.company_name || "Our";
+  const websiteReferralUrl = affiliate?.slug
+    ? `${affiliate.company?.woo_company?.woo_url}?ref=${affiliate.slug}`
+    : "";
 
   if (isLoading) {
     return (
@@ -124,6 +162,41 @@ export default function AffiliateMyLinksPage() {
             Browse and share your affiliate products. Copy links and access
             creative materials.
           </p>
+        </div>
+
+        {/* Website Referral Link Section */}
+        <div className="mb-8">
+          <Card className="rounded-2xl shadow-md border">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-gray-900">
+                Share your referral link to {companyName} Store
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={websiteReferralUrl}
+                  readOnly
+                  className="flex-1 bg-gray-50 font-mono text-sm"
+                  placeholder="Loading referral link..."
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCopyWebsiteLink}
+                  disabled={!websiteReferralUrl}
+                  className="shrink-0"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">
+                Share this link to earn commissions on all purchases made
+                through it.
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Products Grid */}

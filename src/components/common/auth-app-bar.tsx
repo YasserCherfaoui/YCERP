@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { logout } from "@/features/auth/auth-slice";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -15,6 +16,7 @@ export default function AuthAppBar() {
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   let fullName = user?.full_name;
   const { pathname } = useLocation();
 
@@ -29,8 +31,23 @@ export default function AuthAppBar() {
     fullName = user?.full_name;
   }
 
-  const [bgColor, setBgColor] = useState(() => localStorage.getItem("custom-bg") || "#ffffff");
-  const [textColor, setTextColor] = useState(() => localStorage.getItem("custom-text") || "#0a0a0a");
+  // Migration: Update old default colors to new defaults
+  const getUpdatedColor = (key: string, newDefault: string, oldDefault: string) => {
+    const stored = localStorage.getItem(key);
+    if (stored === oldDefault) {
+      // Replace old default with new default
+      localStorage.setItem(key, newDefault);
+      return newDefault;
+    }
+    return stored || newDefault;
+  };
+
+  const [bgColor, setBgColor] = useState(() => 
+    getUpdatedColor("custom-bg", "#000000", "#ffffff")
+  );
+  const [textColor, setTextColor] = useState(() => 
+    getUpdatedColor("custom-text", "#ffffff", "#0a0a0a")
+  );
 
   useEffect(() => {
     document.documentElement.style.setProperty("--background", hexToHsl(bgColor));
@@ -42,8 +59,8 @@ export default function AuthAppBar() {
   const handleBgColorChange = (color: string) => setBgColor(color);
   const handleTextColorChange = (color: string) => setTextColor(color);
   const resetColors = () => {
-    setBgColor("#ffffff");
-    setTextColor("#0a0a0a");
+    setBgColor("#000000");
+    setTextColor("#ffffff");
     document.documentElement.style.removeProperty("--background");
     document.documentElement.style.removeProperty("--foreground");
     localStorage.removeItem("custom-bg");
@@ -97,6 +114,11 @@ export default function AuthAppBar() {
     toast.success("Logged out successfully");
   };
 
+  // Hide the entire AuthAppBar on mobile devices
+  if (isMobile) {
+    return null;
+  }
+
   return fullName ? (
     <div className="flex items-center justify-between p-4 w-1/2 m-auto">
       <div>Welcome, {fullName}</div>
@@ -104,7 +126,7 @@ export default function AuthAppBar() {
         {/* Theme toggle */}
         <ModeToggle />
         {/* Color pickers */}
-        <div className="flex items-center gap-2">
+        <div  className="flex items-center gap-2">
           <label className="flex items-center gap-1 text-xs">
             BG
             <input
@@ -146,3 +168,5 @@ export default function AuthAppBar() {
     </div>
   ) : null;
 }
+
+
