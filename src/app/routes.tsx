@@ -131,7 +131,9 @@ export default function AppRouter() {
                   path="inventory"
                   element={<CompanyFranchiseInventoryPage />}
                 />
+                <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
               </Route>
+
             </Route>
             <Route path="order-tickets" element={<OrderTicketsPage />} />
             <Route path="delivery">
