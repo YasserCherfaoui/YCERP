@@ -87,9 +87,11 @@ export default function () {
       });
     },
   });
-  useEffect(() => {
-    let timeout = setTimeout(() => {
-      if (input.length != 0) {
+
+  // Handler for barcode input on Enter key
+  const handleBarcodeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (input.length !== 0) {
         let found = false;
         for (let item of inventory?.data?.items ?? []) {
           if (item.product_variant && item.product_variant.qr_code == input) {
@@ -131,11 +133,11 @@ export default function () {
         }
         setInput("");
       }
-    }, 1000);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [input]);
+    }
+  };
+  useEffect(() => {
+    // Removed setTimeout logic, now handled by onKeyDown
+  }, []);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -156,6 +158,7 @@ export default function () {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleBarcodeKeyDown}
             />
             <Button
               onClick={() => {
