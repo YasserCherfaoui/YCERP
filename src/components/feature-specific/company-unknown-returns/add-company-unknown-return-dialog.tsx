@@ -131,7 +131,7 @@ export default function () {
         }
         setInput("");
       }
-    }, 1800);
+    }, 1000);
     return () => {
       clearTimeout(timeout);
     };
