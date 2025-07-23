@@ -10,6 +10,7 @@ export const createProductSchema = z.object({
     description: z.string().min(1, { message: "Description is required" }),
     sizes: z.array(z.number()).optional(),
     colors: z.array(z.string(), { message: "Color is required" }).optional(),
+    is_active: z.boolean().optional(),
 })
 
 
@@ -22,6 +23,7 @@ export const productDefaultValues = {
     description: "",
     colors: [],
     sizes: [],
+    is_active: true,
 }
 
 
@@ -62,6 +64,7 @@ export const updateProductSchema = z.object({
     price: z.number().optional(),
     description: z.string().optional(),
     is_woo_picture: z.boolean().optional(),
+    is_active: z.boolean().optional(),
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>

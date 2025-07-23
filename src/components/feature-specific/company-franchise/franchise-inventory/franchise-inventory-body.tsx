@@ -4,6 +4,7 @@ import { DataTable } from "@/components/ui/data-table";
 import { getCompanyFranchiseInventory } from "@/services/franchise-service";
 import { getFranchiseInventoryTotalCost } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { franchiseInventoryColumns } from "./franchise-inventory-columns";
@@ -20,6 +21,13 @@ export default function () {
     queryFn: () => getCompanyFranchiseInventory(franchise.ID),
     enabled: !!franchise,
   });
+  const filteredItems = useMemo(
+    () =>
+      inventory?.data?.items_with_cost?.filter(
+        (item) => item.product?.is_active !== false
+      ) ?? [],
+    [inventory?.data?.items_with_cost]
+  );
   const { data: totalCostData } = useQuery({
     queryKey: ["inventory-total-cost"],
     queryFn: () => getFranchiseInventoryTotalCost(franchise.ID),
@@ -56,7 +64,7 @@ export default function () {
         </Card>
       </div>
       <DataTable
-        data={inventory?.data?.items_with_cost ?? []}
+        data={filteredItems}
         searchColumn="name"
         columns={franchiseInventoryColumns.filter(column => !isModerator || column.id !== "cost" && column.id !== "franchise_cost")}
       />
