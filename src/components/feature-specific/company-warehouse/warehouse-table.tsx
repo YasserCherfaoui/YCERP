@@ -43,7 +43,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Barcode from "react-barcode";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -145,6 +145,13 @@ export default function () {
     queryKey: ["inventory"],
     queryFn: () => getCompanyInventory(company?.ID ?? 0),
   });
+  const filteredItems = useMemo(
+    () =>
+      inventoryData?.data?.items_with_cost?.filter(
+        (item) => item.product?.is_active !== false
+      ) ?? [],
+    [inventoryData?.data?.items_with_cost]
+  );
   const { data: totalCostData } = useQuery({
     queryKey: ["inventory-total-cost"],
     queryFn: () => getInventoryTotalCost(company?.ID ?? 0),
@@ -152,7 +159,7 @@ export default function () {
   });
   //   ANCHOR: TABLE
   const table = useReactTable({
-    data: inventoryData?.data?.items_with_cost ?? [],
+    data: filteredItems,
     columns: columns.filter(
       (column) => !isModerator || column.header !== "Cost"
     ),

@@ -11,6 +11,7 @@ export interface Product {
     description: string;
     company_id: number;
     is_woo_picture: boolean;
+    is_active: boolean;
     product_images: ProductImage[];
     product_variants: ProductVariant[];
     affiliate_props?: AffiliateProp[];

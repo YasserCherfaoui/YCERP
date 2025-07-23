@@ -41,6 +41,7 @@ export default function MyForm({ product }: Props) {
       price: product.price,
       description: product.description,
       is_woo_picture: product.is_woo_picture,
+      is_active: product.is_active,
     },
   });
   const queryClient = useQueryClient();
@@ -201,6 +202,23 @@ export default function MyForm({ product }: Props) {
                 <FormLabel>
                   Do you want to bring the product pictures from WooCommerce?
                 </FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="is_active"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Is Active</FormLabel>
+                <FormControl>
+                  <Checkbox
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
