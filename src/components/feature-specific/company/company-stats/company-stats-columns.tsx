@@ -38,6 +38,8 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
                   <TableHead>Sold Warehouse</TableHead>
                   <TableHead>Sold Algiers</TableHead>
                   <TableHead>Sold Quantity</TableHead>
+                  <TableHead>Delivered Yalidine</TableHead>
+                  <TableHead>Delivered My Companies</TableHead>
                 </TableHeader>
                 <TableBody>
                   {row.original.variants.map((variant) => (
@@ -47,6 +49,8 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
                       <TableCell>{variant.sold_warehouse}</TableCell>
                       <TableCell>{variant.sold_algiers}</TableCell>
                       <TableCell>{variant.sold_quantity}</TableCell>
+                      <TableCell>{variant.total_delivered_woo_orders_yalidine}</TableCell>
+                      <TableCell>{variant.total_delivered_woo_orders_my_companies}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -68,5 +72,19 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
   {
     header: "Total Sold Quantity",
     accessorKey: "total_sold_quantity",
+  },
+  {
+    header: "✅ Total Delivered Yalidine",
+    accessorKey: "total_delivered_woo_orders_yalidine",
+  },
+  {
+    header: "✅ Total Delivered My Companies",
+    accessorKey: "total_delivered_woo_orders_my_companies",
+  },
+  {
+    header: "✅ Total Delivered",
+    cell: ({ row }) => {
+      return row.original.total_delivered_woo_orders_yalidine + row.original.total_delivered_woo_orders_my_companies;
+    },
   },
 ];

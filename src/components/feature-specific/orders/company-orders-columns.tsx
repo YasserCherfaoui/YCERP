@@ -228,30 +228,48 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     header: "Latest Status",
     cell: ({ row }: { row: { original: WooOrder } }) => {
       const order = row.original;
-      const statuses = order.order_histories || [];
-      const lastStatus = statuses[statuses.length - 1];
+      // Try to get the latest status by date, not just the last in the array
+      const statuses = Array.isArray(order.order_histories) ? order.order_histories : [];
+      let latestStatus = null;
+
+      if (statuses.length > 0) {
+        // Find the status with the latest date
+        latestStatus = statuses.reduce((latest, current) => {
+          const latestDate = new Date(
+            typeof latest.date === "string" ? latest.date : latest.date?.toISOString?.() || 0
+          );
+          const currentDate = new Date(
+            typeof current.date === "string" ? current.date : current.date?.toISOString?.() || 0
+          );
+          return currentDate > latestDate ? current : latest;
+        }, statuses[0]);
+      }
 
       return (
         <div className="flex flex-col justify-between items-center text-sm p-2 rounded bg-accent">
-          <span>{!lastStatus && "No status"}</span>
-          {lastStatus?.qualification && (
+          <span>{!latestStatus && "No status"}</span>
+          {latestStatus?.qualification && (
             <span
               style={{
                 color: "black",
-                backgroundColor: lastStatus.qualification.color || "gray",
+                backgroundColor: latestStatus.qualification.color || "gray",
                 padding: "2px 4px",
                 borderRadius: "4px",
               }}
             >
-              {lastStatus.qualification.name}{" "}
-              <span>{lastStatus.status && "(" + lastStatus.status + ")"}</span>
+              {latestStatus.qualification.name}{" "}
+              <span>
+                {latestStatus.status && "(" + latestStatus.status + ")"}
+              </span>
             </span>
           )}
-          {lastStatus && (
+          {latestStatus && (
             <span className="text-xs text-muted-foreground">
-              {typeof lastStatus.date === "string"
-                ? new Date(lastStatus.date).toLocaleString()
-                : lastStatus.date.toLocaleString()}
+              {typeof latestStatus.date === "string"
+                ? new Date(latestStatus.date).toLocaleString()
+                : latestStatus.date?.toLocaleString
+                ? latestStatus.date.toLocaleString()
+                : ""}
             </span>
           )}
         </div>
