@@ -6,6 +6,8 @@ export interface ProductSalesResponse {
   total_sold_quantity: number;
   total_sold_warehouse: number;
   total_sold_algiers: number;
+  total_delivered_woo_orders_yalidine: number;
+  total_delivered_woo_orders_my_companies: number;
 }
 
 export interface VariantSalesResponse {
@@ -15,6 +17,8 @@ export interface VariantSalesResponse {
   sold_quantity: number;
   sold_warehouse: number;
   sold_algiers: number;
+  total_delivered_woo_orders_yalidine: number;
+  total_delivered_woo_orders_my_companies: number;
 }
 export interface PaginationMeta {
   total_items: number;
