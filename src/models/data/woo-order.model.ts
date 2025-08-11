@@ -126,6 +126,18 @@ export interface ConfirmedOrderItem {
   quantity: number;
 }
 
+export interface DeliveredOrderItem {
+  id: number;
+  woo_order_id: number;
+  confirmed_order_item_id: number;
+  product_variant_id: number;
+  quantity_delivered: number;
+  unit_price_at_delivery: number;
+  delivered_by_employee_id: number;
+  delivered_at: string;
+  notes: string | null;
+}
+
 export interface WooShipping {
   id?: number;
   woo_order_id: number;
@@ -143,6 +155,10 @@ export interface WooShipping {
   employee_id?: number;
   employee?: DeliveryEmployee;
   expected_delivery_date?: string;
+  delivery_fees_collected: boolean;
+  delivery_fees_collected_amount: number;
+  delivery_fees_collected_at: string | null;
+  delivery_fees_collector_id: number | null;
 }
 
 export type YalidineStatusType =

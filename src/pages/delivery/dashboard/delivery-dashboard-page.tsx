@@ -4,7 +4,9 @@ import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/
 import { deliveryOrdersColumns } from "@/components/feature-specific/delivery/delivery-orders-columns";
 import PrintDeliveryEmployeeTableDialog from "@/components/feature-specific/delivery/PrintDeliveryEmployeeTableDialog";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -17,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
+import { getEmployeeCollections } from "@/services/delivery-reports-service";
 import {
   getDeliveryCompany,
   getDeliveryEmployees,
@@ -82,6 +85,21 @@ export default function DeliveryDashboardPage() {
   const [page, setPage] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date } | undefined>(undefined);
+
+  const computeDateBounds = (range?: { from?: Date; to?: Date }) => {
+    if (!range?.from && !range?.to) return { start: undefined as string | undefined, end: undefined as string | undefined };
+    const from = range?.from ? new Date(range.from) : undefined;
+    const to = range?.to ? new Date(range.to) : from;
+    if (!from) return { start: undefined, end: undefined };
+    const startOfDay = new Date(from);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(to!);
+    endOfDay.setHours(23, 59, 59, 999);
+    const start = startOfDay.toISOString();
+    const end = endOfDay.toISOString();
+    return { start, end };
+  };
 
   // Company info
   const {
@@ -116,6 +134,8 @@ export default function DeliveryDashboardPage() {
       page,
       phoneNumber,
       selectedEmployeeId,
+      dateRange?.from?.toISOString(),
+      dateRange?.to?.toISOString(),
     ],
     queryFn: () =>
       getWooCommerceOrders({
@@ -126,12 +146,31 @@ export default function DeliveryDashboardPage() {
         phone_number: phoneNumber || undefined,
         delivery_company_id: companyId,
         shipping_provider: "my_companies",
+        ...computeDateBounds(dateRange),
       }),
     enabled: !!companyId,
   });
 
   const company = companyData?.data ?? null;
   const employees: DeliveryEmployee[] = employeesData?.data || [];
+  const selectedEmployeeNumeric = selectedEmployeeId === "all" ? undefined : Number(selectedEmployeeId);
+
+  // Employee collections report
+  const { data: collections } = useQuery({
+    queryKey: [
+      "employee-collections",
+      companyId,
+      selectedEmployeeNumeric,
+      dateRange?.from?.toISOString(),
+      dateRange?.to?.toISOString(),
+    ],
+    queryFn: () => {
+      if (!selectedEmployeeNumeric) return Promise.resolve(null);
+      const { start, end } = computeDateBounds(dateRange);
+      return getEmployeeCollections({ start: start?.slice(0, 10), end: end?.slice(0, 10), employee_id: selectedEmployeeNumeric });
+    },
+    enabled: !!companyId && !!selectedEmployeeNumeric,
+  });
 
   return (
     <div className="p-4">
@@ -193,7 +232,41 @@ export default function DeliveryDashboardPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="ml-4 w-[320px]">
+              <DatePickerWithRange
+                date={dateRange ? { from: dateRange.from, to: dateRange.to } : undefined}
+                onSelect={(range) => setDateRange(range as any)}
+              />
+            </div>
           </div>
+          {selectedEmployeeNumeric && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Delivered Orders</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-bold">{ordersData ? (ordersData.data?.orders || []).filter((o) => o.order_status === "delivered").length : "-"}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Total Collected</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-bold">{collections ? new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format((collections as any).sum_total_collected || 0) : "-"}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Amount to be Submitted</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-bold">{collections ? new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format((collections as any).sum_net || 0) : "-"}</div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
           {/* Phone number filter */}
           <div className="flex gap-2 items-center mb-4">
             <span>Filter by Phone Number:</span>

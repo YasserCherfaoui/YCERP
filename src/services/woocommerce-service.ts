@@ -26,6 +26,8 @@ export const getWooCommerceOrders = async (
         delivery_date?:string;
         confirmed_variant_id?: number;
         company_id?: number;
+        start?: string;
+        end?: string;
     }
 ): Promise<APIResponse<WooOrdersResponse>> => {
     let url = `${baseUrl}/woocommerce/?page=${params._page + 1}`;
@@ -40,6 +42,8 @@ export const getWooCommerceOrders = async (
     if (params.delivery_date) url += `&delivery_date=${encodeURIComponent(params.delivery_date)}`;
     if (params.confirmed_variant_id) url += `&product_variant_id=${params.confirmed_variant_id}`;
     if (params.company_id) url += `&company_id=${params.company_id}`;
+    if (params.start) url += `&start=${encodeURIComponent(params.start)}`;
+    if (params.end) url += `&end=${encodeURIComponent(params.end)}`;
     const response = await fetch(url, {
         method: "GET",
         headers: {

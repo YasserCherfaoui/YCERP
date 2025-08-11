@@ -23,6 +23,9 @@ import AffiliateSettingsPage from "@/pages/affiliate/dashboard/affiliate-setting
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
 import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
+import AdvertisingPage from "@/pages/dashboard/company/advertising-page";
+import BoxingPage from "@/pages/dashboard/company/boxing-page";
+import ChargesPage from "@/pages/dashboard/company/charges-page";
 import CompanyAffiliateApplicationsPage from "@/pages/dashboard/company/company-affiliate-applications-page";
 import CompanyAffiliateDetailsPage from "@/pages/dashboard/company/company-affiliate-details-page";
 import CompanyAffiliatesPage from "@/pages/dashboard/company/company-affiliates-page";
@@ -44,9 +47,17 @@ import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
 import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
+import ExchangeRatesPage from "@/pages/dashboard/company/exchange-rates-page";
+import ExpensesPage from "@/pages/dashboard/company/expenses-page";
+import ExpensesRecurringPage from "@/pages/dashboard/company/expenses-recurring-page";
+import ExpensesReportsPage from "@/pages/dashboard/company/expenses-reports-page";
 import IamPage from "@/pages/dashboard/company/iam-page";
 import IssuesPage from "@/pages/dashboard/company/issues-page";
 import OrderTicketsPage from "@/pages/dashboard/company/order-tickets-page";
+import RentUtilitiesPage from "@/pages/dashboard/company/rent-utilities-page";
+import ReturnsPage from "@/pages/dashboard/company/returns-page";
+import SalariesPage from "@/pages/dashboard/company/salaries-page";
+import ShippingPage from "@/pages/dashboard/company/shipping-page";
 import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
@@ -119,6 +130,14 @@ export default function AppRouter() {
               path="unknown-returns"
               element={<CompanyUnknownReturnsPage />}
             />
+            <Route path="advertising" element={<AdvertisingPage />} />
+            <Route path="charges" element={<ChargesPage />} />
+            <Route path="exchange-rates" element={<ExchangeRatesPage />} />
+            <Route path="boxing" element={<BoxingPage />} />
+            <Route path="rent-utilities" element={<RentUtilitiesPage />} />
+            <Route path="returns" element={<ReturnsPage />} />
+            <Route path="salaries" element={<SalariesPage />} />
+            <Route path="shipping" element={<ShippingPage />} />
             <Route path="products" element={<CompanyProductsPage />} />
             <Route path="mobile" element={<ModeratorMobilePage />} />
             <Route path="franchises">
@@ -184,6 +203,17 @@ export default function AppRouter() {
                 path="unknown-returns"
                 element={<CompanyUnknownReturnsPage />}
               />
+              <Route path="charges" element={<ChargesPage />} />
+              <Route path="exchange-rates" element={<ExchangeRatesPage />} />
+              <Route path="advertising" element={<AdvertisingPage />} />
+              <Route path="boxing" element={<BoxingPage />} />
+              <Route path="rent-utilities" element={<RentUtilitiesPage />} />
+              <Route path="returns" element={<ReturnsPage />} />
+              <Route path="salaries" element={<SalariesPage />} />
+              <Route path="shipping" element={<ShippingPage />} />
+              <Route path="expenses" element={<ExpensesPage />} />
+              <Route path="expenses/recurring" element={<ExpensesRecurringPage />} />
+              <Route path="expenses/reports" element={<ExpensesReportsPage />} />
               <Route path="statistics" element={<CompanyStatsPage />} />
               <Route path="iam" element={<IamPage />} />
               <Route

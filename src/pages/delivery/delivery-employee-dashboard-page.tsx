@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import DeliveryFulfillmentDialog from "@/components/feature-specific/delivery/DeliveryFulfillmentDialog";
 import DeclareEmptyExchangeDialog from "@/components/feature-specific/orders/declare-empty-exchange-dialog";
 import {
   Accordion,
@@ -7,6 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +29,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { logout } from "@/features/auth/delivery-slice";
 import { useToast } from "@/hooks/use-toast";
+import { WooOrder } from "@/models/data/woo-order.model";
 import {
   getDeliveryOrders,
   updateOrderStatus,
@@ -87,8 +90,23 @@ export default function () {
     },
   });
 
+  const [fulfillmentOpen, setFulfillmentOpen] = useState(false);
+  const [fulfillmentOrder, setFulfillmentOrder] = useState<WooOrder | null>(null);
+
   return (
     <div className="flex flex-col p-4 h-screen">
+      {fulfillmentOrder && (
+        <DeliveryFulfillmentDialog
+          order={fulfillmentOrder}
+          open={fulfillmentOpen}
+          setOpen={(o) => {
+            if (!o) setFulfillmentOrder(null);
+            setFulfillmentOpen(o);
+          }}
+          ordersQueryKey={["delivery-orders", deliveryEmployee?.ID]}
+          onSubmitted={() => setOpen(false)}
+        />
+      )}
       <nav className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">
           Good Morning, {deliveryEmployee?.name}
@@ -99,6 +117,61 @@ export default function () {
         </Button>
       </nav>
       <h1 className="text-2xl font-bold">Delivery Employee Dashboard</h1>
+      {(() => {
+        const list = orders?.data || [];
+        const todayStr = new Date().toLocaleDateString();
+        const todaysOrders = list.filter((o: any) => new Date(o.woo_shipping?.expected_delivery_date ?? "").toLocaleDateString() === todayStr);
+        const delivered = todaysOrders.filter((o: any) => o.order_status === "delivered");
+
+        const currency = (n: number) => new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(n);
+
+        const deliveredCount = delivered.length;
+        const totalToday = todaysOrders.length;
+
+        const sumItemsSubtotal = (order: any) => {
+          const items: any[] = (order.confirmed_order_items as any[]) || [];
+          return items.reduce((sum, it) => sum + Number(it.quantity || 0) * Number(it.product?.price || 0), 0);
+        };
+
+        const totalCollected = delivered.reduce((sum, o: any) => {
+          const itemsSubtotal = sumItemsSubtotal(o);
+          const fee = o.woo_shipping?.delivery_fees_collected ? Number(o.woo_shipping?.second_delivery_cost || 0) : 0;
+          // order-level discount applies only if all items delivered; for delivered orders we assume fully delivered
+          const discount = Number(o.discount || 0);
+          return sum + (itemsSubtotal + fee - discount);
+        }, 0);
+
+        const totalMade = delivered.reduce((sum, o: any) => sum + Number(o.woo_shipping?.second_delivery_cost || 0), 0);
+
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>Delivered Today</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-bold">{deliveredCount} / {totalToday}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Collected</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-bold">{currency(totalCollected)}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Total Made</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-bold">{currency(totalMade)}</div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
       {orders?.data && orders.data.length > 0 && (
         <Accordion type="single" collapsible className="w-full">
           {orders.data
@@ -163,49 +236,17 @@ export default function () {
                           </DialogHeader>
                           <div className="grid grid-cols-2 gap-4">
                             {order.order_status !== "delivered" && (
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    className="bg-green-500 text-white"
-                                  >
-                                    <Check />
-                                    Delivered
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Confirm Delivery</DialogTitle>
-                                  </DialogHeader>
-                                  <div className="grid gap-4 py-4">
-                                    <div className="grid gap-2">
-                                      <Label htmlFor="delivery-comment">
-                                        Delivery Comment (Optional)
-                                      </Label>
-                                      <Textarea
-                                        id="delivery-comment"
-                                        placeholder="Add any notes about the delivery..."
-                                      />
-                                    </div>
-                                    <Button
-                                      onClick={() => {
-                                        const comment = (
-                                          document.getElementById(
-                                            "delivery-comment"
-                                          ) as HTMLTextAreaElement
-                                        ).value;
-                                        updateOrderStatusMutation({
-                                          order_id: order.id,
-                                          status: "delivered",
-                                          reason: comment,
-                                        });
-                                      }}
-                                    >
-                                      Confirm Delivery
-                                    </Button>
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
+                              <Button
+                                variant="outline"
+                                className="bg-green-500 text-white"
+                                onClick={() => {
+                                  setFulfillmentOrder(order);
+                                  setFulfillmentOpen(true);
+                                }}
+                              >
+                                <Check />
+                                Delivered
+                              </Button>
                             )}
                             {isToday && (
                               <Dialog>
@@ -330,16 +371,16 @@ export default function () {
                           <TableHead>Quantity</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
-                        {order.confirmed_order_items?.map((item) => (
-                          <TableRow key={item.product_variant?.qr_code}>
-                            <TableCell>
-                              {item.product_variant?.qr_code}
-                            </TableCell>
-                            <TableCell>{item.quantity}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
+                       <TableBody>
+                         {((order.confirmed_order_items as any[]) || []).map((item: any) => (
+                           <TableRow key={(item.product_variant?.qr_code) || item.ID}>
+                             <TableCell>
+                               {item.product_variant?.qr_code}
+                             </TableCell>
+                             <TableCell>{item.quantity}</TableCell>
+                           </TableRow>
+                         ))}
+                       </TableBody>
                       <TableFooter>
                         <TableRow>
                           <TableCell>Total</TableCell>
