@@ -4,6 +4,14 @@ import authReducer from '@/features/auth/auth-slice';
 import deliverySlice from '@/features/auth/delivery-slice';
 import franchiseSlice from '@/features/auth/franchise-slice';
 import userSlice from '@/features/auth/user-slice';
+import advertisingSlice from '@/features/charges/advertising-slice';
+import boxingSlice from '@/features/charges/boxing-slice';
+import chargesSlice from '@/features/charges/charges-slice';
+import exchangeRatesSlice from '@/features/charges/exchange-rates-slice';
+import rentUtilitySlice from '@/features/charges/rent-utility-slice';
+import returnsSlice from '@/features/charges/returns-slice';
+import salarySlice from '@/features/charges/salary-slice';
+import shippingSlice from '@/features/charges/shipping-slice';
 import companySlice from '@/features/company/company-slice';
 import { Action, ThunkAction, configureStore } from '@reduxjs/toolkit';
 // Import other reducers if you have them
@@ -16,6 +24,14 @@ export const store = configureStore({
     user: userSlice,
     delivery: deliverySlice,
     affiliate: affiliateSlice,
+    charges: chargesSlice,
+    exchangeRates: exchangeRatesSlice,
+    returns: returnsSlice,
+    salary: salarySlice,
+    shipping: shippingSlice,
+    boxing: boxingSlice,
+    advertising: advertisingSlice,
+    rentUtility: rentUtilitySlice,
     // Add other reducers here
   },
 });

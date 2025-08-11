@@ -53,7 +53,7 @@ export const getDeliveryCompany = async (id: number): Promise<APIResponse<Delive
 };
 
 export const createDeliveryEmployee = async (data: CreateEmployeeSchema): Promise<APIResponse<DeliveryEmployee>> => {
-  const response = await fetch(`${baseUrl}/delivery/employee`, {
+  const response = await fetch(`${baseUrl}/delivery/employees`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

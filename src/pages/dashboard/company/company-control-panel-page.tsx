@@ -43,7 +43,7 @@ export default function () {
       <div className="flex flex-col gap-10 p-4 justify-center items-center">
         <CompanyTile company={company} />
         <div className="grid grid-cols-4 gap-4">
-          {quickMenu.map((item, index) => (
+          {quickMenu.filter((i) => !(i as any).hidden).map((item, index) => (
             <WideButton key={index} item={item} />
           ))}
         </div>
@@ -75,6 +75,17 @@ export default function () {
 }
 
 const quickMenu = [
+  {
+    label: "Expenses",
+    icon: ReceiptText,
+    href: "expenses",
+  },
+  {
+    label: "Expense Categories",
+    icon: ReceiptText,
+    href: "expenses?tab=categories",
+    hidden: true,
+  },
   {
     label: "Franchises",
     icon: Store,
@@ -150,4 +161,9 @@ const quickMenu = [
     icon: Truck,
     href: "delivery",
   },
+  // {
+  //   label: "Charges",
+  //   icon: Calculator,
+  //   href: "charges",
+  // },
 ];
