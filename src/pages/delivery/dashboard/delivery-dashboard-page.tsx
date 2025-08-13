@@ -87,18 +87,25 @@ export default function DeliveryDashboardPage() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>("all");
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date } | undefined>(undefined);
 
+  const toYmdLocal = (d?: Date) => {
+    if (!d) return undefined as string | undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
   const computeDateBounds = (range?: { from?: Date; to?: Date }) => {
     if (!range?.from && !range?.to) return { start: undefined as string | undefined, end: undefined as string | undefined };
     const from = range?.from ? new Date(range.from) : undefined;
-    const to = range?.to ? new Date(range.to) : from;
+    const to = range?.to ? new Date(range.to) : undefined;
     if (!from) return { start: undefined, end: undefined };
-    const startOfDay = new Date(from);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(to!);
-    endOfDay.setHours(23, 59, 59, 999);
-    const start = startOfDay.toISOString();
-    const end = endOfDay.toISOString();
-    return { start, end };
+    const start = toYmdLocal(from);
+    // If single date (no 'to' provided or same local date), do not include 'end'
+    if (!to || toYmdLocal(to) === start) {
+      return { start, end: undefined as string | undefined };
+    }
+    return { start, end: toYmdLocal(to) };
   };
 
   // Company info
@@ -134,8 +141,8 @@ export default function DeliveryDashboardPage() {
       page,
       phoneNumber,
       selectedEmployeeId,
-      dateRange?.from?.toISOString(),
-      dateRange?.to?.toISOString(),
+      toYmdLocal(dateRange?.from),
+      toYmdLocal(dateRange?.to),
     ],
     queryFn: () =>
       getWooCommerceOrders({
@@ -161,13 +168,13 @@ export default function DeliveryDashboardPage() {
       "employee-collections",
       companyId,
       selectedEmployeeNumeric,
-      dateRange?.from?.toISOString(),
-      dateRange?.to?.toISOString(),
+      toYmdLocal(dateRange?.from),
+      toYmdLocal(dateRange?.to),
     ],
     queryFn: () => {
       if (!selectedEmployeeNumeric) return Promise.resolve(null);
       const { start, end } = computeDateBounds(dateRange);
-      return getEmployeeCollections({ start: start?.slice(0, 10), end: end?.slice(0, 10), employee_id: selectedEmployeeNumeric });
+      return getEmployeeCollections({ start, end, employee_id: selectedEmployeeNumeric });
     },
     enabled: !!companyId && !!selectedEmployeeNumeric,
   });
