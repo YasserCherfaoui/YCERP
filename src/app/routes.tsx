@@ -105,6 +105,7 @@ export default function AppRouter() {
             <Route path="bills" element={<FranchiseBillsPage />} />
             <Route path="inventory" element={<FranchiseInventoryPage />} />
             <Route path="products" element={<FranchiseProductsPage />} />
+            <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
           </Route>
         </Route>
         //? USER ROUTES
