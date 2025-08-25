@@ -28,8 +28,8 @@ export interface WooOrder {
   payment_method_title: string;
   order_key: string;
   line_items: WooOrderItem[];
-  meta_data: WooOrderMeta[];
-  shipping_lines: WooOrderShippingLine[];
+  meta_data: WooOrderMeta[] | null;
+  shipping_lines: WooOrderShippingLine[] | null;
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at?: string | Date | null;
@@ -37,7 +37,7 @@ export interface WooOrder {
   taken_by?: User | null;
   taken_at?: string | Date | null;
   client_statuses: ClientStatus[];
-  order_status?: string;
+  order_status: string;
   confirmed_order_items?: ConfirmedOrderItem[];
   woo_shipping?: WooShipping;
   tracking_number?: string;
@@ -51,13 +51,15 @@ export interface WooOrder {
   company?: Company | null;
   discount?: number;
   is_exchange?: boolean;
+  return?: any | null;
+  commission?: any | null;
 }
 
 export interface YalidineOrderHistory {
   ID: number;
   woo_order_id: number;
   woo_order?: WooOrder;
-  status: YalidineStatusType;
+  status: string;
   date: string | Date;
   CreatedAt: string | Date;
   UpdatedAt: string | Date;
@@ -84,7 +86,6 @@ export interface OrderHistory {
   UpdatedAt: string | Date;
   DeletedAt?: string | Date | null;
 }
-
 
 export interface WooOrderItem {
   id: number;
@@ -117,8 +118,12 @@ export interface WooOrderShippingLine {
 }
 
 export interface ConfirmedOrderItem {
-  id?: number;
+  ID: number;
+  CreatedAt: string | Date;
+  UpdatedAt: string | Date;
+  DeletedAt?: string | Date | null;
   woo_order_id: number;
+  woo_order?: WooOrder;
   product_id: number;
   product?: Product;
   product_variant_id: number;

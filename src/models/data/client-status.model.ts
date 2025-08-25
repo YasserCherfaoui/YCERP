@@ -6,8 +6,10 @@ export interface ClientStatus {
     CreatedAt: string;
     UpdatedAt: string;
     DeletedAt: string | null;
-    order_id: number;
-    order?: Order;
+    order_id: number | null;
+    order?: Order | null;
+    woo_order_id: number;
+    woo_order?: any | null;
     qualification_id: number;
     qualification?: Qualification;
     sub_qualification_id?: number;
