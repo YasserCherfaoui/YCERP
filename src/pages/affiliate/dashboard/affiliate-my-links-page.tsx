@@ -46,7 +46,7 @@ export default function AffiliateMyLinksPage() {
       return;
     }
 
-    const linkWithRef = `${affiliateProp.product_link}?ref=${affiliate.slug}`;
+    const linkWithRef = `${affiliateProp.shopify_link}?ref=${affiliate.slug}`;
 
     try {
       await navigator.clipboard.writeText(linkWithRef);
