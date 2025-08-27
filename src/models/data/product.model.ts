@@ -47,6 +47,7 @@ export interface AffiliateProp {
     product?: Product;
     images?: ProductImage[];
     product_link: string;
+    shopify_link: string;
     name: string;
     creatives_link: string;
     commission: number;

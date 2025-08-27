@@ -30,7 +30,8 @@ import * as z from "zod";
 const affiliatePropSchema = z.object({
   name: z.string().min(1, "Name is required"),
   creatives_link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  product_link: z.string().url("Must be a valid URL"),
+  product_link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  shopify_link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   commission: z.coerce.number().int().min(0, "Commission cannot be negative"),
 });
 
@@ -67,6 +68,7 @@ export function SetAffiliatePropsDialog({
         creatives_link: existingProp?.creatives_link || "",
         product_link: existingProp?.product_link || "",
         commission: existingProp?.commission || 0,
+        shopify_link: existingProp?.shopify_link || "",
       };
     }),
   };
@@ -158,7 +160,23 @@ export function SetAffiliatePropsDialog({
                     name={`affiliate_props.${index}.product_link`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product Link</FormLabel>
+                        <FormLabel>WooCommerce Link</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="https://example.com/product"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`affiliate_props.${index}.shopify_link`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Shopify Link</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="https://example.com/product"
