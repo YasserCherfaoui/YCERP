@@ -462,3 +462,21 @@ export const bulkReviewApplications = async (companyId: number, applicationIds: 
     const result: APIResponse<{ processed: number; errors: any[] }> = await response.json();
     return result;
 }; 
+
+export const syncProductsWithShopify = async (): Promise<APIResponse<any>> => {
+    const response = await fetch(`${baseUrl}/affiliates/products/shopify/sync`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getCompanyToken()}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to sync products with Shopify.");
+    }
+
+    const result: APIResponse<any> = await response.json();
+    return result;
+}; 
