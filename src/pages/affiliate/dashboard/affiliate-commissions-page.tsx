@@ -4,33 +4,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
-import { Commission, CommissionStatus } from "@/models/data/affiliate/commission.model";
+import {
+  Commission,
+  CommissionStatus,
+} from "@/models/data/affiliate/commission.model";
 import { getCommissions } from "@/services/affiliate-service";
 import { useQuery } from "@tanstack/react-query";
 import {
-    AlertCircle,
-    CheckCircle,
-    ChevronLeft,
-    ChevronRight,
-    DollarSign,
-    Filter,
-    Loader2,
-    Search,
-    TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  DollarSign,
+  Filter,
+  Loader2,
+  Search,
+  TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -49,6 +52,7 @@ const statusLabels: Record<CommissionStatus, string> = {
   partially_paid: "Partially Paid",
   cancelled: "Cancelled",
 };
+
 
 export default function AffiliateCommissionsPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -88,14 +92,28 @@ export default function AffiliateCommissionsPage() {
   });
 
   // Calculate summary stats
-  const totalEarnings = commissions.reduce((sum: number, c: Commission) => sum + c.amount, 0);
-  const paidEarnings = commissions.reduce((sum: number, c: Commission) => sum + c.paid_amount, 0);
+  const totalEarnings = commissions.reduce(
+    (sum: number, c: Commission) => sum + c.amount,
+    0
+  );
+  const paidEarnings = commissions.reduce(
+    (sum: number, c: Commission) => sum + c.paid_amount,
+    0
+  );
   const approvedEarnings = commissions
     .filter((c: Commission) => c.status === "approved")
-    .reduce((sum: number, c: Commission) => sum + (c.amount - c.paid_amount), 0);
+    .reduce(
+      (sum: number, c: Commission) => sum + (c.amount - c.paid_amount),
+      0
+    );
   const pendingEarnings = commissions
-    .filter((c: Commission) => c.status === "pending" || c.status === "approved")
-    .reduce((sum: number, c: Commission) => sum + (c.amount - c.paid_amount), 0);
+    .filter(
+      (c: Commission) => c.status === "pending" || c.status === "approved"
+    )
+    .reduce(
+      (sum: number, c: Commission) => sum + (c.amount - c.paid_amount),
+      0
+    );
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -172,7 +190,8 @@ export default function AffiliateCommissionsPage() {
                 {formatCurrency(totalEarnings)}
               </div>
               <p className="text-xs text-gray-600 mt-1">
-                From {commissions.length} commission{commissions.length !== 1 ? "s" : ""}
+                From {commissions.length} commission
+                {commissions.length !== 1 ? "s" : ""}
               </p>
             </CardContent>
           </Card>
@@ -189,10 +208,11 @@ export default function AffiliateCommissionsPage() {
                 {formatCurrency(paidEarnings)}
               </div>
               <p className="text-xs text-gray-600 mt-1">
-                {paidEarnings > 0 ? 
-                  `${((paidEarnings / totalEarnings) * 100).toFixed(1)}% of total` : 
-                  "No payments received yet"
-                }
+                {paidEarnings > 0
+                  ? `${((paidEarnings / totalEarnings) * 100).toFixed(
+                      1
+                    )}% of total`
+                  : "No payments received yet"}
               </p>
             </CardContent>
           </Card>
@@ -208,9 +228,7 @@ export default function AffiliateCommissionsPage() {
               <div className="text-2xl font-bold text-gray-900">
                 {formatCurrency(approvedEarnings)}
               </div>
-              <p className="text-xs text-gray-600 mt-1">
-                Ready for payment
-              </p>
+              <p className="text-xs text-gray-600 mt-1">Ready for payment</p>
             </CardContent>
           </Card>
 
@@ -225,9 +243,7 @@ export default function AffiliateCommissionsPage() {
               <div className="text-2xl font-bold text-gray-900">
                 {formatCurrency(pendingEarnings)}
               </div>
-              <p className="text-xs text-gray-600 mt-1">
-                Awaiting payment
-              </p>
+              <p className="text-xs text-gray-600 mt-1">Awaiting payment</p>
             </CardContent>
           </Card>
         </div>
@@ -262,7 +278,10 @@ export default function AffiliateCommissionsPage() {
                 <Label htmlFor="status" className="text-sm font-medium">
                   Status
                 </Label>
-                <Select value={statusFilter || "all"} onValueChange={handleStatusFilterChange}>
+                <Select
+                  value={statusFilter || "all"}
+                  onValueChange={handleStatusFilterChange}
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
@@ -271,7 +290,9 @@ export default function AffiliateCommissionsPage() {
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="approved">Approved</SelectItem>
                     <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="partially_paid">Partially Paid</SelectItem>
+                    <SelectItem value="partially_paid">
+                      Partially Paid
+                    </SelectItem>
                     <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
@@ -281,7 +302,10 @@ export default function AffiliateCommissionsPage() {
                 <Label htmlFor="pageSize" className="text-sm font-medium">
                   Items per page
                 </Label>
-                <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                <Select
+                  value={pageSize.toString()}
+                  onValueChange={handlePageSizeChange}
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
@@ -317,9 +341,13 @@ export default function AffiliateCommissionsPage() {
             <CardTitle>Commission History</CardTitle>
             {pagination && (
               <p className="text-sm text-gray-600">
-                Showing {((pagination.current_page - 1) * pagination.limit) + 1} to{" "}
-                {Math.min(pagination.current_page * pagination.limit, pagination.total_count)} of{" "}
-                {pagination.total_count} commissions
+                Showing {(pagination.current_page - 1) * pagination.limit + 1}{" "}
+                to{" "}
+                {Math.min(
+                  pagination.current_page * pagination.limit,
+                  pagination.total_count
+                )}{" "}
+                of {pagination.total_count} commissions
               </p>
             )}
           </CardHeader>
@@ -328,7 +356,9 @@ export default function AffiliateCommissionsPage() {
               <div className="flex items-center justify-center h-64">
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="text-lg font-medium">Loading commissions...</span>
+                  <span className="text-lg font-medium">
+                    Loading commissions...
+                  </span>
                 </div>
               </div>
             ) : filteredCommissions.length === 0 ? (
@@ -351,6 +381,7 @@ export default function AffiliateCommissionsPage() {
                       <TableRow>
                         <TableHead>Commission ID</TableHead>
                         <TableHead>Order</TableHead>
+                        <TableHead>Order Status</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Amount</TableHead>
                         <TableHead>Paid Amount</TableHead>
@@ -364,9 +395,13 @@ export default function AffiliateCommissionsPage() {
                           <TableCell className="font-medium">
                             #{commission.ID}
                           </TableCell>
-                                                     <TableCell>
-                             {commission.woo_order?.number || `Order #${commission.woo_order_id}`}
-                           </TableCell>
+                          <TableCell>
+                            {commission.woo_order?.number ||
+                              `Order #${commission.woo_order_id}`}
+                          </TableCell>
+                          <TableCell>
+                            {commission.woo_order?.order_status}
+                          </TableCell>
                           <TableCell>
                             {formatDate(commission.CreatedAt)}
                           </TableCell>
@@ -387,7 +422,9 @@ export default function AffiliateCommissionsPage() {
                           <TableCell>
                             {commission.amount > commission.paid_amount ? (
                               <span className="text-amber-600 font-medium">
-                                {formatCurrency(commission.amount - commission.paid_amount)}
+                                {formatCurrency(
+                                  commission.amount - commission.paid_amount
+                                )}
                               </span>
                             ) : (
                               <span className="text-green-600">—</span>
@@ -434,4 +471,4 @@ export default function AffiliateCommissionsPage() {
       </div>
     </div>
   );
-} 
+}

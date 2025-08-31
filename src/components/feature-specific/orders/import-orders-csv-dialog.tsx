@@ -19,7 +19,10 @@ interface ImportOrdersCSVDialogProps {
   setOpen: (open: boolean) => void;
 }
 
-export default function ImportOrdersCSVDialog({ open, setOpen }: ImportOrdersCSVDialogProps) {
+export default function ImportOrdersCSVDialog({
+  open,
+  setOpen,
+}: ImportOrdersCSVDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   useToast();
@@ -73,6 +76,19 @@ export default function ImportOrdersCSVDialog({ open, setOpen }: ImportOrdersCSV
           <DialogTitle>Import Orders from CSV</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4 py-2">
+          <p className="text-sm text-gray-600">
+            Upload a CSV file to import orders.
+          </p>
+          <br />
+          <b>Required columns:</b>
+          <ul className="list-disc list-inside">
+            <li>Customer Name</li>
+            <li>Wilaya</li>
+            <li>Product</li>
+            <li>Phone Number</li>
+            <li>Price</li>
+            <li>Email</li>
+          </ul>
           <input
             ref={inputRef}
             type="file"
@@ -91,7 +107,11 @@ export default function ImportOrdersCSVDialog({ open, setOpen }: ImportOrdersCSV
           </Button>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => setOpen(false)} disabled={isPending}>
+          <Button
+            variant="ghost"
+            onClick={() => setOpen(false)}
+            disabled={isPending}
+          >
             Cancel
           </Button>
           <Button
@@ -110,4 +130,4 @@ export default function ImportOrdersCSVDialog({ open, setOpen }: ImportOrdersCSV
       </DialogContent>
     </Dialog>
   );
-} 
+}
