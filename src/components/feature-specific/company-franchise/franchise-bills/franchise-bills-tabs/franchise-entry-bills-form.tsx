@@ -2,25 +2,26 @@ import { RootState } from "@/app/store";
 import MakeBillTile from "@/components/feature-specific/company-franchises/make-bill-tile";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { BillItem, ExitBill } from "@/models/data/bill.model";
 import { CreateEntryBillSchema, createEntryBillSchema } from "@/schemas/bill";
 import {
-  createFranchiseEntryBill,
-  getFranchiseInventory,
+    createFranchiseEntryBill,
+    getFranchiseInventory,
 } from "@/services/franchise-service";
 import { processBarcode } from "@/utils/process-barcode";
 import {
-  validateExtraEntryExitBill,
-  validateMissingEntryExitBill,
+    validateExtraEntryExitBill,
+    validateMissingEntryExitBill,
 } from "@/utils/validate-entry-exit-bill";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -170,7 +171,7 @@ export default function ({ bill }: Props) {
               autoFocus
             />
             <div>
-              <ul className="flex flex-col gap-2 p-2">
+              <ScrollArea className="flex flex-col gap-2 p-2 max-h-[400px] border rounded-md">
                 {billItems.map((billItem) => (
                   <MakeBillTile
                     key={billItem.product_variant_id}
@@ -180,7 +181,7 @@ export default function ({ bill }: Props) {
                     items={inventory?.data?.items ?? []}
                   />
                 ))}
-              </ul>
+              </ScrollArea>
             </div>
           </div>
         </DialogHeader>
