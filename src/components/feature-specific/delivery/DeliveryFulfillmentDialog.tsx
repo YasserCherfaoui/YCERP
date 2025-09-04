@@ -128,53 +128,55 @@ export default function DeliveryFulfillmentDialog({ order, open, setOpen, orders
           <div className="text-sm text-muted-foreground">Confirm delivered items and fees</div>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>QR Code</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Delivered?</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row, idx) => (
-              <TableRow key={row.confirmedItemId}>
-                <TableCell className="font-mono">{row.qrCode}</TableCell>
-                <TableCell className="w-40">
-                  <Input
-                    type="number"
-                    min={0}
-                    max={row.confirmedQty}
-                    step={1}
-                    value={row.delivered ? row.deliveredQty : 0}
-                    onChange={(e) => {
-                      const val = Math.max(0, Math.min(row.confirmedQty, Math.floor(Number(e.target.value) || 0)));
-                      setRow(idx, (old) => ({ ...old, delivered: val > 0, deliveredQty: val }));
-                    }}
-                    disabled={!row.delivered}
-                  />
-                  <div className="text-xs text-muted-foreground mt-1">Confirmed: {row.confirmedQty}</div>
-                </TableCell>
-                <TableCell className="w-24">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={row.delivered}
-                      onCheckedChange={(v) => {
-                        const checked = Boolean(v);
-                        setRow(idx, (old) => {
-                          if (!checked) return { ...old, delivered: false, deliveredQty: 0 };
-                          const proposed = old.deliveredQty > 0 ? old.deliveredQty : (old.confirmedQty > 0 ? 1 : 0);
-                          const bounded = Math.min(proposed, old.confirmedQty);
-                          return { ...old, delivered: true, deliveredQty: bounded };
-                        });
-                      }}
-                    />
-                  </div>
-                </TableCell>
+        <div className="max-h-96 overflow-y-auto border rounded-md">
+          <Table>
+            <TableHeader className="sticky top-0 bg-background z-10">
+              <TableRow>
+                <TableHead>QR Code</TableHead>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Delivered?</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, idx) => (
+                <TableRow key={row.confirmedItemId}>
+                  <TableCell className="font-mono">{row.qrCode}</TableCell>
+                  <TableCell className="w-40">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={row.confirmedQty}
+                      step={1}
+                      value={row.delivered ? row.deliveredQty : 0}
+                      onChange={(e) => {
+                        const val = Math.max(0, Math.min(row.confirmedQty, Math.floor(Number(e.target.value) || 0)));
+                        setRow(idx, (old) => ({ ...old, delivered: val > 0, deliveredQty: val }));
+                      }}
+                      disabled={!row.delivered}
+                    />
+                    <div className="text-xs text-muted-foreground mt-1">Confirmed: {row.confirmedQty}</div>
+                  </TableCell>
+                  <TableCell className="w-24">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={row.delivered}
+                        onCheckedChange={(v) => {
+                          const checked = Boolean(v);
+                          setRow(idx, (old) => {
+                            if (!checked) return { ...old, delivered: false, deliveredQty: 0 };
+                            const proposed = old.deliveredQty > 0 ? old.deliveredQty : (old.confirmedQty > 0 ? 1 : 0);
+                            const bounded = Math.min(proposed, old.confirmedQty);
+                            return { ...old, delivered: true, deliveredQty: bounded };
+                          });
+                        }}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
         <div className="mt-4 space-y-3">
           <div className="flex items-center gap-2">
