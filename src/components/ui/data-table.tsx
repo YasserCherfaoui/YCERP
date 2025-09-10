@@ -1,41 +1,41 @@
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+    ColumnDef,
+    ColumnFiltersState,
+    SortingState,
+    VisibilityState,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getPaginationRowModel,
+    getSortedRowModel,
+    useReactTable,
 } from "@tanstack/react-table";
 
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { PaginationMeta } from "@/models/responses/company-stats.model";
 import React, { useEffect, useRef } from "react";
 import { Button } from "./button";
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { Input } from "./input";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
+    Pagination,
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
 } from "./pagination";
 
 interface DataTableProps<TData, TValue> {
@@ -96,18 +96,12 @@ export function DataTable<TData, TValue>({
 
   // Determine if manual or automatic pagination
   const isManual = !!onPageChange;
-  console.log(`isManual: ${isManual}`);
 
   const pageIndex = isManual ? currentPage : autoPageIndex;
   const pageSize = isManual ? paginationMeta?.per_page ?? 10 : autoPageSize;
   const pageCount = isManual
     ? paginationMeta?.total_pages ?? -1
     : Math.ceil(data.length / pageSize);
-
-  console.log(`currentPage: ${currentPage}`);
-  console.log(`autoPageIndex: ${autoPageIndex}`);
-  console.log(`paginationMeta: ${paginationMeta}`);
-  console.log(`pageCount: ${pageCount}`);
   const table = useReactTable({
     data,
     columns,
@@ -185,9 +179,6 @@ export function DataTable<TData, TValue>({
       table.setPageIndex(0);
     }
   }, [columnFilters]);
-
-  console.log("Filter value:", table.getColumn(searchColumn)?.getFilterValue());
-  console.log("Filtered rows:", table.getFilteredRowModel().rows);
 
   return (
     <div>

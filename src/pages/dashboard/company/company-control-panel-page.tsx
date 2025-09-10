@@ -4,22 +4,23 @@ import CompanyTile from "@/components/feature-specific/company/company-tile";
 import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
 import { Button } from "@/components/ui/button";
 import {
-  Apple,
-  ArrowLeft,
-  ChartNoAxesCombined,
-  ChartPie,
-  FileCheck,
-  Handshake,
-  Package,
-  ReceiptText,
-  ShoppingCart,
-  Store,
-  Ticket,
-  Truck,
-  Undo2,
-  UserCog,
-  Users,
-  Warehouse,
+    AlertTriangle,
+    Apple,
+    ArrowLeft,
+    ChartNoAxesCombined,
+    ChartPie,
+    FileCheck,
+    Handshake,
+    Package,
+    ReceiptText,
+    ShoppingCart,
+    Store,
+    Ticket,
+    Truck,
+    Undo2,
+    UserCog,
+    Users,
+    Warehouse,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -160,6 +161,11 @@ const quickMenu = [
     label: "Delivery",
     icon: Truck,
     href: "delivery",
+  },
+  {
+    label: "Missing Variants",
+    icon: AlertTriangle,
+    href: "missing-variants",
   },
   // {
   //   label: "Charges",

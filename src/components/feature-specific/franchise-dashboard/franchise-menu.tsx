@@ -1,6 +1,6 @@
 import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
-import { Apple, BarChart, ReceiptText, ShoppingCart, Warehouse } from "lucide-react";
+import { AlertTriangle, Apple, BarChart, ReceiptText, ShoppingCart, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
 import FranchiseTile from "./franchise-tile";
 
@@ -12,7 +12,7 @@ export default function () {
   return (
     <div className="flex flex-col gap-4 items-center justify-center">
       <FranchiseTile franchise={franchise} />
-      <div className="flex flex-wrap justify-center gap-4 self-center">
+      <div className="grid grid-cols-3 flex-wrap justify-center gap-4 self-center">
         {quickMenu.map((item, index) => (
           <WideButton key={index} item={item} />
         ))}
@@ -41,6 +41,11 @@ const quickMenu = [
     label: "Products",
     icon: Apple,
     href: "products",
+  },
+  {
+    label: "Missing Variants",
+    icon: AlertTriangle,
+    href: "missing-variants",
   },
   {
     label: "Statistics",

@@ -3,16 +3,17 @@ import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
 import {
-  Apple,
-  Handshake,
-  Package,
-  ReceiptText,
-  ShoppingCart,
-  Store,
-  Ticket,
-  Truck,
-  Undo2,
-  Warehouse,
+    AlertTriangle,
+    Apple,
+    Handshake,
+    Package,
+    ReceiptText,
+    ShoppingCart,
+    Store,
+    Ticket,
+    Truck,
+    Undo2,
+    Warehouse,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 
@@ -88,5 +89,10 @@ const quickMenu = [
     label: "Delivery",
     icon: Truck,
     href: "delivery",
+  },
+  {
+    label: "Missing Variants",
+    icon: AlertTriangle,
+    href: "missing-variants",
   },
 ];
