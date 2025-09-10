@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Franchise } from "@/models/data/franchise.model";
@@ -15,18 +15,28 @@ import { deleteFranchise } from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleUserRound, Inspect, MapPin, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import FranchiseInsights from "./franchise-insights";
 import MakeBillDialog from "./make-bill-dialog";
 
 interface Props {
   franchise: Franchise;
+  dateRange?: {
+    from: Date | undefined;
+    to: Date | undefined;
+  };
 }
 
-export default function ({ franchise }: Props) {
+export default function ({ franchise, dateRange }: Props) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  
+  // Check if user is admin (not moderator)
+  const isModerator = pathname.includes("moderator");
+  const isAdmin = !isModerator;
   const { mutate: deleteFranchiseMutation, isPending } = useMutation({
     mutationFn: deleteFranchise,
     onSuccess: () => {
@@ -96,6 +106,17 @@ export default function ({ franchise }: Props) {
           </span>
           {franchise.city}, {franchise.state}
         </div>
+        
+        {/* Admin-only insights */}
+        {isAdmin && dateRange && dateRange.from && dateRange.to && (
+          <div className="mt-4 pt-4 border-t">
+            <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Insights</h4>
+            <FranchiseInsights 
+              franchiseId={franchise.ID} 
+              dateRange={dateRange}
+            />
+          </div>
+        )}
       </CardContent>
       <CardFooter className="flex justify-end p-0 gap-2">
         <MakeBillDialog franchise={franchise} />
