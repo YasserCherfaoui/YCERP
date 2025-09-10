@@ -38,6 +38,7 @@ import CompanyFranchisePage from "@/pages/dashboard/company/company-franchise-pa
 import CompanyFranchiseSalesPage from "@/pages/dashboard/company/company-franchise-sales-page";
 import CompanyFranchisesPage from "@/pages/dashboard/company/company-franchises-page";
 import CompanyInventoryAnalyticsPage from "@/pages/dashboard/company/company-inventory-analytics-page";
+import CompanyMissingVariantsPage from "@/pages/dashboard/company/company-missing-variants-page";
 import CompanyOrdersPage from "@/pages/dashboard/company/company-orders-page";
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
@@ -70,6 +71,7 @@ import FranchiseLoginPage from "@/pages/franchise/auth/franchise-login-page";
 import FranchiseBillsPage from "@/pages/franchise/dashboard/franchise-bills-page";
 import FranchiseInventoryPage from "@/pages/franchise/dashboard/franchise-inventory-page";
 import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
+import FranchiseMissingVariantsPage from "@/pages/franchise/dashboard/franchise-missing-variants-page";
 import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-products-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import HomePage from "@/pages/home-page";
@@ -105,6 +107,7 @@ export default function AppRouter() {
             <Route path="bills" element={<FranchiseBillsPage />} />
             <Route path="inventory" element={<FranchiseInventoryPage />} />
             <Route path="products" element={<FranchiseProductsPage />} />
+            <Route path="missing-variants" element={<FranchiseMissingVariantsPage />} />
             <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
           </Route>
         </Route>
@@ -156,6 +159,7 @@ export default function AppRouter() {
 
             </Route>
             <Route path="order-tickets" element={<OrderTicketsPage />} />
+            <Route path="missing-variants" element={<CompanyMissingVariantsPage />} />
             <Route path="delivery">
               <Route index element={<DeliveryListPage />} />
               <Route path=":id" element={<DeliveryDashboardPage />} />
@@ -227,6 +231,7 @@ export default function AppRouter() {
                 <Route path=":id" element={<DeliveryDashboardPage />} />
               </Route>
               <Route path="order-tickets" element={<OrderTicketsPage />} />
+              <Route path="missing-variants" element={<CompanyMissingVariantsPage />} />
               <Route path="affiliates">
                 <Route index element={<CompanyAffiliatesPage />} />
                 <Route path=":affiliateID" element={<CompanyAffiliateDetailsPage />} />

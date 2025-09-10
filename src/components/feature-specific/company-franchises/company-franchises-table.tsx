@@ -19,7 +19,7 @@ export default function () {
   });
 
   return (
-    <div className="flex gap-2 p-4">
+    <div className="grid grid-cols-3 gap-2 p-4 max-w-6xl">
       {data?.data?.map((franchise, index) => (
         <FranchiseCard key={index} franchise={franchise} />
       ))}
