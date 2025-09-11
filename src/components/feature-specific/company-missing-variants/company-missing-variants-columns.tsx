@@ -2,9 +2,15 @@ import { Button } from "@/components/ui/button";
 import { MissingVariantRequestResponse } from "@/models/data/missing-variant.model";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Trash2 } from "lucide-react";
 
-export const companyMissingVariantsColumns: ColumnDef<MissingVariantRequestResponse>[] = [
+interface CompanyMissingVariantsColumnsProps {
+  onCancel?: (request: MissingVariantRequestResponse) => void;
+}
+
+export const createCompanyMissingVariantsColumns = ({
+  onCancel,
+}: CompanyMissingVariantsColumnsProps = {}): ColumnDef<MissingVariantRequestResponse>[] => [
   {
     accessorKey: "product_name",
     header: ({ column }) => {
@@ -121,4 +127,29 @@ export const companyMissingVariantsColumns: ColumnDef<MissingVariantRequestRespo
       return format(new Date(date), "MMM dd, yyyy");
     },
   },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const request = row.original;
+      const canCancel = request.status === "pending";
+      
+      return (
+        <div className="flex items-center gap-2">
+          {canCancel && onCancel && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onCancel(request)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      );
+    },
+  },
 ];
+
+// Default columns without actions
+export const companyMissingVariantsColumns = createCompanyMissingVariantsColumns();

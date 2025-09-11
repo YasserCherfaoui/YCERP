@@ -1,23 +1,74 @@
 import { RootState } from "@/app/store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
-import { getFranchiseMissingVariantRequests } from "@/services/missing-variants-service";
-import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { MissingVariantRequestResponse } from "@/models/data/missing-variant.model";
+import { PaginationMeta } from "@/models/responses/company-stats.model";
+import { cancelMissingVariantRequest, getFranchiseMissingVariantRequests } from "@/services/missing-variants-service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { franchiseMissingVariantsColumns } from "./franchise-missing-variants-columns";
+import { createFranchiseMissingVariantsColumns } from "./franchise-missing-variants-columns";
 
 export default function FranchiseMissingVariantsBody() {
   const franchise = useSelector((state: RootState) => state.franchise.franchise);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(10);
   
   if (!franchise) return null;
 
   const { data: requestsData, isLoading } = useQuery({
-    queryKey: ["franchise-missing-variants", franchise.ID],
-    queryFn: () => getFranchiseMissingVariantRequests(),
+    queryKey: ["franchise-missing-variants", franchise.ID, currentPage, pageSize],
+    queryFn: () => getFranchiseMissingVariantRequests({
+      page: currentPage + 1, // Convert 0-based to 1-based for API
+      limit: pageSize,
+    }),
     enabled: !!franchise,
   });
 
   const requests = requestsData?.data?.requests || [];
+  
+  // Convert API pagination format to DataTable format
+  const paginationMeta: PaginationMeta | undefined = requestsData?.data?.pagination ? {
+    total_items: requestsData.data.pagination.total,
+    total_pages: requestsData.data.pagination.total_pages,
+    current_page: requestsData.data.pagination.page,
+    per_page: requestsData.data.pagination.limit,
+  } : undefined;
+  
+  // Cancel request mutation
+  const { mutate: cancelRequestMutation, isPending: isCancelling } = useMutation({
+    mutationFn: cancelMissingVariantRequest,
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Request cancelled successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["franchise-missing-variants"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to cancel request",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle cancel request
+  const handleCancelRequest = (request: MissingVariantRequestResponse) => {
+    if (window.confirm(`Are you sure you want to cancel the request for ${request.product_name}?`)) {
+      cancelRequestMutation(request.id);
+    }
+  };
+
+  // Create columns with cancel functionality
+  const columns = createFranchiseMissingVariantsColumns({
+    onCancel: handleCancelRequest,
+  });
   
   // Calculate summary stats
   const pendingCount = requests.filter(r => r.status === "pending").length;
@@ -80,7 +131,10 @@ export default function FranchiseMissingVariantsBody() {
             <DataTable
               data={requests}
               searchColumn="product_name"
-              columns={franchiseMissingVariantsColumns}
+              columns={columns}
+              paginationMeta={paginationMeta}
+              onPageChange={setCurrentPage}
+              currentPage={currentPage}
             />
           )}
         </CardContent>
