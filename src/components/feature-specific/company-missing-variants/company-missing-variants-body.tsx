@@ -1,13 +1,15 @@
 import { RootState } from "@/app/store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { useToast } from "@/hooks/use-toast";
 import { MissingVariantRequestResponse } from "@/models/data/missing-variant.model";
-import { getAllMissingVariantRequests } from "@/services/missing-variants-service";
-import { useQuery } from "@tanstack/react-query";
+import { PaginationMeta } from "@/models/responses/company-stats.model";
+import { cancelMissingVariantRequest, getAllMissingVariantRequests } from "@/services/missing-variants-service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-import { companyMissingVariantsColumns } from "./company-missing-variants-columns";
+import { createCompanyMissingVariantsColumns } from "./company-missing-variants-columns";
 import FranchiseFilter from "./franchise-filter";
 
 interface CompanyMissingVariantsBodyProps {
@@ -21,21 +23,67 @@ export default function CompanyMissingVariantsBody({ onSelectionChange }: Compan
     company = useSelector((state: RootState) => state.user.company);
   }
   
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
   const [selectedFranchiseId, setSelectedFranchiseId] = useState<number | undefined>();
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(10);
 
   if (!company) return null;
 
   const { data: requestsData, isLoading } = useQuery({
-    queryKey: ["company-missing-variants", company.ID, selectedFranchiseId],
+    queryKey: ["company-missing-variants", company.ID, selectedFranchiseId, currentPage, pageSize],
     queryFn: () => getAllMissingVariantRequests({ 
       franchise_id: selectedFranchiseId,
-      status: "pending" // Only show pending requests by default
+      status: "pending", // Only show pending requests by default
+      page: currentPage + 1, // Convert 0-based to 1-based for API
+      limit: pageSize,
     }),
     enabled: !!company,
   });
 
   const requests = requestsData?.data?.requests || [];
+  
+  // Convert API pagination format to DataTable format
+  const paginationMeta: PaginationMeta | undefined = requestsData?.data?.pagination ? {
+    total_items: requestsData.data.pagination.total,
+    total_pages: requestsData.data.pagination.total_pages,
+    current_page: requestsData.data.pagination.page,
+    per_page: requestsData.data.pagination.limit,
+  } : undefined;
+  
+  // Cancel request mutation
+  const { mutate: cancelRequestMutation, isPending: isCancelling } = useMutation({
+    mutationFn: cancelMissingVariantRequest,
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Request cancelled successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["company-missing-variants"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to cancel request",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle cancel request
+  const handleCancelRequest = (request: MissingVariantRequestResponse) => {
+    if (window.confirm(`Are you sure you want to cancel the request for ${request.product_name} from ${request.franchise_name}?`)) {
+      cancelRequestMutation(request.id);
+    }
+  };
+
+  // Create columns with cancel functionality
+  const columns = createCompanyMissingVariantsColumns({
+    onCancel: handleCancelRequest,
+  });
   
   // Group requests by franchise
   const requestsByFranchise = useMemo(() => {
@@ -160,10 +208,13 @@ export default function CompanyMissingVariantsBody({ onSelectionChange }: Compan
             <DataTable
               data={requests}
               searchColumn="product_name"
-              columns={companyMissingVariantsColumns}
+              columns={columns}
               selectedRows={selectedRowIds}
               setSelectedRows={handleSelectionChange}
               getRowId={(row) => row.id.toString()}
+              paginationMeta={paginationMeta}
+              onPageChange={setCurrentPage}
+              currentPage={currentPage}
             />
           </CardContent>
         </Card>
