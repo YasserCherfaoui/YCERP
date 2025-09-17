@@ -21,6 +21,7 @@ import {
     UserCog,
     Users,
     Warehouse,
+    Zap,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -30,6 +31,7 @@ export default function () {
   const navigate = useNavigate();
   const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
   const company = useSelector((state: RootState) => state.company.company);
+  
   if (!company) {
     return null;
   }
@@ -47,6 +49,13 @@ export default function () {
           {quickMenu.filter((i) => !(i as any).hidden).map((item, index) => (
             <WideButton key={index} item={item} />
           ))}
+          <WideButton 
+            item={{
+              label: "Quick Actions",
+              icon: Zap,
+              href: "/quick-actions"
+            }} 
+          />
         </div>
         <div className="text-sm text-muted-foreground mt-2">
           View and manage your affiliate network
@@ -75,7 +84,13 @@ export default function () {
   );
 }
 
-const quickMenu = [
+const quickMenu: Array<{ 
+  label: string; 
+  icon: any; 
+  href?: string; 
+  onClick?: () => void;
+  hidden?: boolean;
+}> = [
   {
     label: "Expenses",
     icon: ReceiptText,
