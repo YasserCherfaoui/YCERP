@@ -148,11 +148,18 @@ export const createExitBillFromMissingVariants = async (
   const requestBody = {
     franchise_id: data.franchise_id,
     company_id: data.company_id,
-    request_ids: data.request_ids,
     comment: data.comment,
+    // Include request_ids only if provided and not empty
+    ...(data.request_ids && data.request_ids.length > 0 && { 
+      request_ids: data.request_ids 
+    }),
     // Include quantity adjustments only if there are items with quantity > 0
     ...(filteredQuantityAdjustments && filteredQuantityAdjustments.length > 0 && { 
       quantity_adjustments: filteredQuantityAdjustments 
+    }),
+    // Include additional_items if provided
+    ...(data.additional_items && data.additional_items.length > 0 && { 
+      additional_items: data.additional_items 
     }),
   };
 

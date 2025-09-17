@@ -2,18 +2,20 @@ import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Package } from "lucide-react";
+import { Package, Plus } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 interface CompanyMissingVariantsAppBarProps {
   onCreateExitBill: () => void;
+  onCreateAdditionalItemsExitBill: () => void;
   selectedCount: number;
   selectedFranchiseId?: number;
 }
 
 export default function CompanyMissingVariantsAppBar({ 
   onCreateExitBill, 
+  onCreateAdditionalItemsExitBill,
   selectedCount, 
   selectedFranchiseId 
 }: CompanyMissingVariantsAppBarProps) {
@@ -40,6 +42,15 @@ export default function CompanyMissingVariantsAppBar({
             {selectedCount} selected
           </Badge>
         )}
+        
+        <Button 
+          onClick={onCreateAdditionalItemsExitBill}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Items Only
+        </Button>
         
         <Button 
           onClick={onCreateExitBill}

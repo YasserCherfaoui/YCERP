@@ -107,4 +107,8 @@ export interface CreateExitBillFromMissingVariantsResponse {
     }>;
   };
   fulfilled_requests: number;
+  partially_fulfilled_requests: number;
+  total_processed_requests: number;
+  additional_items_processed: number;
+  total_bill_items: number;
 }
