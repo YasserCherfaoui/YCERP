@@ -259,7 +259,7 @@ export default function CreateExitBillDialog({
                     <CardTitle className="text-lg">Missing Variant Requests</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="max-h-60 overflow-y-auto space-y-3">
+                    <div className="space-y-3">
                       {selectedRequests.map((request, index) => {
                         const currentQuantity = watchedQuantityAdjustments?.[index]?.quantity ?? request.requested_quantity;
                         const isExcluded = currentQuantity === 0;

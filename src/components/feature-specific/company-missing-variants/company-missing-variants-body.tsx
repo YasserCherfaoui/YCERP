@@ -26,17 +26,19 @@ export default function CompanyMissingVariantsBody({ onSelectionChange }: Compan
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [selectedFranchiseId, setSelectedFranchiseId] = useState<number | undefined>();
+  const [filterFranchiseId, setFilterFranchiseId] = useState<number | undefined>();
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [selectedRequestsCache, setSelectedRequestsCache] = useState<Map<string, MissingVariantRequestResponse>>(new Map());
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
+  const [selectedFranchiseId, setSelectedFranchiseId] = useState<number | undefined>();
 
   if (!company) return null;
 
   const { data: requestsData, isLoading } = useQuery({
-    queryKey: ["company-missing-variants", company.ID, selectedFranchiseId, currentPage, pageSize],
+    queryKey: ["company-missing-variants", company.ID, filterFranchiseId, currentPage, pageSize],
     queryFn: () => getAllMissingVariantRequests({ 
-      franchise_id: selectedFranchiseId,
+      franchise_id: filterFranchiseId,
       status: "pending", // Only show pending requests by default
       page: currentPage + 1, // Convert 0-based to 1-based for API
       limit: pageSize,
@@ -111,21 +113,65 @@ export default function CompanyMissingVariantsBody({ onSelectionChange }: Compan
   const totalFranchises = requestsByFranchise.length;
   const totalQuantity = requests.reduce((sum, req) => sum + req.requested_quantity, 0);
 
+  // Clear selections when filter changes
+  const handleFilterChange = (newFilterFranchiseId: number | undefined) => {
+    setFilterFranchiseId(newFilterFranchiseId);
+    setSelectedRowIds([]);
+    setSelectedRequestsCache(new Map());
+    setSelectedFranchiseId(undefined);
+    setCurrentPage(0);
+    
+    // Call parent callback with empty selection
+    if (onSelectionChange) {
+      onSelectionChange([]);
+    }
+  };
+
   // Handle selection changes
   const handleSelectionChange = (newSelectedRowIds: string[]) => {
     setSelectedRowIds(newSelectedRowIds);
     
-    // Convert selected row IDs back to request objects
-    const selectedRequests = requests.filter(request => 
-      newSelectedRowIds.includes(request.id.toString())
+    // Update the cache: add newly selected requests from current page and remove unselected ones
+    const newCache = new Map(selectedRequestsCache);
+    
+    // Remove items that are no longer selected
+    const removedIds = Array.from(selectedRequestsCache.keys()).filter(id => !newSelectedRowIds.includes(id));
+    removedIds.forEach(id => newCache.delete(id));
+    
+    // Add newly selected items from current page
+    const currentPageRequestIds = requests.map(req => req.id.toString());
+    const newlySelected = newSelectedRowIds.filter(id => 
+      currentPageRequestIds.includes(id) && !selectedRequestsCache.has(id)
     );
+    
+    newlySelected.forEach(id => {
+      const request = requests.find(req => req.id.toString() === id);
+      if (request) {
+        newCache.set(id, request);
+      }
+    });
+    
+    setSelectedRequestsCache(newCache);
+    
+    // Convert all selected requests from cache to array
+    const selectedRequests = Array.from(newCache.values());
     
     // Determine which franchise is selected (should be only one)
     const franchiseIds = [...new Set(selectedRequests.map(row => row.franchise_id))];
     if (franchiseIds.length === 1) {
       setSelectedFranchiseId(franchiseIds[0]);
+      // Auto-update the franchise filter when selecting rows from a single franchise
+      if (filterFranchiseId !== franchiseIds[0]) {
+        setFilterFranchiseId(franchiseIds[0]);
+        setCurrentPage(0); // Reset to first page when filter changes
+      }
     } else {
       setSelectedFranchiseId(undefined);
+      // If multiple franchises are selected or none, clear the franchise filter
+      if (selectedRequests.length === 0 && filterFranchiseId) {
+        setFilterFranchiseId(undefined);
+        setCurrentPage(0);
+      }
     }
     
     // Call parent callback
@@ -147,8 +193,8 @@ export default function CompanyMissingVariantsBody({ onSelectionChange }: Compan
         </CardHeader>
         <CardContent>
           <FranchiseFilter 
-            selectedFranchiseId={selectedFranchiseId}
-            onFranchiseChange={setSelectedFranchiseId}
+            selectedFranchiseId={filterFranchiseId}
+            onFranchiseChange={handleFilterChange}
             companyId={company.ID}
           />
         </CardContent>
