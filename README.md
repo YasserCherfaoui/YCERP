@@ -185,3 +185,5 @@ The application is configured for deployment on Vercel with:
 
 ## License
 Proprietary software. All rights reserved by COSMOS Algerie.
+
+
