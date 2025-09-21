@@ -4,6 +4,13 @@ import { Company } from "./company.model";
 import { Inventory } from "./inventory.model";
 import { Sale } from "./sale.model";
 
+export type FranchiseType = "normal" | "vip";
+
+export const FRANCHISE_TYPES = {
+    NORMAL: "normal" as const,
+    VIP: "vip" as const,
+} as const;
+
 export interface Franchise {
     ID: number;
     CreatedAt: string;
@@ -13,6 +20,7 @@ export interface Franchise {
     address: string;
     city: string;
     state: string;
+    franchise_type: FranchiseType;
     company_id: number;
     company?: Company;
     inventory: Inventory;

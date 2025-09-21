@@ -15,24 +15,25 @@ interface SummaryInsightsProps {
 }
 
 export default function SummaryInsights({ franchises, dateRange }: SummaryInsightsProps) {
-  // Fetch insights for all franchises
-  const franchiseInsightsQueries = franchises.map(franchise => 
-    useQuery({
-      queryKey: ["franchise-insights", franchise.ID, dateRange.from, dateRange.to],
-      queryFn: () => {
-        if (!dateRange.from || !dateRange.to) return Promise.resolve(null);
-        return getCompanyFranchiseSalesTotal(
+  // Use a single query to fetch all franchise insights
+  const { data: franchiseInsightsData, isLoading, error: hasError } = useQuery({
+    queryKey: ["all-franchise-insights", franchises.map(f => f.ID), dateRange.from, dateRange.to],
+    queryFn: async () => {
+      if (!dateRange.from || !dateRange.to || franchises.length === 0) return [];
+      
+      const promises = franchises.map(franchise => 
+        getCompanyFranchiseSalesTotal(
           franchise.ID, 
           startOfDay(dateRange.from), 
           endOfDay(dateRange.to)
-        );
-      },
-      enabled: !!franchise.ID && !!dateRange.from && !!dateRange.to,
-    })
-  );
-
-  const isLoading = franchiseInsightsQueries.some(query => query.isLoading);
-  const hasError = franchiseInsightsQueries.some(query => query.error);
+        )
+      );
+      
+      const results = await Promise.all(promises);
+      return results;
+    },
+    enabled: !!dateRange.from && !!dateRange.to && franchises.length > 0,
+  });
 
   if (isLoading) {
     return (
@@ -67,12 +68,12 @@ export default function SummaryInsights({ franchises, dateRange }: SummaryInsigh
   }
 
   // Calculate totals
-  const totals = franchiseInsightsQueries.reduce(
-    (acc, query) => {
-      if (query.data?.data) {
-        acc.totalAmount += query.data.data.total_amount;
-        acc.totalBenefit += query.data.data.total_benefit;
-        acc.totalFranchisePrice += query.data.data.total_franchise_price;
+  const totals = (franchiseInsightsData || []).reduce(
+    (acc, result) => {
+      if (result?.data) {
+        acc.totalAmount += result.data.total_amount;
+        acc.totalBenefit += result.data.total_benefit;
+        acc.totalFranchisePrice += result.data.total_franchise_price;
       }
       return acc;
     },

@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Product } from "@/models/data/product.model";
 import { ColumnDef } from "@tanstack/react-table";
@@ -73,6 +73,20 @@ export const columns: ColumnDef<Product>[] = [
     header: () => <div className="text-right">Franchise Price</div>,
     cell: ({ row }) => {
       const price = parseInt(row.getValue("franchise_price"));
+      const formatted = new Intl.NumberFormat("en-DZ", {
+        style: "currency",
+        currency: "DZD",
+      }).format(price);
+
+      return <div className="text-right font-medium"> {formatted} </div>;
+    },
+  },
+  {
+    accessorKey: "vip_franchise_price",
+    id: "vip_franchise_price",
+    header: () => <div className="text-right">VIP Franchise Price</div>,
+    cell: ({ row }) => {
+      const price = parseInt(row.getValue("vip_franchise_price") || "0");
       const formatted = new Intl.NumberFormat("en-DZ", {
         style: "currency",
         currency: "DZD",

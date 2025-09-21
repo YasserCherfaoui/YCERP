@@ -1,20 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -99,7 +99,7 @@ export default function MyForm({ product }: Props) {
           />
 
           <div className="grid grid-cols-12 gap-4">
-            <div className="col-span-4">
+            <div className="col-span-3">
               <FormField
                 control={form.control}
                 name="first_price"
@@ -122,7 +122,7 @@ export default function MyForm({ product }: Props) {
               />
             </div>
 
-            <div className="col-span-4">
+            <div className="col-span-3">
               <FormField
                 control={form.control}
                 name="franchise_price"
@@ -145,7 +145,30 @@ export default function MyForm({ product }: Props) {
               />
             </div>
 
-            <div className="col-span-4">
+            <div className="col-span-3">
+              <FormField
+                control={form.control}
+                name="vip_franchise_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>VIP Franchise Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="2500"
+                        type="number"
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        value={Number(field.value)}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="col-span-3">
               <FormField
                 control={form.control}
                 name="price"

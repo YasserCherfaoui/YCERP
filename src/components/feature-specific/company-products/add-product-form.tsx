@@ -2,30 +2,30 @@ import { RootState } from "@/app/store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import {
-  CreateProductSchema,
-  createProductSchema,
-  productDefaultValues,
+    CreateProductSchema,
+    createProductSchema,
+    productDefaultValues,
 } from "@/schemas/product";
 import { createProduct } from "@/services/product-service";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -129,6 +129,23 @@ export default function () {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Franchise Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="vip_franchise_price"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>VIP Franchise Price</FormLabel>
                   <FormControl>
                     <Input
                       type="number"

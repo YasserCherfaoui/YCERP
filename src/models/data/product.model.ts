@@ -7,6 +7,7 @@ export interface Product {
     name: string;
     first_price: number;
     franchise_price: number;
+    vip_franchise_price?: number;
     price: number;
     description: string;
     company_id: number;

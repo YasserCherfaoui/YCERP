@@ -1,7 +1,9 @@
 import { LittleToast } from "@/hooks/use-toast";
 import { BillItem } from "@/models/data/bill.model";
+import { Franchise } from "@/models/data/franchise.model";
 import { Inventory } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { getFranchisePrice } from "@/utils/pricing-utils";
 
 
 interface Props {
@@ -12,8 +14,9 @@ interface Props {
     toast: LittleToast;
     setInput: React.Dispatch<React.SetStateAction<string>>;
     barcodes: string[];
+    franchise: Franchise;
 }
-export const processBarcode = ({inventory, input, billItems, setBillItems, toast, setInput, barcodes}: Props) => {
+export const processBarcode = ({inventory, input, billItems, setBillItems, toast, setInput, barcodes, franchise}: Props) => {
 
     if (barcodes.includes(input)) {
       const item = inventory!.data!.items.find(
@@ -27,7 +30,7 @@ export const processBarcode = ({inventory, input, billItems, setBillItems, toast
           const updatedBillItems = [...billItems];
           updatedBillItems[existingItemIndex].quantity += 1;
           updatedBillItems[existingItemIndex].price +=
-            item.product?.franchise_price ?? 0;
+            item.product ? getFranchisePrice(item.product, franchise) : 0;
           setBillItems(updatedBillItems);
         } else {
           setBillItems([
@@ -43,7 +46,9 @@ export const processBarcode = ({inventory, input, billItems, setBillItems, toast
               price:
                 inventory?.data?.items.find(
                   (e) => e.product_variant?.qr_code == input
-                )?.product?.franchise_price ?? 0,
+                )?.product ? getFranchisePrice(inventory.data.items.find(
+                  (e) => e.product_variant?.qr_code == input
+                )!.product!, franchise) : 0,
             },
           ]);
         }
