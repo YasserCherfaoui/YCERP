@@ -106,6 +106,7 @@ export default function ({ bill }: Props) {
       toast,
       setInput,
       barcodes,
+      franchise: franchise!,
     });
 
   useEffect(() => {
@@ -182,6 +183,7 @@ export default function ({ bill }: Props) {
                     billItems={billItems}
                     setBillItems={setBillItems}
                     items={inventory?.data?.items ?? []}
+                    franchise={franchise!}
                   />
                 ))}
               </ScrollArea>

@@ -1,3 +1,4 @@
+import { RootState } from "@/app/store";
 import {
     Accordion,
     AccordionContent,
@@ -23,13 +24,18 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { EntryBill } from "@/models/data/bill.model";
+import { getFranchisePrice } from "@/utils/pricing-utils";
 import { Eye } from "lucide-react";
+import { useSelector } from "react-redux";
 
 interface Props {
   bill: EntryBill;
 }
 
 export default function FranchiseEntryBillDetailsDialog({ bill }: Props) {
+  const franchise = useSelector((state: RootState) => state.franchise.franchise);
+  if (!franchise) return null;
+  
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -67,7 +73,8 @@ export default function FranchiseEntryBillDetailsDialog({ bill }: Props) {
                             style: "currency",
                             currency: "DZD",
                           }).format(
-                            item.product_variant?.product?.franchise_price ?? 0
+                            item.product_variant?.product ? 
+                              getFranchisePrice(item.product_variant.product, franchise) : 0
                           )}
                         </TableCell>
                         <TableCell>
@@ -75,7 +82,8 @@ export default function FranchiseEntryBillDetailsDialog({ bill }: Props) {
                             style: "currency",
                             currency: "DZD",
                           }).format(
-                            (item.product_variant?.product?.franchise_price ?? 0) *
+                            (item.product_variant?.product ? 
+                              getFranchisePrice(item.product_variant.product, franchise) : 0) *
                               item.quantity
                           )}
                         </TableCell>

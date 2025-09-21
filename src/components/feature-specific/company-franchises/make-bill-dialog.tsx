@@ -1,19 +1,19 @@
 import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -102,6 +102,7 @@ export default function ({ franchise }: Props) {
       toast,
       setInput,
       barcodes,
+      franchise,
     });
 
   useEffect(() => {
@@ -174,6 +175,7 @@ export default function ({ franchise }: Props) {
                   billItems={billItems}
                   setBillItems={setBillItems}
                   items={inventory?.data?.items ?? []}
+                  franchise={franchise}
                 />
               ))}
             </ScrollArea>

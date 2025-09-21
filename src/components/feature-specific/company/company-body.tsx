@@ -16,7 +16,7 @@ export default function () {
       <Suspense fallback={<p>Loading...</p>}>
         <div className="flex gap-2">
           {companies?.map((company, index) => (
-            <CompanyCard company={company} index={index} />
+            <CompanyCard key={company.ID} company={company} index={index} />
           ))}
         </div>
       </Suspense>

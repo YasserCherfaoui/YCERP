@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { BillItem } from "@/models/data/bill.model";
+import { Franchise } from "@/models/data/franchise.model";
 import { InventoryItem } from "@/models/data/inventory.model";
+import { getFranchisePrice } from "@/utils/pricing-utils";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 
@@ -9,9 +11,10 @@ interface Props {
   billItems: Array<BillItem>;
   setBillItems: Dispatch<SetStateAction<Array<BillItem>>>;
   items: Array<InventoryItem>;
+  franchise: Franchise;
 }
 
-export default function ({ billItem, billItems, setBillItems, items }: Props) {
+export default function ({ billItem, billItems, setBillItems, items, franchise }: Props) {
   return (
     <li className="flex text-xl justify-between items-center p-2">
       <span className="text-white">{billItem.variant_name}</span>
@@ -27,11 +30,12 @@ export default function ({ billItem, billItems, setBillItems, items }: Props) {
                 const updatedBillItems = [...billItems];
                 if (updatedBillItems[existingItemIndex].quantity > 1) {
                   updatedBillItems[existingItemIndex].quantity -= 1;
-                  updatedBillItems[existingItemIndex].price -=
-                    items.find(
-                      (e) =>
-                        e.product_variant?.ID == billItem.product_variant_id
-                    )?.product?.franchise_price ?? 0;
+                  const item = items.find(
+                    (e) => e.product_variant?.ID == billItem.product_variant_id
+                  );
+                  if (item?.product) {
+                    updatedBillItems[existingItemIndex].price -= getFranchisePrice(item.product, franchise);
+                  }
                   setBillItems(updatedBillItems);
                 } else {
                   setBillItems(
@@ -55,10 +59,12 @@ export default function ({ billItem, billItems, setBillItems, items }: Props) {
               if (existingItemIndex !== -1) {
                 const updatedBillItems = [...billItems];
                 updatedBillItems[existingItemIndex].quantity += 1;
-                updatedBillItems[existingItemIndex].price +=
-                  items.find(
-                    (e) => e.product_variant?.ID == billItem.product_variant_id
-                  )?.product?.franchise_price ?? 0;
+                const item = items.find(
+                  (e) => e.product_variant?.ID == billItem.product_variant_id
+                );
+                if (item?.product) {
+                  updatedBillItems[existingItemIndex].price += getFranchisePrice(item.product, franchise);
+                }
                 setBillItems(updatedBillItems);
               }
             }}

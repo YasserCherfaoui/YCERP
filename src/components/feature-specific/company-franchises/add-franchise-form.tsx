@@ -2,27 +2,36 @@ import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import Combobox from "@/components/ui/combobox";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { FRANCHISE_TYPES } from "@/models/data/franchise.model";
 import {
-  CreateFranchiseSchema,
-  createFranchiseSchema,
+    CreateFranchiseSchema,
+    createFranchiseSchema,
 } from "@/schemas/franchise";
 import { createFranchise } from "@/services/franchise-service";
 import { algeriaCitiesList, algeriaWilaya } from "@/utils/algeria-cities";
@@ -40,6 +49,14 @@ export default function () {
     resolver: zodResolver(createFranchiseSchema),
     defaultValues: {
       company_id: company?.ID,
+      name: "",
+      address: "",
+      city: "",
+      state: "",
+      franchise_admin_name: "",
+      franchise_admin_email: "",
+      franchise_admin_password: "",
+      franchise_type: "normal",
     },
   });
   const { toast } = useToast();
@@ -71,8 +88,11 @@ export default function () {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Add Franchise</DialogTitle>
-        <DialogDescription className="flex flex-col gap-4">
+        <DialogHeader>
+          <DialogTitle>Add Franchise</DialogTitle>
+          <DialogDescription>Create a new franchise for your company.</DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col gap-4">
           <Form {...form}>
             <FormField
               name="name"
@@ -157,8 +177,29 @@ export default function () {
                 </FormItem>
               )}
             />
+            <FormField
+              name="franchise_type"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Franchise Type</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select franchise type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value={FRANCHISE_TYPES.NORMAL}>Normal Franchise</SelectItem>
+                      <SelectItem value={FRANCHISE_TYPES.VIP}>VIP Franchise</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </Form>
-        </DialogDescription>
+        </div>
         <DialogFooter>
           <DialogTrigger asChild>
             <Button variant="outline">Cancel</Button>
