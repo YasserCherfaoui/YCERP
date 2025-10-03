@@ -1,5 +1,5 @@
 import { RootState } from "@/app/store";
-import { franchiseProductsColumns } from "@/components/feature-specific/franchise-products/franchise-products-columns";
+import { franchiseProductsColumnsNormal, franchiseProductsColumnsVIP } from "@/components/feature-specific/franchise-products/franchise-products-columns";
 import { DataTable } from "@/components/ui/data-table";
 import { getFranchiseAllProducts } from "@/services/product-service";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +15,15 @@ export default function () {
   });
   return (
     <div>
-      <DataTable data={products?.data ?? []} columns={franchiseProductsColumns} searchColumn="name"/>
+      <DataTable
+        data={products?.data ?? []}
+        columns={
+          franchise?.franchise_type === "vip"
+            ? franchiseProductsColumnsVIP
+            : franchiseProductsColumnsNormal
+        }
+        searchColumn="name"
+      />
     </div>
   );
 }
