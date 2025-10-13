@@ -38,11 +38,11 @@ export const AffiliateRegisterPage = () => {
       email: "",
       password: "",
       phone: "",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-      company_id: 0,
+      address: "01 boulevard de la mer",
+      city: "Algiers",
+      state: "Alger",
+      zip: "16000",
+      company_id: 2,
     },
   });
 
@@ -69,7 +69,9 @@ export const AffiliateRegisterPage = () => {
           </CardHeader>
           <CardContent className="p-0">
             <Link to="/affiliate/login" className="w-full">
-              <Button className="w-full rounded-md font-semibold">Go to Login</Button>
+              <Button className="w-full rounded-md font-semibold">
+                Go to Login
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -81,7 +83,9 @@ export const AffiliateRegisterPage = () => {
     <div className="affiliate-theme flex items-center justify-center min-h-screen bg-background">
       <Card className="mx-auto max-w-md rounded-lg p-6 shadow-sm border-border">
         <CardHeader className="p-0 mb-4 text-center">
-          <CardTitle className="text-2xl font-bold">Create an Affiliate Account</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            Create an Affiliate Account
+          </CardTitle>
           <CardDescription className="text-muted-foreground">
             Enter your information to get started
           </CardDescription>
@@ -97,7 +101,11 @@ export const AffiliateRegisterPage = () => {
                     <FormItem>
                       <FormLabel>Full name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} className="rounded-md border-border px-3 py-2" />
+                        <Input
+                          placeholder="John Doe"
+                          {...field}
+                          className="rounded-md border-border px-3 py-2"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -110,7 +118,11 @@ export const AffiliateRegisterPage = () => {
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 234 567 890" {...field} className="rounded-md border-border px-3 py-2" />
+                        <Input
+                          placeholder="+1 234 567 890"
+                          {...field}
+                          className="rounded-md border-border px-3 py-2"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -142,26 +154,36 @@ export const AffiliateRegisterPage = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} className="rounded-md border-border px-3 py-2" />
+                      <Input
+                        type="password"
+                        {...field}
+                        className="rounded-md border-border px-3 py-2"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="123 Main St" {...field} className="rounded-md border-border px-3 py-2" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="grid grid-cols-3 gap-4">
+              <div className="hidden">
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="123 Main St"
+                          {...field}
+                          className="rounded-md border-border px-3 py-2"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4 hidden">
                 <FormField
                   control={form.control}
                   name="city"
@@ -169,7 +191,10 @@ export const AffiliateRegisterPage = () => {
                     <FormItem>
                       <FormLabel>City</FormLabel>
                       <FormControl>
-                        <Input {...field} className="rounded-md border-border px-3 py-2" />
+                        <Input
+                          {...field}
+                          className="rounded-md border-border px-3 py-2"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -182,7 +207,10 @@ export const AffiliateRegisterPage = () => {
                     <FormItem>
                       <FormLabel>State</FormLabel>
                       <FormControl>
-                        <Input {...field} className="rounded-md border-border px-3 py-2" />
+                        <Input
+                          {...field}
+                          className="rounded-md border-border px-3 py-2"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -195,31 +223,48 @@ export const AffiliateRegisterPage = () => {
                     <FormItem>
                       <FormLabel>ZIP</FormLabel>
                       <FormControl>
-                        <Input {...field} className="rounded-md border-border px-3 py-2" />
+                        <Input
+                          {...field}
+                          value={16000}
+                          className="rounded-md border-border px-3 py-2"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-               <FormField
+              <div className="hidden">
+                <FormField
                   control={form.control}
                   name="company_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Company ID</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} value={2} className="rounded-md border-border px-3 py-2" />
+                        <Input
+                          type="number"
+                          {...field}
+                          value={2}
+                          className="rounded-md border-border px-3 py-2"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
               {status === "failed" && error && (
                 <p className="text-sm font-medium text-destructive">{error}</p>
               )}
-              <Button type="submit" className="w-full rounded-md font-semibold" disabled={status === "loading"}>
-                {status === "loading" ? "Creating account..." : "Create an account"}
+              <Button
+                type="submit"
+                className="w-full rounded-md font-semibold"
+                disabled={status === "loading"}
+              >
+                {status === "loading"
+                  ? "Creating account..."
+                  : "Create an account"}
               </Button>
             </form>
           </Form>
@@ -233,4 +278,4 @@ export const AffiliateRegisterPage = () => {
       </Card>
     </div>
   );
-}; 
+};
