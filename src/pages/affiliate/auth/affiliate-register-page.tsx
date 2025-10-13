@@ -1,25 +1,25 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { registerAffiliate } from "@/features/auth/affiliate-slice";
 import {
-    RegisterAffiliateSchema,
-    registerAffiliateSchema,
+  RegisterAffiliateSchema,
+  registerAffiliateSchema,
 } from "@/schemas/affiliate";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -209,7 +209,7 @@ export const AffiliateRegisterPage = () => {
                     <FormItem>
                       <FormLabel>Company ID</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} className="rounded-md border-border px-3 py-2" />
+                        <Input type="number" {...field} value={2} className="rounded-md border-border px-3 py-2" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
