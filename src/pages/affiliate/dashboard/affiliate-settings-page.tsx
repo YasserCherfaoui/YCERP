@@ -150,7 +150,7 @@ export default function AffiliateSettingsPage() {
   if (profileLoading) {
     return (
       <div className="affiliate-theme min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
           <div className="flex items-center justify-center h-64">
             <div className="flex items-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -164,10 +164,10 @@ export default function AffiliateSettingsPage() {
 
   return (
     <div className="affiliate-theme min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="container mx-auto px-6 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Settings</h1>
           <p className="text-gray-600">
             Manage your account information and payment preferences.
           </p>
@@ -256,16 +256,17 @@ export default function AffiliateSettingsPage() {
               <Form {...form}>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                   <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="bank" className="flex items-center gap-2">
+                    <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
+                      <TabsTrigger value="bank" className="flex items-center gap-1 sm:gap-2">
                         <Building className="h-4 w-4" />
-                        Bank Transfer
+                        <span className="hidden sm:inline">Bank Transfer</span>
+                        <span className="sm:hidden">Bank</span>
                       </TabsTrigger>
-                      <TabsTrigger value="paypal" className="flex items-center gap-2">
+                      <TabsTrigger value="paypal" className="flex items-center gap-1 sm:gap-2">
                         <Mail className="h-4 w-4" />
                         PayPal
                       </TabsTrigger>
-                      <TabsTrigger value="check" className="flex items-center gap-2">
+                      <TabsTrigger value="check" className="flex items-center gap-1 sm:gap-2">
                         <FileText className="h-4 w-4" />
                         Check
                       </TabsTrigger>

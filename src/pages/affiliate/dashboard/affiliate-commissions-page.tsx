@@ -4,36 +4,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import {
-  Commission,
-  CommissionStatus,
+    Commission,
+    CommissionStatus,
 } from "@/models/data/affiliate/commission.model";
 import { getCommissions } from "@/services/affiliate-service";
 import { useQuery } from "@tanstack/react-query";
 import {
-  AlertCircle,
-  CheckCircle,
-  ChevronLeft,
-  ChevronRight,
-  DollarSign,
-  Filter,
-  Loader2,
-  Search,
-  TrendingUp,
+    AlertCircle,
+    CheckCircle,
+    ChevronLeft,
+    ChevronRight,
+    DollarSign,
+    Filter,
+    Loader2,
+    Search,
+    TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -147,7 +147,7 @@ export default function AffiliateCommissionsPage() {
   if (error) {
     return (
       <div className="affiliate-theme min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -167,10 +167,10 @@ export default function AffiliateCommissionsPage() {
 
   return (
     <div className="affiliate-theme min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 py-6 sm:px-6 sm:py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Commissions</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Commissions</h1>
           <p className="text-gray-600">
             Track your commission earnings and payment status.
           </p>
@@ -257,7 +257,7 @@ export default function AffiliateCommissionsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <Label htmlFor="search" className="text-sm font-medium">
                   Search
