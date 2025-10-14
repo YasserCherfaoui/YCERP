@@ -37,6 +37,18 @@ export const AffiliateDashboardLayout = () => {
           <h2 className="px-2 text-lg font-semibold tracking-tight">
             Affiliate Portal
           </h2>
+          <div className="mb-2">
+            <a
+              href="https://t.me/+Rb4xEzrnz-piYzVk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors hover:bg-[#229ED9]/10"
+              style={{ color: '#229ED9' }}
+            >
+              <TelegramIcon className="h-5 w-5" />
+              <span>Join our Telegram group</span>
+            </a>
+          </div>
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -60,18 +72,6 @@ export const AffiliateDashboardLayout = () => {
               )}
             </NavLink>
           ))}
-          <div className="mt-auto">
-            <a
-              href="https://t.me/+Rb4xEzrnz-piYzVk"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors hover:bg-[#229ED9]/10"
-              style={{ color: '#229ED9' }}
-            >
-              <TelegramIcon className="h-5 w-5" />
-              <span>Join our Telegram group</span>
-            </a>
-          </div>
         </nav>
       </aside>
       <div className="flex flex-col sm:pl-[240px] w-full">
