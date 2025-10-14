@@ -1,16 +1,16 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Calendar, Home, Inbox, MessageCircle, Search, Settings } from "lucide-react";
 
 const items = [
   {
@@ -63,7 +63,23 @@ export default function () {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <a 
+                href="https://t.me/+Rb4xEzrnz-piYzVk" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="gap-2"
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>Join our Telegram group</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
