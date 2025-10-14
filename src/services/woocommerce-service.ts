@@ -175,12 +175,13 @@ export const dispatchWooCommerceOrder = async (orderID: number): Promise<APIResp
 };
 
 export const exportWooCommerceOrder = async (orderID: number): Promise<APIResponse<void>> => {
-    const response = await fetch(`${baseUrl}/woocommerce/export/${orderID}`, {
+    const response = await fetch(`${baseUrl}/woocommerce/export`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + token,
         },
+        body: JSON.stringify({ order_ids: [orderID] }),
     });
     if (!response.ok) {
         const errorData = await response.json();
