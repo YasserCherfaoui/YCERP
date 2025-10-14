@@ -166,7 +166,7 @@ export default function AffiliateMyLinksPage() {
 
         {/* Website Referral Link Section */}
         <div className="mb-8">
-          <Card className="rounded-2xl shadow-md border">
+          <Card className="rounded-2xl shadow-md border hidden">
             <CardHeader>
               <CardTitle className="text-xl font-semibold text-gray-900">
                 Share your referral link to {companyName} Store

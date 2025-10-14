@@ -1,11 +1,12 @@
 import { useAppDispatch } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import TelegramIcon from "@/components/ui/telegram-icon";
 import { logoutAffiliate } from "@/features/auth/affiliate-slice";
 import useAffiliate from "@/hooks/use-affiliate";
 import { NavLink, Outlet } from "react-router-dom";
@@ -32,7 +33,7 @@ export const AffiliateDashboardLayout = () => {
         className="fixed inset-y-0 left-0 z-10 hidden flex-col border-r border-border bg-card sm:flex"
         style={{ width: "240px" }}
       >
-        <nav className="flex flex-col gap-2 p-4">
+        <nav className="flex flex-col gap-2 p-4 flex-1">
           <h2 className="px-2 text-lg font-semibold tracking-tight">
             Affiliate Portal
           </h2>
@@ -59,6 +60,18 @@ export const AffiliateDashboardLayout = () => {
               )}
             </NavLink>
           ))}
+          <div className="mt-auto">
+            <a
+              href="https://t.me/+Rb4xEzrnz-piYzVk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium transition-colors hover:bg-[#229ED9]/10"
+              style={{ color: '#229ED9' }}
+            >
+              <TelegramIcon className="h-5 w-5" />
+              <span>Join our Telegram group</span>
+            </a>
+          </div>
         </nav>
       </aside>
       <div className="flex flex-col sm:pl-[240px] w-full">
