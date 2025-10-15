@@ -45,6 +45,10 @@ import CompanyProductsPage from "@/pages/dashboard/company/company-products-page
 import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
 import CompanySalesSwitchPage from "@/pages/dashboard/company/company-sales-switch-page";
 import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
+import CompanyStockAlertsConfigPage from "@/pages/dashboard/company/company-stock-alerts-config-page";
+import CompanyStockAlertsHistoryPage from "@/pages/dashboard/company/company-stock-alerts-history-page";
+import CompanyStockAlertsNotificationsPage from "@/pages/dashboard/company/company-stock-alerts-notifications-page";
+import CompanyStockAlertsPage from "@/pages/dashboard/company/company-stock-alerts-page";
 import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
@@ -75,9 +79,16 @@ import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
 import FranchiseMissingVariantsPage from "@/pages/franchise/dashboard/franchise-missing-variants-page";
 import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-products-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
+import FranchiseStockAlertsConfigPage from "@/pages/franchise/dashboard/franchise-stock-alerts-config-page";
+import FranchiseStockAlertsHistoryPage from "@/pages/franchise/dashboard/franchise-stock-alerts-history-page";
+import FranchiseStockAlertsNotificationsPage from "@/pages/franchise/dashboard/franchise-stock-alerts-notifications-page";
+import FranchiseStockAlertsPage from "@/pages/franchise/dashboard/franchise-stock-alerts-page";
 import HomePage from "@/pages/home-page";
 import UserLoginPage from "@/pages/moderator/auth/login-page";
 import ModeratorMobilePage from "@/pages/moderator/dashboard/moderator-mobile-page";
+import ModeratorStockAlertsHistoryPage from "@/pages/moderator/dashboard/moderator-stock-alerts-history-page";
+import ModeratorStockAlertsNotificationsPage from "@/pages/moderator/dashboard/moderator-stock-alerts-notifications-page";
+import ModeratorStockAlertsPage from "@/pages/moderator/dashboard/moderator-stock-alerts-page";
 import UserAlgiersSalesPage from "@/pages/moderator/dashboard/user-algiers-sales-page";
 import UserMenuPage from "@/pages/moderator/dashboard/user-menu-page";
 import UserSalesPage from "@/pages/moderator/dashboard/user-sales-page";
@@ -110,6 +121,12 @@ export default function AppRouter() {
             <Route path="products" element={<FranchiseProductsPage />} />
             <Route path="missing-variants" element={<FranchiseMissingVariantsPage />} />
             <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
+            <Route path="stock-alerts">
+              <Route index element={<FranchiseStockAlertsPage />} />
+              <Route path="history" element={<FranchiseStockAlertsHistoryPage />} />
+              <Route path="config" element={<FranchiseStockAlertsConfigPage />} />
+              <Route path="notifications" element={<FranchiseStockAlertsNotificationsPage />} />
+            </Route>
           </Route>
         </Route>
         //? USER ROUTES
@@ -164,6 +181,11 @@ export default function AppRouter() {
             <Route path="delivery">
               <Route index element={<DeliveryListPage />} />
               <Route path=":id" element={<DeliveryDashboardPage />} />
+            </Route>
+            <Route path="stock-alerts">
+              <Route index element={<ModeratorStockAlertsPage />} />
+              <Route path="history" element={<ModeratorStockAlertsHistoryPage />} />
+              <Route path="notifications" element={<ModeratorStockAlertsNotificationsPage />} />
             </Route>
           </Route>
           <Route path="issues" element={<IssuesPage />} />
@@ -239,6 +261,12 @@ export default function AppRouter() {
                 <Route path=":affiliateID" element={<CompanyAffiliateDetailsPage />} />
               </Route>
               <Route path="affiliate-applications" element={<CompanyAffiliateApplicationsPage />} />
+              <Route path="stock-alerts">
+                <Route index element={<CompanyStockAlertsPage />} />
+                <Route path="history" element={<CompanyStockAlertsHistoryPage />} />
+                <Route path="config" element={<CompanyStockAlertsConfigPage />} />
+                <Route path="notifications" element={<CompanyStockAlertsNotificationsPage />} />
+              </Route>
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />

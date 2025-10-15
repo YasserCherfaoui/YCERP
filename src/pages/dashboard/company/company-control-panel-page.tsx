@@ -182,6 +182,11 @@ const quickMenu: Array<{
     icon: AlertTriangle,
     href: "missing-variants",
   },
+  {
+    label: "Stock Alerts",
+    icon: AlertTriangle,
+    href: "stock-alerts",
+  },
   // {
   //   label: "Charges",
   //   icon: Calculator,

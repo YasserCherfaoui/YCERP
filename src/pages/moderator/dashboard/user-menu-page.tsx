@@ -5,6 +5,7 @@ import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon
 import {
     AlertTriangle,
     Apple,
+    Bell,
     Handshake,
     Package,
     ReceiptText,
@@ -94,5 +95,10 @@ const quickMenu = [
     label: "Missing Variants",
     icon: AlertTriangle,
     href: "missing-variants",
+  },
+  {
+    label: "Stock Alerts",
+    icon: Bell,
+    href: "stock-alerts",
   },
 ];
