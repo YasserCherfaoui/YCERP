@@ -1,4 +1,5 @@
 // src/app/store.ts
+import stockAlertsSlice from '@/features/alerts/stock-alerts-slice';
 import affiliateSlice from '@/features/auth/affiliate-slice';
 import authReducer from '@/features/auth/auth-slice';
 import deliverySlice from '@/features/auth/delivery-slice';
@@ -32,6 +33,7 @@ export const store = configureStore({
     boxing: boxingSlice,
     advertising: advertisingSlice,
     rentUtility: rentUtilitySlice,
+    stockAlerts: stockAlertsSlice,
     // Add other reducers here
   },
 });
