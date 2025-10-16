@@ -413,3 +413,43 @@ export const declareEmptyExchange = async (request: DeclareEmptyExchangeRequest)
   const data: APIResponse<void> = await response.json();
   return data;
 }
+
+export const getOrderStatusCount = async (params?: {
+  date_from?: string;
+  date_to?: string;
+  wilaya?: string;
+}): Promise<APIResponse<{
+  status_counts: { status: string; count: number }[];
+  total_orders: number;
+  date_from: string;
+  date_to: string;
+  wilaya?: string;
+}>> => {
+  const currentToken = localStorage.getItem("token");
+  let url = `${baseUrl}/orders/status-count`;
+  const queryParams = new URLSearchParams();
+  
+  if (params?.date_from) queryParams.append('date_from', params.date_from);
+  if (params?.date_to) queryParams.append('date_to', params.date_to);
+  if (params?.wilaya) queryParams.append('wilaya', params.wilaya);
+  
+  if (queryParams.toString()) {
+    url += `?${queryParams.toString()}`;
+  }
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + currentToken,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch order status count");
+  }
+
+  const data = await response.json();
+  return data;
+}

@@ -5,9 +5,12 @@ import BulkOperationsDialog from "@/components/feature-specific/orders/bulk-oper
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
 import CreateOrderFromScratchDialog from "@/components/feature-specific/orders/create-order-from-scratch-dialog.tsx";
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
+import OrderStatusCards from "@/components/feature-specific/orders/order-status-cards";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -18,6 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOrdersWithRealtime } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { User } from "@/models/data/user.model";
 import { YALIDINE_STATUSES } from "@/models/data/woo-order.model";
 import { getCompanyInventory } from "@/services/inventory-service";
@@ -30,8 +34,9 @@ import {
 } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import {
-  CheckCircleIcon,
+  Calendar as CalendarIcon, CheckCircleIcon,
   Loader2,
   LoaderIcon,
   PackageIcon,
@@ -44,9 +49,10 @@ import {
   Undo2Icon,
   Upload,
   UserIcon,
-  XCircleIcon,
+  XCircleIcon
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import AssignOrdersDialog from "./AssignOrdersDialog";
@@ -56,6 +62,7 @@ export default function CompanyOrdersPage() {
   let company = useSelector((state: RootState) => state.company.company);
   const { pathname } = useLocation();
   const isModerator = pathname.includes("moderator");
+  const isAdministrator = useSelector((state: RootState) => state.auth.isAuthenticated);
   if (isModerator) {
     company = useSelector((state: RootState) => state.user.company);
   }
@@ -81,6 +88,9 @@ export default function CompanyOrdersPage() {
   const [selectedConfirmedVariant, setSelectedConfirmedVariant] = useState<
     number | undefined
   >(undefined);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -110,13 +120,13 @@ export default function CompanyOrdersPage() {
 
   useQuery({
     queryKey: ["inventory", company.ID],
-    queryFn: () => getCompanyInventory(company.ID),
+    queryFn: () => getCompanyInventory(company!.ID),
     enabled: Boolean(company && company.ID),
   }); // --- Shuffle Dialog State ---
   const [shuffleOpen, setShuffleOpen] = useState(false);
   const { data: usersData } = useQuery({
     queryKey: ["users", company.ID],
-    queryFn: () => getUsersByCompany(company.ID),
+    queryFn: () => getUsersByCompany(company!.ID),
   });
   const users = usersData?.data || [];
 
@@ -308,7 +318,7 @@ export default function CompanyOrdersPage() {
 
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", company.ID],
-    queryFn: () => getCompanyInventory(company.ID),
+    queryFn: () => getCompanyInventory(company!.ID),
     enabled: Boolean(company && company.ID),
   });
   const allVariants =
@@ -455,6 +465,60 @@ export default function CompanyOrdersPage() {
           </div>
         </div>
       </div>
+
+      {/* Order Status Cards - Only for Administrators */}
+      {isAdministrator && !isModerator && (
+        <div className="mt-6 space-y-4">
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-semibold">Order Status Overview</h2>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    !dateRange && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range (defaults to last 30 days)</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                />
+                <div className="flex justify-end p-2 border-t">
+                  <Button size="sm" variant="ghost" onClick={() => setDateRange(undefined)}>
+                    Reset
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+          <OrderStatusCards 
+            wilaya={selectedWilaya}
+            dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
+            dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
+          />
+        </div>
+      )}
 
       {/* Tabs for order statuses */}
       <Tabs
