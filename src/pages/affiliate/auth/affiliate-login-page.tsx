@@ -107,11 +107,18 @@ export const AffiliateLoginPage = () => {
               </Button>
             </form>
           </Form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link to="/affiliate/register" className="underline text-primary">
-              Sign up
-            </Link>
+          <div className="mt-4 text-center text-sm space-y-2">
+            <div>
+              <Link to="/affiliate/forgot-password" className="underline text-primary">
+                Forgot password?
+              </Link>
+            </div>
+            <div>
+              Don&apos;t have an account?{" "}
+              <Link to="/affiliate/register" className="underline text-primary">
+                Sign up
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

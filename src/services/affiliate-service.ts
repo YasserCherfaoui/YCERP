@@ -43,6 +43,100 @@ export const registerAffiliate = async (data: RegisterAffiliateSchema): Promise<
     return result;
 }
 
+// Password Reset API Functions
+export interface RequestPasswordResetData {
+    email: string;
+}
+
+export interface VerifyOTPData {
+    email: string;
+    otp_code: string;
+}
+
+export interface ResetPasswordData {
+    verification_token: string;
+    new_password: string;
+}
+
+export interface VerifyOTPResponse {
+    verification_token: string;
+}
+
+export const requestPasswordReset = async (data: RequestPasswordResetData): Promise<APIResponse<null>> => {
+    const response = await fetch(`${baseUrl}/affiliates/password-reset/request`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result: APIResponse<null> = await response.json();
+
+    if (!response.ok) {
+        if (result.error?.description) {
+            throw new Error(result.error.description);
+        }
+        throw new Error(result.message || "Failed to request password reset.");
+    }
+
+    return result;
+};
+
+export const verifyOTP = async (data: VerifyOTPData): Promise<APIResponse<VerifyOTPResponse>> => {
+    const response = await fetch(`${baseUrl}/affiliates/password-reset/verify-otp`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result: APIResponse<VerifyOTPResponse> = await response.json();
+
+    if (!response.ok) {
+        if (result.error?.code === "invalid-credentials") {
+            throw new Error("Invalid email or OTP code. Please check your email and try again.");
+        }
+        if (result.error?.description) {
+            throw new Error(result.error.description);
+        }
+        throw new Error(result.message || "Failed to verify OTP.");
+    }
+
+    return result;
+};
+
+export const resetPassword = async (data: ResetPasswordData): Promise<APIResponse<null>> => {
+    const response = await fetch(`${baseUrl}/affiliates/password-reset/reset`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result: APIResponse<null> = await response.json();
+
+    if (!response.ok) {
+        if (result.error?.code === "invalid-token") {
+            throw new Error("Invalid or expired verification token. Please try the password reset process again.");
+        }
+        if (result.error?.code === "account-inactive") {
+            throw new Error("Account is not active. Please contact support.");
+        }
+        if (result.error?.code === "invalid-body") {
+            throw new Error("Password must be at least 8 characters long.");
+        }
+        if (result.error?.description) {
+            throw new Error(result.error.description);
+        }
+        throw new Error(result.message || "Failed to reset password.");
+    }
+
+    return result;
+};
+
 export const getAffiliateProfile = async (): Promise<APIResponse<Affiliate>> => {
     const response = await fetch(`${baseUrl}/affiliates/me`, {
         method: 'GET',

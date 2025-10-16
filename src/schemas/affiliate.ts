@@ -17,5 +17,26 @@ export const registerAffiliateSchema = z.object({
   company_id: z.coerce.number().int().positive({ message: "Company ID is required" }),
 });
 
+// Password Reset Schemas
+export const requestPasswordResetSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+});
+
+export const verifyOTPSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  otp_code: z.string()
+    .min(6, { message: "OTP code must be 6 digits" })
+    .max(6, { message: "OTP code must be 6 digits" })
+    .regex(/^\d{6}$/, { message: "OTP code must be 6 digits" }),
+});
+
+export const resetPasswordSchema = z.object({
+  verification_token: z.string().min(1, { message: "Verification token is required" }),
+  new_password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+});
+
 export type LoginAffiliateSchema = z.infer<typeof loginAffiliateSchema>;
-export type RegisterAffiliateSchema = z.infer<typeof registerAffiliateSchema>; 
+export type RegisterAffiliateSchema = z.infer<typeof registerAffiliateSchema>;
+export type RequestPasswordResetSchema = z.infer<typeof requestPasswordResetSchema>;
+export type VerifyOTPSchema = z.infer<typeof verifyOTPSchema>;
+export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>; 
