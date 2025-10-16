@@ -13,6 +13,7 @@ import { AffiliateDashboardLayout } from "@/layouts/affiliate-layout";
 import CompanyLayout from "@/layouts/company-layout";
 import DashboardLayout from "@/layouts/dashboard-layout";
 import MainLayout from "@/layouts/main-layout";
+import { AffiliateForgotPasswordPage } from "@/pages/affiliate/auth/affiliate-forgot-password-page";
 import { AffiliateLoginPage } from "@/pages/affiliate/auth/affiliate-login-page";
 import { AffiliateRegisterPage } from "@/pages/affiliate/auth/affiliate-register-page";
 import AffiliateCommissionsPage from "@/pages/affiliate/dashboard/affiliate-commissions-page";
@@ -281,6 +282,7 @@ export default function AppRouter() {
           <Route element={<AffiliatePublicRoute />}>
             <Route path="login" element={<AffiliateLoginPage />} />
             <Route path="register" element={<AffiliateRegisterPage />} />
+            <Route path="forgot-password" element={<AffiliateForgotPasswordPage />} />
           </Route>
           <Route element={<AffiliatePrivateRoute />}>
             <Route element={<AffiliateDashboardLayout />}>
