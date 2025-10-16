@@ -573,4 +573,100 @@ export const syncProductsWithShopify = async (): Promise<APIResponse<any>> => {
 
     const result: APIResponse<any> = await response.json();
     return result;
+};
+
+// Company Commissions Management
+export interface CommissionStatistics {
+    total_count: number;
+    by_status: {
+        pending?: number;
+        approved?: number;
+        paid?: number;
+        partially_paid?: number;
+        cancelled?: number;
+    };
+    amounts: {
+        pending?: {
+            total_amount: number;
+            paid_amount: number;
+        };
+        approved?: {
+            total_amount: number;
+            paid_amount: number;
+        };
+        paid?: {
+            total_amount: number;
+            paid_amount: number;
+        };
+        partially_paid?: {
+            total_amount: number;
+            paid_amount: number;
+        };
+        cancelled?: {
+            total_amount: number;
+            paid_amount: number;
+        };
+    };
+    totals: {
+        total_amount: number;
+        total_paid_amount: number;
+        unpaid_amount: number;
+        pending_amount: number;
+        approved_amount: number;
+        cancelled_amount: number;
+    };
+}
+
+export interface AllCommissionsPaginatedResponse {
+    commissions: Commission[];
+    statistics: CommissionStatistics;
+    pagination: {
+        current_page: number;
+        total_pages: number;
+        total_count: number;
+        limit: number;
+        has_next: boolean;
+        has_previous: boolean;
+    };
+}
+
+export interface GetAllCommissionsParams {
+    page?: number;
+    limit?: number;
+    status?: string;
+    affiliate_id?: number;
+    search?: string;
+    sort_by?: 'created_at' | 'amount' | 'status' | 'affiliate_name';
+    sort_order?: 'asc' | 'desc';
+}
+
+export const getCompanyCommissions = async (companyId: number, params: GetAllCommissionsParams = {}): Promise<APIResponse<AllCommissionsPaginatedResponse>> => {
+    const { page = 1, limit = 20, status, affiliate_id, search, sort_by, sort_order } = params;
+    
+    const searchParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    if (status) searchParams.append('status', status);
+    if (affiliate_id) searchParams.append('affiliate_id', affiliate_id.toString());
+    if (search) searchParams.append('search', search);
+    if (sort_by) searchParams.append('sort_by', sort_by);
+    if (sort_order) searchParams.append('sort_order', sort_order);
+
+    const response = await fetch(`${baseUrl}/company/${companyId}/commissions?${searchParams}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getCompanyToken()}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch company commissions.");
+    }
+
+    const result: APIResponse<AllCommissionsPaginatedResponse> = await response.json();
+    return result;
 }; 
