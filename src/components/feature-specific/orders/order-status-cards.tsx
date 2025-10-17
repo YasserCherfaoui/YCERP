@@ -18,6 +18,7 @@ interface OrderStatusCardsProps {
   dateTo?: string;
   wilaya?: string;
   shippingProvider?: string;
+  companyId?: number;
 }
 
 const STATUS_COLORS: Record<string, { 
@@ -114,15 +115,16 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "Cancelled",
 };
 
-export default function OrderStatusCards({ dateFrom, dateTo, wilaya, shippingProvider }: OrderStatusCardsProps) {
+export default function OrderStatusCards({ dateFrom, dateTo, wilaya, shippingProvider, companyId }: OrderStatusCardsProps) {
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["order-status-count", dateFrom, dateTo, wilaya, shippingProvider],
+    queryKey: ["order-status-count", dateFrom, dateTo, wilaya, shippingProvider, companyId],
     queryFn: () =>
       getOrderStatusCount({
         date_from: dateFrom,
         date_to: dateTo,
         wilaya: wilaya,
         shipping_provider: shippingProvider,
+        company_id: companyId,
       }),
     refetchInterval: 30000, // Refetch every 30 seconds
   });

@@ -419,6 +419,7 @@ export const getOrderStatusCount = async (params?: {
   date_to?: string;
   wilaya?: string;
   shipping_provider?: string;
+  company_id?: number;
 }): Promise<APIResponse<{
   status_counts: { status: string; count: number }[];
   total_orders: number;
@@ -426,6 +427,7 @@ export const getOrderStatusCount = async (params?: {
   date_to: string;
   wilaya?: string;
   shipping_provider?: string;
+  company_id?: number;
 }>> => {
   const currentToken = localStorage.getItem("token");
   let url = `${baseUrl}/orders/status-count`;
@@ -435,6 +437,7 @@ export const getOrderStatusCount = async (params?: {
   if (params?.date_to) queryParams.append('date_to', params.date_to);
   if (params?.wilaya) queryParams.append('wilaya', params.wilaya);
   if (params?.shipping_provider) queryParams.append('shipping_provider', params.shipping_provider);
+  if (params?.company_id) queryParams.append('company_id', params.company_id.toString());
   
   if (queryParams.toString()) {
     url += `?${queryParams.toString()}`;

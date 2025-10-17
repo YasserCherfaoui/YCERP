@@ -536,6 +536,7 @@ export default function CompanyOrdersPage() {
           <OrderStatusCards 
             wilaya={selectedWilaya}
             shippingProvider={selectedShippingProvider}
+            companyId={company.ID}
             dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
             dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
           />
