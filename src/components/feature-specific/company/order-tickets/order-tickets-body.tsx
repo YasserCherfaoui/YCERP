@@ -1,3 +1,4 @@
+import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,12 +8,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
 import { FiMessageCircle, FiTrash2 } from "react-icons/fi";
+import { useSelector } from "react-redux";
 import IssuesReplyDialog from "../issues/issues-reply-dialog";
 
 export default function OrderTicketsBody() {
+  const company = useSelector((state: RootState) => state.company.company);
+  
   const { data } = useQuery({
-    queryKey: ["order-tickets"],
-    queryFn: getOrderTickets,
+    queryKey: ["order-tickets", company?.ID],
+    queryFn: () => getOrderTickets(company?.ID),
+    enabled: !!company,
   });
   const [tab, setTab] = useState("unsolved");
   const [replyTicket, setReplyTicket] = useState<OrderTicketResponse | null>(null);
@@ -78,7 +83,7 @@ export default function OrderTicketsBody() {
   const { mutate: createReply } = useMutation({
     mutationFn: createIssueReply,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["order-tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["order-tickets", company?.ID] });
       setReplyTicket(null);
     },
   });

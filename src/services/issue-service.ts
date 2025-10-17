@@ -5,8 +5,14 @@ import { IssueReplySchema } from "@/schemas/issue";
 
 const token = localStorage.getItem("token");
 
-export const getIssues = async (): Promise<APIResponse<IssueResponse[]>> => {
-    const response = await fetch(`${baseUrl}/issues/`, {
+export const getIssues = async (companyId?: number): Promise<APIResponse<IssueResponse[]>> => {
+    const queryParams = new URLSearchParams();
+    if (companyId) {
+        queryParams.append('company_id', companyId.toString());
+    }
+    
+    const url = `${baseUrl}/issues/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await fetch(url, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -40,8 +46,14 @@ export const createIssueReply = async (data: IssueReplySchema): Promise<APIRespo
     return responseData;
 }
 
-export const getOrderTickets = async (): Promise<APIResponse<OrderTicketResponse[]>> => {
-    const response = await fetch(`${baseUrl}/orders/`, {
+export const getOrderTickets = async (companyId?: number): Promise<APIResponse<OrderTicketResponse[]>> => {
+    const queryParams = new URLSearchParams();
+    if (companyId) {
+        queryParams.append('company_id', companyId.toString());
+    }
+    
+    const url = `${baseUrl}/orders/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    const response = await fetch(url, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
