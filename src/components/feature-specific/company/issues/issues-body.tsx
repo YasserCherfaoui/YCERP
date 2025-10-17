@@ -1,3 +1,4 @@
+import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IssueResponse } from "@/models/responses/issue-response.model";
@@ -5,13 +6,17 @@ import { getIssues } from "@/services/issue-service";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FiMessageCircle, FiTrash2 } from "react-icons/fi";
+import { useSelector } from "react-redux";
 import IssuesReplyDialog from "./issues-reply-dialog";
 import IssuesTable from "./issues-table";
 
 export default function IssuesBody() {
+  const company = useSelector((state: RootState) => state.company.company);
+  
   const { data } = useQuery({
-    queryKey: ["issues"],
-    queryFn: getIssues,
+    queryKey: ["issues", company?.ID],
+    queryFn: () => getIssues(company?.ID),
+    enabled: !!company,
   });
   const [tab, setTab] = useState("unsolved");
   // Dialog state placeholders
