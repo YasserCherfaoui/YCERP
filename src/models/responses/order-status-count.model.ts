@@ -9,6 +9,7 @@ export interface OrderStatusCountData {
   date_from: string;
   date_to: string;
   wilaya?: string;
+  shipping_provider?: string;
 }
 
 export interface OrderStatusCountResponse {
