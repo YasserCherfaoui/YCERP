@@ -1,3 +1,4 @@
+import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
 import CreateDeliveryEmployeeDialog from "@/components/feature-specific/delivery/CreateDeliveryEmployeeDialog";
 import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/delivery-employee-columns";
@@ -36,6 +37,7 @@ import {
   XIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 const ORDER_STATUSES = [
@@ -78,7 +80,8 @@ const ORDER_STATUSES = [
 
 export default function DeliveryDashboardPage() {
   const params = useParams();
-  const companyId = Number(params.id);
+  const deliveryCompanyId = Number(params.id);
+  const companyId = useSelector((state: RootState) => state.company.companyID);
   const [employeeDialogOpen, setEmployeeDialogOpen] = useState(false);
   const [printDialogOpen, setPrintDialogOpen] = useState(false);
   const [ordersStatus, setOrdersStatus] = useState(ORDER_STATUSES[0].value);
@@ -114,9 +117,9 @@ export default function DeliveryDashboardPage() {
     isLoading: companyLoading,
     isError: companyError,
   } = useQuery({
-    queryKey: ["delivery-company", companyId],
-    queryFn: () => getDeliveryCompany(companyId),
-    enabled: !!companyId,
+    queryKey: ["delivery-company", deliveryCompanyId],
+    queryFn: () => getDeliveryCompany(deliveryCompanyId),
+    enabled: !!deliveryCompanyId,
   });
   // Employees
   const {
@@ -124,9 +127,9 @@ export default function DeliveryDashboardPage() {
     isLoading: employeesLoading,
     isError: employeesError,
   } = useQuery({
-    queryKey: ["delivery-employees", companyId],
-    queryFn: () => getDeliveryEmployees(companyId),
-    enabled: !!companyId,
+    queryKey: ["delivery-employees", deliveryCompanyId],
+    queryFn: () => getDeliveryEmployees(deliveryCompanyId),
+    enabled: !!deliveryCompanyId,
   });
   // Orders (per status)
   const {
@@ -151,11 +154,12 @@ export default function DeliveryDashboardPage() {
         employee_id:
           selectedEmployeeId === "all" ? undefined : Number(selectedEmployeeId),
         phone_number: phoneNumber || undefined,
-        delivery_company_id: companyId,
+        delivery_company_id: deliveryCompanyId,
+        company_id: companyId,
         shipping_provider: "my_companies",
         ...computeDateBounds(dateRange),
-      }),
-    enabled: !!companyId,
+    }),
+    enabled: !!deliveryCompanyId,
   });
 
   const company = companyData?.data ?? null;
@@ -166,7 +170,7 @@ export default function DeliveryDashboardPage() {
   const { data: collections } = useQuery({
     queryKey: [
       "employee-collections",
-      companyId,
+      deliveryCompanyId,
       selectedEmployeeNumeric,
       toYmdLocal(dateRange?.from),
       toYmdLocal(dateRange?.to),
@@ -176,7 +180,7 @@ export default function DeliveryDashboardPage() {
       const { start, end } = computeDateBounds(dateRange);
       return getEmployeeCollections({ start, end, employee_id: selectedEmployeeNumeric });
     },
-    enabled: !!companyId && !!selectedEmployeeNumeric,
+    enabled: !!deliveryCompanyId && !!selectedEmployeeNumeric,
   });
 
   return (
@@ -317,7 +321,7 @@ export default function DeliveryDashboardPage() {
                     columns={deliveryOrdersColumns({
                       ordersQueryKey: [
                         "delivery-orders",
-                        companyId,
+                        deliveryCompanyId,
                         ordersStatus,
                         page,
                         phoneNumber,

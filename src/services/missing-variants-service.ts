@@ -97,6 +97,7 @@ export const getAllMissingVariantRequests = async (
   const params = new URLSearchParams();
   
   if (filters?.franchise_id) params.append("franchise_id", filters.franchise_id.toString());
+  if (filters?.company_id) params.append("company_id", filters.company_id.toString());
   if (filters?.status) params.append("status", filters.status);
   if (filters?.page) params.append("page", filters.page.toString());
   if (filters?.limit) params.append("limit", filters.limit.toString());
@@ -118,6 +119,7 @@ export const getMissingVariantRequestsByFranchise = async (
 ): Promise<APIResponse<MissingVariantByFranchiseResponse>> => {
   const params = new URLSearchParams();
   
+  if (filters?.company_id) params.append("company_id", filters.company_id.toString());
   if (filters?.status) params.append("status", filters.status);
   if (filters?.page) params.append("page", filters.page.toString());
   if (filters?.limit) params.append("limit", filters.limit.toString());

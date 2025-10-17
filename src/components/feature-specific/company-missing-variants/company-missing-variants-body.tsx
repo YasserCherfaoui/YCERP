@@ -39,6 +39,7 @@ export default function CompanyMissingVariantsBody({ onSelectionChange }: Compan
     queryKey: ["company-missing-variants", company.ID, filterFranchiseId, currentPage, pageSize],
     queryFn: () => getAllMissingVariantRequests({ 
       franchise_id: filterFranchiseId,
+      company_id: company.ID,
       status: "pending", // Only show pending requests by default
       page: currentPage + 1, // Convert 0-based to 1-based for API
       limit: pageSize,
