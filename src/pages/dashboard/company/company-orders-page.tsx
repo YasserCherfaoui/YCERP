@@ -88,6 +88,9 @@ export default function CompanyOrdersPage() {
   const [selectedConfirmedVariant, setSelectedConfirmedVariant] = useState<
     number | undefined
   >(undefined);
+  const [selectedShippingProvider, setSelectedShippingProvider] = useState<
+    string | undefined
+  >(undefined);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(
     undefined
   );
@@ -463,6 +466,24 @@ export default function CompanyOrdersPage() {
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
           </div>
+          <div className="flex gap-2 items-center mb-4">
+            <span>Filter by Shipping Provider:</span>
+            <Select
+              value={selectedShippingProvider || "all"}
+              onValueChange={(e) =>
+                setSelectedShippingProvider(e === "all" ? undefined : e)
+              }
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="All Providers" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Providers</SelectItem>
+                <SelectItem value="my_companies">My Companies</SelectItem>
+                <SelectItem value="yalidine">Yalidine</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
@@ -514,6 +535,7 @@ export default function CompanyOrdersPage() {
           </div>
           <OrderStatusCards 
             wilaya={selectedWilaya}
+            shippingProvider={selectedShippingProvider}
             dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
             dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
           />
