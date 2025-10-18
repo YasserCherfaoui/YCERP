@@ -11,7 +11,10 @@ import IssuesReplyDialog from "./issues-reply-dialog";
 import IssuesTable from "./issues-table";
 
 export default function IssuesBody() {
-  const company = useSelector((state: RootState) => state.company.company);
+  // Support both company and moderator routes
+  const companyFromCompanyState = useSelector((state: RootState) => state.company.company);
+  const companyFromUserState = useSelector((state: RootState) => state.user.company);
+  const company = companyFromCompanyState || companyFromUserState;
   
   const { data } = useQuery({
     queryKey: ["issues", company?.ID],

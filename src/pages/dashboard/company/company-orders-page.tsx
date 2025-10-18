@@ -12,11 +12,11 @@ import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useOrdersWithRealtime } from "@/hooks/use-orders-with-realtime";
@@ -28,28 +28,28 @@ import { getCompanyInventory } from "@/services/inventory-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
 import {
-  dispatchWooCommerceOrders,
-  exportWooCommerceOrders,
-  refreshWooCommerceStatus,
+    dispatchWooCommerceOrders,
+    exportWooCommerceOrders,
+    refreshWooCommerceStatus,
 } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
-  Calendar as CalendarIcon, CheckCircleIcon,
-  Loader2,
-  LoaderIcon,
-  PackageIcon,
-  RefreshCcwIcon,
-  Rocket,
-  RotateCcwIcon,
-  SendIcon,
-  ShuffleIcon,
-  TruckIcon,
-  Undo2Icon,
-  Upload,
-  UserIcon,
-  XCircleIcon
+    Calendar as CalendarIcon, CheckCircleIcon,
+    Loader2,
+    LoaderIcon,
+    PackageIcon,
+    RefreshCcwIcon,
+    Rocket,
+    RotateCcwIcon,
+    SendIcon,
+    ShuffleIcon,
+    TruckIcon,
+    Undo2Icon,
+    Upload,
+    UserIcon,
+    XCircleIcon
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -487,8 +487,8 @@ export default function CompanyOrdersPage() {
         </div>
       </div>
 
-      {/* Order Status Cards - Only for Administrators */}
-      {isAdministrator && !isModerator && (
+      {/* Order Status Cards - For Administrators and Moderators */}
+      {(isAdministrator || isModerator) && (
         <div className="mt-6 space-y-4">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold">Order Status Overview</h2>
