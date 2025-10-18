@@ -188,8 +188,8 @@ export default function AppRouter() {
               <Route path="history" element={<ModeratorStockAlertsHistoryPage />} />
               <Route path="notifications" element={<ModeratorStockAlertsNotificationsPage />} />
             </Route>
+            <Route path="issues" element={<IssuesPage />} />
           </Route>
-          <Route path="issues" element={<IssuesPage />} />
         </Route>
         //! WARNING: PRIVATE ROUTES
         <Route element={<PrivateRoute />}>
