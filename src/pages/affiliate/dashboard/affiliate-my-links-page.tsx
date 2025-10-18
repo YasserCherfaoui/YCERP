@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import useAffiliate from "@/hooks/use-affiliate";
@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AffiliateProp, Product } from "@/models/data/product.model";
 import { getAffiliateProducts } from "@/services/affiliate-service";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, Copy, Loader2, Palette } from "lucide-react";
+import { AlertCircle, Copy, Loader2, Package, Palette } from "lucide-react";
 
 export default function AffiliateMyLinksPage() {
   const { affiliate } = useAffiliate();
@@ -100,11 +100,17 @@ export default function AffiliateMyLinksPage() {
     }
   };
 
-  // Extract all affiliate props from products
+  // Extract all affiliate props from products and ensure product data is attached
   const affiliateProps: AffiliateProp[] = [];
   productsData?.data?.forEach((product: Product) => {
     if (product.affiliate_props) {
-      affiliateProps.push(...product.affiliate_props);
+      product.affiliate_props.forEach((affiliateProp) => {
+        // Ensure the product data is attached to each affiliate prop
+        affiliateProps.push({
+          ...affiliateProp,
+          product: product
+        });
+      });
     }
   });
 
@@ -300,6 +306,53 @@ function ProductCard({
             Commission
           </span>
         </div>
+
+        {/* Variants Stock */}
+        {product?.product_variants && product.product_variants.length > 0 && (
+          <div className="px-4 pb-4">
+            <div className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+              <Package className="h-4 w-4" />
+              Available Sizes:
+            </div>
+            <div className="space-y-1.5 max-h-32 overflow-y-auto">
+              {(() => {
+                // Extract the primary color from the product name
+                const productName = affiliateProp.name || product?.name || "";
+                const primaryColor = productName.split(' ').pop()?.toLowerCase() || "";
+                
+                // Filter variants by the primary color
+                const filteredVariants = product.product_variants.filter(variant => 
+                  variant.color.toLowerCase() === primaryColor
+                );
+                
+                // If no variants match the primary color, show all variants
+                const variantsToShow = filteredVariants.length > 0 ? filteredVariants : product.product_variants;
+                
+                return variantsToShow.map((variant) => (
+                  <div
+                    key={variant.ID}
+                    className="flex items-center justify-between text-xs bg-gray-50 rounded-lg px-3 py-1.5"
+                  >
+                    <span className="text-gray-700 font-medium">
+                      Size {variant.size}
+                    </span>
+                    <span
+                      className={`font-semibold ${
+                        (variant.total_inventory_quantity ?? 0) === 0
+                          ? "text-red-600"
+                          : (variant.total_inventory_quantity ?? 0) < 10
+                          ? "text-orange-600"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {variant.total_inventory_quantity ?? 0} in stock
+                    </span>
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="flex justify-between items-center px-4 py-2">
