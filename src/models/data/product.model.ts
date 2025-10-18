@@ -37,6 +37,7 @@ export interface ProductVariant {
     color: string;
     size: number;
     qr_code: string;
+    total_inventory_quantity?: number;
 }
 
 export interface AffiliateProp {
