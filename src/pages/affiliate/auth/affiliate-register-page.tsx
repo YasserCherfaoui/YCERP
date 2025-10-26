@@ -21,6 +21,7 @@ import {
   RegisterAffiliateSchema,
   registerAffiliateSchema,
 } from "@/schemas/affiliate";
+import { trackCompleteRegistration } from "@/utils/meta-pixel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -50,6 +51,12 @@ export const AffiliateRegisterPage = () => {
     dispatch(registerAffiliate(values))
       .unwrap()
       .then(() => {
+        // Track registration event with Meta Pixel
+        trackCompleteRegistration({
+          email: values.email,
+          full_name: values.full_name,
+          timestamp: new Date().toISOString(),
+        });
         setRegistrationSuccess(true);
       })
       .catch(() => {
