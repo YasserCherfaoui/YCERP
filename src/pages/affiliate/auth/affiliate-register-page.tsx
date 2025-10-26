@@ -21,6 +21,7 @@ import {
   RegisterAffiliateSchema,
   registerAffiliateSchema,
 } from "@/schemas/affiliate";
+import { trackCompleteRegistration } from "@/utils/meta-pixel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -50,6 +51,12 @@ export const AffiliateRegisterPage = () => {
     dispatch(registerAffiliate(values))
       .unwrap()
       .then(() => {
+        // Track registration event with Meta Pixel
+        trackCompleteRegistration({
+          email: values.email,
+          full_name: values.full_name,
+          timestamp: new Date().toISOString(),
+        });
         setRegistrationSuccess(true);
       })
       .catch(() => {
@@ -68,7 +75,7 @@ export const AffiliateRegisterPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <Link to="/login" className="w-full">
+            <Link to="/affiliate/login" className="w-full">
               <Button className="w-full rounded-md font-semibold">
                 Go to Login
               </Button>
@@ -270,7 +277,7 @@ export const AffiliateRegisterPage = () => {
           </Form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <Link to="/login" className="underline text-primary">
+            <Link to="/affiliate/login" className="underline text-primary">
               Sign in
             </Link>
           </div>
