@@ -1,17 +1,17 @@
 import { useAppDispatch } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import TelegramIcon from "@/components/ui/telegram-icon";
 import { logoutAffiliate } from "@/features/auth/affiliate-slice";
@@ -21,11 +21,11 @@ import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
 const navLinks = [
-  { to: "/affiliate", label: "Dashboard", end: true },
-  { to: "/affiliate/my-links", label: "My Links" },
-  { to: "/affiliate/commissions", label: "Commissions" },
-  { to: "/affiliate/payments", label: "Payments" },
-  { to: "/affiliate/settings", label: "Settings" },
+  { to: "/", label: "Dashboard", end: true },
+  { to: "/my-links", label: "My Links" },
+  { to: "/commissions", label: "Commissions" },
+  { to: "/payments", label: "Payments" },
+  { to: "/settings", label: "Settings" },
 ];
 
 export const AffiliateDashboardLayout = () => {

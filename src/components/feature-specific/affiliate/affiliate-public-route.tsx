@@ -13,7 +13,7 @@ const AffiliatePublicRoute: React.FC = () => {
     return <div className="text-destructive text-center mt-8">{error}</div>;
   }
 
-return !isAuthenticated ? <Outlet /> : <Navigate to="/affiliate" replace />;
+return !isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default AffiliatePublicRoute; 

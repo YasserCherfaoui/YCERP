@@ -17,7 +17,7 @@ const AffiliatePrivateRoute: React.FC = () => {
   return isAuthenticated ? (
     <Outlet />
   ) : (
-    <Navigate to="/affiliate/login" state={{ from: location }} replace />
+    <Navigate to="/login" state={{ from: location }} replace />
   );
 };
 

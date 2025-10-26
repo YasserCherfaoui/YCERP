@@ -169,7 +169,7 @@ export const AffiliateForgotPasswordPage = () => {
                 description: "Your password has been updated successfully.",
             });
             // Navigate back to login or show success message
-            window.location.href = "/affiliate/login";
+            window.location.href = "/login";
         } catch (error: any) {
             console.error("Reset password error:", error);
             toast({
@@ -396,7 +396,7 @@ export const AffiliateForgotPasswordPage = () => {
                 {renderStep()}
                 <div className="mt-6 text-center text-sm">
                     Remember your password?{" "}
-                    <Link to="/affiliate/login" className="underline text-primary">
+                    <Link to="/login" className="underline text-primary">
                         Back to Login
                     </Link>
                 </div>

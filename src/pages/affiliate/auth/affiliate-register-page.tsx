@@ -68,7 +68,7 @@ export const AffiliateRegisterPage = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <Link to="/affiliate/login" className="w-full">
+            <Link to="/login" className="w-full">
               <Button className="w-full rounded-md font-semibold">
                 Go to Login
               </Button>
@@ -270,7 +270,7 @@ export const AffiliateRegisterPage = () => {
           </Form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
-            <Link to="/affiliate/login" className="underline text-primary">
+            <Link to="/login" className="underline text-primary">
               Sign in
             </Link>
           </div>

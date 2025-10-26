@@ -1,25 +1,25 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { loginAffiliate } from "@/features/auth/affiliate-slice";
 import {
-    LoginAffiliateSchema,
-    loginAffiliateSchema,
+  LoginAffiliateSchema,
+  loginAffiliateSchema,
 } from "@/schemas/affiliate";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
@@ -109,13 +109,13 @@ export const AffiliateLoginPage = () => {
           </Form>
           <div className="mt-4 text-center text-sm space-y-2">
             <div>
-              <Link to="/affiliate/forgot-password" className="underline text-primary">
+              <Link to="/forgot-password" className="underline text-primary">
                 Forgot password?
               </Link>
             </div>
             <div>
               Don&apos;t have an account?{" "}
-              <Link to="/affiliate/register" className="underline text-primary">
+              <Link to="/register" className="underline text-primary">
                 Sign up
               </Link>
             </div>
