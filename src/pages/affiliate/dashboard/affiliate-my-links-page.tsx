@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import useAffiliate from "@/hooks/use-affiliate";
@@ -295,6 +295,18 @@ function ProductCard({
         <CardTitle className="text-xl font-semibold mt-4 text-center px-4">
           {affiliateProp.name || product?.name || "Unnamed Product"}
         </CardTitle>
+
+        {/* Product Price */}
+        {product?.price && (
+          <div className="text-center mt-2">
+            <span className="text-2xl font-bold text-gray-900">
+              {new Intl.NumberFormat("en-DZ", {
+                style: "currency",
+                currency: "DZD",
+              }).format(product.price)}
+            </span>
+          </div>
+        )}
 
         {/* Commission Badge */}
         <div className="text-center mt-2 mb-4">
