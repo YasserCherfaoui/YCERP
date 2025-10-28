@@ -19,6 +19,7 @@ import { AffiliateRegisterPage } from "@/pages/affiliate/auth/affiliate-register
 import AffiliateCommissionsPage from "@/pages/affiliate/dashboard/affiliate-commissions-page";
 import { AffiliateDashboardPage } from "@/pages/affiliate/dashboard/affiliate-dashboard-page";
 import AffiliateMyLinksPage from "@/pages/affiliate/dashboard/affiliate-my-links-page";
+import AffiliateOrdersPage from "@/pages/affiliate/dashboard/affiliate-orders-page";
 import AffiliatePaymentsPage from "@/pages/affiliate/dashboard/affiliate-payments-page";
 import AffiliateSettingsPage from "@/pages/affiliate/dashboard/affiliate-settings-page";
 import LoginPage from "@/pages/auth/login-page";
@@ -288,6 +289,7 @@ export default function AppRouter() {
             <Route element={<AffiliateDashboardLayout />}>
               <Route index element={<AffiliateDashboardPage />} />
               <Route path="my-links" element={<AffiliateMyLinksPage />} />
+              <Route path="orders" element={<AffiliateOrdersPage />} />
               <Route path="commissions" element={<AffiliateCommissionsPage />} />
               <Route path="payments" element={<AffiliatePaymentsPage />} />
               <Route path="settings" element={<AffiliateSettingsPage />} />

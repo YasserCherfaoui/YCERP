@@ -23,6 +23,7 @@ import { NavLink, Outlet } from "react-router-dom";
 const navLinks = [
   { to: "/affiliate", label: "Dashboard", end: true },
   { to: "/affiliate/my-links", label: "My Links" },
+  { to: "/affiliate/orders", label: "My Orders" },
   { to: "/affiliate/commissions", label: "Commissions" },
   { to: "/affiliate/payments", label: "Payments" },
   { to: "/affiliate/settings", label: "Settings" },
