@@ -281,6 +281,112 @@ export const updatePaymentInfo = async (affiliateID: number, data: PaymentInfoFo
     return result;
 };
 
+// Affiliate Orders (Self) ----------------------------------------------------
+export interface AffiliateOrderCommissionSummary {
+    id: number;
+    amount: number;
+    status: string;
+}
+
+export interface AffiliateOrder {
+    id: number;
+    order_status: string;
+    customer_phone: string;
+    billing_name: string;
+    shipping_address1: string;
+    amount: number;
+    date_created: string;
+    commission?: AffiliateOrderCommissionSummary | null;
+}
+
+export interface AffiliateOrdersMeta {
+    current_page: number;
+    total_pages: number;
+    total_items: number;
+    per_page: number;
+    has_next: boolean;
+    has_previous: boolean;
+}
+
+export interface AffiliateOrdersResponse {
+    orders: AffiliateOrder[];
+    meta: AffiliateOrdersMeta;
+}
+
+export interface GetAffiliateOrdersParams {
+    page?: number;
+    limit?: number;
+    status?: string;
+    start?: string; // YYYY-MM-DD
+    end?: string;   // YYYY-MM-DD
+    phone_number?: string;
+}
+
+export const getAffiliateOrders = async (
+    params: GetAffiliateOrdersParams = {}
+): Promise<APIResponse<AffiliateOrdersResponse>> => {
+    const { page = 1, limit = 20, status, start, end, phone_number } = params;
+
+    const searchParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+    });
+
+    if (status) searchParams.append("status", status);
+    if (start) searchParams.append("start", start);
+    if (end) searchParams.append("end", end);
+    if (phone_number) searchParams.append("phone_number", phone_number);
+
+    const response = await fetch(`${baseUrl}/affiliates/orders?${searchParams.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAffiliateToken()}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch affiliate orders.");
+    }
+
+    const result: APIResponse<AffiliateOrdersResponse> = await response.json();
+    return result;
+};
+
+export interface ImportAffiliateOrdersCsvResult {
+    orders_created: number;
+    items_created: number;
+    skipped: number;
+    skipped_rows: Array<{ error: string; row: string }>;
+}
+
+export const importAffiliateOrdersCsv = async (
+    file: File
+): Promise<APIResponse<ImportAffiliateOrdersCsvResult>> => {
+    const form = new FormData();
+    form.append('file', file);
+
+    const response = await fetch(`${baseUrl}/affiliates/orders/import-csv`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${getAffiliateToken()}`
+        },
+        body: form
+    });
+
+    const result: APIResponse<ImportAffiliateOrdersCsvResult> = await response.json();
+
+    if (!response.ok) {
+        if (result?.error?.description) {
+            throw new Error(result.error.description);
+        }
+        throw new Error(result?.message || "Failed to import orders CSV.");
+    }
+
+    return result;
+};
+
 // Company-side affiliate management methods
 const getCompanyToken = () => localStorage.getItem("token");
 
