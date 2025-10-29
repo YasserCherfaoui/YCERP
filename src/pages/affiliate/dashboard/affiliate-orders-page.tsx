@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
 import { AffiliateOrder, AffiliateOrdersResponse, GetAffiliateOrdersParams, getAffiliateOrders } from "@/services/affiliate-service";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -12,7 +11,6 @@ import { CalendarRange, Loader2, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export default function AffiliateOrdersPage() {
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const [status, setStatus] = useState<string>("all");
@@ -39,7 +37,7 @@ export default function AffiliateOrdersPage() {
       if (res.status === "success" && res.data) return res.data;
       throw new Error(res.error?.description || res.message || "Failed to fetch orders");
     },
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
     refetchOnWindowFocus: false,
   });
 
@@ -70,7 +68,7 @@ export default function AffiliateOrdersPage() {
           <CardTitle className="text-base">Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label className="text-sm text-muted-foreground">Status</label>
               <Select value={status} onValueChange={setStatus}>
@@ -87,10 +85,6 @@ export default function AffiliateOrdersPage() {
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground">Phone</label>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g., 0550..." />
             </div>
             <div>
               <label className="text-sm text-muted-foreground flex items-center gap-2"><CalendarRange className="h-4 w-4" /> Start</label>
@@ -128,7 +122,6 @@ export default function AffiliateOrdersPage() {
                   <TableRow>
                     <TableHead>ID</TableHead>
                     <TableHead>Customer</TableHead>
-                    <TableHead>Phone</TableHead>
                     <TableHead>Address</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Status</TableHead>
@@ -141,7 +134,6 @@ export default function AffiliateOrdersPage() {
                     <TableRow key={o.id}>
                       <TableCell>#{o.id}</TableCell>
                       <TableCell>{o.billing_name}</TableCell>
-                      <TableCell>{o.customer_phone}</TableCell>
                       <TableCell className="max-w-[280px] truncate">{o.shipping_address1}</TableCell>
                       <TableCell>{new Intl.NumberFormat().format(o.amount)}</TableCell>
                       <TableCell className="capitalize">{o.order_status}</TableCell>
