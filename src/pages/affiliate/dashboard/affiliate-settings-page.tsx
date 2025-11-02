@@ -1,3 +1,4 @@
+import { AffiliateProBadge } from "@/components/feature-specific/affiliate/affiliate-pro-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -225,6 +226,26 @@ export default function AffiliateSettingsPage() {
                 <Label className="text-sm font-medium text-gray-700">Affiliate Slug</Label>
                 <p className="mt-1 text-sm font-mono text-gray-900 bg-gray-50 rounded-md px-3 py-2">
                   {currentAffiliate?.slug || "Not assigned"}
+                </p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Account Tier</Label>
+                <div className="mt-1 flex items-center gap-2">
+                  {currentAffiliate?.is_pro ? (
+                    <>
+                      <AffiliateProBadge isPro={true} />
+                      <p className="text-xs text-gray-600">
+                        You earn enhanced commission rates on eligible products
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-gray-900 bg-gray-50 rounded-md px-3 py-2">
+                      Regular Affiliate
+                    </p>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Pro status is managed by your affiliate manager
                 </p>
               </div>
             </CardContent>

@@ -15,6 +15,7 @@ export const registerAffiliateSchema = z.object({
   state: z.string().min(1, { message: "State is required" }),
   zip: z.string().min(1, { message: "ZIP code is required" }),
   company_id: z.coerce.number().int().positive({ message: "Company ID is required" }),
+  is_pro: z.boolean().optional().default(false),
 });
 
 // Password Reset Schemas

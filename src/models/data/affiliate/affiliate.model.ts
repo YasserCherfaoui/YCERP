@@ -20,6 +20,7 @@ export interface Affiliate {
   slug: string;
   is_confirmed: boolean;
   is_active: boolean;
+  is_pro: boolean;
   payment_info?: AffiliatePaymentInfo;
   commissions?: Commission[];
   payments?: Payment[];

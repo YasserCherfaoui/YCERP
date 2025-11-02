@@ -247,8 +247,16 @@ function ProductCard({
   onCopyLink,
   onOpenCreatives,
 }: ProductCardProps) {
+  const { affiliate } = useAffiliate();
   const product = affiliateProp.product;
   const productImages = affiliateProp.images || [];
+  
+  // Calculate the commission to display based on affiliate's pro status
+  const isPro = affiliate?.is_pro || false;
+  const displayCommission = isPro && affiliateProp.pro_commission > 0 
+    ? affiliateProp.pro_commission 
+    : affiliateProp.commission;
+  const isProRate = isPro && affiliateProp.pro_commission > 0;
 
   return (
     <Card className="w-full max-w-sm rounded-2xl shadow-md border hover:shadow-lg transition-shadow duration-200">
@@ -310,13 +318,21 @@ function ProductCard({
 
         {/* Commission Badge */}
         <div className="text-center mt-2 mb-4">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            isProRate 
+              ? "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 border border-amber-300" 
+              : "bg-green-100 text-green-800"
+          }`}>
             {new Intl.NumberFormat("en-DZ", {
               style: "currency",
               currency: "DZD",
-            }).format(affiliateProp.commission)}{" "}
+            }).format(displayCommission)}{" "}
             Commission
+            {isProRate && " ⭐"}
           </span>
+          {isPro && !isProRate && (
+            <p className="text-xs text-gray-500 mt-1">(Standard rate)</p>
+          )}
         </div>
 
         {/* Variants Stock */}

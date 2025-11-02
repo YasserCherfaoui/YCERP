@@ -1,4 +1,5 @@
 import AffiliatePrivateRoute from "@/components/feature-specific/affiliate/affiliate-private-route";
+import { AffiliateProRoute } from "@/components/feature-specific/affiliate/affiliate-pro-route";
 import AffiliatePublicRoute from "@/components/feature-specific/affiliate/affiliate-public-route";
 import DeliveryPrivateRoute from "@/components/feature-specific/delivery-employee/delivery-private-route";
 import DeliveryPublicRoute from "@/components/feature-specific/delivery-employee/delivery-public-route";
@@ -289,7 +290,14 @@ export default function AppRouter() {
             <Route element={<AffiliateDashboardLayout />}>
               <Route index element={<AffiliateDashboardPage />} />
               <Route path="my-links" element={<AffiliateMyLinksPage />} />
-              <Route path="orders" element={<AffiliateOrdersPage />} />
+              <Route 
+                path="orders" 
+                element={
+                  <AffiliateProRoute>
+                    <AffiliateOrdersPage />
+                  </AffiliateProRoute>
+                } 
+              />
               <Route path="commissions" element={<AffiliateCommissionsPage />} />
               <Route path="payments" element={<AffiliatePaymentsPage />} />
               <Route path="settings" element={<AffiliateSettingsPage />} />

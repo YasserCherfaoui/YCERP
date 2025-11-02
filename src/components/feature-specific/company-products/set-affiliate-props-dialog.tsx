@@ -33,6 +33,7 @@ const affiliatePropSchema = z.object({
   product_link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   shopify_link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   commission: z.coerce.number().int().min(0, "Commission cannot be negative"),
+  pro_commission: z.coerce.number().int().min(0, "Pro commission cannot be negative").optional().default(0),
 });
 
 const formSchema = z.object({
@@ -68,6 +69,7 @@ export function SetAffiliatePropsDialog({
         creatives_link: existingProp?.creatives_link || "",
         product_link: existingProp?.product_link || "",
         commission: existingProp?.commission || 0,
+        pro_commission: existingProp?.pro_commission || 0,
         shopify_link: existingProp?.shopify_link || "",
       };
     }),
@@ -196,6 +198,27 @@ export function SetAffiliatePropsDialog({
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`affiliate_props.${index}.pro_commission`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Pro Commission ⭐ (DZD)</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Enhanced commission for Pro affiliates (0 = same as regular)
+                        </p>
+                        {field.value > 0 && field.value < form.getValues(`affiliate_props.${index}.commission`) && (
+                          <p className="text-xs text-amber-600 mt-1">
+                            ⚠️ Pro commission is lower than regular commission
+                          </p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}

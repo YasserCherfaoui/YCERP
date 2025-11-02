@@ -469,6 +469,7 @@ export interface UpdateAffiliateRequest {
     zip?: string;
     is_active?: boolean;
     is_confirmed?: boolean;
+    is_pro?: boolean;
 }
 
 export const updateAffiliate = async (companyId: number, affiliateId: number, data: UpdateAffiliateRequest): Promise<APIResponse<Affiliate>> => {
