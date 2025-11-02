@@ -1,5 +1,6 @@
 import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
+import { AffiliateProBadge } from "@/components/feature-specific/affiliate/affiliate-pro-badge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -281,6 +282,7 @@ export default function CompanyAffiliateDetailsPage() {
                 <Badge variant={affiliate.is_confirmed ? "default" : "destructive"}>
                   {affiliate.is_confirmed ? "Confirmed" : "Unconfirmed"}
                 </Badge>
+                <AffiliateProBadge isPro={affiliate.is_pro} />
               </div>
             </div>
             <div>

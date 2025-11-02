@@ -1,5 +1,6 @@
 import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
+import { AffiliateProBadge } from "@/components/feature-specific/affiliate/affiliate-pro-badge";
 import { CommissionStatisticsCards } from "@/components/feature-specific/company-affiliates/commission-statistics-cards";
 import { commissionsTableColumns } from "@/components/feature-specific/company-affiliates/commissions-table-columns";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +79,7 @@ const updateAffiliateSchema = z.object({
   zip: z.string().optional(),
   is_active: z.boolean(),
   is_confirmed: z.boolean(),
+  is_pro: z.boolean(),
 });
 
 type UpdateAffiliateFormValues = z.infer<typeof updateAffiliateSchema>;
@@ -160,6 +162,7 @@ export default function CompanyAffiliatesPage() {
       zip: "",
       is_active: true,
       is_confirmed: false,
+      is_pro: false,
     },
   });
 
@@ -230,6 +233,7 @@ export default function CompanyAffiliatesPage() {
       zip: affiliate.zip || "",
       is_active: affiliate.is_active,
       is_confirmed: affiliate.is_confirmed,
+      is_pro: affiliate.is_pro,
     });
     setUpdateDialogOpen(true);
   };
@@ -549,6 +553,7 @@ export default function CompanyAffiliatesPage() {
                           <Badge variant={affiliate.is_confirmed ? "default" : "destructive"}>
                             {affiliate.is_confirmed ? "Confirmed" : "Unconfirmed"}
                           </Badge>
+                          <AffiliateProBadge isPro={affiliate.is_pro} />
                         </div>
                       </TableCell>
                       <TableCell>
@@ -920,6 +925,27 @@ export default function CompanyAffiliatesPage() {
                   )}
                 />
               </div>
+              
+              <FormField
+                control={form.control}
+                name="is_pro"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Pro Affiliate ⭐</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        Pro affiliates earn enhanced commission rates on eligible products
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
               
               <DialogFooter>
                 <Button

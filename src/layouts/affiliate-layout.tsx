@@ -1,4 +1,5 @@
 import { useAppDispatch } from "@/app/hooks";
+import { AffiliateProBadge } from "@/components/feature-specific/affiliate/affiliate-pro-badge";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -16,17 +17,17 @@ import {
 import TelegramIcon from "@/components/ui/telegram-icon";
 import { logoutAffiliate } from "@/features/auth/affiliate-slice";
 import useAffiliate from "@/hooks/use-affiliate";
-import { Menu } from "lucide-react";
-import { useState } from "react";
+import { Menu, Sparkles } from "lucide-react";
+import { useState, useMemo } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
-const navLinks = [
-  { to: "/affiliate", label: "Dashboard", end: true },
-  { to: "/affiliate/my-links", label: "My Links" },
-  { to: "/affiliate/orders", label: "My Orders" },
-  { to: "/affiliate/commissions", label: "Commissions" },
-  { to: "/affiliate/payments", label: "Payments" },
-  { to: "/affiliate/settings", label: "Settings" },
+const allNavLinks = [
+  { to: "/affiliate", label: "Dashboard", end: true, proOnly: false },
+  { to: "/affiliate/my-links", label: "My Links", proOnly: false },
+  { to: "/affiliate/orders", label: "My Orders", proOnly: true },
+  { to: "/affiliate/commissions", label: "Commissions", proOnly: false },
+  { to: "/affiliate/payments", label: "Payments", proOnly: false },
+  { to: "/affiliate/settings", label: "Settings", proOnly: false },
 ];
 
 export const AffiliateDashboardLayout = () => {
@@ -38,6 +39,12 @@ export const AffiliateDashboardLayout = () => {
     dispatch(logoutAffiliate());
   };
 
+  // Filter navigation links based on affiliate pro status
+  const navLinks = useMemo(() => {
+    const isPro = affiliate?.is_pro || false;
+    return allNavLinks.filter(link => !link.proOnly || isPro);
+  }, [affiliate?.is_pro]);
+
   return (
     <div className="affiliate-theme flex min-h-screen w-full bg-background text-foreground">
       <aside
@@ -48,6 +55,20 @@ export const AffiliateDashboardLayout = () => {
           <h2 className="px-2 text-lg font-semibold tracking-tight">
             Affiliate Portal
           </h2>
+          
+          {/* Pro Affiliate Badge/Banner */}
+          {affiliate?.is_pro && (
+            <div className="mx-2 mb-3 p-3 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-300 shadow-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="h-4 w-4 text-amber-600" />
+                <span className="text-sm font-bold text-amber-900">Pro Affiliate</span>
+              </div>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                You have access to exclusive features and enhanced commission rates!
+              </p>
+            </div>
+          )}
+          
           <div className="mb-2">
             <a
               href="https://t.me/+Rb4xEzrnz-piYzVk"
@@ -107,6 +128,19 @@ export const AffiliateDashboardLayout = () => {
                 <SheetTitle>Affiliate Portal</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-2 mt-6">
+                {/* Pro Affiliate Badge/Banner for Mobile */}
+                {affiliate?.is_pro && (
+                  <div className="mx-2 mb-3 p-3 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-amber-300 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Sparkles className="h-4 w-4 text-amber-600" />
+                      <span className="text-sm font-bold text-amber-900">Pro Affiliate</span>
+                    </div>
+                    <p className="text-xs text-amber-700 leading-relaxed">
+                      You have access to exclusive features and enhanced commission rates!
+                    </p>
+                  </div>
+                )}
+                
                 <a
                   href="https://t.me/+Rb4xEzrnz-piYzVk"
                   target="_blank"
@@ -146,6 +180,13 @@ export const AffiliateDashboardLayout = () => {
           </Sheet>
 
           <div className="flex-1 sm:flex-initial" />
+
+          {/* Pro Badge in Header */}
+          {affiliate?.is_pro && (
+            <div className="hidden sm:block">
+              <AffiliateProBadge isPro={true} />
+            </div>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

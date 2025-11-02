@@ -53,4 +53,5 @@ export interface AffiliateProp {
     name: string;
     creatives_link: string;
     commission: number;
+    pro_commission: number;
 }
