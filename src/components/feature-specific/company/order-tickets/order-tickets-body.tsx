@@ -12,7 +12,10 @@ import { useSelector } from "react-redux";
 import IssuesReplyDialog from "../issues/issues-reply-dialog";
 
 export default function OrderTicketsBody() {
-  const company = useSelector((state: RootState) => state.company.company);
+  // Support both company users and moderators
+  const companyFromCompanyState = useSelector((state: RootState) => state.company.company);
+  const companyFromUserState = useSelector((state: RootState) => state.user.company);
+  const company = companyFromCompanyState || companyFromUserState;
   
   const { data } = useQuery({
     queryKey: ["order-tickets", company?.ID],
