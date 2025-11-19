@@ -8,12 +8,14 @@ export interface ClientStatus {
     DeletedAt: string | null;
     order_id: number | null;
     order?: Order | null;
-    woo_order_id: number;
+    woo_order_id: number | null;
     woo_order?: any | null;
+    order_ticket_id?: number | null;
+    order_ticket?: any | null;
     qualification_id: number;
     qualification?: Qualification;
-    sub_qualification_id?: number;
-    sub_qualification?: Qualification;
+    sub_qualification_id?: number | null;
+    sub_qualification?: Qualification | null;
     comment: string;
     date: string;
 } 

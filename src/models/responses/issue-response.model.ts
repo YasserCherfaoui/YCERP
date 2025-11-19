@@ -22,11 +22,17 @@ export interface OrderTicketUploadResponse {
     signed_url: string;
 }
 
+import { ClientStatus } from "@/models/data/client-status.model";
+import { WooOrder } from "@/models/data/woo-order.model";
+
 export interface OrderTicketResponse {
     id: number;
     full_name: string;
     phone: string;
     comment: string;
+    woo_order_id?: number | null;
+    woo_order?: WooOrder | null;
     order_ticket_uploads: OrderTicketUploadResponse[] | null;
     support_replies: SupportReply[];
+    client_statuses?: ClientStatus[] | null;
 }

@@ -29,3 +29,20 @@ export async function getUnpaidFees(dateISO: string, employeeId?: number): Promi
   const res = await apiFetch<UnpaidFeeRow[]>(`/delivery/reports/unpaid-fees?${qs.toString()}`);
   return res.data || [];
 }
+
+export interface DeliveredOrderItem {
+  ID: number;
+  WooOrderID: number;
+  ConfirmedOrderItemID: number;
+  ProductVariantID: number;
+  QuantityDelivered: number;
+  UnitPriceAtDelivery: number;
+  DeliveredByEmployeeID: number;
+  DeliveredAt: string;
+  Notes: string;
+}
+
+export async function getDeliveredItemsByOrder(orderId: number): Promise<DeliveredOrderItem[]> {
+  const res = await apiFetch<DeliveredOrderItem[]>(`/delivery/orders/${orderId}/delivered-items`);
+  return res.data || [];
+}

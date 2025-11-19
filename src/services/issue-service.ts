@@ -46,10 +46,40 @@ export const createIssueReply = async (data: IssueReplySchema): Promise<APIRespo
     return responseData;
 }
 
-export const getOrderTickets = async (companyId?: number): Promise<APIResponse<OrderTicketResponse[]>> => {
+export const getOrderTickets = async (
+    companyId?: number,
+    qualificationId?: number,
+    dateFrom?: string,
+    dateTo?: string,
+    ticketCreatedFrom?: string,
+    ticketCreatedTo?: string,
+    wooOrderCreatedFrom?: string,
+    wooOrderCreatedTo?: string
+): Promise<APIResponse<OrderTicketResponse[]>> => {
     const queryParams = new URLSearchParams();
     if (companyId) {
         queryParams.append('company_id', companyId.toString());
+    }
+    if (qualificationId) {
+        queryParams.append('qualification_id', qualificationId.toString());
+    }
+    if (dateFrom) {
+        queryParams.append('date_from', dateFrom);
+    }
+    if (dateTo) {
+        queryParams.append('date_to', dateTo);
+    }
+    if (ticketCreatedFrom) {
+        queryParams.append('ticket_created_from', ticketCreatedFrom);
+    }
+    if (ticketCreatedTo) {
+        queryParams.append('ticket_created_to', ticketCreatedTo);
+    }
+    if (wooOrderCreatedFrom) {
+        queryParams.append('woo_order_created_from', wooOrderCreatedFrom);
+    }
+    if (wooOrderCreatedTo) {
+        queryParams.append('woo_order_created_to', wooOrderCreatedTo);
     }
     
     const url = `${baseUrl}/orders/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
@@ -63,6 +93,28 @@ export const getOrderTickets = async (companyId?: number): Promise<APIResponse<O
     if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to fetch order tickets");
+    }
+    const data = await response.json();
+    return data;
+}
+
+export const updateOrderTicket = async (
+    ticketId: number,
+    wooOrderId: number | null
+): Promise<APIResponse<OrderTicketResponse>> => {
+    const response = await fetch(`${baseUrl}/orders/${ticketId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+            woo_order_id: wooOrderId,
+        }),
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update order ticket");
     }
     const data = await response.json();
     return data;

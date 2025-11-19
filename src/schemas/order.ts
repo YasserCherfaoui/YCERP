@@ -35,6 +35,7 @@ export const createOrderSchema = z.object({
   selected_center: z.string().optional(),
   first_delivery_cost: z.number().optional(),
   second_delivery_cost: z.number().optional(),
+  order_ticket_id: z.number().optional(),
 }).superRefine((data, ctx) => {
   if (data.shipping_provider === 'yalidine') {
     if (data.delivery_type === 'home' && !data.selected_commune) {

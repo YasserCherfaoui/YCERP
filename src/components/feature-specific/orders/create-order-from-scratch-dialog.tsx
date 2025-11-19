@@ -60,10 +60,16 @@ function CreateOrderFromScratchDialog({
   open,
   setOpen,
   ordersQueryKey,
+  initialCustomerName,
+  initialCustomerPhone,
+  orderTicketId,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   ordersQueryKey?: any[];
+  initialCustomerName?: string;
+  initialCustomerPhone?: string;
+  orderTicketId?: number;
 }) {
   let company = useSelector((state: RootState) => state.company.company);
   const { pathname } = useLocation();
@@ -99,8 +105,8 @@ function CreateOrderFromScratchDialog({
       company_id: company.ID,
       woo_order_id: undefined,
       shipping: {
-        full_name: "",
-        phone_number: "",
+        full_name: initialCustomerName || "",
+        phone_number: initialCustomerPhone || "",
         address: "",
         city: "",
         state: "",
@@ -120,6 +126,7 @@ function CreateOrderFromScratchDialog({
       selected_center: "",
       first_delivery_cost: 0,
       second_delivery_cost: 0,
+      order_ticket_id: orderTicketId,
     },
     // mode: "onChange",
   });
@@ -272,6 +279,26 @@ function CreateOrderFromScratchDialog({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryFee, setValue]);
+
+  // Update form when dialog opens with initial values or when props change
+  useEffect(() => {
+    if (open) {
+      if (initialCustomerName) {
+        setValue("shipping.full_name", initialCustomerName);
+      }
+      if (initialCustomerPhone) {
+        setValue("shipping.phone_number", initialCustomerPhone);
+      }
+      if (orderTicketId) {
+        setValue("order_ticket_id", orderTicketId);
+      }
+    } else {
+      // Reset form when dialog closes
+      form.reset();
+      userEditedSecondDelivery.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialCustomerName, initialCustomerPhone, orderTicketId]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { mutate: confirmWooCommerceOrderMutation, isPending } = useMutation({
@@ -286,6 +313,10 @@ function CreateOrderFromScratchDialog({
         queryClient.invalidateQueries({ queryKey: ordersQueryKey });
       } else {
         queryClient.invalidateQueries({ queryKey: ["orders"] });
+      }
+      // Also invalidate order tickets if order_ticket_id was provided
+      if (orderTicketId) {
+        queryClient.invalidateQueries({ queryKey: ["order-tickets"] });
       }
     },
     onError: (err: any) => {

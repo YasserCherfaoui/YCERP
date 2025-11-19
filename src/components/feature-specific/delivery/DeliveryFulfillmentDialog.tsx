@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { DeliveryFulfillmentRequest } from "@/models/requests/delivery-fulfillment-request";
-import { submitFulfillment } from "@/services/delivery-fulfillment-service";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { getDeliveredItemsByOrder, submitFulfillment, DeliveredOrderItem } from "@/services/delivery-fulfillment-service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
 type Props = {
@@ -18,6 +18,7 @@ type Props = {
   setOpen: (val: boolean) => void;
   ordersQueryKey: any[];
   onSubmitted?: () => void;
+  isAdminOrModerator?: boolean;
 };
 
 type RowState = {
@@ -28,7 +29,7 @@ type RowState = {
   deliveredQty: number;
 };
 
-export default function DeliveryFulfillmentDialog({ order, open, setOpen, ordersQueryKey, onSubmitted }: Props) {
+export default function DeliveryFulfillmentDialog({ order, open, setOpen, ordersQueryKey, onSubmitted, isAdminOrModerator = false }: Props) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -36,27 +37,49 @@ export default function DeliveryFulfillmentDialog({ order, open, setOpen, orders
   const [feesCollected, setFeesCollected] = useState<boolean>(true);
   const [comments, setComments] = useState<string>("");
 
+  // Load existing delivered items if admin/moderator and order exists
+  const { data: existingDeliveredItems } = useQuery({
+    queryKey: ["delivered-items", order.id],
+    queryFn: () => getDeliveredItemsByOrder(order.id),
+    enabled: open && isAdminOrModerator && !!order.id,
+  });
+
   useEffect(() => {
     if (open && order) {
       const items = (order.confirmed_order_items || []) as any[];
+      
+      // Create a map of existing delivered items by confirmed item ID
+      const deliveredMap = new Map<number, DeliveredOrderItem>();
+      if (existingDeliveredItems && isAdminOrModerator) {
+        existingDeliveredItems.forEach((item) => {
+          deliveredMap.set(item.ConfirmedOrderItemID, item);
+        });
+      }
+
       const normalizedRows: RowState[] = items
         .map((ci: any) => {
           const id = (ci.id ?? ci.ID) as number | undefined;
           if (id == null) return null;
+          
+          // If admin/moderator and there's existing delivered data, use it
+          const existing = deliveredMap.get(id);
+          const deliveredQty = existing ? existing.QuantityDelivered : Number(ci.quantity || 0);
+          const delivered = isAdminOrModerator ? (deliveredQty > 0) : true;
+          
           return {
             confirmedItemId: id,
             qrCode: ci.product_variant?.qr_code || "-",
             confirmedQty: Number(ci.quantity || 0),
-            delivered: true,
-            deliveredQty: Number(ci.quantity || 0),
+            delivered: delivered,
+            deliveredQty: deliveredQty,
           } as RowState;
         })
         .filter(Boolean) as RowState[];
       setRows(normalizedRows);
-      setFeesCollected(true);
+      setFeesCollected(order.woo_shipping?.delivery_fees_collected ?? true);
       setComments("");
     }
-  }, [open, order]);
+  }, [open, order, existingDeliveredItems, isAdminOrModerator]);
 
   const setRow = (index: number, updater: (old: RowState) => RowState) => {
     setRows((prev) => prev.map((r, i) => (i === index ? updater(r) : r)));
@@ -121,11 +144,15 @@ export default function DeliveryFulfillmentDialog({ order, open, setOpen, orders
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Delivery Fulfillment (#{order.number})</DialogTitle>
+          <DialogTitle>
+            {isAdminOrModerator ? "Adjust Delivered Items" : "Delivery Fulfillment"} (#{order.number})
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex items-center justify-between mb-2">
-          <div className="text-sm text-muted-foreground">Confirm delivered items and fees</div>
+          <div className="text-sm text-muted-foreground">
+            {isAdminOrModerator ? "Adjust delivered items and fees" : "Confirm delivered items and fees"}
+          </div>
         </div>
 
         <div className="max-h-96 overflow-y-auto border rounded-md">
