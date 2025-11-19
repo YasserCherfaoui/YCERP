@@ -1,3 +1,4 @@
+import { RootState } from "@/app/store";
 import CreateOrderDialog from "@/components/feature-specific/orders/create-order-dialog";
 import DispatchConfirmDialog from "@/components/feature-specific/orders/dispatch-confirm-dialog";
 import ExportConfirmDialog from "@/components/feature-specific/orders/export-confirm-dialog";
@@ -6,11 +7,13 @@ import OrderHistoryDialog from "@/components/feature-specific/orders/order-histo
 import SetCancelledStatusDialog from "@/components/feature-specific/orders/set-cancelled-status-dialog";
 import SetPackingStatusDialog from "@/components/feature-specific/orders/set-packing-status-dialog";
 import UpdateOrderDialog from "@/components/feature-specific/orders/update-order-dialog";
+import DeliveryFulfillmentDialog from "@/components/feature-specific/delivery/DeliveryFulfillmentDialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WooOrder } from "@/models/data/woo-order.model";
-import { Download, Eye, History, PackageOpen, PlusCircle, Truck, X } from "lucide-react";
+import { Download, Eye, History, PackageOpen, PlusCircle, Truck, X, Edit } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }) {
   const { order, ordersQueryKey } = props;
@@ -22,6 +25,12 @@ function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [setPackingDialogOpen, setSetPackingDialogOpen] = useState(false);
   const [setCancelledDialogOpen, setSetCancelledDialogOpen] = useState(false);
+  const [adjustDeliveryDialogOpen, setAdjustDeliveryDialogOpen] = useState(false);
+  
+  // Check if user is admin or moderator
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  const regularUser = useSelector((state: RootState) => state.user.user);
+  const isAdminOrModerator = !!authUser || !!regularUser;
 
   return (
     <>
@@ -33,6 +42,15 @@ function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }
       <UpdateOrderDialog order={order} open={updateDialogOpen} setOpen={setUpdateDialogOpen} ordersQueryKey={ordersQueryKey} />
       <SetPackingStatusDialog order={order} open={setPackingDialogOpen} setOpen={setSetPackingDialogOpen} ordersQueryKey={ordersQueryKey} />
       <SetCancelledStatusDialog order={order} open={setCancelledDialogOpen} setOpen={setSetCancelledDialogOpen} ordersQueryKey={ordersQueryKey} />
+      {isAdminOrModerator && (
+        <DeliveryFulfillmentDialog
+          order={order}
+          open={adjustDeliveryDialogOpen}
+          setOpen={setAdjustDeliveryDialogOpen}
+          ordersQueryKey={ordersQueryKey}
+          isAdminOrModerator={true}
+        />
+      )}
 
       <TooltipProvider>
         <div className="flex gap-2">
@@ -126,6 +144,18 @@ function DeliveryOrdersActions(props: { order: WooOrder, ordersQueryKey: any[] }
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Update Order</TooltipContent>
+            </Tooltip>
+          )}
+          {/* Adjust Delivered Items - only for admin/moderator */}
+          {isAdminOrModerator && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setAdjustDeliveryDialogOpen(true)}>
+                  <Edit className="h-4 w-4" />
+                  <span className="sr-only">Adjust Delivered Items</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Adjust Delivered Items</TooltipContent>
             </Tooltip>
           )}
         </div>

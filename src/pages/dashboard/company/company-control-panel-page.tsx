@@ -2,6 +2,7 @@ import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
+import OrderTicketsIcon from "@/components/feature-specific/company/order-tickets/order-tickets-icon";
 import { Button } from "@/components/ui/button";
 import {
     AlertTriangle,
@@ -15,7 +16,6 @@ import {
     ReceiptText,
     ShoppingCart,
     Store,
-    Ticket,
     Truck,
     Undo2,
     UserCog,
@@ -35,6 +35,7 @@ export default function () {
   if (!company) {
     return null;
   }
+  
   return (
     <div className="flex flex-col h-screen">
       <div className="flex p-4 justify-between items-center">
@@ -169,7 +170,7 @@ const quickMenu: Array<{
   },
   {
     label: "Order Tickets",
-    icon: Ticket,
+    icon: OrderTicketsIcon,
     href: "order-tickets",
   },
   {
