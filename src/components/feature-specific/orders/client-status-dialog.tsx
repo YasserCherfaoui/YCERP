@@ -35,21 +35,24 @@ import {
 } from "@/services/qualification-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 export function ClientStatusDialog({
   open,
   setOpen,
   orderID,
+  wooOrderID,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  orderID: number;
+  orderID?: number;
+  wooOrderID?: number;
 }) {
   const methods = useForm<CreateClientStatusSchema>({
     resolver: zodResolver(createClientStatusSchema),
     defaultValues: {
-      order_id: orderID,
+      order_id: orderID ?? null,
+      woo_order_id: wooOrderID ?? null,
       qualification_id: undefined,
       sub_qualification_id: null,
       comment: "",
@@ -57,6 +60,20 @@ export function ClientStatusDialog({
     },
   });
   const { watch, reset } = methods;
+  
+  // Reset form when dialog opens/closes or IDs change
+  useEffect(() => {
+    if (open) {
+      reset({
+        order_id: orderID ?? null,
+        woo_order_id: wooOrderID ?? null,
+        qualification_id: undefined,
+        sub_qualification_id: null,
+        comment: "",
+        date: new Date().toISOString(),
+      });
+    }
+  }, [open, orderID, wooOrderID, reset]);
   const qualification_id = watch("qualification_id");
 
   // Fetch qualifications
@@ -111,7 +128,12 @@ export function ClientStatusDialog({
             )}
             className="space-y-4"
           >
-            <input type="hidden" {...methods.register("order_id", {value: orderID})} />
+            {orderID && (
+              <input type="hidden" {...methods.register("order_id", {value: orderID})} />
+            )}
+            {wooOrderID && (
+              <input type="hidden" {...methods.register("woo_order_id", {value: wooOrderID})} />
+            )}
             <FormField
               control={methods.control}
               name="qualification_id"
