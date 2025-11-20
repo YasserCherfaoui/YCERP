@@ -1102,7 +1102,7 @@ function CreateOrderDialog({
       <ClientStatusDialog
         open={clientStatusDialogOpen}
         setOpen={setClientStatusDialogOpen}
-        orderID={wooOrder.id}
+        wooOrderID={wooOrder.id}
       />
     </Dialog>
   );

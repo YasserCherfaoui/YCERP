@@ -464,7 +464,7 @@ export default function UpdateOrderDialog({
       <ClientStatusDialog
         open={clientStatusDialogOpen}
         setOpen={setClientStatusDialogOpen}
-        orderID={order.id}
+        wooOrderID={order.id}
       />
     </Dialog>
   );

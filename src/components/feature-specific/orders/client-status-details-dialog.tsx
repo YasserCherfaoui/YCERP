@@ -97,7 +97,7 @@ export default function ClientStatusDetailsDialog({
       <ClientStatusDialog
         open={setStatusOpen}
         setOpen={setSetStatusOpen}
-        orderID={orderID}
+        wooOrderID={orderID}
       />
     </>
   );
