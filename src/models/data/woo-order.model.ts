@@ -36,6 +36,8 @@ export interface WooOrder {
   taken_by_id?: number | null;
   taken_by?: User | null;
   taken_at?: string | Date | null;
+  confirmed_by_id?: number | null;
+  confirmed_by?: User | null;
   client_statuses: ClientStatus[];
   order_status: string;
   confirmed_order_items?: ConfirmedOrderItem[];
