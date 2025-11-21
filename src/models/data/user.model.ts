@@ -1,7 +1,7 @@
 import { Company } from "./company.model";
 import { Franchise } from "./franchise.model";
 
-export type UserRole = "company_moderator" | "franchise_moderator";
+export type UserRole = "company_moderator" | "franchise_moderator" | "orders_manager";
 
 export interface User {
     ID: number;

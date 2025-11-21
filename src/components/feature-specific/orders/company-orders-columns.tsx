@@ -20,8 +20,12 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       <div
         className="text-center"
         style={{
-          backgroundColor: row.original.is_exchange ? "red" : "transparent",
-          color: "white",
+          backgroundColor: row.original.is_exchange 
+            ? "red" 
+            : row.original.confirmed_by_id 
+              ? "blue" 
+              : "transparent",
+          color: row.original.is_exchange || row.original.confirmed_by_id ? "white" : "inherit",
           padding: "2px 4px",
           borderRadius: "4px",
         }}
