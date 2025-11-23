@@ -4,7 +4,8 @@ import { APIResponse } from "@/models/responses/api-response.model";
 import { ExpenseCreateSchema, ExpenseUpdateSchema } from "@/schemas/expenses/expense";
 
 type ListParams = {
-  company_id: number;
+  company_id?: number;
+  franchise_id?: number;
   category?: string;
   status?: "recorded" | "approved" | "paid" | "cancelled";
   vendor?: string;
@@ -20,7 +21,8 @@ type ListParams = {
 function normalizeExpense(raw: any): Expense {
   return {
     id: raw.id ?? raw.ID,
-    company_id: raw.company_id,
+    company_id: raw.company_id ?? null,
+    franchise_id: raw.franchise_id ?? null,
     title: raw.title,
     description: raw.description ?? "",
     category: raw.category,

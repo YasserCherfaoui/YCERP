@@ -1,6 +1,6 @@
 import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
-import { AlertTriangle, Apple, BarChart, Bell, ReceiptText, ShoppingCart, Warehouse } from "lucide-react";
+import { AlertTriangle, Apple, BarChart, Bell, DollarSign, ReceiptText, ShoppingCart, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
 import FranchiseTile from "./franchise-tile";
 
@@ -51,6 +51,11 @@ const quickMenu = [
     label: "Statistics",
     icon: BarChart,
     href: "statistics",
+  },
+  {
+    label: "Expenses",
+    icon: DollarSign,
+    href: "expenses",
   },
   {
     label: "Stock Alerts",

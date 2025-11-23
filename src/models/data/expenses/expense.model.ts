@@ -2,7 +2,8 @@ export type ExpenseStatus = "recorded" | "approved" | "paid" | "cancelled";
 
 export interface Expense {
   id: number;
-  company_id: number;
+  company_id: number | null;
+  franchise_id: number | null;
   title: string;
   description: string;
   category: string;
