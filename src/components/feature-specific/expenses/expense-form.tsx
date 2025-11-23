@@ -29,7 +29,7 @@ type Mode = "create" | "edit";
 
 interface Props {
   mode: Mode;
-  defaultValues?: Partial<ExpenseCreateSchema & ExpenseUpdateSchema> & { company_id: number };
+  defaultValues?: Partial<ExpenseCreateSchema & ExpenseUpdateSchema> & { company_id?: number; franchise_id?: number };
   onSubmit: (values: ExpenseCreateSchema | ExpenseUpdateSchema) => Promise<void> | void;
   submitting?: boolean;
 }
@@ -41,6 +41,7 @@ export default function ExpenseForm({ mode, defaultValues, onSubmit, submitting 
     resolver: zodResolver(schema),
     defaultValues: {
       company_id: defaultValues?.company_id,
+      franchise_id: defaultValues?.franchise_id,
       title: defaultValues?.title ?? "",
       description: defaultValues?.description ?? "",
       category: defaultValues?.category ?? "",
@@ -69,7 +70,12 @@ export default function ExpenseForm({ mode, defaultValues, onSubmit, submitting 
     <Form {...form}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Register required hidden fields so validation receives them */}
-        <input type="hidden" {...form.register("company_id", { valueAsNumber: true })} />
+        {defaultValues?.company_id && (
+          <input type="hidden" {...form.register("company_id", { valueAsNumber: true })} />
+        )}
+        {defaultValues?.franchise_id && (
+          <input type="hidden" {...form.register("franchise_id", { valueAsNumber: true })} />
+        )}
         {mode === "create" && (
           <input type="hidden" {...form.register("created_by", { valueAsNumber: true })} />
         )}
