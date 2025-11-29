@@ -459,3 +459,56 @@ export const getOrderStatusCount = async (params?: {
   const data = await response.json();
   return data;
 }
+
+export const getManagerOrderStatusCount = async (params?: {
+  date_from?: string;
+  date_to?: string;
+  wilaya?: string;
+  shipping_provider?: string;
+  company_id?: number;
+  manager_id?: number;
+}): Promise<APIResponse<{
+  managers: {
+    manager_id: number;
+    manager_name: string;
+    manager_email: string;
+    status_counts: { status: string; count: number }[];
+    total_orders: number;
+  }[];
+  date_from: string;
+  date_to: string;
+  wilaya?: string;
+  shipping_provider?: string;
+  company_id?: number;
+}>> => {
+  const currentToken = localStorage.getItem("token");
+  let url = `${baseUrl}/orders/manager-status-count`;
+  const queryParams = new URLSearchParams();
+  
+  if (params?.date_from) queryParams.append('date_from', params.date_from);
+  if (params?.date_to) queryParams.append('date_to', params.date_to);
+  if (params?.wilaya) queryParams.append('wilaya', params.wilaya);
+  if (params?.shipping_provider) queryParams.append('shipping_provider', params.shipping_provider);
+  if (params?.company_id) queryParams.append('company_id', params.company_id.toString());
+  if (params?.manager_id) queryParams.append('manager_id', params.manager_id.toString());
+  
+  if (queryParams.toString()) {
+    url += `?${queryParams.toString()}`;
+  }
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + currentToken,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch manager order status count");
+  }
+
+  const data = await response.json();
+  return data;
+}

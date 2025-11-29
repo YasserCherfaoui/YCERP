@@ -6,6 +6,7 @@ import { companyOrdersColumns } from "@/components/feature-specific/orders/compa
 import CreateOrderFromScratchDialog from "@/components/feature-specific/orders/create-order-from-scratch-dialog.tsx";
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
 import OrderStatusCards from "@/components/feature-specific/orders/order-status-cards";
+import ManagerStatusCards from "@/components/feature-specific/orders/manager-status-cards";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DataTable } from "@/components/ui/data-table";
@@ -540,6 +541,16 @@ export default function CompanyOrdersPage() {
             dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
             dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
           />
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-4">Manager Statistics</h2>
+            <ManagerStatusCards 
+              wilaya={selectedWilaya}
+              shippingProvider={selectedShippingProvider}
+              companyId={company.ID}
+              dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
+              dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
+            />
+          </div>
         </div>
       )}
 
