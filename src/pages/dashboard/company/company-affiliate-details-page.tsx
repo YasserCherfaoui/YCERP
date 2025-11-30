@@ -48,8 +48,8 @@ import {
 } from "@/services/affiliate-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { DollarSign, TrendingUp, Users } from "lucide-react";
-import { useState } from "react";
+import { ChevronLeft, ChevronRight, DollarSign, TrendingUp, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -71,6 +71,7 @@ export default function CompanyAffiliateDetailsPage() {
   const queryClient = useQueryClient();
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [commissionsStatusFilter, setCommissionsStatusFilter] = useState("all");
+  const [commissionsPage, setCommissionsPage] = useState(1);
 
   const {
     data: affiliateData,
@@ -86,9 +87,11 @@ export default function CompanyAffiliateDetailsPage() {
     data: commissionsData,
     isLoading: commissionsLoading,
   } = useQuery({
-    queryKey: ["affiliate-commissions", company?.ID, affiliateID, commissionsStatusFilter],
+    queryKey: ["affiliate-commissions", company?.ID, affiliateID, commissionsStatusFilter, commissionsPage],
     queryFn: () =>
       getAffiliateCommissions(company!.ID, Number(affiliateID), {
+        page: commissionsPage,
+        limit: 20,
         status: commissionsStatusFilter === "all" ? undefined : commissionsStatusFilter,
       }),
     enabled: !!affiliateID && !!company?.ID,
@@ -96,6 +99,12 @@ export default function CompanyAffiliateDetailsPage() {
 
   const affiliate = affiliateData?.data;
   const commissions = commissionsData?.data?.commissions || [];
+  const commissionsPagination = commissionsData?.data?.pagination;
+
+  // Reset to page 1 when status filter changes
+  useEffect(() => {
+    setCommissionsPage(1);
+  }, [commissionsStatusFilter]);
 
   const form = useForm<RecordPaymentFormValues>({
     resolver: zodResolver(recordPaymentSchema),
@@ -401,6 +410,35 @@ export default function CompanyAffiliateDetailsPage() {
                 )}
               </TableBody>
             </Table>
+          )}
+          
+          {/* Pagination */}
+          {commissionsPagination && commissionsPagination.total_pages > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCommissionsPage(commissionsPage - 1)}
+                  disabled={!commissionsPagination.has_previous}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCommissionsPage(commissionsPage + 1)}
+                  disabled={!commissionsPagination.has_next}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Page {commissionsPagination.current_page} of {commissionsPagination.total_pages}
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
