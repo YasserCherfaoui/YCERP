@@ -92,3 +92,24 @@ export const getUserProfile = async (token: string): Promise<APIResponse<User>> 
     return user;
 
 }
+
+export interface GenerateTokenResponse {
+    token: string;
+    user: User;
+}
+
+export const generateUserToken = async (userID: number): Promise<APIResponse<GenerateTokenResponse>> => {
+    const response = await fetch(`${baseUrl}/users/${userID}/dev/generate-token`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("token"),
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to generate token.");
+    }
+    const result: APIResponse<GenerateTokenResponse> = await response.json();
+    return result;
+}
