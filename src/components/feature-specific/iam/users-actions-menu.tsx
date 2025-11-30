@@ -1,6 +1,7 @@
 import DeleteUserDialog from "@/components/feature-specific/iam/delete-user-dialog";
+import GenerateTokenDialog from "@/components/feature-specific/iam/generate-token-dialog";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { User } from "@/models/data/user.model";
 import { MoreHorizontal } from "lucide-react";
 
@@ -18,6 +19,8 @@ export default function ( { user }: UsersActionsMenuProps) {
     </DropdownMenuTrigger>
     <DropdownMenuContent id={user.ID.toString()}>
     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+    <GenerateTokenDialog user={user} />
+    <DropdownMenuSeparator />
     <DeleteUserDialog user={user} />
     </DropdownMenuContent>
   </DropdownMenu>

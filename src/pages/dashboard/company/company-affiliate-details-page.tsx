@@ -5,50 +5,51 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Commission } from "@/models/data/affiliate/commission.model";
 import {
-    getAffiliateCommissions,
-    getAffiliateDetails,
-    recordAffiliatePayment,
-    RecordPaymentRequest,
+  RecordPaymentRequest,
+  getAffiliateCommissions,
+  getAffiliateDetails,
+  getAffiliateTotals,
+  recordAffiliatePayment,
 } from "@/services/affiliate-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, DollarSign, TrendingUp, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, DollarSign, TrendingUp, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -97,9 +98,19 @@ export default function CompanyAffiliateDetailsPage() {
     enabled: !!affiliateID && !!company?.ID,
   });
 
+  const {
+    data: totalsData,
+    isLoading: totalsLoading,
+  } = useQuery({
+    queryKey: ["affiliate-totals", company?.ID, affiliateID],
+    queryFn: () => getAffiliateTotals(company!.ID, Number(affiliateID)),
+    enabled: !!affiliateID && !!company?.ID,
+  });
+
   const affiliate = affiliateData?.data;
   const commissions = commissionsData?.data?.commissions || [];
   const commissionsPagination = commissionsData?.data?.pagination;
+  const totals = totalsData?.data;
 
   // Reset to page 1 when status filter changes
   useEffect(() => {
@@ -126,6 +137,7 @@ export default function CompanyAffiliateDetailsPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["affiliate-details", company?.ID] });
       queryClient.invalidateQueries({ queryKey: ["affiliate-commissions", company?.ID] });
+      queryClient.invalidateQueries({ queryKey: ["affiliate-totals", company?.ID] });
       setPaymentDialogOpen(false);
       form.reset();
     },
@@ -161,10 +173,6 @@ export default function CompanyAffiliateDetailsPage() {
     );
   }
 
-  // Calculate totals
-  const totalEarnings = commissions.reduce((sum, commission) => sum + commission.amount, 0);
-  const totalPaid = commissions.reduce((sum, commission) => sum + commission.paid_amount, 0);
-  const pendingAmount = totalEarnings - totalPaid;
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -309,14 +317,18 @@ export default function CompanyAffiliateDetailsPage() {
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalEarnings.toFixed(2)}</div>
+            {totalsLoading ? (
+              <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold">${(totals?.total_earnings || 0).toFixed(2)}</div>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -325,16 +337,37 @@ export default function CompanyAffiliateDetailsPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalPaid.toFixed(2)}</div>
+            {totalsLoading ? (
+              <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold">${(totals?.total_paid || 0).toFixed(2)}</div>
+            )}
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Amount</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending (Approved)</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            {totalsLoading ? (
+              <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold">${(totals?.pending_approved || 0).toFixed(2)}</div>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending (Pending)</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${pendingAmount.toFixed(2)}</div>
+            {totalsLoading ? (
+              <div className="text-2xl font-bold">Loading...</div>
+            ) : (
+              <div className="text-2xl font-bold">${(totals?.pending_pending || 0).toFixed(2)}</div>
+            )}
           </CardContent>
         </Card>
       </div>

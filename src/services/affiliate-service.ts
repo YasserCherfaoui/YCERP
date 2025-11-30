@@ -551,6 +551,31 @@ export const getAffiliateCommissions = async (companyId: number, affiliateId: nu
     return result;
 };
 
+export interface AffiliateTotals {
+    total_earnings: number;
+    total_paid: number;
+    pending_approved: number;
+    pending_pending: number;
+}
+
+export const getAffiliateTotals = async (companyId: number, affiliateId: number): Promise<APIResponse<AffiliateTotals>> => {
+    const response = await fetch(`${baseUrl}/company/${companyId}/affiliates/${affiliateId}/totals`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getCompanyToken()}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch affiliate totals.");
+    }
+
+    const result: APIResponse<AffiliateTotals> = await response.json();
+    return result;
+};
+
 // Affiliate Applications Management
 export interface AffiliateApplication {
     ID: number;
