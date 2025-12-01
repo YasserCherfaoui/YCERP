@@ -20,6 +20,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useOrdersWithRealtime } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -541,16 +547,22 @@ export default function CompanyOrdersPage() {
             dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
             dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
           />
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-4">Manager Statistics</h2>
-            <ManagerStatusCards 
-              wilaya={selectedWilaya}
-              shippingProvider={selectedShippingProvider}
-              companyId={company.ID}
-              dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
-              dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
-            />
-          </div>
+          <Accordion type="single" collapsible className="mt-6">
+            <AccordionItem value="manager-statistics">
+              <AccordionTrigger>
+                <h2 className="text-xl font-semibold">Manager Statistics</h2>
+              </AccordionTrigger>
+              <AccordionContent>
+                <ManagerStatusCards 
+                  wilaya={selectedWilaya}
+                  shippingProvider={selectedShippingProvider}
+                  companyId={company.ID}
+                  dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
+                  dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       )}
 

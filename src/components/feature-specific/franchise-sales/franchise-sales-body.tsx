@@ -190,10 +190,7 @@ export default function () {
               {new Intl.NumberFormat("en-DZ", {
                 style: "currency",
                 currency: "DZD",
-              }).format(
-                (todayTotal?.data?.total_amount || 0) - 
-                ((todayTotal?.data?.total_exchanges_amount || 0) - (todayTotal?.data?.total_returns_amount || 0))
-              )}
+              }).format(todayTotal?.data?.total_amount || 0)}
             </p>
           </CardContent>
         </Card>
@@ -252,10 +249,7 @@ export default function () {
               {new Intl.NumberFormat("en-DZ", {
                 style: "currency",
                 currency: "DZD",
-              }).format(
-                (rangeTotal?.data?.total_amount || 0) - 
-                ((rangeTotal?.data?.total_exchanges_amount || 0) - (rangeTotal?.data?.total_returns_amount || 0))
-              )}
+              }).format(rangeTotal?.data?.total_amount || 0)}
             </p>
             <div className="text-lg text-white flex items-center gap-2">
               <p>
