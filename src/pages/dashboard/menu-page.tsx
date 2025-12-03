@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 
-import { Building, Store, Warehouse } from "lucide-react";
+import { Building, Settings, Store, Warehouse } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function () {
@@ -42,5 +42,10 @@ const carouselItems = [
     label: "Inventories",
     icon: Warehouse,
     href: "/inventory"
+  },
+  {
+    label: "Settings",
+    icon: Settings,
+    href: "/settings"
   },
 ];
