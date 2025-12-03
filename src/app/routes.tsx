@@ -70,6 +70,7 @@ import WarehousePage from "@/pages/dashboard/company/warehouse-page";
 import DashboardPage from "@/pages/dashboard/dashboard-page";
 import MenuPage from "@/pages/dashboard/menu-page";
 import QuickActionsPage from "@/pages/dashboard/quick-actions-page";
+import SettingsPage from "@/pages/dashboard/settings-page";
 import DeliveryDashboardPage from "@/pages/delivery/dashboard/delivery-dashboard-page";
 import DeliveryEmployeeDashboardPage from "@/pages/delivery/delivery-employee-dashboard-page";
 import DeliveryListPage from "@/pages/delivery/delivery-list-page";
@@ -204,6 +205,7 @@ export default function AppRouter() {
           // ANCHOR: DASHBOARD PAGES
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/quick-actions" element={<QuickActionsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/company">
             <Route index element={<CompanyPage />} />
             <Route path=":companyID" element={<CompanyLayout />}>
