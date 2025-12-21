@@ -3,9 +3,12 @@ import DispatchConfirmDialog from "@/components/feature-specific/orders/dispatch
 import SetUnconfirmedStatusDialog from "@/components/feature-specific/orders/set-unconfirmed-status-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 import { WooOrder } from "@/models/data/woo-order.model";
-import { Download, Eye, History, PlusCircle, Truck, Undo } from "lucide-react";
+import { cloneWooCommerceOrder } from "@/services/woocommerce-service";
+import { Download, Eye, History, PlusCircle, Truck, Undo, Copy } from "lucide-react";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ExportConfirmDialog from "./export-confirm-dialog";
 import OrderDetailsDialog from "./order-details-dialog";
 import OrderHistoryDialog from "./order-history-dialog";
@@ -19,6 +22,31 @@ function OrderActions({ order, ordersQueryKey }: { order: WooOrder, ordersQueryK
   const [orderHistoryDialogOpen, setOrderHistoryDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [setUnconfirmedDialogOpen, setSetUnconfirmedDialogOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { mutate: cloneOrder, isPending: isCloning } = useMutation({
+    mutationFn: cloneWooCommerceOrder,
+    onSuccess: () => {
+      toast({
+        title: "Order cloned",
+        description: "Order has been cloned successfully",
+      });
+      if (ordersQueryKey) {
+        queryClient.invalidateQueries({ queryKey: ordersQueryKey });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["orders"] });
+      }
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to clone order",
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <>
       <OrderDetailsDialog order={order} open={open} setOpen={setOpen} ordersQueryKey={ordersQueryKey} />
@@ -49,6 +77,21 @@ function OrderActions({ order, ordersQueryKey }: { order: WooOrder, ordersQueryK
               </Button>
             </TooltipTrigger>
             <TooltipContent>Order History</TooltipContent>
+          </Tooltip>
+          {/* Clone Order - always available */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => cloneOrder(order)}
+                disabled={isCloning}
+              >
+                <Copy className="h-4 w-4" />
+                <span className="sr-only">Clone Order</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Clone Order</TooltipContent>
           </Tooltip>
           {/* Create Order - only if unconfirmed or relaunched */}
           {(order.order_status === "unconfirmed" || order.order_status === "relaunched") && (

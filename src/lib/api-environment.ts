@@ -14,7 +14,7 @@ export interface ApiEnvironmentConfig {
 export const API_ENVIRONMENTS: Record<ApiEnvironment, ApiEnvironmentConfig> = {
   GCP: {
     name: 'GCP',
-    url: import.meta.env.VITE_GCP_API_URL || 'https://myerp-gcp.example.com',
+    url: import.meta.env.VITE_GCP_API_URL || 'http://localhost:8080',
     description: 'Google Cloud Platform (Production)',
   },
   RAILWAY: {
@@ -89,4 +89,9 @@ export function getAllApiEnvironments(): ApiEnvironmentConfig[] {
 export function getEnvironmentConfig(env: ApiEnvironment): ApiEnvironmentConfig {
   return API_ENVIRONMENTS[env];
 }
+
+
+
+
+
 
