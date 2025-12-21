@@ -397,6 +397,61 @@ export const updateWooCommerceOrderStatus = async (request: UpdateWooCommerceOrd
   return data;
 }
 
+export const cloneWooCommerceOrder = async (order: WooOrder): Promise<APIResponse<WooOrder>> => {
+  // Map WooOrder to CreateOrderSchema
+  // Prefer confirmed_order_items if available, otherwise use line_items
+  const itemsToClone = order.confirmed_order_items && order.confirmed_order_items.length > 0
+    ? order.confirmed_order_items
+    : order.line_items || [];
+
+  const cloneData: CreateOrderSchema = {
+    company_id: order.company_id || 0,
+    shipping: {
+      full_name: order.shipping_name || order.billing_name || "",
+      phone_number: order.customer_phone || "",
+      phone_number_2: order.customer_phone_2 || undefined,
+      address: order.shipping_address_1 || order.billing_address_1 || "",
+      city: order.shipping_city || order.billing_city || "",
+      state: order.shipping_city || "",
+      wilaya: order.woo_shipping?.wilaya_name || "",
+      commune: order.woo_shipping?.commune_name || "",
+      delivery_id: order.woo_shipping?.delivery_company_id || undefined,
+      comments: order.comments || undefined,
+    },
+    order_items: itemsToClone.map((item) => {
+      // Handle ConfirmedOrderItem (has product_variant_id)
+      if ('product_variant_id' in item && item.product_variant_id) {
+        return {
+          product_id: item.product_id || 0,
+          product_variant_id: item.product_variant_id,
+          discount: 0,
+          quantity: item.quantity || 0,
+        };
+      }
+      // Handle WooOrderItem (has variation_id)
+      const lineItem = item as any;
+      return {
+        product_id: lineItem.product_id || 0,
+        product_variant_id: lineItem.variation_id || 0,
+        discount: 0,
+        quantity: lineItem.quantity || 0,
+      };
+    }).filter(item => item.product_id > 0 && item.product_variant_id > 0), // Filter out invalid items
+    total: order.final_price || order.amount || Number(order.total) || 0,
+    status: "unconfirmed",
+    discount: order.discount || 0,
+    taken_by_id: order.taken_by_id || undefined,
+    shipping_provider: (order.woo_shipping?.shipping_provider as "yalidine" | "my_companies") || "yalidine",
+    delivery_type: (order.woo_shipping?.delivery_type as "home" | "stopdesk") || "home",
+    selected_commune: order.woo_shipping?.selected_commune || undefined,
+    selected_center: order.woo_shipping?.selected_center || undefined,
+    first_delivery_cost: order.woo_shipping?.first_delivery_cost || undefined,
+    second_delivery_cost: order.woo_shipping?.second_delivery_cost || undefined,
+  };
+
+  return confirmWooCommerceOrderFromScratch(cloneData);
+}
+
 export const declareEmptyExchange = async (request: DeclareEmptyExchangeRequest): Promise<APIResponse<void>> => {
   const response = await fetch(`${baseUrl}/woocommerce/declare-empty-exchange`, {
     method: "POST",
