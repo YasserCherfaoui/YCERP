@@ -5,23 +5,23 @@ import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon
 import OrderTicketsIcon from "@/components/feature-specific/company/order-tickets/order-tickets-icon";
 import { Button } from "@/components/ui/button";
 import {
-    AlertTriangle,
-    Apple,
-    ArrowLeft,
-    ChartNoAxesCombined,
-    ChartPie,
-    FileCheck,
-    Handshake,
-    Package,
-    ReceiptText,
-    ShoppingCart,
-    Store,
-    Truck,
-    Undo2,
-    UserCog,
-    Users,
-    Warehouse,
-    Zap,
+  AlertTriangle,
+  Apple,
+  ArrowLeft,
+  ChartNoAxesCombined,
+  ChartPie,
+  FileCheck,
+  Handshake,
+  Package,
+  ReceiptText,
+  ShoppingCart,
+  Store,
+  Truck,
+  Undo2,
+  UserCog,
+  Users,
+  Warehouse,
+  Zap,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -162,6 +162,16 @@ const quickMenu: Array<{
     label: "Orders",
     icon: Package,
     href: "orders",
+  },
+  {
+    label: "CRM Customers",
+    icon: Users,
+    href: "/crm/customers",
+  },
+  {
+    label: "Daily Deliveries",
+    icon: Truck,
+    href: "/crm/deliveries",
   },
   {
     label: "Issues",
