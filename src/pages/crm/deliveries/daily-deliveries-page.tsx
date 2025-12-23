@@ -5,14 +5,12 @@ import { useToast } from "@/hooks/use-toast";
 import { DailyDelivery } from "@/models/data/customer.model";
 import { getDailyDeliveries } from "@/services/customer-service";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, Phone, Package } from "lucide-react";
+import { Phone, Package } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
-import { useNavigate } from "react-router-dom";
 
 export default function DailyDeliveriesPage() {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [date, setDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
@@ -33,24 +31,15 @@ export default function DailyDeliveriesPage() {
   const deliveryData: DailyDelivery | undefined = data?.data;
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Button>
-          <h1 className="text-3xl font-bold">Daily Deliveries</h1>
-        </div>
-        <div className="flex gap-2">
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-40"
-          />
-          <Button onClick={() => refetch()}>Refresh</Button>
-        </div>
+    <div className="space-y-6">
+      <div className="flex justify-end items-center gap-2">
+        <Input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="w-40"
+        />
+        <Button onClick={() => refetch()}>Refresh</Button>
       </div>
 
       {/* Stats Card */}

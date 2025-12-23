@@ -1,13 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Customer } from "@/models/data/customer.model";
 import { getCustomers, syncCustomers } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, RefreshCw, Search, User } from "lucide-react";
+import { ArrowLeft, RefreshCw, Search, Users, Package } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { customersColumns, CustomerTableRow } from "@/components/feature-specific/crm/customers-columns";
+import DailyDeliveriesPage from "../deliveries/daily-deliveries-page";
 
 export default function CustomersPage() {
   const navigate = useNavigate();
@@ -56,6 +60,13 @@ export default function CustomersPage() {
     });
   }
 
+  // Transform data for table
+  const tableData: CustomerTableRow[] = 
+    data?.data?.customers?.map((item: { customer: Customer; delivery_rate: number }) => ({
+      customer: item.customer,
+      delivery_rate: item.delivery_rate,
+    })) || [];
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -64,146 +75,115 @@ export default function CustomersPage() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold">Customers</h1>
+          <h1 className="text-3xl font-bold">CRM</h1>
         </div>
         <Button
           variant="outline"
           onClick={() => syncMut.mutate()}
           disabled={syncMut.isPending}
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className={`h-4 w-4 mr-2 ${syncMut.isPending ? "animate-spin" : ""}`} />
           {syncMut.isPending ? "Syncing..." : "Sync Customers"}
         </Button>
       </div>
 
-      {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Tabs defaultValue="customers" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="customers" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Customers
+          </TabsTrigger>
+          <TabsTrigger value="deliveries" className="flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            Daily Deliveries
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="customers" className="space-y-4">
+          {/* Filters */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Filters</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by phone, name, or email..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
+                </div>
                 <Input
-                  placeholder="Search by phone, name, or email..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8"
+                  type="number"
+                  placeholder="Min delivery rate %"
+                  value={minDeliveryRate || ""}
+                  onChange={(e) =>
+                    setMinDeliveryRate(
+                      e.target.value ? parseFloat(e.target.value) : undefined
+                    )
+                  }
+                  className="w-40"
+                />
+                <Input
+                  type="number"
+                  placeholder="Max delivery rate %"
+                  value={maxDeliveryRate || ""}
+                  onChange={(e) =>
+                    setMaxDeliveryRate(
+                      e.target.value ? parseFloat(e.target.value) : undefined
+                    )
+                  }
+                  className="w-40"
                 />
               </div>
-            </div>
-            <Input
-              type="number"
-              placeholder="Min delivery rate %"
-              value={minDeliveryRate || ""}
-              onChange={(e) =>
-                setMinDeliveryRate(
-                  e.target.value ? parseFloat(e.target.value) : undefined
-                )
-              }
-              className="w-40"
-            />
-            <Input
-              type="number"
-              placeholder="Max delivery rate %"
-              value={maxDeliveryRate || ""}
-              onChange={(e) =>
-                setMaxDeliveryRate(
-                  e.target.value ? parseFloat(e.target.value) : undefined
-                )
-              }
-              className="w-40"
-            />
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      {/* Customers List */}
-      {isLoading ? (
-        <div className="text-center py-8">Loading customers...</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data?.data?.customers?.map(
-            (item: { customer: Customer; delivery_rate: number }) => {
-              const customer = item.customer;
-              return (
-                <Card
-                  key={customer.phone}
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => navigate(`/crm/customers/${customer.phone}`)}
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
-                      {customer.first_name} {customer.last_name}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div>
-                      <span className="text-sm text-muted-foreground">Phone:</span>{" "}
-                      {customer.phone}
-                    </div>
-                    {customer.email && (
-                      <div>
-                        <span className="text-sm text-muted-foreground">Email:</span>{" "}
-                        {customer.email}
-                      </div>
-                    )}
-                    <div>
-                      <span className="text-sm text-muted-foreground">
-                        Delivery Rate:
-                      </span>{" "}
-                      <span
-                        className={
-                          item.delivery_rate >= 80
-                            ? "text-green-600 font-semibold"
-                            : item.delivery_rate >= 50
-                            ? "text-yellow-600 font-semibold"
-                            : "text-red-600 font-semibold"
+          {/* Customers Table */}
+          {isLoading ? (
+            <div className="text-center py-8">Loading customers...</div>
+          ) : tableData.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <p className="text-muted-foreground">No customers found.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-0">
+                <DataTable
+                  columns={customersColumns}
+                  data={tableData}
+                  searchColumn="customer.phone"
+                  paginationMeta={
+                    data?.data?.pagination
+                      ? {
+                          total: data.data.pagination.total,
+                          per_page: data.data.pagination.limit,
+                          current_page: data.data.pagination.page,
+                          total_pages: data.data.pagination.total_pages || Math.ceil(
+                            data.data.pagination.total / data.data.pagination.limit
+                          ),
                         }
-                      >
-                        {item.delivery_rate.toFixed(1)}%
-                      </span>
-                    </div>
-                    {customer.birthday && (
-                      <div>
-                        <span className="text-sm text-muted-foreground">Birthday:</span>{" "}
-                        {new Date(customer.birthday).toLocaleDateString()}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            }
+                      : undefined
+                  }
+                  onPageChange={(newPage) => setPage(newPage + 1)}
+                  currentPage={page - 1}
+                />
+              </CardContent>
+            </Card>
           )}
-        </div>
-      )}
+        </TabsContent>
 
-      {/* Pagination */}
-      {data?.data?.pagination && data.data.pagination.total > 0 && (
-        <div className="flex justify-between items-center">
-          <Button
-            variant="outline"
-            onClick={() => setPage(page - 1)}
-            disabled={page <= 1}
-          >
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {page} of {Math.ceil(data.data.pagination.total / 20)} (
-            {data.data.pagination.total} total)
-          </span>
-          <Button
-            variant="outline"
-            onClick={() => setPage(page + 1)}
-            disabled={page >= Math.ceil(data.data.pagination.total / 20)}
-          >
-            Next
-          </Button>
-        </div>
-      )}
+        <TabsContent value="deliveries">
+          <DailyDeliveriesPage />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
