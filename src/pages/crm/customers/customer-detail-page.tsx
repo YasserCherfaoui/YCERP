@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Customer, CustomerStats } from "@/models/data/customer.model";
 import { getCustomer, getCustomerStats, updateCustomer } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Phone, Mail, Calendar, Star, Package } from "lucide-react";
+import { Phone, Mail, Calendar, Star, Package, ArrowLeft } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -64,9 +64,15 @@ export default function CustomerDetailPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">
-          {customer.first_name} {customer.last_name}
-        </h1>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Button>
+          <h1 className="text-3xl font-bold">
+            {customer.first_name} {customer.last_name}
+          </h1>
+        </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -138,6 +144,24 @@ export default function CustomerDetailPage() {
                     return "";
                   })()}
                 </span>
+              </div>
+            )}
+            {customer.name_history && customer.name_history.length > 0 && (
+              <div>
+                <div className="text-sm font-semibold">Name History</div>
+                <div className="text-sm text-muted-foreground">
+                  {customer.name_history.join(" • ")}
+                </div>
+              </div>
+            )}
+            {customer.address_history && customer.address_history.length > 0 && (
+              <div>
+                <div className="text-sm font-semibold">Address History</div>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  {customer.address_history.map((addr, idx) => (
+                    <div key={idx}>{addr}</div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>

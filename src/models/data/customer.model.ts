@@ -6,6 +6,8 @@ export interface Customer {
   first_name: string;
   last_name: string;
   email: string;
+  name_history?: string[];
+  address_history?: string[];
   created_at: string | Date;
   updated_at: string | Date;
   reviews?: Review[];

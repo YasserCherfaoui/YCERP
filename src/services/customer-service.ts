@@ -78,3 +78,11 @@ export const getDailyDeliveries = async (
   return apiFetch(`/customers/deliveries/today${queryString}`);
 };
 
+export const syncCustomers = async (): Promise<
+  APIResponse<{ synced: number; total: number }>
+> => {
+  return apiFetch(`/customers/sync`, {
+    method: "POST",
+  });
+};
+

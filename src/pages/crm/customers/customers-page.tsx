@@ -3,19 +3,38 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Customer } from "@/models/data/customer.model";
-import { getCustomers } from "@/services/customer-service";
-import { useQuery } from "@tanstack/react-query";
-import { Search, User } from "lucide-react";
+import { getCustomers, syncCustomers } from "@/services/customer-service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, RefreshCw, Search, User } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function CustomersPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [minDeliveryRate, setMinDeliveryRate] = useState<number | undefined>();
   const [maxDeliveryRate, setMaxDeliveryRate] = useState<number | undefined>();
+
+  const syncMut = useMutation({
+    mutationFn: () => syncCustomers(),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      toast({
+        title: "Sync completed",
+        description: `Synced ${res.data.synced} of ${res.data.total} orders.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Sync failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["customers", page, search, minDeliveryRate, maxDeliveryRate],
@@ -40,7 +59,21 @@ export default function CustomersPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Customers</h1>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back
+          </Button>
+          <h1 className="text-3xl font-bold">Customers</h1>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => syncMut.mutate()}
+          disabled={syncMut.isPending}
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          {syncMut.isPending ? "Syncing..." : "Sync Customers"}
+        </Button>
       </div>
 
       {/* Filters */}
