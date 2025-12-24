@@ -8,6 +8,11 @@ export interface Customer {
   email: string;
   name_history?: string[];
   address_history?: string[];
+  // Cached delivery statistics
+  total_orders?: number;
+  delivered_orders?: number;
+  delivery_rate?: number; // Percentage (0-100)
+  stats_updated_at?: string | Date;
   created_at: string | Date;
   updated_at: string | Date;
   reviews?: Review[];

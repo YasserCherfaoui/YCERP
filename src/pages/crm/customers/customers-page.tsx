@@ -160,6 +160,7 @@ export default function CustomersPage() {
                   columns={customersColumns}
                   data={tableData}
                   searchColumn="customer.phone"
+                  searchBar={false}
                   paginationMeta={
                     data?.data?.pagination
                       ? {
