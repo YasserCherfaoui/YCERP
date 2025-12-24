@@ -41,7 +41,7 @@ export const updateCustomer = async (
 
 export const getCustomers = async (
   params: GetCustomersParams = {}
-): Promise<APIResponse<{ customers: Array<{ customer: Customer; delivery_rate: number }>; pagination: { page: number; limit: number; total: number } }>> => {
+): Promise<APIResponse<{ customers: Array<{ customer: Customer; delivery_rate: number }>; pagination: { page: number; limit: number; total: number; total_pages: number } }>> => {
   const queryParams = new URLSearchParams();
   if (params.page) queryParams.append("page", params.page.toString());
   if (params.limit) queryParams.append("limit", params.limit.toString());

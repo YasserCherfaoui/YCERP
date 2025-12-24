@@ -1,3 +1,4 @@
+import { CustomerTableRow, customersColumns } from "@/components/feature-specific/crm/customers-columns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
@@ -7,10 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Customer } from "@/models/data/customer.model";
 import { getCustomers, syncCustomers } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, RefreshCw, Search, Users, Package } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Package, RefreshCw, Search, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { customersColumns, CustomerTableRow } from "@/components/feature-specific/crm/customers-columns";
 import DailyDeliveriesPage from "../deliveries/daily-deliveries-page";
 
 export default function CustomersPage() {
@@ -22,13 +22,18 @@ export default function CustomersPage() {
   const [minDeliveryRate, setMinDeliveryRate] = useState<number | undefined>();
   const [maxDeliveryRate, setMaxDeliveryRate] = useState<number | undefined>();
 
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, minDeliveryRate, maxDeliveryRate]);
+
   const syncMut = useMutation({
     mutationFn: () => syncCustomers(),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast({
         title: "Sync completed",
-        description: `Synced ${res.data.synced} of ${res.data.total} orders.`,
+        description: `Synced ${res.data?.synced || 0} of ${res.data?.total || 0} orders.`,
       });
     },
     onError: (error: Error) => {
@@ -164,7 +169,7 @@ export default function CustomersPage() {
                   paginationMeta={
                     data?.data?.pagination
                       ? {
-                          total: data.data.pagination.total,
+                          total_items: data.data.pagination.total,
                           per_page: data.data.pagination.limit,
                           current_page: data.data.pagination.page,
                           total_pages: data.data.pagination.total_pages || Math.ceil(

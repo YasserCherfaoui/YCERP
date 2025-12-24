@@ -241,6 +241,34 @@ export const refreshWooCommerceStatus = async () => {
     return data;
 }
 
+export const syncDispatchingOrders = async (): Promise<APIResponse<{
+    updated_to_deliviring: number;
+    updated_orders: number;
+    updated_inventory: number;
+    broadcasted: number;
+    total_dispaching: number;
+}>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/sync-dispatching`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || "Failed to sync dispatching orders");
+    }
+    const data: APIResponse<{
+        updated_to_deliviring: number;
+        updated_orders: number;
+        updated_inventory: number;
+        broadcasted: number;
+        total_dispaching: number;
+    }> = await response.json();
+    return data;
+}
+
 export const addOrderHistory = async (request: AddOrderHistoryRequest): Promise<APIResponse<OrderHistory>> => {
     const response = await fetch(`${baseUrl}/woocommerce/create-order-history`, {
         method: "POST",
