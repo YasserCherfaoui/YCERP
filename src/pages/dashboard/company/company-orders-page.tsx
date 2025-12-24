@@ -38,6 +38,7 @@ import {
     dispatchWooCommerceOrders,
     exportWooCommerceOrders,
     refreshWooCommerceStatus,
+    syncDispatchingOrders,
 } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -263,6 +264,27 @@ export default function CompanyOrdersPage() {
     },
   });
 
+  const {
+    mutate: syncDispatchingOrdersMutation,
+    isPending: syncDispatchingOrdersLoading,
+  } = useMutation({
+    mutationFn: syncDispatchingOrders,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast({
+        title: "Dispatching orders synced successfully",
+        description: `Updated ${data.data?.updated_to_deliviring || 0} orders to deliviring, ${data.data?.updated_orders || 0} status updates`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to sync dispatching orders",
+        description: error.message || "Failed to sync dispatching orders",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleExportSubmit = (orderIDs: number[]) => {
     exportWooCommerceOrdersMutation(orderIDs);
     setSelectedRows([]);
@@ -358,6 +380,19 @@ export default function CompanyOrdersPage() {
               <Loader2 className="w-4 h-4 ml-2 animate-spin" />
             )}
           </Button>
+          {selectedStatus === "dispaching" && (
+            <Button
+              onClick={() => syncDispatchingOrdersMutation()}
+              disabled={syncDispatchingOrdersLoading}
+              variant="outline"
+            >
+              <RefreshCcwIcon className="w-4 h-4" />
+              Sync with Yalidine{" "}
+              {syncDispatchingOrdersLoading && (
+                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+              )}
+            </Button>
+          )}
           <Button
             onClick={() => setAssignOpen(true)}
             disabled={isModerator || selectedRows.length === 0}

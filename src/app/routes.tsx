@@ -26,6 +26,10 @@ import AffiliateSettingsPage from "@/pages/affiliate/dashboard/affiliate-setting
 import LoginPage from "@/pages/auth/login-page";
 import RegisterPage from "@/pages/auth/register-page";
 import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
+import CustomerDetailPage from "@/pages/crm/customers/customer-detail-page";
+import CustomersPage from "@/pages/crm/customers/customers-page";
+import DailyDeliveriesPage from "@/pages/crm/deliveries/daily-deliveries-page";
+import CreateReviewDialog from "@/pages/crm/reviews/create-review-dialog";
 import AdvertisingPage from "@/pages/dashboard/company/advertising-page";
 import BoxingPage from "@/pages/dashboard/company/boxing-page";
 import ChargesPage from "@/pages/dashboard/company/charges-page";
@@ -282,9 +286,16 @@ export default function AppRouter() {
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
           <Route path="/inventory" element={<MenuPage />} />
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
-          </Route>
+        <Route path="/crm">
+          <Route index element={<CustomersPage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers/:phone" element={<CustomerDetailPage />} />
+          <Route path="deliveries" element={<DailyDeliveriesPage />} />
+          <Route path="reviews/create" element={<CreateReviewDialog open={true} onOpenChange={() => {}} />} />
+        </Route>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
         {/* Affiliate Routes */}
