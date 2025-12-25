@@ -8,16 +8,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Phone, Package } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
+import { useParams } from "react-router-dom";
 
 export default function DailyDeliveriesPage() {
+  const { companyID } = useParams<{ companyID: string }>();
+  const companyId = companyID ? parseInt(companyID, 10) : undefined;
   const { toast } = useToast();
   const [date, setDate] = useState<string>(
     format(new Date(), "yyyy-MM-dd")
   );
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["daily-deliveries", date],
-    queryFn: () => getDailyDeliveries(date),
+    queryKey: ["daily-deliveries", companyId, date],
+    queryFn: () => getDailyDeliveries(date, companyId),
+    enabled: !!companyId,
   });
 
   if (isError) {
@@ -128,7 +132,7 @@ export default function DailyDeliveriesPage() {
                             className="mt-1"
                             onClick={() => {
                               // Navigate to review creation
-                              window.location.href = `/crm/reviews/create?customer_phone=${delivery.customer_phone}&order_id=${order.id}`;
+                              window.location.href = `/company/${companyID}/crm/reviews/create?customer_phone=${delivery.customer_phone}&order_id=${order.id}`;
                             }}
                           >
                             Record Review

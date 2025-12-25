@@ -9,7 +9,7 @@ export type CustomerTableRow = {
   delivery_rate: number;
 };
 
-export const customersColumns: ColumnDef<CustomerTableRow>[] = [
+export const getCustomersColumns = (companyID?: string): ColumnDef<CustomerTableRow>[] => [
   {
     accessorKey: "customer.first_name",
     header: "Name",
@@ -88,8 +88,11 @@ export const customersColumns: ColumnDef<CustomerTableRow>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const customer = row.original.customer;
+      const linkPath = companyID 
+        ? `/company/${companyID}/crm/customers/${customer.phone}`
+        : `/crm/customers/${customer.phone}`;
       return (
-        <Link to={`/crm/customers/${customer.phone}`}>
+        <Link to={linkPath}>
           <Button variant="outline" size="sm">
             <Eye className="h-4 w-4 mr-1" />
             View
@@ -101,4 +104,7 @@ export const customersColumns: ColumnDef<CustomerTableRow>[] = [
     enableHiding: false,
   },
 ];
+
+// Backward compatibility - export default columns without companyID
+export const customersColumns = getCustomersColumns();
 
