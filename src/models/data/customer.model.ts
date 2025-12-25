@@ -33,6 +33,16 @@ export interface DailyDelivery {
   total_orders: number;
   unique_customers: number;
   deliveries: CustomerDeliveryInfo[];
+  pagination: PaginationMeta;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  total_pages: number;
+  has_next: boolean;
+  has_prev: boolean;
 }
 
 export interface CustomerDeliveryInfo {
@@ -46,6 +56,22 @@ export interface OrderDeliveryInfo {
   delivered_at: string | Date;
   order_number: string;
   amount: number;
+  shipping_address?: string;
+  shipping_city?: string;
+  billing_address?: string;
+  billing_city?: string;
+  payment_method?: string;
+  payment_method_title?: string;
+  date_created?: string | Date;
+  line_items?: OrderLineItemInfo[];
+}
+
+export interface OrderLineItemInfo {
+  name: string;
+  sku: string;
+  quantity: number;
+  price: number;
+  total: string;
 }
 
 export interface UpcomingBirthday {

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { Customer } from "@/models/data/customer.model";
-import { Phone, Mail, Calendar, Eye } from "lucide-react";
+import { Phone, Mail, Calendar, Eye, Package, PackageCheck, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export type CustomerTableRow = {
@@ -50,6 +50,32 @@ export const getCustomersColumns = (companyID?: string): ColumnDef<CustomerTable
     },
   },
   {
+    accessorKey: "customer.total_orders",
+    header: "Total Orders",
+    cell: ({ row }) => {
+      const totalOrders = row.original.customer.total_orders ?? 0;
+      return (
+        <div className="flex items-center gap-2">
+          <Package className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium">{totalOrders}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "customer.delivered_orders",
+    header: "Delivered Orders",
+    cell: ({ row }) => {
+      const deliveredOrders = row.original.customer.delivered_orders ?? 0;
+      return (
+        <div className="flex items-center gap-2">
+          <PackageCheck className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium">{deliveredOrders}</span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "delivery_rate",
     header: "Delivery Rate",
     cell: ({ row }) => {
@@ -66,6 +92,23 @@ export const getCustomersColumns = (companyID?: string): ColumnDef<CustomerTable
         >
           {rate.toFixed(1)}%
         </span>
+      );
+    },
+  },
+  {
+    accessorKey: "customer.updated_at",
+    header: "Last Update",
+    cell: ({ row }) => {
+      const updatedAt = row.original.customer.updated_at;
+      if (!updatedAt) return <span className="text-muted-foreground">-</span>;
+      const date = new Date(updatedAt);
+      return (
+        <div className="flex items-center gap-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm">
+            {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
       );
     },
   },

@@ -100,11 +100,15 @@ export const getTodayBirthdays = async (
 
 export const getDailyDeliveries = async (
   date?: string,
-  companyId?: number
+  companyId?: number,
+  page?: number,
+  limit?: number
 ): Promise<APIResponse<DailyDelivery>> => {
   const queryParams = new URLSearchParams();
   if (date) queryParams.append("date", date);
   if (companyId) queryParams.append("company_id", companyId.toString());
+  if (page) queryParams.append("page", page.toString());
+  if (limit) queryParams.append("limit", limit.toString());
   const queryString = queryParams.toString();
   return apiFetch(`/customers/deliveries/today${queryString ? `?${queryString}` : ""}`);
 };

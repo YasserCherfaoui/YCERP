@@ -26,7 +26,7 @@ export default function CustomersPage() {
   const [search, setSearch] = useState("");
   const [minDeliveryRate, setMinDeliveryRate] = useState<number | undefined>();
   const [maxDeliveryRate, setMaxDeliveryRate] = useState<number | undefined>();
-  const [sortBy, setSortBy] = useState<string>("created_at");
+  const [sortBy, setSortBy] = useState<string>("updated_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
@@ -245,6 +245,7 @@ export default function CustomersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="updated_at">Updated Date</SelectItem>
                       <SelectItem value="created_at">Created Date</SelectItem>
                       <SelectItem value="name">Name</SelectItem>
                       <SelectItem value="phone">Phone</SelectItem>
