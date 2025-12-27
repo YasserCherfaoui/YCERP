@@ -282,17 +282,17 @@ export default function AppRouter() {
                 <Route path="config" element={<CompanyStockAlertsConfigPage />} />
                 <Route path="notifications" element={<CompanyStockAlertsNotificationsPage />} />
               </Route>
+              <Route path="crm">
+                <Route index element={<CustomersPage />} />
+                <Route path="customers" element={<CustomersPage />} />
+                <Route path="customers/:phone" element={<CustomerDetailPage />} />
+                <Route path="deliveries" element={<DailyDeliveriesPage />} />
+                <Route path="reviews/create" element={<CreateReviewDialog open={true} onOpenChange={() => {}} />} />
+              </Route>
             </Route>
           </Route>
           <Route path="/franchise" element={<MenuPage />} />
           <Route path="/inventory" element={<MenuPage />} />
-        <Route path="/crm">
-          <Route index element={<CustomersPage />} />
-          <Route path="customers" element={<CustomersPage />} />
-          <Route path="customers/:phone" element={<CustomerDetailPage />} />
-          <Route path="deliveries" element={<DailyDeliveriesPage />} />
-          <Route path="reviews/create" element={<CreateReviewDialog open={true} onOpenChange={() => {}} />} />
-        </Route>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
         </Route>

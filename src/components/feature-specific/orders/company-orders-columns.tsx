@@ -20,12 +20,15 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       <div
         className="text-center"
         style={{
-          backgroundColor: row.original.is_exchange 
-            ? "red" 
-            : row.original.confirmed_by_id 
-              ? "blue" 
-              : "transparent",
-          color: row.original.is_exchange || row.original.confirmed_by_id ? "white" : "inherit",
+          backgroundColor: row.original.is_exchange
+            ? "red"
+            : row.original.confirmed_by_id
+            ? "blue"
+            : "transparent",
+          color:
+            row.original.is_exchange || row.original.confirmed_by_id
+              ? "white"
+              : "inherit",
           padding: "2px 4px",
           borderRadius: "4px",
         }}
@@ -192,7 +195,11 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       const wilaya = row.original.shipping_city;
       const wilayaName = cities.find((city) => city.key == wilaya)?.label;
       // if wilayaName is empty insert shipping_address_1
+
       if (!wilayaName) {
+        return <div className="text-center">{wilaya}</div>;
+      }
+      if (!wilaya) {
         return (
           <div className="text-center">{row.original.shipping_address_1}</div>
         );
@@ -233,17 +240,23 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     cell: ({ row }: { row: { original: WooOrder } }) => {
       const order = row.original;
       // Try to get the latest status by date, not just the last in the array
-      const statuses = Array.isArray(order.order_histories) ? order.order_histories : [];
+      const statuses = Array.isArray(order.order_histories)
+        ? order.order_histories
+        : [];
       let latestStatus = null;
 
       if (statuses.length > 0) {
         // Find the status with the latest date
         latestStatus = statuses.reduce((latest, current) => {
           const latestDate = new Date(
-            typeof latest.date === "string" ? latest.date : latest.date?.toISOString?.() || 0
+            typeof latest.date === "string"
+              ? latest.date
+              : latest.date?.toISOString?.() || 0
           );
           const currentDate = new Date(
-            typeof current.date === "string" ? current.date : current.date?.toISOString?.() || 0
+            typeof current.date === "string"
+              ? current.date
+              : current.date?.toISOString?.() || 0
           );
           return currentDate > latestDate ? current : latest;
         }, statuses[0]);

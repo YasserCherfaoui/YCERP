@@ -166,12 +166,12 @@ const quickMenu: Array<{
   {
     label: "CRM Customers",
     icon: Users,
-    href: "/crm/customers",
+    href: "crm/customers",
   },
   {
     label: "Daily Deliveries",
     icon: Truck,
-    href: "/crm/deliveries",
+    href: "crm/deliveries",
   },
   {
     label: "Issues",

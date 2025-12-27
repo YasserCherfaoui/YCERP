@@ -4,15 +4,23 @@ import { useQuery } from "@tanstack/react-query";
 import { Calendar, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function BirthdayAlerts() {
+interface BirthdayAlertsProps {
+  companyID?: string;
+}
+
+export default function BirthdayAlerts({ companyID }: BirthdayAlertsProps) {
+  const companyId = companyID ? parseInt(companyID, 10) : undefined;
+  
   const { data: todayData } = useQuery({
-    queryKey: ["today-birthdays"],
-    queryFn: () => getTodayBirthdays(),
+    queryKey: ["today-birthdays", companyId],
+    queryFn: () => getTodayBirthdays(companyId),
+    enabled: !!companyId,
   });
 
   const { data: upcomingData } = useQuery({
-    queryKey: ["upcoming-birthdays"],
-    queryFn: () => getUpcomingBirthdays(7), // Next 7 days
+    queryKey: ["upcoming-birthdays", companyId],
+    queryFn: () => getUpcomingBirthdays(7, companyId), // Next 7 days
+    enabled: !!companyId,
   });
 
   const todayBirthdays = todayData?.data || [];
@@ -41,7 +49,7 @@ export default function BirthdayAlerts() {
               {todayBirthdays.map((item: any) => (
                 <Link
                   key={item.customer.phone}
-                  to={`/crm/customers/${item.customer.phone}`}
+                  to={companyID ? `/company/${companyID}/crm/customers/${item.customer.phone}` : `/crm/customers/${item.customer.phone}`}
                   className="block p-2 border rounded hover:bg-muted transition-colors"
                 >
                   <div className="font-medium">
@@ -63,7 +71,7 @@ export default function BirthdayAlerts() {
               {upcomingBirthdays.slice(0, 5).map((item: any) => (
                 <Link
                   key={item.customer.phone}
-                  to={`/crm/customers/${item.customer.phone}`}
+                  to={companyID ? `/company/${companyID}/crm/customers/${item.customer.phone}` : `/crm/customers/${item.customer.phone}`}
                   className="block p-2 border rounded hover:bg-muted transition-colors"
                 >
                   <div className="font-medium">

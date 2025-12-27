@@ -12,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function CustomerDetailPage() {
-  const { phone } = useParams<{ phone: string }>();
+  const { phone, companyID } = useParams<{ phone: string; companyID: string }>();
+  const companyId = companyID ? parseInt(companyID, 10) : undefined;
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -20,21 +21,22 @@ export default function CustomerDetailPage() {
   const [birthday, setBirthday] = useState<string>("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["customer", phone],
-    queryFn: () => getCustomer(phone!),
-    enabled: !!phone,
+    queryKey: ["customer", companyId, phone],
+    queryFn: () => getCustomer(phone!, companyId),
+    enabled: !!phone && !!companyId,
   });
 
   const { data: statsData } = useQuery({
-    queryKey: ["customer-stats", phone],
-    queryFn: () => getCustomerStats(phone!),
-    enabled: !!phone,
+    queryKey: ["customer-stats", companyId, phone],
+    queryFn: () => getCustomerStats(phone!, companyId),
+    enabled: !!phone && !!companyId,
   });
 
   const updateMut = useMutation({
-    mutationFn: (data: { birthday?: string }) => updateCustomer(phone!, data),
+    mutationFn: (data: { birthday?: string }) => updateCustomer(phone!, data, companyId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customer", phone] });
+      queryClient.invalidateQueries({ queryKey: ["customer", companyId, phone] });
+      queryClient.invalidateQueries({ queryKey: ["customer-stats", companyId, phone] });
       setEditDialogOpen(false);
       toast({
         title: "Success",
@@ -285,7 +287,7 @@ export default function CustomerDetailPage() {
           )}
           <Button
             className="mt-4"
-            onClick={() => navigate(`/crm/reviews/create?customer_phone=${customer.phone}`)}
+            onClick={() => navigate(`/company/${companyID}/crm/reviews/create?customer_phone=${customer.phone}`)}
           >
             Record Review
           </Button>

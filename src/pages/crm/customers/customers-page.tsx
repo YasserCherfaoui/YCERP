@@ -1,36 +1,49 @@
-import { CustomerTableRow, customersColumns } from "@/components/feature-specific/crm/customers-columns";
+import { CustomerTableRow, getCustomersColumns } from "@/components/feature-specific/crm/customers-columns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Customer } from "@/models/data/customer.model";
-import { getCustomers, syncCustomers } from "@/services/customer-service";
+import { deleteCustomersWithZeroOrders, getCustomers, syncCustomers, updateSelectedCustomers } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Package, RefreshCw, Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DailyDeliveriesPage from "../deliveries/daily-deliveries-page";
 
 export default function CustomersPage() {
   const navigate = useNavigate();
+  const { companyID } = useParams<{ companyID: string }>();
+  const companyId = companyID ? parseInt(companyID, 10) : undefined;
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [search, setSearch] = useState("");
   const [minDeliveryRate, setMinDeliveryRate] = useState<number | undefined>();
   const [maxDeliveryRate, setMaxDeliveryRate] = useState<number | undefined>();
+  const [sortBy, setSortBy] = useState<string>("updated_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [search, minDeliveryRate, maxDeliveryRate]);
+  }, [search, minDeliveryRate, maxDeliveryRate, limit, sortBy, sortOrder]);
+
+  // Clear selection when page changes
+  useEffect(() => {
+    setSelectedRows([]);
+  }, [page]);
 
   const syncMut = useMutation({
-    mutationFn: () => syncCustomers(),
+    mutationFn: () => syncCustomers(companyId),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customers", companyId] });
       toast({
         title: "Sync completed",
         description: `Synced ${res.data?.synced || 0} of ${res.data?.total || 0} orders.`,
@@ -46,15 +59,56 @@ export default function CustomersPage() {
   });
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["customers", page, search, minDeliveryRate, maxDeliveryRate],
+    queryKey: ["customers", companyId, page, limit, search, minDeliveryRate, maxDeliveryRate, sortBy, sortOrder],
     queryFn: () =>
       getCustomers({
         page,
-        limit: 20,
+        limit,
         search: search || undefined,
         min_delivery_rate: minDeliveryRate,
         max_delivery_rate: maxDeliveryRate,
+        company_id: companyId,
+        sort_by: sortBy,
+        sort_order: sortOrder,
       }),
+    enabled: !!companyId,
+  });
+
+  const updateSelectedMut = useMutation({
+    mutationFn: (phones: string[]) => updateSelectedCustomers(phones, companyId),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["customers", companyId] });
+      setSelectedRows([]);
+      toast({
+        title: "Update completed",
+        description: `Updated ${res.data?.customers_processed || 0} customers. Synced ${res.data?.orders_synced || 0} orders.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteZeroOrdersMut = useMutation({
+    mutationFn: () => deleteCustomersWithZeroOrders(companyId),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["customers", companyId] });
+      toast({
+        title: "Deletion completed",
+        description: `Deleted ${res.data?.deleted || 0} customers with 0 orders.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Deletion failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   if (isError) {
@@ -82,14 +136,37 @@ export default function CustomersPage() {
           </Button>
           <h1 className="text-3xl font-bold">CRM</h1>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => syncMut.mutate()}
-          disabled={syncMut.isPending}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${syncMut.isPending ? "animate-spin" : ""}`} />
-          {syncMut.isPending ? "Syncing..." : "Sync Customers"}
-        </Button>
+        <div className="flex gap-2">
+          {selectedRows.length > 0 && (
+            <Button
+              variant="default"
+              onClick={() => updateSelectedMut.mutate(selectedRows)}
+              disabled={updateSelectedMut.isPending}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${updateSelectedMut.isPending ? "animate-spin" : ""}`} />
+              {updateSelectedMut.isPending ? "Updating..." : `Update Selected (${selectedRows.length})`}
+            </Button>
+          )}
+          <Button
+            variant="outline"
+            onClick={() => syncMut.mutate()}
+            disabled={syncMut.isPending}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${syncMut.isPending ? "animate-spin" : ""}`} />
+            {syncMut.isPending ? "Syncing..." : "Sync All Customers"}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to delete all customers with 0 orders? This action cannot be undone.")) {
+                deleteZeroOrdersMut.mutate();
+              }
+            }}
+            disabled={deleteZeroOrdersMut.isPending}
+          >
+            {deleteZeroOrdersMut.isPending ? "Deleting..." : "Delete Zero Orders"}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="customers" className="space-y-4">
@@ -145,6 +222,52 @@ export default function CustomersPage() {
                   }
                   className="w-40"
                 />
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="limit" className="whitespace-nowrap">Per page:</Label>
+                  <Select value={limit.toString()} onValueChange={(value) => setLimit(parseInt(value, 10))}>
+                    <SelectTrigger id="limit" className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="20">20</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="sort_by" className="whitespace-nowrap">Sort by:</Label>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger id="sort_by" className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="updated_at">Updated Date</SelectItem>
+                      <SelectItem value="created_at">Created Date</SelectItem>
+                      <SelectItem value="name">Name</SelectItem>
+                      <SelectItem value="phone">Phone</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="total_orders">Total Orders</SelectItem>
+                      <SelectItem value="delivered_orders">Delivered Orders</SelectItem>
+                      <SelectItem value="delivery_rate">Delivery Rate</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="sort_order" className="whitespace-nowrap">Order:</Label>
+                  <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as "asc" | "desc")}>
+                    <SelectTrigger id="sort_order" className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="desc">Descending</SelectItem>
+                      <SelectItem value="asc">Ascending</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -162,7 +285,7 @@ export default function CustomersPage() {
             <Card>
               <CardContent className="p-0">
                 <DataTable
-                  columns={customersColumns}
+                  columns={getCustomersColumns(companyID)}
                   data={tableData}
                   searchColumn="customer.phone"
                   searchBar={false}
@@ -180,6 +303,9 @@ export default function CustomersPage() {
                   }
                   onPageChange={(newPage) => setPage(newPage + 1)}
                   currentPage={page - 1}
+                  selectedRows={selectedRows}
+                  setSelectedRows={setSelectedRows}
+                  getRowId={(row) => row.customer.phone}
                 />
               </CardContent>
             </Card>
