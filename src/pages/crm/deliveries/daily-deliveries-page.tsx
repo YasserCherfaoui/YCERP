@@ -8,15 +8,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { DailyDelivery, OrderDeliveryInfo } from "@/models/data/customer.model";
+import { DailyDelivery, OrderDeliveryInfo, CustomerDeliveryInfo } from "@/models/data/customer.model";
 import { getDailyDeliveries, getCustomer } from "@/services/customer-service";
 import { useQuery } from "@tanstack/react-query";
-import { Phone, Package, ChevronDown, ChevronUp, MapPin, CreditCard, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, ChevronDown, ChevronUp, MapPin, CreditCard, Calendar, ChevronLeft, ChevronRight, LayoutGrid, List, Table2, MessageSquare, Clock, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useParams } from "react-router-dom";
-import CreateReviewDialog from "@/pages/crm/reviews/create-review-dialog";
+import OrderReviewDialog from "@/components/feature-specific/deliveries/order-review-dialog";
 
 export default function DailyDeliveriesPage() {
   const { companyID } = useParams<{ companyID: string }>();
@@ -27,14 +36,16 @@ export default function DailyDeliveriesPage() {
   );
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
+  const [viewMode, setViewMode] = useState<"cards" | "table" | "list">("cards");
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedCustomerPhone, setSelectedCustomerPhone] = useState<string | undefined>();
   const [selectedOrderId, setSelectedOrderId] = useState<number | undefined>();
+  const [activeTab, setActiveTab] = useState<"waiting" | "done">("waiting");
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["daily-deliveries", companyId, date, page, limit],
-    queryFn: () => getDailyDeliveries(date, companyId, page, limit),
+    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab],
+    queryFn: () => getDailyDeliveries(date, companyId, page, limit, activeTab),
     enabled: !!companyId,
   });
 
@@ -48,21 +59,52 @@ export default function DailyDeliveriesPage() {
 
   const deliveryData: DailyDelivery | undefined = data?.data;
 
-  // Reset to page 1 when date changes
+  // Reset to page 1 when date or activeTab changes
   useEffect(() => {
     setPage(1);
-  }, [date]);
+  }, [date, activeTab]);
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end items-center gap-2">
-        <Input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="w-40"
-        />
-        <Button onClick={() => refetch()}>Refresh</Button>
+      <div className="flex justify-between items-center gap-2">
+        <div className="flex items-center gap-2">
+          <Input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-40"
+          />
+          <Button onClick={() => refetch()}>Refresh</Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">View:</span>
+          <div className="flex border rounded-md">
+            <Button
+              variant={viewMode === "cards" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("cards")}
+              className="rounded-r-none"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("table")}
+              className="rounded-none border-x"
+            >
+              <Table2 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+              className="rounded-l-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Stats Card */}
@@ -103,95 +145,86 @@ export default function DailyDeliveriesPage() {
       {isLoading ? (
         <div className="text-center py-8">Loading deliveries...</div>
       ) : (
-        <div className="space-y-4">
-          {deliveryData?.deliveries?.map((delivery, idx) => (
-            <Card key={idx}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-5 w-5" />
-                    {delivery.customer_name || delivery.customer_phone}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      window.location.href = `tel:${delivery.customer_phone}`;
-                    }}
-                  >
-                    Call
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground">
-                    Phone: {delivery.customer_phone}
-                  </div>
-                  <div className="text-sm font-semibold">
-                    Orders: {delivery.orders.length}
-                  </div>
-                  <div className="space-y-2">
-                    {delivery.orders.map((order) => {
-                      const isExpanded = expandedOrders.has(order.id);
-                      return (
-                        <div
-                          key={order.id}
-                          className="border rounded-lg overflow-hidden"
-                        >
-                          <div className="flex justify-between items-center p-3 bg-muted">
-                            <div className="flex-1">
-                              <div className="font-medium">Order #{order.order_number}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {format(new Date(order.delivered_at), "PPp")}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="text-right">
-                                <div className="font-semibold">{order.amount} DZD</div>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const newExpanded = new Set(expandedOrders);
-                                  if (isExpanded) {
-                                    newExpanded.delete(order.id);
-                                  } else {
-                                    newExpanded.add(order.id);
-                                  }
-                                  setExpandedOrders(newExpanded);
-                                }}
-                              >
-                                {isExpanded ? (
-                                  <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                  <ChevronDown className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                          {isExpanded && (
-                            <OrderDetails 
-                              order={order} 
-                              customerPhone={delivery.customer_phone} 
-                              companyID={companyID}
-                              onRecordReview={(phone, orderId) => {
-                                setSelectedCustomerPhone(phone);
-                                setSelectedOrderId(orderId);
-                                setReviewDialogOpen(true);
-                              }}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "waiting" | "done")} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="waiting" className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span>Waiting</span>
+            </TabsTrigger>
+            <TabsTrigger value="done" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              <span>Done</span>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="waiting" className="space-y-4">
+            {viewMode === "cards" && (
+              <CardsView
+                deliveries={deliveryData?.deliveries || []}
+                expandedOrders={expandedOrders}
+                setExpandedOrders={setExpandedOrders}
+                onReview={(phone, orderId) => {
+                  setSelectedCustomerPhone(phone);
+                  setSelectedOrderId(orderId);
+                  setReviewDialogOpen(true);
+                }}
+              />
+            )}
+            {viewMode === "table" && (
+              <TableView
+                deliveries={deliveryData?.deliveries || []}
+                onReview={(phone, orderId) => {
+                  setSelectedCustomerPhone(phone);
+                  setSelectedOrderId(orderId);
+                  setReviewDialogOpen(true);
+                }}
+              />
+            )}
+            {viewMode === "list" && (
+              <ListView
+                deliveries={deliveryData?.deliveries || []}
+                onReview={(phone, orderId) => {
+                  setSelectedCustomerPhone(phone);
+                  setSelectedOrderId(orderId);
+                  setReviewDialogOpen(true);
+                }}
+              />
+            )}
+          </TabsContent>
+          <TabsContent value="done" className="space-y-4">
+            {viewMode === "cards" && (
+              <CardsView
+                deliveries={deliveryData?.deliveries || []}
+                expandedOrders={expandedOrders}
+                setExpandedOrders={setExpandedOrders}
+                onReview={(phone, orderId) => {
+                  setSelectedCustomerPhone(phone);
+                  setSelectedOrderId(orderId);
+                  setReviewDialogOpen(true);
+                }}
+              />
+            )}
+            {viewMode === "table" && (
+              <TableView
+                deliveries={deliveryData?.deliveries || []}
+                onReview={(phone, orderId) => {
+                  setSelectedCustomerPhone(phone);
+                  setSelectedOrderId(orderId);
+                  setReviewDialogOpen(true);
+                }}
+              />
+            )}
+            {viewMode === "list" && (
+              <ListView
+                deliveries={deliveryData?.deliveries || []}
+                onReview={(phone, orderId) => {
+                  setSelectedCustomerPhone(phone);
+                  setSelectedOrderId(orderId);
+                  setReviewDialogOpen(true);
+                }}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
       )}
 
       {/* Pagination */}
@@ -244,12 +277,223 @@ export default function DailyDeliveriesPage() {
       )}
 
       {/* Review Dialog */}
-      <CreateReviewDialog
-        open={reviewDialogOpen}
-        onOpenChange={setReviewDialogOpen}
-        customerPhone={selectedCustomerPhone}
-        orderId={selectedOrderId}
-      />
+      {selectedCustomerPhone && selectedOrderId && (
+        <OrderReviewDialog
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          customerPhone={selectedCustomerPhone}
+          orderId={selectedOrderId}
+        />
+      )}
+    </div>
+  );
+}
+
+// Cards View Component
+function CardsView({
+  deliveries,
+  expandedOrders,
+  setExpandedOrders,
+  onReview,
+}: {
+  deliveries: CustomerDeliveryInfo[];
+  expandedOrders: Set<number>;
+  setExpandedOrders: (set: Set<number>) => void;
+  onReview: (phone: string, orderId: number) => void;
+}) {
+  return (
+    <div className="space-y-4">
+      {deliveries.map((delivery, idx) => (
+        <Card key={idx}>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {delivery.customer_name || delivery.customer_phone}
+              </div>
+              {delivery.orders.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    onReview(delivery.customer_phone, delivery.orders[0].id);
+                  }}
+                >
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Submit Review
+                </Button>
+              )}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground">
+                Phone: {delivery.customer_phone}
+              </div>
+              <div className="text-sm font-semibold">
+                Orders: {delivery.orders.length}
+              </div>
+              <div className="space-y-2">
+                {delivery.orders.map((order) => {
+                  const isExpanded = expandedOrders.has(order.id);
+                  return (
+                    <div
+                      key={order.id}
+                      className="border rounded-lg overflow-hidden"
+                    >
+                      <div className="flex justify-between items-center p-3 bg-muted">
+                        <div className="flex-1">
+                          <div className="font-medium">Order #{order.order_number}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {format(new Date(order.delivered_at), "PPp")}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <div className="font-semibold">{order.amount} DZD</div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newExpanded = new Set(expandedOrders);
+                              if (isExpanded) {
+                                newExpanded.delete(order.id);
+                              } else {
+                                newExpanded.add(order.id);
+                              }
+                              setExpandedOrders(newExpanded);
+                            }}
+                          >
+                            {isExpanded ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      {isExpanded && (
+                        <OrderDetails
+                          order={order}
+                          customerPhone={delivery.customer_phone}
+                          onRecordReview={onReview}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+// Table View Component
+function TableView({
+  deliveries,
+  onReview,
+}: {
+  deliveries: CustomerDeliveryInfo[];
+  onReview: (phone: string, orderId: number) => void;
+}) {
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Customer</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Orders</TableHead>
+              <TableHead>Total Amount</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {deliveries.map((delivery, idx) => {
+              const totalAmount = delivery.orders.reduce(
+                (sum, order) => sum + order.amount,
+                0
+              );
+              return (
+                <TableRow key={idx}>
+                  <TableCell className="font-medium">
+                    {delivery.customer_name || "-"}
+                  </TableCell>
+                  <TableCell>{delivery.customer_phone}</TableCell>
+                  <TableCell>{delivery.orders.length}</TableCell>
+                  <TableCell>{totalAmount} DZD</TableCell>
+                  <TableCell>
+                    {delivery.orders.length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          onReview(delivery.customer_phone, delivery.orders[0].id);
+                        }}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Review
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
+
+// List View Component
+function ListView({
+  deliveries,
+  onReview,
+}: {
+  deliveries: CustomerDeliveryInfo[];
+  onReview: (phone: string, orderId: number) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      {deliveries.map((delivery, idx) => {
+        const totalAmount = delivery.orders.reduce(
+          (sum, order) => sum + order.amount,
+          0
+        );
+        return (
+          <Card key={idx}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="font-medium">
+                    {delivery.customer_name || delivery.customer_phone}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {delivery.customer_phone} • {delivery.orders.length} orders • {totalAmount} DZD
+                  </div>
+                </div>
+                {delivery.orders.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      onReview(delivery.customer_phone, delivery.orders[0].id);
+                    }}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Review
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }
@@ -257,12 +501,10 @@ export default function DailyDeliveriesPage() {
 function OrderDetails({ 
   order, 
   customerPhone, 
-  companyID,
   onRecordReview 
 }: { 
   order: OrderDeliveryInfo; 
   customerPhone: string; 
-  companyID?: string;
   onRecordReview: (phone: string, orderId: number) => void;
 }) {
   return (

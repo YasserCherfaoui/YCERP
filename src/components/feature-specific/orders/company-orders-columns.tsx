@@ -192,9 +192,14 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
       const wilaya = row.original.shipping_city;
       const wilayaName = cities.find((city) => city.key == wilaya)?.label;
       // if wilayaName is empty insert shipping_address_1
-      if (!wilayaName) {
+      if (!wilaya) {
         return (
           <div className="text-center">{row.original.shipping_address_1}</div>
+        );
+      }
+      if (!wilayaName) {
+        return (
+          <div className="text-center">{wilaya}</div>
         );
       }
       return <div className="text-center">{wilayaName}</div>;

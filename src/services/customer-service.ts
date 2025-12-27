@@ -102,13 +102,15 @@ export const getDailyDeliveries = async (
   date?: string,
   companyId?: number,
   page?: number,
-  limit?: number
+  limit?: number,
+  reviewStatus?: "waiting" | "done"
 ): Promise<APIResponse<DailyDelivery>> => {
   const queryParams = new URLSearchParams();
   if (date) queryParams.append("date", date);
   if (companyId) queryParams.append("company_id", companyId.toString());
   if (page) queryParams.append("page", page.toString());
   if (limit) queryParams.append("limit", limit.toString());
+  if (reviewStatus) queryParams.append("review_status", reviewStatus);
   const queryString = queryParams.toString();
   return apiFetch(`/customers/deliveries/today${queryString ? `?${queryString}` : ""}`);
 };

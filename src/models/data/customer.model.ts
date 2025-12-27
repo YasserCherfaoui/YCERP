@@ -64,6 +64,7 @@ export interface OrderDeliveryInfo {
   payment_method_title?: string;
   date_created?: string | Date;
   line_items?: OrderLineItemInfo[];
+  has_review?: boolean;
 }
 
 export interface OrderLineItemInfo {
