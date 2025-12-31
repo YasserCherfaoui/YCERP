@@ -53,7 +53,7 @@ export default function () {
       )}
       
       {/* Franchise cards */}
-      <div className="grid grid-cols-3 gap-2 p-4 max-w-6xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-4 max-w-6xl">
         {data?.data?.map((franchise, index) => (
           <FranchiseCard 
             key={index} 
