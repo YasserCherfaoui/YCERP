@@ -1,7 +1,11 @@
 import { Review } from "./review.model";
+import { Franchise } from "./franchise.model";
 
 export interface Customer {
   phone: string;
+  company_id: number;
+  franchise_id?: number | null;
+  franchise?: Franchise | null;
   birthday?: string | Date | null;
   first_name: string;
   last_name: string;
@@ -20,6 +24,8 @@ export interface Customer {
 
 export interface CustomerStats {
   total_orders: number;
+  total_sales: number;
+  total_sales_count: number;
   delivered_orders: number;
   delivery_rate: number;
   last_order_date?: string | Date | null;

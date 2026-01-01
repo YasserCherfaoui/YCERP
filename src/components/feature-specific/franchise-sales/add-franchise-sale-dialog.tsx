@@ -58,6 +58,7 @@ export default function () {
       discount: 0,
       sale_type: "franchise",
       phone_number: "",
+      rating: undefined,
     },
   });
   const { data: inventory } = useQuery({
@@ -289,6 +290,30 @@ export default function () {
                         const value = e.target.value;
                         form.setValue("phone_number", value);
                       }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex gap-2 items-center text-lg">Rating (1-5):</div>
+            <FormField
+              name={`rating`}
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="5"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        form.setValue("rating", value ? parseInt(value) : undefined);
+                      }}
+                      placeholder="Optional: Rate customer experience (1-5)"
                     />
                   </FormControl>
                   <FormMessage />

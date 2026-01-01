@@ -15,6 +15,7 @@ export const createSaleSchema = z.object({
     discount: z.number(),
     sale_type: z.string(),
     phone_number: z.string().optional(),
+    rating: z.number().min(1).max(5).optional().nullable(),
 })
 
 export type CreateSaleSchema = z.infer<typeof createSaleSchema>;
