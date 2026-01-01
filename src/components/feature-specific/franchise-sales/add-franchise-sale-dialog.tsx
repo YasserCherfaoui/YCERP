@@ -25,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
@@ -218,16 +219,29 @@ export default function () {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {saleItems.map((saleItem, idx) => (
+                  {saleItems.map((saleItem, idx) => {
+                    const inventoryItem = inventory?.data?.items.find(
+                      (s) =>
+                        s.product_variant_id ==
+                        saleItem.product_variant_id
+                    );
+                    const product = inventoryItem?.product;
+                    const hasPromo = product?.promo_price != null && product.promo_price > 0;
+                    
+                    return (
                     <TableRow key={idx}>
                       <TableCell>
-                        {
-                          inventory?.data?.items.find(
-                            (s) =>
-                              s.product_variant_id ==
-                              saleItem.product_variant_id
-                          )?.name
-                        }
+                        <div className="flex flex-col gap-1">
+                          <span>{inventoryItem?.name}</span>
+                          {hasPromo && (
+                            <Badge variant="destructive" className="w-fit">
+                              Promo: {new Intl.NumberFormat("en-DZ", {
+                                style: "currency",
+                                currency: "DZD",
+                              }).format(product.promo_price ?? 0)}
+                            </Badge>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <FormField
@@ -272,7 +286,8 @@ export default function () {
                         />
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                  })}
                 </TableBody>
               </Table>
             </ScrollArea>
