@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 export type CustomerTableRow = {
   customer: Customer;
   delivery_rate: number;
+  sales_count?: number;
 };
 
 export const getCustomersColumns = (companyID?: string, franchiseId?: string): ColumnDef<CustomerTableRow>[] => {
@@ -52,24 +53,50 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
         );
       },
     },
-    // Total Sales for franchise, Total Orders for regular customers
-    {
-      accessorKey: "customer.total_orders",
-      header: isFranchise ? "Total Sales" : "Total Orders",
-      cell: ({ row }) => {
-        const totalOrders = row.original.customer.total_orders ?? 0;
-        return (
-          <div className="flex items-center gap-2">
-            {isFranchise ? (
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-            ) : (
+    // For franchise: Show WooCommerce Orders and Franchise Sales separately
+    // For non-franchise: Show Total Orders
+    ...(isFranchise ? [
+      {
+        accessorKey: "customer.total_orders",
+        header: "WooCommerce Orders",
+        cell: ({ row }) => {
+          const totalOrders = row.original.customer.total_orders ?? 0;
+          return (
+            <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-muted-foreground" />
-            )}
-            <span className="font-medium">{totalOrders}</span>
-          </div>
-        );
-      },
-    },
+              <span className="font-medium">{totalOrders}</span>
+            </div>
+          );
+        },
+      } as ColumnDef<CustomerTableRow>,
+      {
+        accessorKey: "sales_count",
+        header: "Franchise Sales",
+        cell: ({ row }) => {
+          const salesCount = row.original.sales_count ?? 0;
+          return (
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{salesCount}</span>
+            </div>
+          );
+        },
+      } as ColumnDef<CustomerTableRow>,
+    ] : [
+      {
+        accessorKey: "customer.total_orders",
+        header: "Total Orders",
+        cell: ({ row }) => {
+          const totalOrders = row.original.customer.total_orders ?? 0;
+          return (
+            <div className="flex items-center gap-2">
+              <Package className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{totalOrders}</span>
+            </div>
+          );
+        },
+      } as ColumnDef<CustomerTableRow>,
+    ]),
     // Only show delivered orders and delivery rate for non-franchise customers
     ...(isFranchise ? [] : [
       {

@@ -193,7 +193,7 @@ export default function CustomerDetailPage() {
             <CardTitle>Statistics</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {stats && (
+            {stats ? (
               <>
                 {/* Delivery Rate - Show for company CRM routes */}
                 {!isFranchiseRoute && (
@@ -219,11 +219,11 @@ export default function CustomerDetailPage() {
                   </div>
                 )}
 
-                {/* Sales Statistics - Show for franchise routes OR if customer has franchise_id */}
-                {(isFranchiseRoute || customer.franchise_id) && stats.total_sales_count > 0 && (
+                {/* Sales Statistics - Always show for franchise routes */}
+                {isFranchiseRoute && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-xl font-semibold">{stats.total_sales_count}</div>
+                      <div className="text-xl font-semibold">{stats.total_sales_count ?? 0}</div>
                       <div className="text-sm text-muted-foreground">Sales Count</div>
                     </div>
                     <div>
@@ -233,9 +233,38 @@ export default function CustomerDetailPage() {
                           currency: "DZD",
                           minimumFractionDigits: 0,
                           maximumFractionDigits: 0,
-                        }).format(stats.total_sales)}
+                        }).format(stats.total_sales ?? 0)}
                       </div>
                       <div className="text-sm text-muted-foreground">Total Sales</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* WooCommerce Orders for franchise customers */}
+                {isFranchiseRoute && stats.total_orders > 0 && (
+                  <div>
+                    <div className="text-lg font-semibold">{stats.total_orders}</div>
+                    <div className="text-sm text-muted-foreground">WooCommerce Orders</div>
+                  </div>
+                )}
+
+                {/* Sales Statistics - Show for company CRM routes if customer has franchise_id */}
+                {!isFranchiseRoute && customer.franchise_id && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xl font-semibold">{stats.total_sales_count ?? 0}</div>
+                      <div className="text-sm text-muted-foreground">Franchise Sales Count</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-semibold">
+                        {new Intl.NumberFormat("en-DZ", {
+                          style: "currency",
+                          currency: "DZD",
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(stats.total_sales ?? 0)}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Franchise Total Sales</div>
                     </div>
                   </div>
                 )}
@@ -280,13 +309,17 @@ export default function CustomerDetailPage() {
                   </div>
                 )}
               </>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                Loading statistics...
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Orders - Show for company CRM routes */}
-      {!isFranchiseRoute && (
+      {/* Recent Orders - Show for company CRM routes, or for franchise routes if customer has orders */}
+      {(!isFranchiseRoute || (data?.data?.recent_orders && data.data.recent_orders.length > 0)) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -324,8 +357,8 @@ export default function CustomerDetailPage() {
         </Card>
       )}
 
-      {/* Franchise Sales - Show for company CRM routes when customer has franchise_id, or for franchise routes */}
-      {(isFranchiseRoute || customer.franchise_id) && data?.data?.franchise_sales && (
+      {/* Franchise Sales - Always show for franchise routes, or for company CRM routes when customer has franchise_id */}
+      {(isFranchiseRoute || customer.franchise_id) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -334,7 +367,7 @@ export default function CustomerDetailPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {data.data.franchise_sales.length > 0 ? (
+            {data?.data?.franchise_sales && data.data.franchise_sales.length > 0 ? (
               <div className="space-y-4">
                 {data.data.franchise_sales.map((sale: any) => (
                   <div

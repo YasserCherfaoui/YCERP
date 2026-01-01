@@ -118,9 +118,10 @@ export default function FranchiseCustomersPage() {
 
   // Transform data for table
   const tableData: CustomerTableRow[] =
-    data?.data?.customers?.map((item: { customer: Customer; delivery_rate: number }) => ({
+    data?.data?.customers?.map((item: { customer: Customer; delivery_rate: number; sales_count?: number }) => ({
       customer: item.customer,
       delivery_rate: item.delivery_rate,
+      sales_count: item.sales_count,
     })) || [];
 
   return (
