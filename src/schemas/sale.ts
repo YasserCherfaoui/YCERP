@@ -3,6 +3,9 @@ import { z } from "zod";
 
 const saleItemSchema = z.object({
     product_variant_id: z.number(),
+    price: z.number().min(0, {
+        message: "Price must be greater than or equal to 0"
+    }),
     discount: z.number(),
     quantity: z.number().min(1, {
         message: "Quantity must be greater than 0"

@@ -28,6 +28,7 @@ export interface SaleItem {
     product?: Product;
     product_variant_id: number;
     product_variant: ProductVariant;
+    price: number;
     discount: number;
     quantity: number;
 }
@@ -35,6 +36,7 @@ export interface SaleItem {
 export interface SaleItemEntity {
     product_variant_id: number;
     variant_qr_code: string;
+    price: number;
     quantity: number;
     discount:number;
 } 

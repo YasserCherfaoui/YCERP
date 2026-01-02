@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { getFranchisePrice } from "@/utils/pricing-utils";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
@@ -79,6 +80,7 @@ export default function () {
       toast,
       setInput,
       barcodes,
+      getDefaultPrice: (item) => item.product ? getFranchisePrice(item.product, franchise) : 0,
     });
 
   useEffect(() => {
@@ -116,6 +118,7 @@ export default function () {
       "sale_items",
       saleItems.map((item) => ({
         product_variant_id: item.product_variant_id,
+        price: item.price,
         quantity: item.quantity,
         discount: item.discount,
       }))
@@ -132,6 +135,20 @@ export default function () {
 
     form.setValue(
       `sale_items.${index}.quantity`,
+      Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
+    );
+  }
+  function handlePriceChange(event: ChangeEvent<HTMLInputElement>): void {
+    const { name, value } = event.target;
+    const index = parseInt(name.split(".")[1]);
+    const updatedSaleItems = [...saleItems];
+    updatedSaleItems[index].price = Number.isNaN(parseInt(value))
+      ? 0
+      : parseInt(value);
+    setSaleItems(updatedSaleItems);
+
+    form.setValue(
+      `sale_items.${index}.price`,
       Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
     );
   }
@@ -214,6 +231,7 @@ export default function () {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Product</TableHead>
+                    <TableHead>Price</TableHead>
                     <TableHead>Quantity</TableHead>
                     <TableHead>Discount</TableHead>
                   </TableRow>
@@ -242,6 +260,28 @@ export default function () {
                             </Badge>
                           )}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          name={`sale_items.${idx}.price`}
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  className="w-24"
+                                  type="number"
+                                  {...field}
+                                  onChange={handlePriceChange}
+                                  value={
+                                    Number.isNaN(field.value) ? 0 : field.value
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </TableCell>
                       <TableCell>
                         <FormField
@@ -345,10 +385,7 @@ export default function () {
                   saleItems.reduce(
                     (prev, curr) =>
                       prev +
-                      ((inventory?.data?.items.find(
-                        (s) => s.product_variant_id == curr.product_variant_id
-                      )?.product?.price ?? 0) -
-                        curr.discount) *
+                      (curr.price - curr.discount) *
                         curr.quantity,
                     0
                   )
