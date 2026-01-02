@@ -140,16 +140,34 @@ export default function () {
   function handlePriceChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
     const index = parseInt(name.split(".")[1]);
+    const saleItem = saleItems[index];
+    const inventoryItem = inventory?.data?.items.find(
+      (s) => s.product_variant_id == saleItem.product_variant_id
+    );
+    const product = inventoryItem?.product;
+    const maxPrice = product?.price ?? 0;
+    const newPrice = Number.isNaN(parseInt(value)) ? 0 : parseInt(value);
+    
     const updatedSaleItems = [...saleItems];
-    updatedSaleItems[index].price = Number.isNaN(parseInt(value))
-      ? 0
-      : parseInt(value);
+    updatedSaleItems[index].price = newPrice;
     setSaleItems(updatedSaleItems);
 
     form.setValue(
       `sale_items.${index}.price`,
-      Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
+      newPrice,
+      { shouldValidate: true }
     );
+    
+    // Validate price doesn't exceed product price
+    if (newPrice > maxPrice) {
+      form.setError(`sale_items.${index}.price`, {
+        type: "manual",
+        message: `Price cannot exceed product price (${maxPrice} DZD)`,
+      });
+    } else {
+      // Clear error if validation passes
+      form.clearErrors(`sale_items.${index}.price`);
+    }
   }
   function handleDiscountChange(event: ChangeEvent<HTMLInputElement>): void {
     const { name, value } = event.target;
@@ -196,6 +214,33 @@ export default function () {
     },
   });
   const handleCreateSale = (data: CreateSaleSchema) => {
+    // Validate all prices don't exceed product prices
+    let hasInvalidPrice = false;
+    data.sale_items.forEach((item, idx) => {
+      const inventoryItem = inventory?.data?.items.find(
+        (s) => s.product_variant_id == item.product_variant_id
+      );
+      const product = inventoryItem?.product;
+      const maxPrice = product?.price ?? 0;
+      
+      if (item.price > maxPrice) {
+        form.setError(`sale_items.${idx}.price`, {
+          type: "manual",
+          message: `Price cannot exceed product price (${maxPrice} DZD)`,
+        });
+        hasInvalidPrice = true;
+      }
+    });
+    
+    if (hasInvalidPrice) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix price errors before submitting",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     createFranchiseSaleMutation(data);
   };
   return (
@@ -275,6 +320,7 @@ export default function () {
                                   value={
                                     Number.isNaN(field.value) ? 0 : field.value
                                   }
+                                  max={product?.price ?? 0}
                                 />
                               </FormControl>
                               <FormMessage />
