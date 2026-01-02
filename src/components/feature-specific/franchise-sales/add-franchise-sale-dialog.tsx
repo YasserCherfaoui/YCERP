@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,8 +26,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { getFranchisePrice } from "@/utils/pricing-utils";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
@@ -80,7 +79,7 @@ export default function () {
       toast,
       setInput,
       barcodes,
-      getDefaultPrice: (item) => item.product ? getFranchisePrice(item.product, franchise) : 0,
+      getDefaultPrice: (item) => item.product ? item.product.price : 0,
     });
 
   useEffect(() => {
