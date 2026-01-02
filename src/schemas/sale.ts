@@ -3,6 +3,9 @@ import { z } from "zod";
 
 const saleItemSchema = z.object({
     product_variant_id: z.number(),
+    price: z.number().min(0, {
+        message: "Price must be greater than or equal to 0"
+    }),
     discount: z.number(),
     quantity: z.number().min(1, {
         message: "Quantity must be greater than 0"
@@ -15,6 +18,7 @@ export const createSaleSchema = z.object({
     discount: z.number(),
     sale_type: z.string(),
     phone_number: z.string().optional(),
+    rating: z.number().min(1).max(5).optional().nullable(),
 })
 
 export type CreateSaleSchema = z.infer<typeof createSaleSchema>;

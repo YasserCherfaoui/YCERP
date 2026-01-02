@@ -39,6 +39,7 @@ export default function MyForm({ product }: Props) {
       first_price: product.first_price,
       franchise_price: product.franchise_price,
       price: product.price,
+      promo_price: product.promo_price,
       description: product.description,
       is_woo_picture: product.is_woo_picture,
       is_active: product.is_active,
@@ -182,6 +183,31 @@ export default function MyForm({ product }: Props) {
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
                         value={Number(field.value)}
+                      />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="col-span-3">
+              <FormField
+                control={form.control}
+                name="promo_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Promo Price (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="2500"
+                        type="number"
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === "" ? undefined : Number(value));
+                        }}
                       />
                     </FormControl>
 

@@ -81,6 +81,7 @@ import DeliveryListPage from "@/pages/delivery/delivery-list-page";
 import DeliveryLoginPage from "@/pages/delivery/delivery-login-page";
 import FeaturesPage from "@/pages/features";
 import FranchiseLoginPage from "@/pages/franchise/auth/franchise-login-page";
+import FranchiseCustomersPage from "@/pages/franchise/crm/customers-page";
 import FranchiseBillsPage from "@/pages/franchise/dashboard/franchise-bills-page";
 import FranchiseExpensesPage from "@/pages/franchise/dashboard/franchise-expenses-page";
 import FranchiseExpensesReportsPage from "@/pages/franchise/dashboard/franchise-expenses-reports-page";
@@ -131,6 +132,10 @@ export default function AppRouter() {
             <Route path="products" element={<FranchiseProductsPage />} />
             <Route path="missing-variants" element={<FranchiseMissingVariantsPage />} />
             <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
+            <Route path="crm">
+              <Route path="customers" element={<FranchiseCustomersPage />} />
+              <Route path="customers/:phone" element={<CustomerDetailPage />} />
+            </Route>
             <Route path="expenses">
               <Route index element={<FranchiseExpensesPage />} />
               <Route path="reports" element={<FranchiseExpensesReportsPage />} />

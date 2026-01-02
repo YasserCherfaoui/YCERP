@@ -174,6 +174,24 @@ export default function () {
                 </FormItem>
               )}
             />
+            <FormField
+              name="promo_price"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Promo Price (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           <FormField
             name="description"

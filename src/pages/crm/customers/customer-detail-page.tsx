@@ -1,3 +1,4 @@
+import { RootState } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -5,15 +6,24 @@ import { Customer, CustomerStats } from "@/models/data/customer.model";
 import { getCustomer, getCustomerStats, updateCustomer } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Phone, Mail, Calendar, Star, Package, ArrowLeft } from "lucide-react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSelector } from "react-redux";
 
 export default function CustomerDetailPage() {
-  const { phone, companyID } = useParams<{ phone: string; companyID: string }>();
-  const companyId = companyID ? parseInt(companyID, 10) : undefined;
+  const { phone, companyID, franchiseId } = useParams<{ phone: string; companyID?: string; franchiseId?: string }>();
+  const location = useLocation();
+  const franchise = useSelector((state: RootState) => state.franchise.franchise);
+  
+  // Get company and franchise IDs - prefer URL params, fall back to Redux (for franchise routes)
+  const companyId = companyID ? parseInt(companyID, 10) : franchise?.company_id;
+  const franchiseIdNum = franchiseId ? parseInt(franchiseId, 10) : (franchise?.ID || undefined);
+  
+  // Determine if we're on a franchise route
+  const isFranchiseRoute = location.pathname.startsWith("/myFranchise");
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -21,15 +31,15 @@ export default function CustomerDetailPage() {
   const [birthday, setBirthday] = useState<string>("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["customer", companyId, phone],
-    queryFn: () => getCustomer(phone!, companyId),
+    queryKey: ["customer", companyId, franchiseIdNum, phone],
+    queryFn: () => getCustomer(phone!, companyId, franchiseIdNum),
     enabled: !!phone && !!companyId,
   });
 
   const { data: statsData } = useQuery({
-    queryKey: ["customer-stats", companyId, phone],
-    queryFn: () => getCustomerStats(phone!, companyId),
-    enabled: !!phone && !!companyId,
+    queryKey: ["customer-stats", companyId, franchiseIdNum, phone],
+    queryFn: () => getCustomerStats(phone!, companyId, franchiseIdNum),
+    enabled: !!phone && (!!companyId || !!franchiseIdNum),
   });
 
   const updateMut = useMutation({
@@ -67,7 +77,7 @@ export default function CustomerDetailPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <Button variant="outline" onClick={() => navigate(isFranchiseRoute ? "/myFranchise/crm/customers" : -1)}>
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back
           </Button>
@@ -166,6 +176,14 @@ export default function CustomerDetailPage() {
                 </div>
               </div>
             )}
+            {customer.franchise && (
+              <div>
+                <div className="text-sm font-semibold">Franchise</div>
+                <div className="text-sm text-muted-foreground">
+                  {customer.franchise.name}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -175,72 +193,245 @@ export default function CustomerDetailPage() {
             <CardTitle>Statistics</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {stats && (
+            {stats ? (
               <>
-                <div>
-                  <div className="text-2xl font-bold">
-                    {stats.delivery_rate.toFixed(1)}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Delivery Rate</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+                {/* Delivery Rate - Show for company CRM routes */}
+                {!isFranchiseRoute && (
                   <div>
-                    <div className="text-xl font-semibold">{stats.total_orders}</div>
-                    <div className="text-sm text-muted-foreground">Total Orders</div>
+                    <div className="text-2xl font-bold">
+                      {stats.delivery_rate.toFixed(1)}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">Delivery Rate</div>
                   </div>
+                )}
+                
+                {/* Order Statistics - Show for company CRM routes */}
+                {!isFranchiseRoute && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xl font-semibold">{stats.total_orders}</div>
+                      <div className="text-sm text-muted-foreground">Total Orders</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-semibold">{stats.delivered_orders}</div>
+                      <div className="text-sm text-muted-foreground">Delivered</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sales Statistics - Always show for franchise routes */}
+                {isFranchiseRoute && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xl font-semibold">{stats.total_sales_count ?? 0}</div>
+                      <div className="text-sm text-muted-foreground">Sales Count</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-semibold">
+                        {new Intl.NumberFormat("en-DZ", {
+                          style: "currency",
+                          currency: "DZD",
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(stats.total_sales ?? 0)}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Total Sales</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* WooCommerce Orders for franchise customers */}
+                {isFranchiseRoute && stats.total_orders > 0 && (
                   <div>
-                    <div className="text-xl font-semibold">{stats.delivered_orders}</div>
-                    <div className="text-sm text-muted-foreground">Delivered</div>
+                    <div className="text-lg font-semibold">{stats.total_orders}</div>
+                    <div className="text-sm text-muted-foreground">WooCommerce Orders</div>
                   </div>
-                </div>
-                <div>
-                  <div className="text-lg font-semibold">
-                    {stats.average_order_value.toFixed(0)} DZD
+                )}
+
+                {/* Sales Statistics - Show for company CRM routes if customer has franchise_id */}
+                {!isFranchiseRoute && customer.franchise_id && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-xl font-semibold">{stats.total_sales_count ?? 0}</div>
+                      <div className="text-sm text-muted-foreground">Franchise Sales Count</div>
+                    </div>
+                    <div>
+                      <div className="text-xl font-semibold">
+                        {new Intl.NumberFormat("en-DZ", {
+                          style: "currency",
+                          currency: "DZD",
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(stats.total_sales ?? 0)}
+                      </div>
+                      <div className="text-sm text-muted-foreground">Franchise Total Sales</div>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">Avg Order Value</div>
-                </div>
+                )}
+
+                {/* Average Order Value - Show for company CRM routes */}
+                {!isFranchiseRoute && (
+                  <div>
+                    <div className="text-lg font-semibold">
+                      {stats.average_order_value.toFixed(0)} DZD
+                    </div>
+                    <div className="text-sm text-muted-foreground">Avg Order Value</div>
+                  </div>
+                )}
+
+                {/* Additional date stats for company CRM routes */}
+                {!isFranchiseRoute && (
+                  <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    {stats.first_order_date && (
+                      <div>
+                        <div className="text-sm font-semibold">
+                          {new Date(stats.first_order_date).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-muted-foreground">First Order</div>
+                      </div>
+                    )}
+                    {stats.last_order_date && (
+                      <div>
+                        <div className="text-sm font-semibold">
+                          {new Date(stats.last_order_date).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Last Order</div>
+                      </div>
+                    )}
+                    {stats.last_delivered_date && (
+                      <div>
+                        <div className="text-sm font-semibold">
+                          {new Date(stats.last_delivered_date).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Last Delivered</div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                Loading statistics...
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Orders */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Recent Orders
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {data?.data?.recent_orders?.length > 0 ? (
-            <div className="space-y-2">
-              {data.data.recent_orders.map((order: any) => (
-                <div
-                  key={order.id}
-                  className="flex justify-between items-center p-2 border rounded"
-                >
-                  <div>
-                    <div className="font-medium">Order #{order.number}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString()}
+      {/* Recent Orders - Show for company CRM routes, or for franchise routes if customer has orders */}
+      {(!isFranchiseRoute || (data?.data?.recent_orders && data.data.recent_orders.length > 0)) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Recent WooCommerce Orders
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data?.data?.recent_orders && data.data.recent_orders.length > 0 ? (
+              <div className="space-y-2">
+                {data.data.recent_orders.map((order: any) => (
+                  <div
+                    key={order.id}
+                    className="flex justify-between items-center p-2 border rounded"
+                  >
+                    <div>
+                      <div className="font-medium">Order #{order.number}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold">{order.amount} DZD</div>
+                      <div className="text-sm text-muted-foreground">{order.order_status}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-semibold">{order.amount} DZD</div>
-                    <div className="text-sm text-muted-foreground">{order.order_status}</div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                No recent orders
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Franchise Sales - Always show for franchise routes, or for company CRM routes when customer has franchise_id */}
+      {(isFranchiseRoute || customer.franchise_id) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {isFranchiseRoute ? "Sales" : "Franchise Sales"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {data?.data?.franchise_sales && data.data.franchise_sales.length > 0 ? (
+              <div className="space-y-4">
+                {data.data.franchise_sales.map((sale: any) => (
+                  <div
+                    key={sale.ID}
+                    className="border rounded p-4 space-y-2"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-medium">Sale #{sale.ID}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {new Date(sale.CreatedAt).toLocaleDateString()}
+                        </div>
+                        {sale.rating && (
+                          <div className="flex items-center gap-1 mt-1">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`h-3 w-3 ${
+                                  i < sale.rating
+                                    ? "fill-yellow-400 text-yellow-400"
+                                    : "text-gray-300"
+                                }`}
+                              />
+                            ))}
+                            <span className="text-xs text-muted-foreground ml-1">
+                              {sale.rating}/5
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">{sale.total} DZD</div>
+                        <div className="text-sm text-muted-foreground">
+                          {sale.sale_items?.length || 0} items
+                        </div>
+                      </div>
+                    </div>
+                    {/* Show product variants (qr_codes) in sale items */}
+                    {sale.sale_items && sale.sale_items.length > 0 && (
+                      <div className="mt-2 pt-2 border-t">
+                        <div className="text-sm font-semibold mb-1">Products:</div>
+                        <div className="space-y-1">
+                          {sale.sale_items.map((item: any, idx: number) => (
+                            <div key={idx} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                {item.product_variant?.qr_code || `Variant ${item.product_variant_id}`}
+                              </span>
+                              <span className="font-medium">Qty: {item.quantity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-4 text-muted-foreground">
-              No recent orders
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                No sales found
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Reviews */}
       <Card>

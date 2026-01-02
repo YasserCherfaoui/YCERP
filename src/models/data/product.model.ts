@@ -9,6 +9,7 @@ export interface Product {
     franchise_price: number;
     vip_franchise_price?: number;
     price: number;
+    promo_price?: number;
     description: string;
     company_id: number;
     is_woo_picture: boolean;

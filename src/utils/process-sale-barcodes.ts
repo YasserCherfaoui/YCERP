@@ -12,6 +12,7 @@ interface Props {
     toast: LittleToast;
     setInput: React.Dispatch<React.SetStateAction<string>>;
     barcodes: string[];
+    getDefaultPrice?: (item: any) => number;
 }
 
 export const processSaleBarcode = (
@@ -22,7 +23,8 @@ export const processSaleBarcode = (
         setSaleItems,
         toast,
         setInput,
-        barcodes
+        barcodes,
+        getDefaultPrice
     }: Props
 ) => {
     if (barcodes.includes(input)) {
@@ -38,11 +40,13 @@ export const processSaleBarcode = (
                 updatedSaleItems[existingItemIndex].quantity += 1;
                 setSaleItems(updatedSaleItems);
             } else {
+                const defaultPrice = getDefaultPrice ? getDefaultPrice(item) : (item.product?.price ?? 0);
                 setSaleItems([
                     ...saleItems,
                     {
                         product_variant_id: item.product_variant?.ID ?? 0,
                         variant_qr_code: input,
+                        price: defaultPrice,
                         quantity: 1,
                         discount: 0,
                     },

@@ -424,3 +424,21 @@ export const downloadAndPrintFranchisePDF = async (saleID: number): Promise<void
         throw new Error("Failed to open print window.");
     }
 }
+
+export const getFranchiseAdministratorToken = async (franchiseID: number): Promise<APIResponse<{ token: string; administrator: { id: number; email: string; full_name: string; franchise_id: number } }>> => {
+    const response = await fetch(`${baseUrl}/franchises/${franchiseID}/administrator/token`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise administrator token.");
+    }
+
+    const apiResponse: APIResponse<{ token: string; administrator: { id: number; email: string; full_name: string; franchise_id: number } }> = await response.json();
+    return apiResponse;
+}

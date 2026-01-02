@@ -25,6 +25,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { getFranchisePrice } from "@/utils/pricing-utils";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
@@ -58,6 +60,7 @@ export default function () {
       discount: 0,
       sale_type: "franchise",
       phone_number: "",
+      rating: undefined,
     },
   });
   const { data: inventory } = useQuery({
@@ -77,6 +80,7 @@ export default function () {
       toast,
       setInput,
       barcodes,
+      getDefaultPrice: (item) => item.product ? getFranchisePrice(item.product, franchise) : 0,
     });
 
   useEffect(() => {
@@ -114,6 +118,7 @@ export default function () {
       "sale_items",
       saleItems.map((item) => ({
         product_variant_id: item.product_variant_id,
+        price: item.price,
         quantity: item.quantity,
         discount: item.discount,
       }))
@@ -130,6 +135,20 @@ export default function () {
 
     form.setValue(
       `sale_items.${index}.quantity`,
+      Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
+    );
+  }
+  function handlePriceChange(event: ChangeEvent<HTMLInputElement>): void {
+    const { name, value } = event.target;
+    const index = parseInt(name.split(".")[1]);
+    const updatedSaleItems = [...saleItems];
+    updatedSaleItems[index].price = Number.isNaN(parseInt(value))
+      ? 0
+      : parseInt(value);
+    setSaleItems(updatedSaleItems);
+
+    form.setValue(
+      `sale_items.${index}.price`,
       Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
     );
   }
@@ -212,21 +231,57 @@ export default function () {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Product</TableHead>
+                    <TableHead>Price</TableHead>
                     <TableHead>Quantity</TableHead>
                     <TableHead>Discount</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {saleItems.map((saleItem, idx) => (
+                  {saleItems.map((saleItem, idx) => {
+                    const inventoryItem = inventory?.data?.items.find(
+                      (s) =>
+                        s.product_variant_id ==
+                        saleItem.product_variant_id
+                    );
+                    const product = inventoryItem?.product;
+                    const hasPromo = product?.promo_price != null && product.promo_price > 0;
+                    
+                    return (
                     <TableRow key={idx}>
                       <TableCell>
-                        {
-                          inventory?.data?.items.find(
-                            (s) =>
-                              s.product_variant_id ==
-                              saleItem.product_variant_id
-                          )?.name
-                        }
+                        <div className="flex flex-col gap-1">
+                          <span>{inventoryItem?.name}</span>
+                          {hasPromo && (
+                            <Badge variant="destructive" className="w-fit">
+                              Promo: {new Intl.NumberFormat("en-DZ", {
+                                style: "currency",
+                                currency: "DZD",
+                              }).format(product.promo_price ?? 0)}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <FormField
+                          name={`sale_items.${idx}.price`}
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  className="w-24"
+                                  type="number"
+                                  {...field}
+                                  onChange={handlePriceChange}
+                                  value={
+                                    Number.isNaN(field.value) ? 0 : field.value
+                                  }
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </TableCell>
                       <TableCell>
                         <FormField
@@ -271,7 +326,8 @@ export default function () {
                         />
                       </TableCell>
                     </TableRow>
-                  ))}
+                  );
+                  })}
                 </TableBody>
               </Table>
             </ScrollArea>
@@ -295,6 +351,30 @@ export default function () {
                 </FormItem>
               )}
             />
+            <div className="flex gap-2 items-center text-lg">Rating (1-5):</div>
+            <FormField
+              name={`rating`}
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="5"
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        form.setValue("rating", value ? parseInt(value) : undefined);
+                      }}
+                      placeholder="Optional: Rate customer experience (1-5)"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-2 gap-2 w-fit self-end">
               <div className="text-lg">Amount: </div>
               <span className="text-lg font-bold">
@@ -305,10 +385,7 @@ export default function () {
                   saleItems.reduce(
                     (prev, curr) =>
                       prev +
-                      ((inventory?.data?.items.find(
-                        (s) => s.product_variant_id == curr.product_variant_id
-                      )?.product?.price ?? 0) -
-                        curr.discount) *
+                      (curr.price - curr.discount) *
                         curr.quantity,
                     0
                   )

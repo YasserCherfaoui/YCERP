@@ -14,6 +14,7 @@ export interface GetCustomersParams {
   min_delivery_rate?: number;
   max_delivery_rate?: number;
   company_id?: number;
+  franchise_id?: number;
   sort_by?: string;
   sort_order?: "asc" | "desc";
 }
@@ -26,12 +27,53 @@ export interface UpdateCustomerRequest {
   phone?: string;
 }
 
-export const getCustomer = async (
-  phone: string,
-  companyId?: number
-): Promise<APIResponse<{ customer: Customer; stats: CustomerStats; recent_orders: any[] }>> => {
+export interface CreateCustomerRequest {
+  phone: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  birthday?: string | Date | null;
+  name_history?: string[];
+  address_history?: string[];
+}
+
+export const createCustomer = async (
+  data: CreateCustomerRequest,
+  companyId?: number,
+  franchiseId?: number
+): Promise<APIResponse<Customer>> => {
   const queryParams = new URLSearchParams();
   if (companyId) queryParams.append("company_id", companyId.toString());
+  if (franchiseId) queryParams.append("franchise_id", franchiseId.toString());
+  const queryString = queryParams.toString();
+  return apiFetch(`/customers${queryString ? `?${queryString}` : ""}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+};
+
+export const createFranchiseCustomer = async (
+  franchiseId: number,
+  data: CreateCustomerRequest,
+  companyId?: number
+): Promise<APIResponse<Customer>> => {
+  const queryParams = new URLSearchParams();
+  if (companyId) queryParams.append("company_id", companyId.toString());
+  const queryString = queryParams.toString();
+  return apiFetch(`/franchises/${franchiseId}/customers${queryString ? `?${queryString}` : ""}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+};
+
+export const getCustomer = async (
+  phone: string,
+  companyId?: number,
+  franchiseId?: number
+): Promise<APIResponse<{ customer: Customer; stats: CustomerStats; recent_orders: any[]; franchise_sales?: any[] }>> => {
+  const queryParams = new URLSearchParams();
+  if (companyId) queryParams.append("company_id", companyId.toString());
+  if (franchiseId) queryParams.append("franchise_id", franchiseId.toString());
   const queryString = queryParams.toString();
   return apiFetch(`/customers/${encodeURIComponent(phone)}${queryString ? `?${queryString}` : ""}`);
 };
@@ -62,6 +104,7 @@ export const getCustomers = async (
   if (params.max_delivery_rate !== undefined)
     queryParams.append("max_delivery_rate", params.max_delivery_rate.toString());
   if (params.company_id) queryParams.append("company_id", params.company_id.toString());
+  if (params.franchise_id) queryParams.append("franchise_id", params.franchise_id.toString());
   if (params.sort_by) queryParams.append("sort_by", params.sort_by);
   if (params.sort_order) queryParams.append("sort_order", params.sort_order);
 
@@ -71,10 +114,12 @@ export const getCustomers = async (
 
 export const getCustomerStats = async (
   phone: string,
-  companyId?: number
+  companyId?: number,
+  franchiseId?: number
 ): Promise<APIResponse<{ stats: CustomerStats; reviews: { average_rating: number; count: number } }>> => {
   const queryParams = new URLSearchParams();
   if (companyId) queryParams.append("company_id", companyId.toString());
+  if (franchiseId) queryParams.append("franchise_id", franchiseId.toString());
   const queryString = queryParams.toString();
   return apiFetch(`/customers/${encodeURIComponent(phone)}/stats${queryString ? `?${queryString}` : ""}`);
 };
@@ -148,5 +193,32 @@ export const deleteCustomersWithZeroOrders = async (
   return apiFetch(`/customers/zero-orders${queryString ? `?${queryString}` : ""}`, {
     method: "DELETE",
   });
+};
+
+export const syncFranchiseCustomers = async (
+  franchiseId: number,
+  companyId?: number
+): Promise<APIResponse<{ synced: number; franchise_id: number }>> => {
+  const queryParams = new URLSearchParams();
+  if (companyId) queryParams.append("company_id", companyId.toString());
+  const queryString = queryParams.toString();
+  return apiFetch(`/franchises/${franchiseId}/customers/sync${queryString ? `?${queryString}` : ""}`, {
+    method: "POST",
+  });
+};
+
+export const getFranchiseCustomers = async (
+  franchiseId: number,
+  params: Omit<GetCustomersParams, "franchise_id"> = {}
+): Promise<APIResponse<{ customers: Array<{ customer: Customer; delivery_rate: number }>; pagination: { page: number; limit: number; total: number; total_pages: number } }>> => {
+  return getCustomers({ ...params, franchise_id: franchiseId });
+};
+
+export const getFranchiseCustomer = async (
+  franchiseId: number,
+  phone: string,
+  companyId?: number
+): Promise<APIResponse<{ customer: Customer; stats: CustomerStats; recent_orders: any[]; franchise_sales?: any[] }>> => {
+  return getCustomer(phone, companyId, franchiseId);
 };
 
