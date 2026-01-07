@@ -29,6 +29,7 @@ export interface SaleItem {
     product_variant_id: number;
     product_variant: ProductVariant;
     price: number;
+    franchise_price?: number | null;
     discount: number;
     quantity: number;
 }

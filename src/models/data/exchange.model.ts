@@ -26,6 +26,8 @@ export interface ExchangeItem {
     exchange_id: number;
     product_variant_id: number;
     product_variant: ProductVariant | null; // Pointer becomes nullable type
+    franchise_price?: number | null;
+    exchange_price?: number | null;
     discount: number;
     quantity: number;
 }
