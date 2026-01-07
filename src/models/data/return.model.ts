@@ -37,5 +37,7 @@ export interface ReturnItem {
     return_id: number;
     product_variant_id: number;
     product_variant: ProductVariant | null;
+    franchise_price?: number | null;
+    return_price?: number | null;
     quantity: number;
 }
