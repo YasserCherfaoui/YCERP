@@ -19,6 +19,7 @@ export default function CompanyMissingVariantsPage() {
   const [isAdditionalItemsOnly, setIsAdditionalItemsOnly] = useState(false);
   const [franchiseSelectorOpen, setFranchiseSelectorOpen] = useState(false);
   const [tempFranchiseId, setTempFranchiseId] = useState<number | undefined>();
+  const [isCreateExitBillPending, setIsCreateExitBillPending] = useState(false);
 
   let company = useSelector((state: RootState) => state.company.company);
   const { pathname } = useLocation();
@@ -78,6 +79,7 @@ export default function CompanyMissingVariantsPage() {
         onCreateAdditionalItemsExitBill={handleCreateAdditionalItemsExitBill}
         selectedCount={selectedRequests.length}
         selectedFranchiseId={selectedFranchiseId}
+        isMutationPending={isCreateExitBillPending}
       />
       <CompanyMissingVariantsBody 
         onSelectionChange={handleSelectionChange}
@@ -88,6 +90,7 @@ export default function CompanyMissingVariantsPage() {
         selectedRequests={isAdditionalItemsOnly ? [] : selectedRequests}
         franchiseId={selectedFranchiseId || 0}
         companyId={company.ID}
+        onMutationStateChange={setIsCreateExitBillPending}
       />
 
       {/* Franchise Selector Dialog */}

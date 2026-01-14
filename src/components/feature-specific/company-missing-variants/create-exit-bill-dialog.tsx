@@ -40,6 +40,7 @@ interface CreateExitBillDialogProps {
   selectedRequests: MissingVariantRequestResponse[];
   franchiseId: number;
   companyId: number;
+  onMutationStateChange?: (isPending: boolean) => void;
 }
 
 export default function CreateExitBillDialog({ 
@@ -47,7 +48,8 @@ export default function CreateExitBillDialog({
   onOpenChange, 
   selectedRequests, 
   franchiseId, 
-  companyId 
+  companyId,
+  onMutationStateChange
 }: CreateExitBillDialogProps) {
   console.log('Dialog props:', { open, selectedRequests, franchiseId, companyId });
   
@@ -137,6 +139,7 @@ export default function CreateExitBillDialog({
     onSuccess: (data) => {
       console.log('Success:', data);
       const response = data.data;
+      if (!response) return;
       let message = `Exit bill created successfully with ${response.total_bill_items} items.`;
       
       if (response.fulfilled_requests > 0) {
@@ -167,6 +170,11 @@ export default function CreateExitBillDialog({
       });
     },
   });
+
+  // Notify parent of mutation state changes
+  useEffect(() => {
+    onMutationStateChange?.(isPending);
+  }, [isPending, onMutationStateChange]);
 
   const onSubmit = (data: CreateExitBillFromMissingVariantsSchema) => {
     console.log('Form submitted with data:', data);

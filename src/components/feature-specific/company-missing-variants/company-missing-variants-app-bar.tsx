@@ -11,13 +11,15 @@ interface CompanyMissingVariantsAppBarProps {
   onCreateAdditionalItemsExitBill: () => void;
   selectedCount: number;
   selectedFranchiseId?: number;
+  isMutationPending?: boolean;
 }
 
 export default function CompanyMissingVariantsAppBar({ 
   onCreateExitBill, 
   onCreateAdditionalItemsExitBill,
   selectedCount, 
-  selectedFranchiseId 
+  selectedFranchiseId,
+  isMutationPending = false
 }: CompanyMissingVariantsAppBarProps) {
   let company = useSelector((state: RootState) => state.company.company);
   const { pathname } = useLocation();
@@ -47,6 +49,7 @@ export default function CompanyMissingVariantsAppBar({
           onClick={onCreateAdditionalItemsExitBill}
           variant="outline"
           className="flex items-center gap-2"
+          disabled={isMutationPending}
         >
           <Plus className="h-4 w-4" />
           Add Items Only
@@ -54,7 +57,7 @@ export default function CompanyMissingVariantsAppBar({
         
         <Button 
           onClick={onCreateExitBill}
-          disabled={!canCreateExitBill}
+          disabled={!canCreateExitBill || isMutationPending}
           className="flex items-center gap-2"
         >
           <Package className="h-4 w-4" />
