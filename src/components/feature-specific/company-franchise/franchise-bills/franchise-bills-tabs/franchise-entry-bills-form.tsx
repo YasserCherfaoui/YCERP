@@ -2,12 +2,12 @@ import { RootState } from "@/app/store";
 import MakeBillTile from "@/components/feature-specific/company-franchises/make-bill-tile";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,13 +15,13 @@ import { useToast } from "@/hooks/use-toast";
 import { BillItem, ExitBill } from "@/models/data/bill.model";
 import { CreateEntryBillSchema, createEntryBillSchema } from "@/schemas/bill";
 import {
-    createFranchiseEntryBill,
-    getFranchiseInventory,
+  createFranchiseEntryBill,
+  getFranchiseInventory,
 } from "@/services/franchise-service";
 import { processBarcode } from "@/utils/process-barcode";
 import {
-    validateExtraEntryExitBill,
-    validateMissingEntryExitBill,
+  validateExtraEntryExitBill,
+  validateMissingEntryExitBill,
 } from "@/utils/validate-entry-exit-bill";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -110,7 +110,7 @@ export default function ({ bill }: Props) {
     });
 
   useEffect(() => {
-    let timeout;
+    let timeout: NodeJS.Timeout | undefined;
 
     const handleKeyPress = (e: any) => {
       // Prevent default form submission on Enter
@@ -132,7 +132,7 @@ export default function ({ bill }: Props) {
 
     return () => {
       window.removeEventListener("keypress", handleKeyPress);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
     };
   }, [input]);
 
@@ -143,7 +143,11 @@ export default function ({ bill }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={"ghost"} className="text-blue-500 pl-2">
+        <Button 
+          variant={"ghost"} 
+          className="text-blue-500 pl-2"
+          disabled={isPending}
+        >
           <PackageCheck />
           Make Entry Bill
         </Button>

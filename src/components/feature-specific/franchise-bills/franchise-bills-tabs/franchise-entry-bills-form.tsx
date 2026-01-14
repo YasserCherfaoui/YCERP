@@ -110,7 +110,7 @@ export default function ({ bill }: Props) {
     });
 
   useEffect(() => {
-    let timeout;
+    let timeout: NodeJS.Timeout | undefined;
 
     const handleKeyPress = (e: any) => {
       console.log(e.key);
@@ -133,7 +133,7 @@ export default function ({ bill }: Props) {
 
     return () => {
       window.removeEventListener("keypress", handleKeyPress);
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout);
     };
   }, [input]);
 
@@ -145,7 +145,7 @@ export default function ({ bill }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-        disabled={!!bill.entry_bill}
+        disabled={!!bill.entry_bill || isPending}
         variant={"ghost"} className="text-blue-500 pl-2">
           <PackageCheck />
           Make Entry Bill
