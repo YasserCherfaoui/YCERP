@@ -27,7 +27,8 @@ export interface InventoryItem {
     name: string;
     product?: Product;
     product_variant?: ProductVariant;
-    quantity: number
+    quantity: number;
+    broken_count: number;
 
     inventory?: Inventory;
 }
