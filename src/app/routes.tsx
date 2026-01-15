@@ -52,6 +52,7 @@ import CompanyProductsPage from "@/pages/dashboard/company/company-products-page
 import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
 import CompanySalesSwitchPage from "@/pages/dashboard/company/company-sales-switch-page";
 import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
+import CompanyBrokenItemsTransfersPage from "@/pages/dashboard/company/company-broken-items-transfers-page";
 import CompanyStockAlertsConfigPage from "@/pages/dashboard/company/company-stock-alerts-config-page";
 import CompanyStockAlertsHistoryPage from "@/pages/dashboard/company/company-stock-alerts-history-page";
 import CompanyStockAlertsNotificationsPage from "@/pages/dashboard/company/company-stock-alerts-notifications-page";
@@ -97,6 +98,7 @@ import FranchiseStockAlertsPage from "@/pages/franchise/dashboard/franchise-stoc
 import HomePage from "@/pages/home-page";
 import UserLoginPage from "@/pages/moderator/auth/login-page";
 import ModeratorMobilePage from "@/pages/moderator/dashboard/moderator-mobile-page";
+import ModeratorBrokenItemsTransfersPage from "@/pages/moderator/dashboard/moderator-broken-items-transfers-page";
 import ModeratorStockAlertsHistoryPage from "@/pages/moderator/dashboard/moderator-stock-alerts-history-page";
 import ModeratorStockAlertsNotificationsPage from "@/pages/moderator/dashboard/moderator-stock-alerts-notifications-page";
 import ModeratorStockAlertsPage from "@/pages/moderator/dashboard/moderator-stock-alerts-page";
@@ -206,6 +208,7 @@ export default function AppRouter() {
               <Route path="history" element={<ModeratorStockAlertsHistoryPage />} />
               <Route path="notifications" element={<ModeratorStockAlertsNotificationsPage />} />
             </Route>
+            <Route path="broken-items-transfers" element={<ModeratorBrokenItemsTransfersPage />} />
             <Route path="issues" element={<IssuesPage />} />
           </Route>
         </Route>
@@ -287,6 +290,7 @@ export default function AppRouter() {
                 <Route path="config" element={<CompanyStockAlertsConfigPage />} />
                 <Route path="notifications" element={<CompanyStockAlertsNotificationsPage />} />
               </Route>
+              <Route path="broken-items-transfers" element={<CompanyBrokenItemsTransfersPage />} />
               <Route path="crm">
                 <Route index element={<CustomersPage />} />
                 <Route path="customers" element={<CustomersPage />} />

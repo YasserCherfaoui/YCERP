@@ -212,8 +212,11 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     cell: ({ row }: { row: { original: WooOrder } }) => {
       const [open, setOpen] = useState(false);
       const order = row.original;
-      const statuses = order.yalidine_order_histories || [];
-      const lastStatus = statuses[statuses.length - 1];
+      const statuses = (order.yalidine_order_histories || []).sort(
+        (a, b) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      const lastStatus = statuses[0];
       const isHidden = ["unconfirmed", "packing", "dispatching"].includes(
         order.order_status || ""
       );

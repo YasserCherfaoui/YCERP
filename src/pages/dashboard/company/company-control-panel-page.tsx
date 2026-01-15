@@ -13,6 +13,7 @@ import {
   FileCheck,
   Handshake,
   Package,
+  PackageX,
   ReceiptText,
   ShoppingCart,
   Store,
@@ -197,6 +198,11 @@ const quickMenu: Array<{
     label: "Stock Alerts",
     icon: AlertTriangle,
     href: "stock-alerts",
+  },
+  {
+    label: "Broken Items Transfers",
+    icon: PackageX,
+    href: "broken-items-transfers",
   },
   // {
   //   label: "Charges",

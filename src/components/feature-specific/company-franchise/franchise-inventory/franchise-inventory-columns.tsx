@@ -106,6 +106,14 @@ export const franchiseInventoryColumns: ColumnDef<InventoryItem>[] = [
     },
   },
   {
+    accessorKey: "broken_count",
+    header: "Broken Count",
+    cell: ({ getValue }: any) => {
+      const count = getValue() || 0;
+      return <span className={cn(count > 0 ? "text-orange-500 font-semibold" : "text-gray-500")}>{count}</span>;
+    },
+  },
+  {
     accessorKey: "cost",
     header: "Cost",
     id: "cost",

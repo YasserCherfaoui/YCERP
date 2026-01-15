@@ -8,6 +8,7 @@ import {
     Bell,
     Handshake,
     Package,
+    PackageX,
     ReceiptText,
     ShoppingCart,
     Store,
@@ -100,5 +101,10 @@ const quickMenu = [
     label: "Stock Alerts",
     icon: Bell,
     href: "stock-alerts",
+  },
+  {
+    label: "Broken Items Transfers",
+    icon: PackageX,
+    href: "broken-items-transfers",
   },
 ];

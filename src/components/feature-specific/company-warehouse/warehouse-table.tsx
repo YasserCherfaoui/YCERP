@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import TransactionsLogDialog from "@/components/feature-specific/company-warehouse/transactions-log-dialog";
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
+import RecordBrokenItemsDialog from "@/components/feature-specific/broken-items/record-broken-items-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -105,6 +106,14 @@ export default function () {
       accessorKey: "quantity",
     },
     {
+      header: "Broken Count",
+      accessorKey: "broken_count",
+      cell: ({ getValue }: any) => {
+        const count = getValue() || 0;
+        return <span className={count > 0 ? "text-orange-500 font-semibold" : "text-gray-500"}>{count}</span>;
+      },
+    },
+    {
       header: "Cost",
       accessorKey: "cost",
       cell: ({ getValue }: any) => (
@@ -185,20 +194,27 @@ export default function () {
   console.log(totalCostData);
   return (
     <div className="flex flex-col gap-2 mt-4">
-      <div className="grid grid-cols-2 gap-2">
-        <Card className={isModerator ? "hidden" : ""}>
-          <CardHeader>
-            <CardTitle>Total Cost</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="text-2xl font-bold">
-              {Intl.NumberFormat("en-DZ", {
-                style: "currency",
-                currency: "DZD",
-              }).format(totalCostData?.data?.total ?? 0)}
-            </CardDescription>
-          </CardContent>
-        </Card>
+      <div className="flex justify-between items-center">
+        <div className="grid grid-cols-2 gap-2">
+          <Card className={isModerator ? "hidden" : ""}>
+            <CardHeader>
+              <CardTitle>Total Cost</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-2xl font-bold">
+                {Intl.NumberFormat("en-DZ", {
+                  style: "currency",
+                  currency: "DZD",
+                }).format(totalCostData?.data?.total ?? 0)}
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="flex gap-2">
+          {inventoryData?.data?.ID && (
+            <RecordBrokenItemsDialog inventoryId={inventoryData.data.ID} isFranchise={false} />
+          )}
+        </div>
       </div>
       <Input
         onChange={(e) => setGlobalFilter(e.target.value)}

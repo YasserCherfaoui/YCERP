@@ -7,6 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { franchiseInventoryColumns } from "./franchise-inventory-columns";
+import RecordBrokenItemsDialog from "@/components/feature-specific/broken-items/record-broken-items-dialog";
+import BrokenItemsTransferDialog from "@/components/feature-specific/broken-items/broken-items-transfer-dialog";
 
 export default function () {
   const franchise = useSelector(
@@ -32,20 +34,30 @@ export default function () {
   });
   return (
     <div>
-      <div className="grid grid-cols-2 gap-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Franchise Cost</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="text-2xl font-bold">
-              {Intl.NumberFormat("en-DZ", {
-                style: "currency",
-                currency: "DZD",
-              }).format(totalCostData?.data?.total_franchise_price ?? 0)}
-            </CardDescription>
-          </CardContent>
-        </Card>
+      <div className="flex justify-between items-center mb-4">
+        <div className="grid grid-cols-2 gap-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Franchise Cost</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-2xl font-bold">
+                {Intl.NumberFormat("en-DZ", {
+                  style: "currency",
+                  currency: "DZD",
+                }).format(totalCostData?.data?.total_franchise_price ?? 0)}
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="flex gap-2">
+          {inventory?.data?.ID && (
+            <>
+              <RecordBrokenItemsDialog inventoryId={inventory.data.ID} isFranchise={true} />
+              <BrokenItemsTransferDialog />
+            </>
+          )}
+        </div>
       </div>
       <DataTable
         data={filteredItems}

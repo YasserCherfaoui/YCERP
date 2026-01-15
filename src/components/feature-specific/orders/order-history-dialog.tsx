@@ -48,6 +48,9 @@ function HistoryList({ title, histories }: { title: string; histories: { status:
 
 export default function OrderHistoryDialog({ order, open, setOpen }: { order: WooOrder; open: boolean; setOpen: (open: boolean) => void; ordersQueryKey?: any[] }) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const sortedYalidineHistories = (order.yalidine_order_histories || []).sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -58,7 +61,7 @@ export default function OrderHistoryDialog({ order, open, setOpen }: { order: Wo
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-6 flex-col md:flex-row">
-          <HistoryList title="Yalidine Order Histories" histories={order.yalidine_order_histories || []} />
+          <HistoryList title="Yalidine Order Histories" histories={sortedYalidineHistories} />
           <HistoryList title="Order Histories" histories={order.order_histories || []} />
         </div>
         <DialogFooter>
