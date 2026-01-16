@@ -40,6 +40,7 @@ import { format } from "date-fns";
 import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, CreditCard, History, LayoutGrid, List, MapPin, MessageSquare, Package, RefreshCw, Table2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { cities } from "@/utils/algeria-cities";
 
 export default function DailyDeliveriesPage() {
   const { companyID } = useParams<{ companyID: string }>();
@@ -52,6 +53,8 @@ export default function DailyDeliveriesPage() {
   const [limit, setLimit] = useState(20);
   const [viewMode, setViewMode] = useState<"cards" | "table" | "list">("cards");
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
+  const [shippingProvider, setShippingProvider] = useState<string>("all");
+  const [wilaya, setWilaya] = useState<string>("all");
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedCustomerPhone, setSelectedCustomerPhone] = useState<string | undefined>();
   const [selectedOrderId, setSelectedOrderId] = useState<number | undefined>();
@@ -131,8 +134,16 @@ export default function DailyDeliveriesPage() {
   }, [pendingIssueTicket, issueTicketDialogOpen]);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab],
-    queryFn: () => getDailyDeliveries(date, companyId, page, limit, activeTab),
+    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab, shippingProvider, wilaya],
+    queryFn: () => getDailyDeliveries(
+      date, 
+      companyId, 
+      page, 
+      limit, 
+      activeTab, 
+      shippingProvider === "all" ? undefined : shippingProvider, 
+      wilaya === "all" ? undefined : wilaya
+    ),
     enabled: !!companyId,
   });
 
@@ -146,21 +157,50 @@ export default function DailyDeliveriesPage() {
 
   const deliveryData: DailyDelivery | undefined = data?.data;
 
-  // Reset to page 1 when date or activeTab changes
+  // Reset to page 1 when date, activeTab, shippingProvider, or wilaya changes
   useEffect(() => {
     setPage(1);
-  }, [date, activeTab]);
+  }, [date, activeTab, shippingProvider, wilaya]);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center gap-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             className="w-40"
           />
+          <Select
+            value={shippingProvider}
+            onValueChange={(value) => setShippingProvider(value)}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Shipping Provider" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Providers</SelectItem>
+              <SelectItem value="yalidine">Yalidine</SelectItem>
+              <SelectItem value="my_companies">My Companies</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={wilaya}
+            onValueChange={(value) => setWilaya(value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Wilaya" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Wilayas</SelectItem>
+              {cities.map((city) => (
+                <SelectItem key={city.key} value={city.label}>
+                  {city.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button onClick={() => refetch()}>Refresh</Button>
         </div>
         <div className="flex items-center gap-2">

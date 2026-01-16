@@ -1,11 +1,11 @@
 import { apiFetch } from "@/lib/api-fetch";
-import { APIResponse } from "@/models/responses/api-response.model";
 import {
-  Customer,
-  CustomerStats,
-  DailyDelivery,
-  UpcomingBirthday,
+    Customer,
+    CustomerStats,
+    DailyDelivery,
+    UpcomingBirthday,
 } from "@/models/data/customer.model";
+import { APIResponse } from "@/models/responses/api-response.model";
 
 export interface GetCustomersParams {
   page?: number;
@@ -148,7 +148,9 @@ export const getDailyDeliveries = async (
   companyId?: number,
   page?: number,
   limit?: number,
-  reviewStatus?: "waiting" | "done"
+  reviewStatus?: "waiting" | "done",
+  shippingProvider?: string,
+  wilaya?: string
 ): Promise<APIResponse<DailyDelivery>> => {
   const queryParams = new URLSearchParams();
   if (date) queryParams.append("date", date);
@@ -156,6 +158,8 @@ export const getDailyDeliveries = async (
   if (page) queryParams.append("page", page.toString());
   if (limit) queryParams.append("limit", limit.toString());
   if (reviewStatus) queryParams.append("review_status", reviewStatus);
+  if (shippingProvider) queryParams.append("shipping_provider", shippingProvider);
+  if (wilaya) queryParams.append("wilaya", wilaya);
   const queryString = queryParams.toString();
   return apiFetch(`/customers/deliveries/today${queryString ? `?${queryString}` : ""}`);
 };
