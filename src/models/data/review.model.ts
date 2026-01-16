@@ -13,6 +13,7 @@ export interface Review {
   woo_order?: WooOrder | null;
   rating: number;
   comment: string;
+  satisfaction_status?: string | null;
   reviewed_by: number;
   reviewed_by_user?: User | null;
   reviewed_at: string | Date;
@@ -24,6 +25,7 @@ export interface CreateReviewRequest {
   woo_order_id?: number | null;
   rating: number;
   comment?: string;
+  satisfaction_status?: string | null;
   follow_up_call_date?: string | Date | null;
 }
 

@@ -5,6 +5,7 @@ export const createReviewSchema = z.object({
   woo_order_id: z.number().int().positive().nullable().optional(),
   rating: z.number().int().min(1).max(5, "Rating must be between 1 and 5"),
   comment: z.string().optional(),
+  satisfaction_status: z.enum(["satisfied", "moderately_satisfied", "unsatisfied"]).nullable().optional(),
   follow_up_call_date: z.string().nullable().optional(),
 });
 

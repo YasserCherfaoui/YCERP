@@ -119,3 +119,44 @@ export const updateOrderTicket = async (
     const data = await response.json();
     return data;
 }
+
+export interface CreateIssueTicketData {
+    full_name: string;
+    phone: string;
+    comment: string;
+    company_id?: number;
+    uploads?: File[];
+}
+
+export const createIssueTicket = async (
+    data: CreateIssueTicketData
+): Promise<APIResponse<IssueResponse>> => {
+    const formData = new FormData();
+    formData.append("full_name", data.full_name);
+    formData.append("phone", data.phone);
+    formData.append("comment", data.comment);
+    if (data.company_id) {
+        formData.append("company_id", data.company_id.toString());
+    }
+    if (data.uploads) {
+        data.uploads.forEach((file) => {
+            formData.append("uploads", file);
+        });
+    }
+
+    const response = await fetch(`${baseUrl}/issues/`, {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        },
+        body: formData,
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to create issue ticket");
+    }
+
+    const responseData = await response.json();
+    return responseData;
+}
