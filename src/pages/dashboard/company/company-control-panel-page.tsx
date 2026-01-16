@@ -169,11 +169,11 @@ const quickMenu: Array<{
     icon: Users,
     href: "crm/customers",
   },
-  {
-    label: "Daily Deliveries",
-    icon: Truck,
-    href: "crm/deliveries",
-  },
+  // {
+  //   label: "Daily Deliveries",
+  //   icon: Truck,
+  //   href: "crm/deliveries",
+  // },
   {
     label: "Issues",
     icon: IssuesIcon,

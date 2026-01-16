@@ -33,6 +33,7 @@ import {
   User,
   Star,
 } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
@@ -56,6 +57,7 @@ export default function OrderReviewDialog({
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
+  const [satisfactionStatus, setSatisfactionStatus] = useState<string>("");
   const [followUpCallDate, setFollowUpCallDate] = useState<string>("");
   const [birthday, setBirthday] = useState<string>("");
 
@@ -94,6 +96,7 @@ export default function OrderReviewDialog({
     if (!open) {
       setRating(5);
       setComment("");
+      setSatisfactionStatus("");
       setFollowUpCallDate("");
       setBirthday("");
     }
@@ -155,6 +158,7 @@ export default function OrderReviewDialog({
       woo_order_id: orderId || null,
       rating,
       comment,
+      satisfaction_status: satisfactionStatus || null,
       follow_up_call_date: followUpCallDate || null,
     };
 
@@ -485,6 +489,33 @@ export default function OrderReviewDialog({
                       </button>
                     ))}
                   </div>
+                </div>
+                <div>
+                  <Label>Customer Satisfaction</Label>
+                  <RadioGroup
+                    value={satisfactionStatus}
+                    onValueChange={setSatisfactionStatus}
+                    className="mt-2"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="satisfied" id="satisfied" />
+                      <Label htmlFor="satisfied" className="font-normal cursor-pointer">
+                        Satisfied
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="moderately_satisfied" id="moderately_satisfied" />
+                      <Label htmlFor="moderately_satisfied" className="font-normal cursor-pointer">
+                        Moderately Satisfied
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="unsatisfied" id="unsatisfied" />
+                      <Label htmlFor="unsatisfied" className="font-normal cursor-pointer">
+                        Unsatisfied
+                      </Label>
+                    </div>
+                  </RadioGroup>
                 </div>
                 <div>
                   <Label>Comment</Label>
