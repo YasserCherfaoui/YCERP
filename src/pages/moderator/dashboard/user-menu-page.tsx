@@ -15,6 +15,7 @@ import {
     Ticket,
     Truck,
     Undo2,
+    Users,
     Warehouse,
 } from "lucide-react";
 import { useSelector } from "react-redux";
@@ -106,5 +107,10 @@ const quickMenu = [
     label: "Broken Items Transfers",
     icon: PackageX,
     href: "broken-items-transfers",
+  },
+  {
+    label: "CRM Customers",
+    icon: Users,
+    href: "crm/customers",
   },
 ];
