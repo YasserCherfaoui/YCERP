@@ -12,6 +12,7 @@ import {
   ChartPie,
   FileCheck,
   Handshake,
+  MessageSquare,
   Package,
   PackageX,
   ReceiptText,
@@ -24,21 +25,42 @@ import {
   Warehouse,
   Zap,
 } from "lucide-react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { SendWhatsAppDialog } from "@/components/feature-specific/admin/send-whatsapp-dialog";
 
 export default function () {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
   const company = useSelector((state: RootState) => state.company.company);
+  const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
   
   if (!company) {
     return null;
   }
+
+  const quickMenuWithHandlers: Array<{ 
+    label: string; 
+    icon: any; 
+    href?: string; 
+    onClick?: () => void;
+    hidden?: boolean;
+  }> = quickMenu.map(item => {
+    if (item.label === "Send WhatsApp") {
+      return {
+        ...item,
+        onClick: () => setWhatsappDialogOpen(true),
+      };
+    }
+    return item;
+  });
   
   return (
-    <div className="flex flex-col h-screen">
+    <>
+      <SendWhatsAppDialog open={whatsappDialogOpen} onOpenChange={setWhatsappDialogOpen} />
+      <div className="flex flex-col h-screen">
       <div className="flex p-4 justify-between items-center">
         <Button onClick={() => navigate(lastLocation)}>
           <ArrowLeft />
@@ -48,7 +70,7 @@ export default function () {
       <div className="flex flex-col gap-10 p-4 justify-center items-center">
         <CompanyTile company={company} />
         <div className="grid grid-cols-4 gap-4">
-          {quickMenu.filter((i) => !(i as any).hidden).map((item, index) => (
+          {quickMenuWithHandlers.filter((i) => !(i as any).hidden).map((item, index) => (
             <WideButton key={index} item={item} />
           ))}
           <WideButton 
@@ -83,6 +105,7 @@ export default function () {
         </Link>
       </div>
     </div>
+    </>
   );
 }
 
@@ -203,6 +226,15 @@ const quickMenu: Array<{
     label: "Broken Items Transfers",
     icon: PackageX,
     href: "broken-items-transfers",
+  },
+  {
+    label: "Send WhatsApp",
+    icon: MessageSquare,
+  },
+  {
+    label: "WhatsApp Settings",
+    icon: MessageSquare,
+    href: "whatsapp-settings",
   },
   // {
   //   label: "Charges",

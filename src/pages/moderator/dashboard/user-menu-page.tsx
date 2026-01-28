@@ -3,20 +3,20 @@ import WideButton from "@/components/common/wide-button";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
 import {
-    AlertTriangle,
-    Apple,
-    Bell,
-    Handshake,
-    Package,
-    PackageX,
-    ReceiptText,
-    ShoppingCart,
-    Store,
-    Ticket,
-    Truck,
-    Undo2,
-    Users,
-    Warehouse,
+  AlertTriangle,
+  Apple,
+  Bell,
+  Handshake,
+  Package,
+  PackageX,
+  ReceiptText,
+  ShoppingCart,
+  Store,
+  Ticket,
+  Truck,
+  Undo2,
+  Users,
+  Warehouse,
 } from "lucide-react";
 import { useSelector } from "react-redux";
 

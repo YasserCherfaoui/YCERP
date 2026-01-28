@@ -57,6 +57,7 @@ import CompanyStockAlertsConfigPage from "@/pages/dashboard/company/company-stoc
 import CompanyStockAlertsHistoryPage from "@/pages/dashboard/company/company-stock-alerts-history-page";
 import CompanyStockAlertsNotificationsPage from "@/pages/dashboard/company/company-stock-alerts-notifications-page";
 import CompanyStockAlertsPage from "@/pages/dashboard/company/company-stock-alerts-page";
+import WhatsAppSettingsPage from "@/pages/dashboard/company/whatsapp-settings-page";
 import CompanySupplierPage from "@/pages/dashboard/company/company-supplier-page";
 import CompanySuppliersPage from "@/pages/dashboard/company/company-suppliers-page";
 import CompanyUnknownReturnsPage from "@/pages/dashboard/company/company-unknown-returns-page";
@@ -274,6 +275,7 @@ export default function AppRouter() {
               <Route path="expenses/reports" element={<ExpensesReportsPage />} />
               <Route path="statistics" element={<CompanyStatsPage />} />
               <Route path="iam" element={<IamPage />} />
+              <Route path="whatsapp-settings" element={<WhatsAppSettingsPage />} />
               <Route
                 path="inventory-analytics"
                 element={<CompanyInventoryAnalyticsPage />}

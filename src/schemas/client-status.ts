@@ -8,6 +8,7 @@ export const createClientStatusSchema = z.object({
     sub_qualification_id: z.number().nullable().optional(),
     comment: z.string().optional(),
     date: z.string().min(1, "Date is required"),
+    notify_via_whatsapp: z.boolean().optional().default(false),
 }).refine(
     (data) => {
         const hasOrder = data.order_id != null;

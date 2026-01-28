@@ -18,4 +18,5 @@ export interface ClientStatus {
     sub_qualification?: Qualification | null;
     comment: string;
     date: string;
+    notify_via_whatsapp?: boolean;
 } 
