@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Qualification } from "@/models/data/qualification.model";
 import {
@@ -57,6 +58,7 @@ export function ClientStatusDialog({
       sub_qualification_id: null,
       comment: "",
       date: new Date().toISOString(),
+      notify_via_whatsapp: false,
     },
   });
   const { watch, reset } = methods;
@@ -71,6 +73,7 @@ export function ClientStatusDialog({
         sub_qualification_id: null,
         comment: "",
         date: new Date().toISOString(),
+        notify_via_whatsapp: false,
       });
     }
   }, [open, orderID, wooOrderID, reset]);
@@ -219,6 +222,26 @@ export function ClientStatusDialog({
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={methods.control}
+              name="notify_via_whatsapp"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Notify via WhatsApp</FormLabel>
+                    <p className="text-sm text-muted-foreground">
+                      Send a WhatsApp message to the customer about this status update
+                    </p>
+                  </div>
                 </FormItem>
               )}
             />
