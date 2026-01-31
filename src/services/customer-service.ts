@@ -150,7 +150,8 @@ export const getDailyDeliveries = async (
   limit?: number,
   reviewStatus?: "waiting" | "done",
   shippingProvider?: string,
-  wilaya?: string
+  wilaya?: string,
+  deliveryContactStatus?: string
 ): Promise<APIResponse<DailyDelivery>> => {
   const queryParams = new URLSearchParams();
   if (date) queryParams.append("date", date);
@@ -160,8 +161,19 @@ export const getDailyDeliveries = async (
   if (reviewStatus) queryParams.append("review_status", reviewStatus);
   if (shippingProvider) queryParams.append("shipping_provider", shippingProvider);
   if (wilaya) queryParams.append("wilaya", wilaya);
+  if (deliveryContactStatus) queryParams.append("delivery_contact_status", deliveryContactStatus);
   const queryString = queryParams.toString();
   return apiFetch(`/customers/deliveries/today${queryString ? `?${queryString}` : ""}`);
+};
+
+export const updateOrderDeliveryStatus = async (
+  orderId: number,
+  status: string
+): Promise<APIResponse<void>> => {
+  return apiFetch(`/customers/orders/${orderId}/delivery-status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
+  });
 };
 
 export const syncCustomers = async (

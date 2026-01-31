@@ -1,5 +1,5 @@
-import { Review } from "./review.model";
 import { Franchise } from "./franchise.model";
+import { Review } from "./review.model";
 
 export interface Customer {
   phone: string;
@@ -71,6 +71,7 @@ export interface OrderDeliveryInfo {
   date_created?: string | Date;
   line_items?: OrderLineItemInfo[];
   has_review?: boolean;
+  delivery_contact_status?: string;
 }
 
 export interface OrderLineItemInfo {
