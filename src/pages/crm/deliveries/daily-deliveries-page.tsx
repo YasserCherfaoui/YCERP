@@ -40,26 +40,51 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, CreditCard, History, LayoutGrid, List, MapPin, MessageSquare, Package, Phone, RefreshCw, Table2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 export default function DailyDeliveriesPage() {
   const { companyID } = useParams<{ companyID: string }>();
   const companyId = companyID ? parseInt(companyID, 10) : undefined;
   const { toast } = useToast();
-  const [date, setDate] = useState<string>(
-    format(new Date(), "yyyy-MM-dd")
-  );
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
-  const [viewMode, setViewMode] = useState<"cards" | "table" | "list">("cards");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const date = searchParams.get("deliveries_date") || format(new Date(), "yyyy-MM-dd");
+  const page = parseInt(searchParams.get("deliveries_page") || "1");
+  const limit = parseInt(searchParams.get("deliveries_limit") || "20");
+  const viewMode = (searchParams.get("deliveries_view") as "cards" | "table" | "list") || "cards";
+  const shippingProvider = searchParams.get("shipping_provider") || "all";
+  const wilaya = searchParams.get("wilaya") || "all";
+  const contactStatusFilter = searchParams.get("contact_status") || "all";
+  const activeTab = (searchParams.get("deliveries_tab") as "waiting" | "done") || "waiting";
+
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
-  const [shippingProvider, setShippingProvider] = useState<string>("all");
-  const [wilaya, setWilaya] = useState<string>("all");
-  const [contactStatusFilter, setContactStatusFilter] = useState<string>("all");
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedCustomerPhone, setSelectedCustomerPhone] = useState<string | undefined>();
   const [selectedOrderId, setSelectedOrderId] = useState<number | undefined>();
-  const [activeTab, setActiveTab] = useState<"waiting" | "done">("waiting");
+  
+  // Helper to update params
+  const updateParams = (updates: Record<string, string | number | undefined | null>) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, String(value));
+        }
+      });
+      return newParams;
+    });
+  };
+
+  const setDate = (d: string) => updateParams({ deliveries_date: d, deliveries_page: 1 });
+  const setPage = (p: number) => updateParams({ deliveries_page: p });
+  const setLimit = (l: number) => updateParams({ deliveries_limit: l, deliveries_page: 1 });
+  const setViewMode = (v: string) => updateParams({ deliveries_view: v });
+  const setShippingProvider = (p: string) => updateParams({ shipping_provider: p, deliveries_page: 1 });
+  const setWilaya = (w: string) => updateParams({ wilaya: w, deliveries_page: 1 });
+  const setContactStatusFilter = (s: string) => updateParams({ contact_status: s, deliveries_page: 1 });
+  const setActiveTab = (t: string) => updateParams({ deliveries_tab: t, deliveries_page: 1 });
   
   // Order history drawer state
   const [orderHistoryDrawerOpen, setOrderHistoryDrawerOpen] = useState(false);
@@ -181,10 +206,7 @@ export default function DailyDeliveriesPage() {
 
   const deliveryData: DailyDelivery | undefined = data?.data;
 
-  // Reset to page 1 when date, activeTab, shippingProvider, wilaya or contactStatusFilter changes
-  useEffect(() => {
-    setPage(1);
-  }, [date, activeTab, shippingProvider, wilaya, contactStatusFilter]);
+
 
   return (
     <div className="space-y-6">
@@ -483,7 +505,6 @@ export default function DailyDeliveriesPage() {
               value={limit.toString()}
               onValueChange={(value) => {
                 setLimit(Number(value));
-                setPage(1);
               }}
             >
               <SelectTrigger className="w-[100px]">
@@ -501,7 +522,7 @@ export default function DailyDeliveriesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => setPage(Math.max(1, page - 1))}
               disabled={!deliveryData.pagination.has_prev || isLoading}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -513,7 +534,7 @@ export default function DailyDeliveriesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => p + 1)}
+              onClick={() => setPage(page + 1)}
               disabled={!deliveryData.pagination.has_next || isLoading}
             >
               Next
