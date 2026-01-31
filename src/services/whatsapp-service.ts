@@ -181,6 +181,8 @@ export interface WhatsAppSettings {
     language_code: string;
     enabled: boolean;
     parameter_mappings?: ParameterMapping[];
+    phone_numbers?: string[];
+    message_type?: "text" | "template";
     created_at: string;
     updated_at: string;
 }
@@ -191,6 +193,8 @@ export interface UpdateWhatsAppSettingsRequest {
     language_code: string;
     enabled: boolean;
     parameter_mappings?: ParameterMapping[];
+    phone_numbers?: string[];
+    message_type?: "text" | "template";
 }
 
 export async function getWhatsAppAvailablePaths(action: string): Promise<APIResponse<AvailablePath[]>> {

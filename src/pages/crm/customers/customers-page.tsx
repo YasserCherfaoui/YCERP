@@ -12,7 +12,7 @@ import { deleteCustomersWithZeroOrders, getCustomers, syncCustomers, updateSelec
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Package, RefreshCw, Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import DailyDeliveriesPage from "../deliveries/daily-deliveries-page";
 
 export default function CustomersPage() {
@@ -21,19 +21,43 @@ export default function CustomersPage() {
   const companyId = companyID ? parseInt(companyID, 10) : undefined;
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
-  const [search, setSearch] = useState("");
-  const [minDeliveryRate, setMinDeliveryRate] = useState<number | undefined>();
-  const [maxDeliveryRate, setMaxDeliveryRate] = useState<number | undefined>();
-  const [sortBy, setSortBy] = useState<string>("updated_at");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [search, minDeliveryRate, maxDeliveryRate, limit, sortBy, sortOrder]);
+  const activeTab = searchParams.get("tab") || "customers";
+
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "20");
+  const search = searchParams.get("search") || "";
+  const minDeliveryRate = searchParams.get("min_delivery_rate") ? parseFloat(searchParams.get("min_delivery_rate")!) : undefined;
+  const maxDeliveryRate = searchParams.get("max_delivery_rate") ? parseFloat(searchParams.get("max_delivery_rate")!) : undefined;
+  const sortBy = searchParams.get("sort_by") || "updated_at";
+  const sortOrder = (searchParams.get("sort_order") as "asc" | "desc") || "desc";
+
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  
+  // Helper to update params
+  const updateParams = (updates: Record<string, string | number | undefined | null>) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, String(value));
+        }
+      });
+      return newParams;
+    });
+  };
+
+  const setPage = (p: number) => updateParams({ page: p });
+  const setLimit = (l: number) => updateParams({ limit: l, page: 1 }); // Reset to page 1 on limit change
+  const setSearch = (s: string) => updateParams({ search: s, page: 1 });
+  const setMinDeliveryRate = (r: number | undefined) => updateParams({ min_delivery_rate: r, page: 1 });
+  const setMaxDeliveryRate = (r: number | undefined) => updateParams({ max_delivery_rate: r, page: 1 });
+  const setSortBy = (s: string) => updateParams({ sort_by: s, page: 1 });
+  const setSortOrder = (o: "asc" | "desc") => updateParams({ sort_order: o, page: 1 });
+  const setActiveTab = (t: string) => updateParams({ tab: t });
 
   // Clear selection when page changes
   useEffect(() => {
@@ -169,7 +193,7 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="customers" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="customers" className="flex items-center gap-2">
             <Users className="h-4 w-4" />

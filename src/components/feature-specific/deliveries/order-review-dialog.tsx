@@ -1,40 +1,44 @@
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { WooOrder } from "@/models/data/woo-order.model";
+import { cn } from "@/lib/utils";
 import { CreateReviewRequest } from "@/models/data/review.model";
-import { createReview } from "@/services/review-service";
+import { WooOrder } from "@/models/data/woo-order.model";
 import { createReviewSchema } from "@/schemas/review";
 import { getCustomer, updateCustomer } from "@/services/customer-service";
+import { createReview } from "@/services/review-service";
 import { getWooCommerceOrder } from "@/services/woocommerce-service";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import {
-  CheckCircle,
-  Clock,
-  CreditCard,
-  Info,
-  MapPin,
-  MessageSquare,
-  Package,
-  ShoppingCart,
-  Truck,
-  User,
-  Star,
+    Calendar as CalendarIcon,
+    CreditCard,
+    Info, Package,
+    ShoppingCart,
+    Star,
+    Truck,
+    User
 } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 interface OrderReviewDialogProps {
@@ -527,19 +531,65 @@ export default function OrderReviewDialog({
                 </div>
                 <div>
                   <Label>Follow-up Call Date (Optional)</Label>
-                  <Input
-                    type="date"
-                    value={followUpCallDate}
-                    onChange={(e) => setFollowUpCallDate(e.target.value)}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !followUpCallDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {followUpCallDate ? (
+                          format(new Date(followUpCallDate), "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={followUpCallDate ? new Date(followUpCallDate) : undefined}
+                        onSelect={(date) => 
+                          setFollowUpCallDate(date ? format(date, "yyyy-MM-dd") : "")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
                   <Label>Customer Birthday (Optional)</Label>
-                  <Input
-                    type="date"
-                    value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !birthday && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {birthday ? (
+                          format(new Date(birthday), "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={birthday ? new Date(birthday) : undefined}
+                        onSelect={(date) => 
+                          setBirthday(date ? format(date, "yyyy-MM-dd") : "")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
             </div>

@@ -4,61 +4,87 @@ import DeclareExchangeDialog from "@/components/feature-specific/orders/declare-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { CustomerDeliveryInfo, DailyDelivery, OrderDeliveryInfo } from "@/models/data/customer.model";
-import { getDailyDeliveries } from "@/services/customer-service";
+import { getDailyDeliveries, updateOrderDeliveryStatus } from "@/services/customer-service";
 import { createIssueTicket } from "@/services/issue-service";
 import { getWooCommerceOrder } from "@/services/woocommerce-service";
+import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, CreditCard, History, LayoutGrid, List, MapPin, MessageSquare, Package, RefreshCw, Table2 } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, CreditCard, History, LayoutGrid, List, MapPin, MessageSquare, Package, Phone, RefreshCw, Table2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { cities } from "@/utils/algeria-cities";
+import { useParams, useSearchParams } from "react-router-dom";
 
 export default function DailyDeliveriesPage() {
   const { companyID } = useParams<{ companyID: string }>();
   const companyId = companyID ? parseInt(companyID, 10) : undefined;
   const { toast } = useToast();
-  const [date, setDate] = useState<string>(
-    format(new Date(), "yyyy-MM-dd")
-  );
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
-  const [viewMode, setViewMode] = useState<"cards" | "table" | "list">("cards");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const date = searchParams.get("deliveries_date") || format(new Date(), "yyyy-MM-dd");
+  const page = parseInt(searchParams.get("deliveries_page") || "1");
+  const limit = parseInt(searchParams.get("deliveries_limit") || "20");
+  const viewMode = (searchParams.get("deliveries_view") as "cards" | "table" | "list") || "cards";
+  const shippingProvider = searchParams.get("shipping_provider") || "all";
+  const wilaya = searchParams.get("wilaya") || "all";
+  const contactStatusFilter = searchParams.get("contact_status") || "all";
+  const activeTab = (searchParams.get("deliveries_tab") as "waiting" | "done") || "waiting";
+
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
-  const [shippingProvider, setShippingProvider] = useState<string>("all");
-  const [wilaya, setWilaya] = useState<string>("all");
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedCustomerPhone, setSelectedCustomerPhone] = useState<string | undefined>();
   const [selectedOrderId, setSelectedOrderId] = useState<number | undefined>();
-  const [activeTab, setActiveTab] = useState<"waiting" | "done">("waiting");
+  
+  // Helper to update params
+  const updateParams = (updates: Record<string, string | number | undefined | null>) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === "") {
+          newParams.delete(key);
+        } else {
+          newParams.set(key, String(value));
+        }
+      });
+      return newParams;
+    });
+  };
+
+  const setDate = (d: string) => updateParams({ deliveries_date: d, deliveries_page: 1 });
+  const setPage = (p: number) => updateParams({ deliveries_page: p });
+  const setLimit = (l: number) => updateParams({ deliveries_limit: l, deliveries_page: 1 });
+  const setViewMode = (v: string) => updateParams({ deliveries_view: v });
+  const setShippingProvider = (p: string) => updateParams({ shipping_provider: p, deliveries_page: 1 });
+  const setWilaya = (w: string) => updateParams({ wilaya: w, deliveries_page: 1 });
+  const setContactStatusFilter = (s: string) => updateParams({ contact_status: s, deliveries_page: 1 });
+  const setActiveTab = (t: string) => updateParams({ deliveries_tab: t, deliveries_page: 1 });
   
   // Order history drawer state
   const [orderHistoryDrawerOpen, setOrderHistoryDrawerOpen] = useState(false);
@@ -132,9 +158,31 @@ export default function DailyDeliveriesPage() {
       setIssueTicketComment("");
     }
   }, [pendingIssueTicket, issueTicketDialogOpen]);
+  
+  // Update delivery status mutation
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ orderId, status }: { orderId: number; status: string }) => 
+      updateOrderDeliveryStatus(orderId, status),
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Status updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["daily-deliveries"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update status",
+        variant: "destructive",
+      });
+    },
+  });
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab, shippingProvider, wilaya],
+  const handleStatusUpdate = (orderId: number, status: string) => {
+    updateStatusMutation.mutate({ orderId, status });
+  };  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab, shippingProvider, wilaya, contactStatusFilter],
     queryFn: () => getDailyDeliveries(
       date, 
       companyId, 
@@ -142,7 +190,8 @@ export default function DailyDeliveriesPage() {
       limit, 
       activeTab, 
       shippingProvider === "all" ? undefined : shippingProvider, 
-      wilaya === "all" ? undefined : wilaya
+      wilaya === "all" ? undefined : wilaya,
+      contactStatusFilter === "all" ? undefined : contactStatusFilter
     ),
     enabled: !!companyId,
   });
@@ -157,10 +206,7 @@ export default function DailyDeliveriesPage() {
 
   const deliveryData: DailyDelivery | undefined = data?.data;
 
-  // Reset to page 1 when date, activeTab, shippingProvider, or wilaya changes
-  useEffect(() => {
-    setPage(1);
-  }, [date, activeTab, shippingProvider, wilaya]);
+
 
   return (
     <div className="space-y-6">
@@ -199,6 +245,24 @@ export default function DailyDeliveriesPage() {
                   {city.label}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={contactStatusFilter}
+            onValueChange={(value) => setContactStatusFilter(value)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Contact Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="contacted">Contacted</SelectItem>
+              <SelectItem value="no_answer_1">No Answer 1</SelectItem>
+              <SelectItem value="no_answer_2">No Answer 2</SelectItem>
+              <SelectItem value="no_answer_3">No Answer 3</SelectItem>
+              <SelectItem value="no_answer_4">No Answer 4</SelectItem>
+              <SelectItem value="no_answer_5">No Answer 5</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={() => refetch()}>Refresh</Button>
@@ -306,6 +370,7 @@ export default function DailyDeliveriesPage() {
                   setPendingIssueTicket({ order, customerPhone, customerName });
                   setIssueTicketDialogOpen(true);
                 }}
+                onUpdateStatus={handleStatusUpdate}
               />
             )}
             {viewMode === "table" && (
@@ -328,6 +393,7 @@ export default function DailyDeliveriesPage() {
                   setPendingIssueTicket({ order, customerPhone, customerName });
                   setIssueTicketDialogOpen(true);
                 }}
+                onUpdateStatus={handleStatusUpdate}
               />
             )}
             {viewMode === "list" && (
@@ -350,6 +416,7 @@ export default function DailyDeliveriesPage() {
                   setPendingIssueTicket({ order, customerPhone, customerName });
                   setIssueTicketDialogOpen(true);
                 }}
+                onUpdateStatus={handleStatusUpdate}
               />
             )}
           </TabsContent>
@@ -376,6 +443,7 @@ export default function DailyDeliveriesPage() {
                   setPendingIssueTicket({ order, customerPhone, customerName });
                   setIssueTicketDialogOpen(true);
                 }}
+                onUpdateStatus={handleStatusUpdate}
               />
             )}
             {viewMode === "table" && (
@@ -398,6 +466,7 @@ export default function DailyDeliveriesPage() {
                   setPendingIssueTicket({ order, customerPhone, customerName });
                   setIssueTicketDialogOpen(true);
                 }}
+                onUpdateStatus={handleStatusUpdate}
               />
             )}
             {viewMode === "list" && (
@@ -420,6 +489,7 @@ export default function DailyDeliveriesPage() {
                   setPendingIssueTicket({ order, customerPhone, customerName });
                   setIssueTicketDialogOpen(true);
                 }}
+                onUpdateStatus={handleStatusUpdate}
               />
             )}
           </TabsContent>
@@ -435,7 +505,6 @@ export default function DailyDeliveriesPage() {
               value={limit.toString()}
               onValueChange={(value) => {
                 setLimit(Number(value));
-                setPage(1);
               }}
             >
               <SelectTrigger className="w-[100px]">
@@ -453,7 +522,7 @@ export default function DailyDeliveriesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => setPage(Math.max(1, page - 1))}
               disabled={!deliveryData.pagination.has_prev || isLoading}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -465,7 +534,7 @@ export default function DailyDeliveriesPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => p + 1)}
+              onClick={() => setPage(page + 1)}
               disabled={!deliveryData.pagination.has_next || isLoading}
             >
               Next
@@ -617,6 +686,7 @@ function CardsView({
   onViewHistory,
   onCreateExchange,
   onCreateIssue,
+  onUpdateStatus,
 }: {
   deliveries: CustomerDeliveryInfo[];
   expandedOrders: Set<number>;
@@ -625,6 +695,7 @@ function CardsView({
   onViewHistory: (phone: string, name?: string) => void;
   onCreateExchange: (orderId: number) => void;
   onCreateIssue: (order: OrderDeliveryInfo, phone: string, name?: string) => void;
+  onUpdateStatus: (orderId: number, status: string) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -634,6 +705,12 @@ function CardsView({
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 {delivery.customer_name || delivery.customer_phone}
+                {delivery.orders.length > 0 && (
+                   <StatusSelector 
+                     status={delivery.orders[0].delivery_contact_status} 
+                     onChange={(newStatus) => onUpdateStatus(delivery.orders[0].id, newStatus)}
+                   />
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -736,6 +813,7 @@ function CardsView({
                           order={order}
                           customerPhone={delivery.customer_phone}
                           onRecordReview={onReview}
+                          onUpdateStatus={onUpdateStatus}
                         />
                       )}
                     </div>
@@ -757,12 +835,15 @@ function TableView({
   onViewHistory,
   onCreateExchange,
   onCreateIssue,
+  onUpdateStatus,
 }: {
   deliveries: CustomerDeliveryInfo[];
   onReview: (phone: string, orderId: number) => void;
   onViewHistory: (phone: string, name?: string) => void;
   onCreateExchange: (orderId: number) => void;
+
   onCreateIssue: (order: OrderDeliveryInfo, phone: string, name?: string) => void;
+  onUpdateStatus: (orderId: number, status: string) => void;
 }) {
   return (
     <Card>
@@ -774,6 +855,7 @@ function TableView({
               <TableHead>Phone</TableHead>
               <TableHead>Orders</TableHead>
               <TableHead>Total Amount</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="w-[400px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -791,6 +873,14 @@ function TableView({
                   <TableCell>{delivery.customer_phone}</TableCell>
                   <TableCell>{delivery.orders.length}</TableCell>
                   <TableCell>{totalAmount} DZD</TableCell>
+                  <TableCell>
+                    {delivery.orders.length > 0 && (
+                        <StatusSelector 
+                          status={delivery.orders[0].delivery_contact_status} 
+                          onChange={(newStatus) => onUpdateStatus(delivery.orders[0].id, newStatus)}
+                        />
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button
@@ -856,12 +946,15 @@ function ListView({
   onViewHistory,
   onCreateExchange,
   onCreateIssue,
+  onUpdateStatus,
 }: {
   deliveries: CustomerDeliveryInfo[];
   onReview: (phone: string, orderId: number) => void;
   onViewHistory: (phone: string, name?: string) => void;
   onCreateExchange: (orderId: number) => void;
+
   onCreateIssue: (order: OrderDeliveryInfo, phone: string, name?: string) => void;
+  onUpdateStatus: (orderId: number, status: string) => void;
 }) {
   return (
     <div className="space-y-2">
@@ -875,12 +968,25 @@ function ListView({
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="font-medium">
-                    {delivery.customer_name || delivery.customer_phone}
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="font-medium">
+                      {delivery.customer_name || delivery.customer_phone}
+                    </div>
+                    {delivery.orders.length > 0 && (
+                      <StatusBadge status={delivery.orders[0].delivery_contact_status} />
+                    )}
                   </div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm text-muted-foreground mb-2">
                     {delivery.customer_phone} • {delivery.orders.length} orders • {totalAmount} DZD
                   </div>
+                  {delivery.orders.length > 0 && (
+                    <div className="w-[200px]">
+                       <StatusSelector 
+                          status={delivery.orders[0].delivery_contact_status} 
+                          onChange={(newStatus) => onUpdateStatus(delivery.orders[0].id, newStatus)}
+                        />
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Button
@@ -940,14 +1046,29 @@ function ListView({
 function OrderDetails({ 
   order, 
   customerPhone, 
-  onRecordReview 
+  onRecordReview,
+  onUpdateStatus,
 }: { 
   order: OrderDeliveryInfo; 
   customerPhone: string; 
   onRecordReview: (phone: string, orderId: number) => void;
+  onUpdateStatus: (orderId: number, status: string) => void;
 }) {
   return (
     <div className="p-4 space-y-3 border-t bg-background">
+      {/* Contact Status */}
+      <div>
+        <div className="font-semibold mb-2 flex items-center gap-2">
+          <Phone className="h-4 w-4" />
+          Contact Status
+        </div>
+        <div className="w-full max-w-xs">
+           <StatusSelector 
+              status={order.delivery_contact_status} 
+              onChange={(newStatus) => onUpdateStatus(order.id, newStatus)}
+            />
+        </div>
+      </div>
       {/* Order Items */}
       {order.line_items && order.line_items.length > 0 && (
         <div>
@@ -1035,3 +1156,91 @@ function OrderDetails({
   );
 }
 
+
+function StatusBadge({ status }: { status?: string }) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "contacted": return "bg-green-100 text-green-800 border-green-200";
+      case "no_answer_1": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "no_answer_2": return "bg-orange-100 text-orange-800 border-orange-200";
+      case "no_answer_3": return "bg-red-100 text-red-800 border-red-200";
+      case "no_answer_4": return "bg-purple-100 text-purple-800 border-purple-200";
+      case "no_answer_5": return "bg-red-900 text-red-100 border-red-800";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "contacted": return "Contacted";
+      case "no_answer_1": return "No Answer 1";
+      case "no_answer_2": return "No Answer 2";
+      case "no_answer_3": return "No Answer 3";
+      case "no_answer_4": return "No Answer 4";
+      case "no_answer_5": return "No Answer 5";
+      default: return "Pending";
+    }
+  };
+
+  const currentStatus = status || "pending";
+
+  return (
+    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border ${getStatusColor(currentStatus)}`}>
+      {getStatusLabel(currentStatus)}
+    </span>
+  );
+}
+
+function StatusSelector({ status, onChange }: { status?: string; onChange: (status: string) => void }) {
+  return (
+    <Select value={status || "pending"} onValueChange={onChange}>
+      <SelectTrigger className="h-8 text-xs">
+        <SelectValue placeholder="Status" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="pending">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-gray-400" />
+            <span>Pending</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="contacted">
+           <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+            <span>Contacted</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="no_answer_1">
+           <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-yellow-500" />
+            <span>No Answer 1</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="no_answer_2">
+           <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-orange-500" />
+            <span>No Answer 2</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="no_answer_3">
+           <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500" />
+            <span>No Answer 3</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="no_answer_4">
+           <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            <span>No Answer 4</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="no_answer_5">
+           <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-900" />
+            <span>No Answer 5</span>
+          </div>
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}

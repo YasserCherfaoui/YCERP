@@ -6,15 +6,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import {
-  getWhatsAppAvailablePaths,
-  getWhatsAppSettings,
-  getWhatsAppTemplateDetails,
-  getWhatsAppTemplates,
-  updateWhatsAppSettings,
-  type AvailablePath,
-  type ParameterMapping,
-  type WhatsAppSettings,
-  type WhatsAppTemplate,
+    getWhatsAppAvailablePaths,
+    getWhatsAppSettings,
+    getWhatsAppTemplateDetails,
+    getWhatsAppTemplates,
+    updateWhatsAppSettings,
+    type AvailablePath,
+    type ParameterMapping,
+    type WhatsAppSettings,
+    type WhatsAppTemplate,
 } from "@/services/whatsapp-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
@@ -101,6 +101,8 @@ export default function WhatsAppSettingsPage() {
       language_code: string;
       enabled: boolean;
       parameter_mappings?: ParameterMapping[];
+      phone_numbers?: string[];
+      message_type?: "text" | "template";
     }) => updateWhatsAppSettings(company.ID, data),
     onSuccess: () => {
       toast({
@@ -123,7 +125,9 @@ export default function WhatsAppSettingsPage() {
     templateName: string,
     languageCode: string,
     enabled: boolean,
-    parameterMappings?: ParameterMapping[]
+    parameterMappings?: ParameterMapping[],
+    phoneNumbers?: string[],
+    messageType?: "text" | "template"
   ) => {
     updateMutation.mutate({
       action,
@@ -131,6 +135,8 @@ export default function WhatsAppSettingsPage() {
       language_code: languageCode,
       enabled,
       parameter_mappings: parameterMappings,
+      phone_numbers: phoneNumbers,
+      message_type: messageType,
     });
   };
 
@@ -176,6 +182,13 @@ export default function WhatsAppSettingsPage() {
   );
 }
 
+// ... imports
+import { Input } from "@/components/ui/input";
+import { Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+
+// ... existing code ...
+
 function ActionCard({
   action,
   setting,
@@ -191,18 +204,24 @@ function ActionCard({
     templateName: string,
     languageCode: string,
     enabled: boolean,
-    parameterMappings?: ParameterMapping[]
+    parameterMappings?: ParameterMapping[],
+    phoneNumbers?: string[],
+    messageType?: "text" | "template"
   ) => void;
   isUpdating: boolean;
 }) {
   const selectedTemplate = setting?.template_name || "";
   const selectedLanguage = setting?.language_code || "en";
   const isEnabled = setting?.enabled ?? false;
+  const initialPhoneNumbers = setting?.phone_numbers || [];
+  const messageType = setting?.message_type || "template";
+  const [phoneNumbers, setPhoneNumbers] = useState<string[]>(initialPhoneNumbers);
+  const [newPhoneNumber, setNewPhoneNumber] = useState("");
 
   const { data: templateDetails } = useQuery({
     queryKey: ["whatsapp-template-details", selectedTemplate, selectedLanguage],
     queryFn: () => getWhatsAppTemplateDetails(selectedTemplate, selectedLanguage),
-    enabled: !!selectedTemplate && !!selectedLanguage,
+    enabled: !!selectedTemplate && !!selectedLanguage && messageType === "template",
   });
 
   const { data: pathsData } = useQuery({
@@ -226,15 +245,8 @@ function ActionCard({
     return m;
   }, [setting?.parameter_mappings]);
 
-  const handleMappingChange = (componentType: "header" | "body", paramIndex: number, path: string) => {
-    const next = { ...mappingByKey };
-    const key = `${componentType}:${paramIndex}`;
-    if (path && path !== "__none__") {
-      next[key] = path;
-    } else {
-      delete next[key];
-    }
-    const arr: ParameterMapping[] = Object.entries(next)
+  const getMappingsArray = (currentMappingByKey: Record<string, string>) => {
+    return Object.entries(currentMappingByKey)
       .filter(([, p]) => p)
       .map(([k, p]) => {
         const [comp, idx] = k.split(":");
@@ -250,7 +262,44 @@ function ActionCard({
         }
         return a.parameter_index - b.parameter_index;
       });
-    onUpdate(action.value, selectedTemplate, selectedLanguage, isEnabled, arr);
+  };
+
+  const handleUtilityUpdate = (
+    newEnabled: boolean,
+    newTemplate: string,
+    newLang: string,
+    newMappings: ParameterMapping[],
+    newPhoneNumbers: string[],
+    newMessageType: "text" | "template"
+  ) => {
+    onUpdate(action.value, newTemplate, newLang, newEnabled, newMappings, newPhoneNumbers, newMessageType);
+  };
+
+  const handleMappingChange = (componentType: "header" | "body", paramIndex: number, path: string) => {
+    const next = { ...mappingByKey };
+    const key = `${componentType}:${paramIndex}`;
+    if (path && path !== "__none__") {
+      next[key] = path;
+    } else {
+      delete next[key];
+    }
+    const arr = getMappingsArray(next);
+    handleUtilityUpdate(isEnabled, selectedTemplate, selectedLanguage, arr, phoneNumbers, messageType);
+  };
+
+  const handleAddPhoneNumber = () => {
+    if (newPhoneNumber && !phoneNumbers.includes(newPhoneNumber)) {
+      const updatedNumbers = [...phoneNumbers, newPhoneNumber];
+      setPhoneNumbers(updatedNumbers);
+      setNewPhoneNumber("");
+      handleUtilityUpdate(isEnabled, selectedTemplate, selectedLanguage, getMappingsArray(mappingByKey), updatedNumbers, messageType);
+    }
+  };
+
+  const handleRemovePhoneNumber = (phone: string) => {
+    const updatedNumbers = phoneNumbers.filter((p) => p !== phone);
+    setPhoneNumbers(updatedNumbers);
+    handleUtilityUpdate(isEnabled, selectedTemplate, selectedLanguage, getMappingsArray(mappingByKey), updatedNumbers, messageType);
   };
 
   return (
@@ -265,147 +314,228 @@ function ActionCard({
           <Switch
             id={`enabled-${action.value}`}
             checked={isEnabled}
-            disabled={!selectedTemplate || isUpdating}
+            disabled={(messageType === "template" && !selectedTemplate) || isUpdating}
             onCheckedChange={(checked) => {
-              if (!selectedTemplate) return;
-              const arr: ParameterMapping[] = Object.entries(mappingByKey)
-                .filter(([, p]) => p)
-                .map(([k, p]) => {
-                  const [comp, idx] = k.split(":");
-                  return {
-                    parameter_index: parseInt(idx, 10),
-                    path: p,
-                    component_type: comp as "header" | "body",
-                  };
-                })
-                .sort((a, b) => {
-                  if (a.component_type !== b.component_type) {
-                    return a.component_type === "header" ? -1 : 1;
-                  }
-                  return a.parameter_index - b.parameter_index;
-                });
-              onUpdate(action.value, selectedTemplate, selectedLanguage, checked, arr);
+              if (messageType === "template" && !selectedTemplate) return;
+              handleUtilityUpdate(checked, selectedTemplate, selectedLanguage, getMappingsArray(mappingByKey), phoneNumbers, messageType);
             }}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`template-${action.value}`}>Template</Label>
-          <Select
-            value={selectedTemplate}
-            disabled={isUpdating}
-            onValueChange={(value) => {
-              const t = templates.find((x) => x.name === value);
-              const lang = t?.language || "en";
-              // Reset mappings when template changes
-              onUpdate(action.value, value, lang, isEnabled, []);
-            }}
-          >
-            <SelectTrigger id={`template-${action.value}`}>
-              <SelectValue placeholder="Select a template" />
-            </SelectTrigger>
-            <SelectContent>
-              {templates.length === 0 ? (
-                <SelectItem value="no-templates" disabled>
-                  No templates available
-                </SelectItem>
-              ) : (
-                templates.map((t) => (
-                  <SelectItem key={`${t.name}-${t.language}`} value={t.name}>
-                    {t.name} ({t.language}) - {t.status}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
+          <Label>Message Type</Label>
+          <div className="flex gap-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id={`type-template-${action.value}`}
+                name={`message-type-${action.value}`}
+                value="template"
+                checked={messageType === "template"}
+                onChange={() => handleUtilityUpdate(isEnabled, selectedTemplate, selectedLanguage, getMappingsArray(mappingByKey), phoneNumbers, "template")}
+                disabled={isUpdating}
+                className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor={`type-template-${action.value}`}>Template Message</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id={`type-text-${action.value}`}
+                name={`message-type-${action.value}`}
+                value="text"
+                checked={messageType === "text"}
+                onChange={() => handleUtilityUpdate(isEnabled, selectedTemplate, selectedLanguage, getMappingsArray(mappingByKey), phoneNumbers, "text")}
+                disabled={isUpdating}
+                className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor={`type-text-${action.value}`}>Text Message</Label>
+            </div>
+          </div>
         </div>
 
-        {selectedTemplate && templateParams.length > 0 && (
-          <div className="space-y-4">
-            <div>
-              <Label>Parameter mappings</Label>
-              <p className="text-sm text-muted-foreground">
-                Map each template parameter to a context path (e.g. woo_order.billing_name).
-              </p>
-            </div>
+        {/* Phone Numbers Section - For supplier_bill_created */}
+        {action.value === "supplier_bill_created" && (
+          <div className="space-y-2 rounded-lg border p-3">
+            <Label className="text-sm font-semibold">Notification Recipients</Label>
+            <p className="text-xs text-muted-foreground">
+              Add phone numbers to receive the bill notification. If empty, no notifications will be sent.
+            </p>
             
-            {headerParams.length > 0 && (
-              <div className="space-y-2 rounded-lg border p-3">
-                <Label className="text-sm font-semibold">Header Parameters</Label>
-                <div className="grid gap-2">
-                  {headerParams.map((param) => {
-                    const key = `header:${param.paramIndex}`;
-                    return (
-                      <div key={key} className="flex items-center gap-2">
-                        <span className="w-32 shrink-0 text-sm">Header {param.paramIndex}</span>
-                        <Select
-                          value={mappingByKey[key] || "__none__"}
-                          onValueChange={(path) => handleMappingChange("header", param.paramIndex, path)}
-                          disabled={isUpdating}
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder="Select path" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="__none__">— None —</SelectItem>
-                            {availablePaths.map((p) => (
-                              <SelectItem key={p.path} value={p.path}>
-                                {p.label} ({p.path})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            <div className="flex gap-2">
+              <Input
+                placeholder="e.g. +1234567890"
+                value={newPhoneNumber}
+                onChange={(e) => setNewPhoneNumber(e.target.value)}
+                className="max-w-[200px]"
+              />
+              <Button type="button" variant="outline" size="icon" onClick={handleAddPhoneNumber}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
 
-            {bodyParams.length > 0 && (
-              <div className="space-y-2 rounded-lg border p-3">
-                <Label className="text-sm font-semibold">Body Parameters</Label>
-                <div className="grid gap-2">
-                  {bodyParams.map((param) => {
-                    const key = `body:${param.paramIndex}`;
-                    return (
-                      <div key={key} className="flex items-center gap-2">
-                        <span className="w-32 shrink-0 text-sm">Body {param.paramIndex}</span>
-                        <Select
-                          value={mappingByKey[key] || "__none__"}
-                          onValueChange={(path) => handleMappingChange("body", param.paramIndex, path)}
-                          disabled={isUpdating}
-                        >
-                          <SelectTrigger className="flex-1">
-                            <SelectValue placeholder="Select path" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="__none__">— None —</SelectItem>
-                            {availablePaths.map((p) => (
-                              <SelectItem key={p.path} value={p.path}>
-                                {p.label} ({p.path})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    );
-                  })}
+            <div className="space-y-1">
+              {phoneNumbers.map((phone) => (
+                <div key={phone} className="flex items-center justify-between rounded bg-muted p-2 px-3 text-sm">
+                  <span>{phone}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    onClick={() => handleRemovePhoneNumber(phone)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-              </div>
-            )}
+              ))}
+              {phoneNumbers.length === 0 && (
+                <div className="text-sm text-muted-foreground italic">No recipients configured</div>
+              )}
+            </div>
           </div>
+        )}
+
+        {messageType === "text" && (
+            <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
+                <p className="font-medium">Text Message Mode</p>
+                <p>The system will send a standard WhatsApp text message containing the full details of the supplier bill (items, prices, total).</p>
+            </div>
+        )}
+
+        {messageType === "template" && (
+            <>
+                <div className="space-y-2">
+                  <Label htmlFor={`template-${action.value}`}>Template</Label>
+                  <Select
+                    value={selectedTemplate}
+                    disabled={isUpdating}
+                    onValueChange={(value) => {
+                      const t = templates.find((x) => x.name === value);
+                      const lang = t?.language || "en";
+                      // Reset mappings when template changes, keep phone numbers
+                      handleUtilityUpdate(isEnabled, value, lang, [], phoneNumbers, messageType);
+                    }}
+                  >
+                    <SelectTrigger id={`template-${action.value}`}>
+                      <SelectValue placeholder="Select a template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {templates.length === 0 ? (
+                        <SelectItem value="no-templates" disabled>
+                          No templates available
+                        </SelectItem>
+                      ) : (
+                        templates.map((t) => (
+                          <SelectItem key={`${t.name}-${t.language}`} value={t.name}>
+                            {t.name} ({t.language}) - {t.status}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedTemplate && templateParams.length > 0 && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Parameter mappings</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Map each template parameter to a context path (e.g. woo_order.billing_name).
+                      </p>
+                    </div>
+                    
+                    {headerParams.length > 0 && (
+                      <div className="space-y-2 rounded-lg border p-3">
+                        <Label className="text-sm font-semibold">Header Parameters</Label>
+                        <div className="grid gap-2">
+                          {headerParams.map((param) => {
+                            const key = `header:${param.paramIndex}`;
+                            return (
+                              <div key={key} className="flex items-center gap-2">
+                                <span className="w-32 shrink-0 text-sm">Header {param.paramIndex}</span>
+                                <Select
+                                  value={mappingByKey[key] || "__none__"}
+                                  onValueChange={(path) => handleMappingChange("header", param.paramIndex, path)}
+                                  disabled={isUpdating}
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder="Select path" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="__none__">— None —</SelectItem>
+                                    {availablePaths.map((p) => (
+                                      <SelectItem key={p.path} value={p.path}>
+                                        {p.label} ({p.path})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {bodyParams.length > 0 && (
+                      <div className="space-y-2 rounded-lg border p-3">
+                        <Label className="text-sm font-semibold">Body Parameters</Label>
+                        <div className="grid gap-2">
+                          {bodyParams.map((param) => {
+                            const key = `body:${param.paramIndex}`;
+                            return (
+                              <div key={key} className="flex items-center gap-2">
+                                <span className="w-32 shrink-0 text-sm">Body {param.paramIndex}</span>
+                                <Select
+                                  value={mappingByKey[key] || "__none__"}
+                                  onValueChange={(path) => handleMappingChange("body", param.paramIndex, path)}
+                                  disabled={isUpdating}
+                                >
+                                  <SelectTrigger className="flex-1">
+                                    <SelectValue placeholder="Select path" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="__none__">— None —</SelectItem>
+                                    {availablePaths.map((p) => (
+                                      <SelectItem key={p.path} value={p.path}>
+                                        {p.label} ({p.path})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+            </>
         )}
 
         {selectedTemplate && (
           <div className="rounded-lg bg-muted p-3 text-sm">
             <div className="font-medium">Current configuration</div>
             <div className="mt-1 text-muted-foreground">
-              Template: <span className="font-mono">{selectedTemplate}</span>
+              Type: <span className="font-mono">{messageType === "text" ? "Text Message" : "Template"}</span>
             </div>
-            <div className="text-muted-foreground">
-              Language: <span className="font-mono">{selectedLanguage}</span>
-            </div>
+            {messageType === "template" && (
+                <>
+                <div className="mt-1 text-muted-foreground">
+                  Template: <span className="font-mono">{selectedTemplate}</span>
+                </div>
+                <div className="text-muted-foreground">
+                  Language: <span className="font-mono">{selectedLanguage}</span>
+                </div>
+                </>
+            )}
+            {action.value === "supplier_bill_created" && (
+                <div className="text-muted-foreground">
+                  Recipients: <span className="font-mono">{phoneNumbers.length} configured</span>
+                </div>
+            )}
             <div className="text-muted-foreground">
               Status:{" "}
               {isEnabled ? (
