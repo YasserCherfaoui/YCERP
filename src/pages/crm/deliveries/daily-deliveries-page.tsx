@@ -56,6 +56,7 @@ export default function DailyDeliveriesPage() {
   const wilaya = searchParams.get("wilaya") || "all";
   const contactStatusFilter = searchParams.get("contact_status") || "all";
   const activeTab = (searchParams.get("deliveries_tab") as "waiting" | "done") || "waiting";
+  const phoneSearch = searchParams.get("phone") || "";
 
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -85,6 +86,7 @@ export default function DailyDeliveriesPage() {
   const setWilaya = (w: string) => updateParams({ wilaya: w, deliveries_page: 1 });
   const setContactStatusFilter = (s: string) => updateParams({ contact_status: s, deliveries_page: 1 });
   const setActiveTab = (t: string) => updateParams({ deliveries_tab: t, deliveries_page: 1 });
+  const setPhoneSearch = (v: string) => updateParams({ phone: v || undefined, deliveries_page: 1 });
   
   // Order history drawer state
   const [orderHistoryDrawerOpen, setOrderHistoryDrawerOpen] = useState(false);
@@ -182,7 +184,7 @@ export default function DailyDeliveriesPage() {
   const handleStatusUpdate = (orderId: number, status: string) => {
     updateStatusMutation.mutate({ orderId, status });
   };  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab, shippingProvider, wilaya, contactStatusFilter],
+    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab, shippingProvider, wilaya, contactStatusFilter, phoneSearch],
     queryFn: () => getDailyDeliveries(
       date, 
       companyId, 
@@ -191,7 +193,8 @@ export default function DailyDeliveriesPage() {
       activeTab, 
       shippingProvider === "all" ? undefined : shippingProvider, 
       wilaya === "all" ? undefined : wilaya,
-      contactStatusFilter === "all" ? undefined : contactStatusFilter
+      contactStatusFilter === "all" ? undefined : contactStatusFilter,
+      phoneSearch.trim() || undefined
     ),
     enabled: !!companyId,
   });
@@ -217,6 +220,13 @@ export default function DailyDeliveriesPage() {
             value={date}
             onChange={(e) => setDate(e.target.value)}
             className="w-40"
+          />
+          <Input
+            type="text"
+            placeholder="Search by phone"
+            value={phoneSearch}
+            onChange={(e) => setPhoneSearch(e.target.value)}
+            className="w-44"
           />
           <Select
             value={shippingProvider}
