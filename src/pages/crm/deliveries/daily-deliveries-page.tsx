@@ -38,7 +38,7 @@ import { getWooCommerceOrder } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, CreditCard, History, LayoutGrid, List, MapPin, MessageSquare, Package, Phone, RefreshCw, Table2 } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, CreditCard, Filter, History, LayoutGrid, List, MapPin, MessageSquare, Package, Phone, RefreshCw, Table2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
@@ -56,6 +56,7 @@ export default function DailyDeliveriesPage() {
   const wilaya = searchParams.get("wilaya") || "all";
   const contactStatusFilter = searchParams.get("contact_status") || "all";
   const activeTab = (searchParams.get("deliveries_tab") as "waiting" | "done") || "waiting";
+  const phoneSearch = searchParams.get("phone") || "";
 
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -85,6 +86,7 @@ export default function DailyDeliveriesPage() {
   const setWilaya = (w: string) => updateParams({ wilaya: w, deliveries_page: 1 });
   const setContactStatusFilter = (s: string) => updateParams({ contact_status: s, deliveries_page: 1 });
   const setActiveTab = (t: string) => updateParams({ deliveries_tab: t, deliveries_page: 1 });
+  const setPhoneSearch = (v: string) => updateParams({ phone: v || undefined, deliveries_page: 1 });
   
   // Order history drawer state
   const [orderHistoryDrawerOpen, setOrderHistoryDrawerOpen] = useState(false);
@@ -182,7 +184,7 @@ export default function DailyDeliveriesPage() {
   const handleStatusUpdate = (orderId: number, status: string) => {
     updateStatusMutation.mutate({ orderId, status });
   };  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab, shippingProvider, wilaya, contactStatusFilter],
+    queryKey: ["daily-deliveries", companyId, date, page, limit, activeTab, shippingProvider, wilaya, contactStatusFilter, phoneSearch],
     queryFn: () => getDailyDeliveries(
       date, 
       companyId, 
@@ -191,7 +193,8 @@ export default function DailyDeliveriesPage() {
       activeTab, 
       shippingProvider === "all" ? undefined : shippingProvider, 
       wilaya === "all" ? undefined : wilaya,
-      contactStatusFilter === "all" ? undefined : contactStatusFilter
+      contactStatusFilter === "all" ? undefined : contactStatusFilter,
+      phoneSearch.trim() || undefined
     ),
     enabled: !!companyId,
   });
@@ -210,93 +213,136 @@ export default function DailyDeliveriesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-40"
-          />
-          <Select
-            value={shippingProvider}
-            onValueChange={(value) => setShippingProvider(value)}
-          >
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Shipping Provider" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Providers</SelectItem>
-              <SelectItem value="yalidine">Yalidine</SelectItem>
-              <SelectItem value="my_companies">My Companies</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={wilaya}
-            onValueChange={(value) => setWilaya(value)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Wilaya" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Wilayas</SelectItem>
-              {cities.map((city) => (
-                <SelectItem key={city.key} value={city.label}>
-                  {city.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={contactStatusFilter}
-            onValueChange={(value) => setContactStatusFilter(value)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Contact Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="contacted">Contacted</SelectItem>
-              <SelectItem value="no_answer_1">No Answer 1</SelectItem>
-              <SelectItem value="no_answer_2">No Answer 2</SelectItem>
-              <SelectItem value="no_answer_3">No Answer 3</SelectItem>
-              <SelectItem value="no_answer_4">No Answer 4</SelectItem>
-              <SelectItem value="no_answer_5">No Answer 5</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={() => refetch()}>Refresh</Button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">View:</span>
-          <div className="flex border rounded-md">
-            <Button
-              variant={viewMode === "cards" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("cards")}
-              className="rounded-r-none"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "table" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("table")}
-              className="rounded-none border-x"
-            >
-              <Table2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className="rounded-l-none"
-            >
-              <List className="h-4 w-4" />
-            </Button>
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <CardTitle className="text-base font-medium flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              Filters
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">View</span>
+              <div className="flex border rounded-md bg-muted/30">
+                <Button
+                  variant={viewMode === "cards" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("cards")}
+                  className="rounded-r-none"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "table" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("table")}
+                  className="rounded-none border-x"
+                >
+                  <Table2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="rounded-l-none"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => refetch()} className="shrink-0">
+                <RefreshCw className="h-4 w-4 mr-1.5" />
+                Refresh
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="deliveries-date" className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                Date
+              </Label>
+              <Input
+                id="deliveries-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="deliveries-phone" className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5" />
+                Phone
+              </Label>
+              <Input
+                id="deliveries-phone"
+                type="text"
+                placeholder="Search by phone number"
+                value={phoneSearch}
+                onChange={(e) => setPhoneSearch(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="deliveries-provider" className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <Package className="h-3.5 w-3.5" />
+                Shipping provider
+              </Label>
+              <Select value={shippingProvider} onValueChange={(value) => setShippingProvider(value)}>
+                <SelectTrigger id="deliveries-provider" className="w-full">
+                  <SelectValue placeholder="Provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Providers</SelectItem>
+                  <SelectItem value="yalidine">Yalidine</SelectItem>
+                  <SelectItem value="my_companies">My Companies</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="deliveries-wilaya" className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" />
+                Wilaya
+              </Label>
+              <Select value={wilaya} onValueChange={(value) => setWilaya(value)}>
+                <SelectTrigger id="deliveries-wilaya" className="w-full">
+                  <SelectValue placeholder="Wilaya" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Wilayas</SelectItem>
+                  {cities.map((city) => (
+                    <SelectItem key={city.key} value={city.label}>
+                      {city.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="deliveries-contact" className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                <MessageSquare className="h-3.5 w-3.5" />
+                Contact status
+              </Label>
+              <Select value={contactStatusFilter} onValueChange={(value) => setContactStatusFilter(value)}>
+                <SelectTrigger id="deliveries-contact" className="w-full">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="contacted">Contacted</SelectItem>
+                  <SelectItem value="no_answer_1">No Answer 1</SelectItem>
+                  <SelectItem value="no_answer_2">No Answer 2</SelectItem>
+                  <SelectItem value="no_answer_3">No Answer 3</SelectItem>
+                  <SelectItem value="no_answer_4">No Answer 4</SelectItem>
+                  <SelectItem value="no_answer_5">No Answer 5</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stats Card */}
       {deliveryData && (
