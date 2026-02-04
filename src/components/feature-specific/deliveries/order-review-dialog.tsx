@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Dialog,
@@ -12,11 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -30,9 +24,9 @@ import { getWooCommerceOrder } from "@/services/woocommerce-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
-    Calendar as CalendarIcon,
     CreditCard,
-    Info, Package,
+    Info,
+    Package,
     ShoppingCart,
     Star,
     Truck,
@@ -530,66 +524,26 @@ export default function OrderReviewDialog({
                   />
                 </div>
                 <div>
-                  <Label>Follow-up Call Date (Optional)</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !followUpCallDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {followUpCallDate ? (
-                          format(new Date(followUpCallDate), "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={followUpCallDate ? new Date(followUpCallDate) : undefined}
-                        onSelect={(date) => 
-                          setFollowUpCallDate(date ? format(date, "yyyy-MM-dd") : "")
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="follow-up-date">Follow-up Call Date (Optional)</Label>
+                  <Input
+                    id="follow-up-date"
+                    type="date"
+                    value={followUpCallDate}
+                    onChange={(e) => setFollowUpCallDate(e.target.value)}
+                    className="w-full [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    min={format(new Date(), "yyyy-MM-dd")}
+                  />
                 </div>
                 <div>
-                  <Label>Customer Birthday (Optional)</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !birthday && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {birthday ? (
-                          format(new Date(birthday), "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={birthday ? new Date(birthday) : undefined}
-                        onSelect={(date) => 
-                          setBirthday(date ? format(date, "yyyy-MM-dd") : "")
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="birthday-date">Customer Birthday (Optional)</Label>
+                  <Input
+                    id="birthday-date"
+                    type="date"
+                    value={birthday}
+                    onChange={(e) => setBirthday(e.target.value)}
+                    className="w-full [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    max={format(new Date(), "yyyy-MM-dd")}
+                  />
                 </div>
               </div>
             </div>
