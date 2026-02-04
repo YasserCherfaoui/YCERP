@@ -14,7 +14,7 @@ export interface ApiEnvironmentConfig {
 export const API_ENVIRONMENTS: Record<ApiEnvironment, ApiEnvironmentConfig> = {
   GCP: {
     name: 'GCP',
-    url: import.meta.env.VITE_GCP_API_URL || 'http://localhost:8080',
+    url: import.meta.env.VITE_GCP_API_URL || 'http://localhost:9090',
     description: 'Google Cloud Platform (Production)',
   },
   RAILWAY: {
