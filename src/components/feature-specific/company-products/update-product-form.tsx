@@ -42,6 +42,7 @@ export default function MyForm({ product }: Props) {
       promo_price: product.promo_price,
       description: product.description,
       is_woo_picture: product.is_woo_picture,
+      is_bogo: product.is_bogo,
       is_active: product.is_active,
     },
   });
@@ -251,6 +252,23 @@ export default function MyForm({ product }: Props) {
                 <FormLabel>
                   Do you want to bring the product pictures from WooCommerce?
                 </FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="is_bogo"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center gap-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel>BOGO (buy one, get second at half price)</FormLabel>
                 <FormMessage />
               </FormItem>
             )}

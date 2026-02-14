@@ -12,6 +12,7 @@ export const createProductSchema = z.object({
     description: z.string().min(1, { message: "Description is required" }),
     sizes: z.array(z.number()).optional(),
     colors: z.array(z.string(), { message: "Color is required" }).optional(),
+    is_bogo: z.boolean().optional(),
     is_active: z.boolean().optional(),
 })
 
@@ -26,6 +27,7 @@ export const productDefaultValues = {
     description: "",
     colors: [],
     sizes: [],
+    is_bogo: false,
     is_active: true,
 }
 
@@ -69,6 +71,7 @@ export const updateProductSchema = z.object({
     promo_price: z.number().min(0, { message: "Promo price must be positive" }).optional(),
     description: z.string().optional(),
     is_woo_picture: z.boolean().optional(),
+    is_bogo: z.boolean().optional(),
     is_active: z.boolean().optional(),
 });
 

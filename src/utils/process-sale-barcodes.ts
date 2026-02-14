@@ -27,9 +27,15 @@ export const processSaleBarcode = (
         getDefaultPrice
     }: Props
 ) => {
-    if (barcodes.includes(input)) {
+    const trimmedInput = input?.trim() ?? "";
+    // Guard: never process empty input - prevents matching "" against barcodes
+    // (some items have empty qr_code) which would incorrectly increment the first matching item
+    if (!trimmedInput) {
+        return;
+    }
+    if (barcodes.includes(trimmedInput)) {
         const item = inventory!.data!.items.find(
-            (item) => item.product_variant?.qr_code === input
+            (item) => item.product_variant?.qr_code === trimmedInput
         );
         if (item) {
             const existingItemIndex = saleItems.findIndex(
@@ -45,7 +51,7 @@ export const processSaleBarcode = (
                     ...saleItems,
                     {
                         product_variant_id: item.product_variant?.ID ?? 0,
-                        variant_qr_code: input,
+                        variant_qr_code: trimmedInput,
                         price: defaultPrice,
                         quantity: 1,
                         discount: 0,
