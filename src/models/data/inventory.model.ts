@@ -64,3 +64,23 @@ export interface InventoryItemTransactionLog {
     reference_id?: number;
     reference_type: string;
 }
+
+export interface InventoryDiscrepancy {
+    inventory_item_id: number;
+    item_name: string;
+    current_quantity: number;
+    last_logged_quantity: number;
+    discrepancy: number;
+    product_name: string;
+    variant_info: string;
+    inventory_name: string;
+    last_log_timestamp: string | null;
+}
+
+export interface InventoryDiscrepanciesResponse {
+    discrepancies: InventoryDiscrepancy[];
+    total: number;
+    limit: number;
+    offset: number;
+    warning?: string;
+}

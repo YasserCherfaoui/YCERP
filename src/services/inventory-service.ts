@@ -1,5 +1,10 @@
 import { baseUrl } from "@/app/constants";
-import { Inventory, InventoryItem, InventoryItemTransactionLog } from "@/models/data/inventory.model";
+import {
+    Inventory,
+    InventoryItem,
+    InventoryItemTransactionLog,
+    InventoryDiscrepanciesResponse,
+} from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
 import { UpdateInventoryItemSchema } from "@/schemas/inventory-schema";
@@ -129,6 +134,31 @@ export const getFranchiseInventoryTotalCost = async (franchiseID: number): Promi
     }> = await response.json();
     return apiResponse;
 }
+
+export const getInventoryDiscrepancies = async (
+    inventoryId: number,
+    limit = 10,
+    offset = 0
+): Promise<APIResponse<InventoryDiscrepanciesResponse>> => {
+    const params = new URLSearchParams({
+        inventory_id: String(inventoryId),
+        limit: String(limit),
+        offset: String(offset),
+    });
+    const response = await fetch(`${baseUrl}/inventory/audit/discrepancies?${params}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory discrepancies.");
+    }
+    const apiResponse: APIResponse<InventoryDiscrepanciesResponse> = await response.json();
+    return apiResponse;
+};
 
 export const getInventoryByVariant = async (productVariantId: number): Promise<APIResponse<InventoryItem[]>> => {
     const response = await fetch(`${baseUrl}/inventory/variant/${productVariantId}`, {
