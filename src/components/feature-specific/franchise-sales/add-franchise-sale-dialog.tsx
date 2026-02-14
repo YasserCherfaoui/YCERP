@@ -34,6 +34,7 @@ import {
   downloadAndPrintFranchisePDF,
   getFranchiseInventory,
 } from "@/services/franchise-service";
+import { getBOGOLineTotal } from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -70,10 +71,10 @@ export default function () {
   const barcodes: string[] =
     inventory?.data?.items.map((item) => item.product_variant?.qr_code ?? "") ??
     [];
-  const myProcessBarcode = () =>
+  const myProcessBarcode = (barcodeValue?: string) =>
     processSaleBarcode({
       inventory: inventory!,
-      input,
+      input: barcodeValue ?? input,
       saleItems,
       setSaleItems,
       toast,
@@ -85,13 +86,16 @@ export default function () {
   useEffect(() => {
     let timeout;
 
-    const handleKeyPress = (e: any) => {
-      console.log(e.key);
-      // Prevent default form submission on Enter
-      if (e.key === "Enter") {
-        e.preventDefault();
-        myProcessBarcode();
-      }
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      const target = e.target as HTMLElement;
+      const barcodeInput = document.getElementById("barcde-input");
+      // Only process when Enter is pressed in the barcode input (avoid stale closure
+      // and avoid processing when Enter is pressed in quantity/price inputs)
+      if (!barcodeInput || target !== barcodeInput) return;
+      e.preventDefault();
+      const currentValue = (target as HTMLInputElement).value;
+      myProcessBarcode(currentValue);
     };
     const barcodeInput = document.getElementById("barcde-input");
     if (barcodeInput) {
@@ -107,7 +111,9 @@ export default function () {
     }, 1000); // Adjust timeout based on your scanner's speed
 
     return () => {
-      window.removeEventListener("keypress", handleKeyPress);
+      if (barcodeInput) {
+        barcodeInput.removeEventListener("keypress", handleKeyPress);
+      }
       clearTimeout(timeout);
     };
   }, [input]);
@@ -289,7 +295,9 @@ export default function () {
                     );
                     const product = inventoryItem?.product;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
-                    
+                    const isBOGO = product?.is_bogo && saleItem.quantity >= 2;
+                    const bogoLineTotal = isBOGO && product ? getBOGOLineTotal(product.price, saleItem.quantity) : 0;
+
                     return (
                     <TableRow key={idx}>
                       <TableCell>
@@ -301,6 +309,14 @@ export default function () {
                                 style: "currency",
                                 currency: "DZD",
                               }).format(product.promo_price ?? 0)}
+                            </Badge>
+                          )}
+                          {isBOGO && (
+                            <Badge variant="secondary" className="w-fit">
+                              BOGO: {saleItem.quantity} for {new Intl.NumberFormat("en-DZ", {
+                                style: "currency",
+                                currency: "DZD",
+                              }).format(bogoLineTotal)}
                             </Badge>
                           )}
                         </div>
@@ -427,13 +443,17 @@ export default function () {
                   style: "currency",
                   currency: "DZD",
                 }).format(
-                  saleItems.reduce(
-                    (prev, curr) =>
-                      prev +
-                      (curr.price - curr.discount) *
-                        curr.quantity,
-                    0
-                  )
+                  saleItems.reduce((prev, curr) => {
+                    const invItem = inventory?.data?.items.find(
+                      (s) => s.product_variant_id === curr.product_variant_id
+                    );
+                    const prod = invItem?.product;
+                    const lineTotal =
+                      prod?.is_bogo && curr.quantity >= 2
+                        ? getBOGOLineTotal(prod.price, curr.quantity) - curr.discount * curr.quantity
+                        : (curr.price - curr.discount) * curr.quantity;
+                    return prev + lineTotal;
+                  }, 0)
                 )}
               </span>
 
@@ -467,16 +487,17 @@ export default function () {
                   style: "currency",
                   currency: "DZD",
                 }).format(
-                  saleItems.reduce(
-                    (prev, curr) =>
-                      prev +
-                      ((inventory?.data?.items.find(
-                        (s) => s.product_variant_id == curr.product_variant_id
-                      )?.product?.price ?? 0) -
-                        curr.discount) *
-                        curr.quantity,
-                    0
-                  ) - form.watch("discount")
+                  saleItems.reduce((prev, curr) => {
+                    const invItem = inventory?.data?.items.find(
+                      (s) => s.product_variant_id === curr.product_variant_id
+                    );
+                    const prod = invItem?.product;
+                    const lineTotal =
+                      prod?.is_bogo && curr.quantity >= 2
+                        ? getBOGOLineTotal(prod.price, curr.quantity) - curr.discount * curr.quantity
+                        : (curr.price - curr.discount) * curr.quantity;
+                    return prev + lineTotal;
+                  }, 0) - form.watch("discount")
                 )}
               </span>
             </div>

@@ -65,10 +65,10 @@ export default function () {
   const barcodes: string[] =
     inventory?.data?.items.map((item) => item.product_variant?.qr_code ?? "") ??
     [];
-  const myProcessBarcode = () =>
+  const myProcessBarcode = (barcodeValue?: string) =>
     processSaleBarcode({
       inventory: inventory!,
-      input,
+      input: barcodeValue ?? input,
       saleItems,
       setSaleItems,
       toast,
@@ -79,14 +79,16 @@ export default function () {
 
   useEffect(() => {
     let timeout;
+    const BARCODE_INPUT_ID = "add-company-sale-algiers-barcode-input";
 
-    const handleKeyPress = (e: any) => {
-      console.log(e.key);
-      // Prevent default form submission on Enter
-      if (e.key === "Enter") {
-        e.preventDefault();
-        myProcessBarcode();
-      }
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      const target = e.target as HTMLElement;
+      const barcodeInput = document.getElementById(BARCODE_INPUT_ID);
+      if (!barcodeInput || target !== barcodeInput) return;
+      e.preventDefault();
+      const currentValue = (target as HTMLInputElement).value;
+      myProcessBarcode(currentValue);
     };
 
     window.addEventListener("keypress", handleKeyPress);
@@ -207,6 +209,7 @@ export default function () {
         <div className="flex flex-col gap-2">
           <span></span>
           <Input
+            id="add-company-sale-algiers-barcode-input"
             value={input}
             placeholder="Scan barcode..."
             className="w-full"

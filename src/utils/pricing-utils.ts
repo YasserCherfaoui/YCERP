@@ -41,3 +41,15 @@ export function isVipFranchise(franchise: Franchise): boolean {
 export function getFranchiseTypeLabel(franchiseType: FranchiseType): string {
   return franchiseType === FRANCHISE_TYPES.VIP ? "VIP Franchise" : "Normal Franchise";
 }
+
+/**
+ * BOGO (buy one get second at half price): total sale amount for a line.
+ * fullUnits = ceil(qty/2), halfUnits = floor(qty/2); total = fullPrice * fullUnits + halfPrice * halfUnits.
+ */
+export function getBOGOLineTotal(unitPrice: number, quantity: number): number {
+  if (quantity < 2) return unitPrice * quantity;
+  const fullUnits = Math.floor((quantity + 1) / 2);
+  const halfUnits = Math.floor(quantity / 2);
+  const halfPrice = Math.floor(unitPrice / 2);
+  return unitPrice * fullUnits + halfPrice * halfUnits;
+}
