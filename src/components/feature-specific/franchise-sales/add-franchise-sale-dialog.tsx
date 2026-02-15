@@ -287,16 +287,26 @@ export default function () {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {saleItems.map((saleItem, idx) => {
+                  {(() => {
+                    const productTotalQty: Record<number, number> = {};
+                    saleItems.forEach((curr) => {
+                      const inv = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
+                      if (inv) {
+                        productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + curr.quantity;
+                      }
+                    });
+                    return saleItems.map((saleItem, idx) => {
                     const inventoryItem = inventory?.data?.items.find(
                       (s) =>
                         s.product_variant_id ==
                         saleItem.product_variant_id
                     );
                     const product = inventoryItem?.product;
+                    const productId = inventoryItem?.product_id;
+                    const totalQtyForProduct = productId != null ? (productTotalQty[productId] ?? 0) : 0;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
-                    const isBOGO = product?.is_bogo && saleItem.quantity >= 2;
-                    const bogoLineTotal = isBOGO && product ? getBOGOLineTotal(product.price, saleItem.quantity) : 0;
+                    const isBOGO = product?.is_bogo && totalQtyForProduct >= 2;
+                    const bogoProductTotal = isBOGO && product ? getBOGOLineTotal(product.price, totalQtyForProduct) : 0;
 
                     return (
                     <TableRow key={idx}>
@@ -313,10 +323,10 @@ export default function () {
                           )}
                           {isBOGO && (
                             <Badge variant="secondary" className="w-fit">
-                              BOGO: {saleItem.quantity} for {new Intl.NumberFormat("en-DZ", {
+                              BOGO: {totalQtyForProduct} for {new Intl.NumberFormat("en-DZ", {
                                 style: "currency",
                                 currency: "DZD",
-                              }).format(bogoLineTotal)}
+                              }).format(bogoProductTotal)}
                             </Badge>
                           )}
                         </div>
@@ -388,7 +398,8 @@ export default function () {
                       </TableCell>
                     </TableRow>
                   );
-                  })}
+                  });
+                  })()}
                 </TableBody>
               </Table>
             </ScrollArea>
@@ -443,17 +454,24 @@ export default function () {
                   style: "currency",
                   currency: "DZD",
                 }).format(
-                  saleItems.reduce((prev, curr) => {
-                    const invItem = inventory?.data?.items.find(
-                      (s) => s.product_variant_id === curr.product_variant_id
-                    );
-                    const prod = invItem?.product;
-                    const lineTotal =
-                      prod?.is_bogo && curr.quantity >= 2
-                        ? getBOGOLineTotal(prod.price, curr.quantity) - curr.discount * curr.quantity
-                        : (curr.price - curr.discount) * curr.quantity;
-                    return prev + lineTotal;
-                  }, 0)
+                  (() => {
+                    const productTotalQty: Record<number, number> = {};
+                    saleItems.forEach((c) => {
+                      const inv = inventory?.data?.items.find((s) => s.product_variant_id === c.product_variant_id);
+                      if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
+                    });
+                    return saleItems.reduce((prev, curr) => {
+                      const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
+                      const prod = invItem?.product;
+                      const pid = invItem?.product_id;
+                      const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
+                      const lineTotal =
+                        prod?.is_bogo && totalQty >= 2
+                          ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
+                          : (curr.price - curr.discount) * curr.quantity;
+                      return prev + lineTotal;
+                    }, 0);
+                  })()
                 )}
               </span>
 
@@ -487,17 +505,24 @@ export default function () {
                   style: "currency",
                   currency: "DZD",
                 }).format(
-                  saleItems.reduce((prev, curr) => {
-                    const invItem = inventory?.data?.items.find(
-                      (s) => s.product_variant_id === curr.product_variant_id
-                    );
-                    const prod = invItem?.product;
-                    const lineTotal =
-                      prod?.is_bogo && curr.quantity >= 2
-                        ? getBOGOLineTotal(prod.price, curr.quantity) - curr.discount * curr.quantity
-                        : (curr.price - curr.discount) * curr.quantity;
-                    return prev + lineTotal;
-                  }, 0) - form.watch("discount")
+                  (() => {
+                    const productTotalQty: Record<number, number> = {};
+                    saleItems.forEach((c) => {
+                      const inv = inventory?.data?.items.find((s) => s.product_variant_id === c.product_variant_id);
+                      if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
+                    });
+                    return saleItems.reduce((prev, curr) => {
+                      const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
+                      const prod = invItem?.product;
+                      const pid = invItem?.product_id;
+                      const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
+                      const lineTotal =
+                        prod?.is_bogo && totalQty >= 2
+                          ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
+                          : (curr.price - curr.discount) * curr.quantity;
+                      return prev + lineTotal;
+                    }, 0) - form.watch("discount");
+                  })()
                 )}
               </span>
             </div>
