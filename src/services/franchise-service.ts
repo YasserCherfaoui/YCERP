@@ -425,6 +425,47 @@ export const downloadAndPrintFranchisePDF = async (saleID: number): Promise<void
     }
 }
 
+export type FillItemPricesParams = {
+    franchiseId: number;
+    startDate?: Date;
+    endDate?: Date;
+};
+
+export type FillItemPricesResponse = {
+    return_items_franchise_price_updated: number;
+    return_items_return_price_updated: number;
+    exchange_items_franchise_price_updated: number;
+    exchange_items_exchange_price_updated: number;
+    start_date?: string;
+    end_date?: string;
+};
+
+export const fillFranchiseReturnExchangeItemPrices = async (
+    params: FillItemPricesParams
+): Promise<APIResponse<FillItemPricesResponse>> => {
+    const { franchiseId, startDate, endDate } = params;
+    const searchParams = new URLSearchParams();
+    if (startDate) searchParams.set("start_date", startDate.toISOString());
+    if (endDate) searchParams.set("end_date", endDate.toISOString());
+    const query = searchParams.toString();
+    const url = `${baseUrl}/franchises/sales/${franchiseId}/fill-item-prices${query ? `?${query}` : ""}`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fill return and exchange item prices.");
+    }
+
+    const apiResponse: APIResponse<FillItemPricesResponse> = await response.json();
+    return apiResponse;
+};
+
 export const getFranchiseAdministratorToken = async (franchiseID: number): Promise<APIResponse<{ token: string; administrator: { id: number; email: string; full_name: string; franchise_id: number } }>> => {
     const response = await fetch(`${baseUrl}/franchises/${franchiseID}/administrator/token`, {
         method: 'GET',

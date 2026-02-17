@@ -1,5 +1,13 @@
 import { RootState } from "@/app/store";
+import {
+  franchiseExchangesColumns,
+  SaleExchangeRow,
+} from "@/components/feature-specific/franchise-sales/franchise-exchanges-columns";
 import { franchiseSalesColumns } from "@/components/feature-specific/franchise-sales/franchise-sales-columns";
+import {
+  franchiseReturnsColumns,
+  SaleReturnRow,
+} from "@/components/feature-specific/franchise-sales/franchise-returns-columns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
@@ -8,13 +16,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { getFranchiseSales, getFranchiseSalesTotal } from "@/services/franchise-service";
 import { getSalesCount } from "@/services/sale-service";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
-import { Eye, EyeOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Eye, EyeOff, RefreshCw, ShoppingBag, Undo2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 
 
@@ -75,10 +84,55 @@ export default function () {
   }); 
 
   const { data } = useQuery({
-    queryKey: ["sales"],
+    queryKey: ["sales", franchise.ID],
     queryFn: () => getFranchiseSales(franchise.ID),
   });
   const { toast } = useToast();
+
+  const sales = data?.data ?? [];
+  const fromTime = dateRange.from.getTime();
+  const toTime = dateRange.to.getTime();
+
+  const filteredSales = useMemo(
+    () =>
+      sales.filter((s) => {
+        const t = new Date(s.CreatedAt).getTime();
+        return t >= fromTime && t <= toTime;
+      }),
+    [sales, fromTime, toTime]
+  );
+
+  const returnsRows = useMemo((): SaleReturnRow[] => {
+    const rows: SaleReturnRow[] = [];
+    sales.forEach((sale) => {
+      const r = sale.return;
+      if (!r || r.exchange) return;
+      const t = new Date(r.CreatedAt).getTime();
+      if (t >= fromTime && t <= toTime) rows.push({ sale, return: r });
+    });
+    return rows.sort(
+      (a, b) =>
+        new Date(b.return.CreatedAt).getTime() -
+        new Date(a.return.CreatedAt).getTime()
+    );
+  }, [sales, fromTime, toTime]);
+
+  const exchangesRows = useMemo((): SaleExchangeRow[] => {
+    const rows: SaleExchangeRow[] = [];
+    sales.forEach((sale) => {
+      const r = sale.return;
+      const ex = r?.exchange;
+      if (!ex) return;
+      const t = new Date(ex.CreatedAt).getTime();
+      if (t >= fromTime && t <= toTime && r)
+        rows.push({ sale, return: r, exchange: ex });
+    });
+    return rows.sort(
+      (a, b) =>
+        new Date(b.exchange.CreatedAt).getTime() -
+        new Date(a.exchange.CreatedAt).getTime()
+    );
+  }, [sales, fromTime, toTime]);
 
   useEffect(() => {
     toast({
@@ -302,16 +356,65 @@ export default function () {
 
       <Separator className="my-4" />
 
-      <DataTable
-        data={
-          data?.data?.sort(
-            (a, b) =>
-              new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
-          ) ?? []
-        }
-        columns={franchiseSalesColumns}
-        searchColumn="sale_id"
-      />
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm text-muted-foreground">
+            Date range for tables:
+          </span>
+          <DatePickerWithRange
+            date={{ from: dateRange.from, to: dateRange.to }}
+            onSelect={(range) => {
+              if (range?.from && range?.to) {
+                setDateRange({
+                  from: startOfDay(range.from),
+                  to: endOfDay(range.to),
+                });
+              }
+            }}
+          />
+        </div>
+        <Tabs defaultValue="sales" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="sales" className="flex items-center gap-2">
+              <ShoppingBag className="h-4 w-4" />
+              Sales
+            </TabsTrigger>
+            <TabsTrigger value="returns" className="flex items-center gap-2">
+              <Undo2 className="h-4 w-4" />
+              Returns
+            </TabsTrigger>
+            <TabsTrigger value="exchanges" className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Exchanges
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="sales" className="mt-4">
+            <DataTable
+              data={filteredSales.sort(
+                (a, b) =>
+                  new Date(b.CreatedAt).getTime() -
+                  new Date(a.CreatedAt).getTime()
+              )}
+              columns={franchiseSalesColumns}
+              searchColumn="sale_id"
+            />
+          </TabsContent>
+          <TabsContent value="returns" className="mt-4">
+            <DataTable
+              data={returnsRows}
+              columns={franchiseReturnsColumns}
+              searchColumn="sale_id"
+            />
+          </TabsContent>
+          <TabsContent value="exchanges" className="mt-4">
+            <DataTable
+              data={exchangesRows}
+              columns={franchiseExchangesColumns}
+              searchColumn="sale_id"
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
