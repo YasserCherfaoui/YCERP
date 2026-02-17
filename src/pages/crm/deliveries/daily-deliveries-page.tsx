@@ -40,11 +40,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Clock, CreditCard, Filter, History, LayoutGrid, List, MapPin, MessageSquare, Package, Phone, RefreshCw, Table2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+import { RootState } from "@/app/store";
 
 export default function DailyDeliveriesPage() {
   const { companyID } = useParams<{ companyID: string }>();
-  const companyId = companyID ? parseInt(companyID, 10) : undefined;
+  const companyFromUrl = companyID ? parseInt(companyID, 10) : undefined;
+  const companyFromRedux = useSelector((state: RootState) => state.company.companyID ?? state.company.company?.ID);
+  const companyId = companyFromUrl ?? companyFromRedux;
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -138,6 +142,14 @@ export default function DailyDeliveriesPage() {
 
   const handleCreateIssueTicket = () => {
     if (!pendingIssueTicket) return;
+    if (companyId == null) {
+      toast({
+        title: "Company required",
+        description: "Company context is required to create an issue ticket. Open daily deliveries from a company (e.g. Company → CRM → Deliveries) or ensure a company is selected.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const { customerPhone, customerName } = pendingIssueTicket;
 
@@ -635,6 +647,11 @@ export default function DailyDeliveriesPage() {
               </DialogTitle>
               <DialogDescription>
                 An issue ticket will be created for this order with refund details.
+                {companyId == null && (
+                  <span className="block mt-2 text-amber-600 dark:text-amber-500">
+                    Company context is required. Open this page from a company (Company → CRM → Deliveries) to create an issue ticket.
+                  </span>
+                )}
               </DialogDescription>
             </DialogHeader>
 
@@ -710,7 +727,7 @@ export default function DailyDeliveriesPage() {
               </Button>
               <Button
                 onClick={handleCreateIssueTicket}
-                disabled={createIssueMutation.isPending}
+                disabled={createIssueMutation.isPending || companyId == null}
                 variant="default"
               >
                 {createIssueMutation.isPending ? "Creating..." : "Create Issue Ticket"}
