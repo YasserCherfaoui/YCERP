@@ -1,5 +1,6 @@
 import DeliveryOrdersActions from "@/components/feature-specific/delivery/delivery-orders-actions";
 import { ConfirmedOrderItemsAccordion } from "@/components/feature-specific/orders/order-line-items-accordion";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { DeliveryEmployee } from "@/models/data/delivery.model";
-import { WooOrder } from "@/models/data/woo-order.model";
+import { hasReferralCode, WooOrder } from "@/models/data/woo-order.model";
 import { getDeliveryEmployees } from "@/services/delivery-service";
 import { updateWooCommerceOrder } from "@/services/woocommerce-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,16 +22,23 @@ export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[
     accessorKey: "id",
     header: "ID",
     cell: ({ row }: { row: { original: WooOrder } }) => (
-      <div
-        className="text-center"
-        style={{
-          backgroundColor: row.original.is_exchange ? "red" : "transparent",
-          color: "white",
-          padding: "2px 4px",
-          borderRadius: "4px",
-        }}
-      >
-        {row.original.id}
+      <div className="flex items-center justify-center gap-1.5">
+        <div
+          className="text-center"
+          style={{
+            backgroundColor: row.original.is_exchange ? "red" : "transparent",
+            color: "white",
+            padding: "2px 4px",
+            borderRadius: "4px",
+          }}
+        >
+          {row.original.id}
+        </div>
+        {hasReferralCode(row.original) && (
+          <Badge variant="secondary" className="shrink-0 bg-amber-500/90 text-amber-950 hover:bg-amber-500 text-[10px] px-1.5 py-0 font-medium">
+            Affiliate
+          </Badge>
+        )}
       </div>
     ),
   },

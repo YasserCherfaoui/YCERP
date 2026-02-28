@@ -3,9 +3,10 @@ import OrderActions from "@/components/feature-specific/orders/order-actions";
 import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
 import OrderLineItemsAccordion from "@/components/feature-specific/orders/order-line-items-accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { WooOrder } from "@/models/data/woo-order.model";
+import { hasReferralCode, WooOrder } from "@/models/data/woo-order.model";
 import { cities } from "@/utils/algeria-cities";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
@@ -17,23 +18,30 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     accessorKey: "id",
     header: "ID",
     cell: ({ row }: { row: { original: WooOrder } }) => (
-      <div
-        className="text-center"
-        style={{
-          backgroundColor: row.original.is_exchange
-            ? "red"
-            : row.original.confirmed_by_id
-            ? "blue"
-            : "transparent",
-          color:
-            row.original.is_exchange || row.original.confirmed_by_id
-              ? "white"
-              : "inherit",
-          padding: "2px 4px",
-          borderRadius: "4px",
-        }}
-      >
-        {row.original.id}
+      <div className="flex items-center justify-center gap-1.5">
+        <div
+          className="text-center"
+          style={{
+            backgroundColor: row.original.is_exchange
+              ? "red"
+              : row.original.confirmed_by_id
+              ? "blue"
+              : "transparent",
+            color:
+              row.original.is_exchange || row.original.confirmed_by_id
+                ? "white"
+                : "inherit",
+            padding: "2px 4px",
+            borderRadius: "4px",
+          }}
+        >
+          {row.original.id}
+        </div>
+        {hasReferralCode(row.original) && (
+          <Badge variant="secondary" className="shrink-0 bg-amber-500/90 text-amber-950 hover:bg-amber-500 text-[10px] px-1.5 py-0 font-medium">
+            Affiliate
+          </Badge>
+        )}
       </div>
     ),
   },
