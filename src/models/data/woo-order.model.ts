@@ -234,3 +234,17 @@ export const YALIDINE_STATUSES: Record<string, YalidineStatusType> = {
   RETOURNE_AU_VENDEUR: "Retourné au vendeur",
   ECHANGE_ECHOUE: "Echange échoué"
 };
+
+const REFERRAL_META_KEYS: string[] = [
+  "cosmos_referral_code",
+  "ref_code",
+  "referral_code",
+  "_referral_code",
+];
+
+/** Returns true if the order has a referral code in its meta_data. */
+export function hasReferralCode(order: WooOrder): boolean {
+  const meta = order?.meta_data;
+  if (!meta || !Array.isArray(meta)) return false;
+  return meta.some((m) => REFERRAL_META_KEYS.includes(m.key));
+}
