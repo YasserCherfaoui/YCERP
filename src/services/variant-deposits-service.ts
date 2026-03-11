@@ -95,3 +95,69 @@ export const fulfillVariantDeposit = async (
   await handleApiError(response);
   return response.json();
 };
+
+// --- Company admin (viewing a specific franchise) ---
+
+/** Company admin: list variant deposits for a franchise */
+export const getVariantDepositsCompany = async (
+  franchiseId: number,
+  params?: { status?: string; page?: number; limit?: number }
+): Promise<APIResponse<VariantDepositListResponse>> => {
+  const search = new URLSearchParams();
+  if (params?.status) search.set("status", params.status);
+  if (params?.page) search.set("page", params.page.toString());
+  if (params?.limit) search.set("limit", params.limit.toString());
+  const qs = search.toString();
+  const response = await fetch(
+    `${baseUrl}/franchises/${franchiseId}/variant-deposits${qs ? `?${qs}` : ""}`,
+    { method: "GET", headers: getAuthHeaders() }
+  );
+  await handleApiError(response);
+  return response.json();
+};
+
+/** Company admin: get one variant deposit */
+export const getVariantDepositCompany = async (
+  franchiseId: number,
+  depositId: number
+): Promise<APIResponse<VariantDepositResponse>> => {
+  const response = await fetch(
+    `${baseUrl}/franchises/${franchiseId}/variant-deposits/${depositId}`,
+    { method: "GET", headers: getAuthHeaders() }
+  );
+  await handleApiError(response);
+  return response.json();
+};
+
+/** Company admin: update (e.g. cancel) */
+export const updateVariantDepositCompany = async (
+  franchiseId: number,
+  depositId: number,
+  data: { status?: "cancelled" | "refunded"; comment?: string }
+): Promise<APIResponse<VariantDepositResponse>> => {
+  const response = await fetch(
+    `${baseUrl}/franchises/${franchiseId}/variant-deposits/${depositId}`,
+    {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }
+  );
+  await handleApiError(response);
+  return response.json();
+};
+
+/** Company admin: fulfill deposit */
+export const fulfillVariantDepositCompany = async (
+  franchiseId: number,
+  depositId: number
+): Promise<
+  APIResponse<{ deposit: VariantDeposit; sale: { id: number; total: number } }>
+> => {
+  const response = await fetch(
+    `${baseUrl}/franchises/${franchiseId}/variant-deposits/${depositId}/fulfill`,
+    { method: "POST", headers: getAuthHeaders() }
+  );
+  await handleApiError(response);
+  return response.json();
+};
