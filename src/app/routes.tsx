@@ -90,6 +90,7 @@ import FranchiseExpensesReportsPage from "@/pages/franchise/dashboard/franchise-
 import FranchiseInventoryPage from "@/pages/franchise/dashboard/franchise-inventory-page";
 import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
 import FranchiseMissingVariantsPage from "@/pages/franchise/dashboard/franchise-missing-variants-page";
+import FranchiseVariantDepositsPage from "@/pages/franchise/dashboard/franchise-variant-deposits-page";
 import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-products-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import FranchiseStockAlertsConfigPage from "@/pages/franchise/dashboard/franchise-stock-alerts-config-page";
@@ -134,6 +135,7 @@ export default function AppRouter() {
             <Route path="inventory" element={<FranchiseInventoryPage />} />
             <Route path="products" element={<FranchiseProductsPage />} />
             <Route path="missing-variants" element={<FranchiseMissingVariantsPage />} />
+            <Route path="variant-deposits" element={<FranchiseVariantDepositsPage />} />
             <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
             <Route path="crm">
               <Route path="customers" element={<FranchiseCustomersPage />} />
