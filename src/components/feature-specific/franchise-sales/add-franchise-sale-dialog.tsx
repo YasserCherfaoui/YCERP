@@ -27,6 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { VariantDepositResponse } from "@/models/data/variant-deposit.model";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
 import {
@@ -34,6 +35,7 @@ import {
   downloadAndPrintFranchisePDF,
   getFranchiseInventory,
 } from "@/services/franchise-service";
+import { fulfillVariantDeposit } from "@/services/variant-deposits-service";
 import { getBOGOLineTotal } from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,12 +45,33 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 
-export default function () {
+export interface AddFranchiseSaleDialogInitialDeposit {
+  deposit: VariantDepositResponse;
+  depositId: number;
+}
+
+export interface AddFranchiseSaleDialogProps {
+  /** When set, dialog is controlled and opened from outside (e.g. variant deposits "Create sale") */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** When set, prefill from this deposit and on submit call fulfill API instead of create sale */
+  initialFromDeposit?: AddFranchiseSaleDialogInitialDeposit | null;
+  /** Hide the trigger button (use when opening from variant deposits) */
+  hideTrigger?: boolean;
+}
+
+export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogProps) {
+  const { open: controlledOpen, onOpenChange, initialFromDeposit, hideTrigger } = props ?? {};
   const franchise = useSelector(
     (state: RootState) => state.franchise.franchise
   );
-  if (!franchise) return;
-  const [open, setOpen] = useState(false);
+  if (!franchise) return null;
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = (value: boolean) => {
+    if (onOpenChange) onOpenChange(value);
+    else setInternalOpen(value);
+  };
   const [input, setInput] = useState("");
   const [saleItems, setSaleItems] = useState<Array<SaleItemEntity>>([]);
   const { toast } = useToast();
@@ -68,8 +91,36 @@ export default function () {
     queryFn: () => getFranchiseInventory(franchise.ID),
   });
 
+  // Prefill from deposit when dialog opens with initialFromDeposit and inventory is loaded
+  useEffect(() => {
+    if (!initialFromDeposit || !open || !inventory?.data?.items) return;
+    const { deposit } = initialFromDeposit;
+    const invItem = inventory.data.items.find(
+      (i: { product_variant_id: number }) => i.product_variant_id === deposit.product_variant_id
+    );
+    if (!invItem?.product) return;
+    const product = invItem.product as { price?: number; franchise_price?: number; vip_franchise_price?: number | null };
+    const franchisePrice =
+      franchise.franchise_type === "vip" && product.vip_franchise_price != null
+        ? product.vip_franchise_price
+        : product.franchise_price ?? product.price ?? 0;
+    const item: SaleItemEntity = {
+      product_variant_id: deposit.product_variant_id,
+      variant_qr_code: (invItem as { product_variant?: { qr_code?: string } }).product_variant?.qr_code ?? "",
+      price: franchisePrice,
+      quantity: deposit.quantity,
+      discount: 0,
+    };
+    setSaleItems([item]);
+    form.setValue("phone_number", deposit.customer_phone);
+    form.setValue("discount", deposit.amount_paid);
+    form.setValue("sale_items", [
+      { product_variant_id: deposit.product_variant_id, price: franchisePrice, quantity: deposit.quantity, discount: 0 },
+    ]);
+  }, [initialFromDeposit, open, inventory?.data?.items, franchise.ID, franchise.franchise_type, form]);
+
   const barcodes: string[] =
-    inventory?.data?.items.map((item) => item.product_variant?.qr_code ?? "") ??
+    inventory?.data?.items.map((item: { product_variant?: { qr_code?: string } }) => item.product_variant?.qr_code ?? "") ??
     [];
   const myProcessBarcode = (barcodeValue?: string) =>
     processSaleBarcode({
@@ -193,7 +244,7 @@ export default function () {
   const { mutate: downloadAndPrintFranchisePDFMutation } = useMutation({
     mutationFn: downloadAndPrintFranchisePDF,
   });
-  const { mutate: createFranchiseSaleMutation, isPending } = useMutation({
+  const { mutate: createFranchiseSaleMutation, isPending: isCreatePending } = useMutation({
     mutationFn: createFranchiseSale,
     onSuccess: (data) => {
       setOpen(false);
@@ -219,7 +270,35 @@ export default function () {
       });
     },
   });
+  const { mutate: fulfillDepositMutation, isPending: isFulfillPending } = useMutation({
+    mutationFn: (depositId: number) => fulfillVariantDeposit(depositId),
+    onSuccess: (_, depositId) => {
+      setOpen(false);
+      onOpenChange?.(false);
+      toast({
+        title: "Sale created",
+        description: "Variant deposit fulfilled; sale created successfully.",
+      });
+      form.reset();
+      setSaleItems([]);
+      queryClient.invalidateQueries({ queryKey: ["franchise-variant-deposits"] });
+      queryClient.invalidateQueries({ queryKey: ["franchise-inventory", franchise.ID] });
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message ?? "Failed to create sale from deposit",
+        variant: "destructive",
+      });
+    },
+  });
+  const isPending = isCreatePending || isFulfillPending;
   const handleCreateSale = (data: CreateSaleSchema) => {
+    if (initialFromDeposit) {
+      fulfillDepositMutation(initialFromDeposit.depositId);
+      return;
+    }
     // Validate all prices don't exceed product prices
     let hasInvalidPrice = false;
     data.sale_items.forEach((item, idx) => {
@@ -251,17 +330,19 @@ export default function () {
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button>
-          <Plus />
-          Sale
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <Button>
+            <Plus />
+            Sale
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex gap-2 items-center">
             <ShoppingCart />
-            Add Sale to {franchise.name}
+            {initialFromDeposit ? "Create sale from deposit" : `Add Sale to ${franchise.name}`}
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-2">

@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Franchise } from "@/models/data/franchise.model";
 import { deleteFranchise, getFranchiseAdministratorToken } from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CircleUserRound, Copy, Inspect, Key, MapPin, Trash2 } from "lucide-react";
+import { CircleUserRound, Copy, ExternalLink, Inspect, Key, MapPin, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FranchiseInsights from "./franchise-insights";
@@ -32,6 +32,8 @@ export default function ({ franchise, dateRange }: Props) {
   const [open, setOpen] = useState(false);
   const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
   const [generatedToken, setGeneratedToken] = useState<string | null>(null);
+  const [dashboardDialogOpen, setDashboardDialogOpen] = useState(false);
+  const [dashboardLink, setDashboardLink] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -79,6 +81,37 @@ export default function ({ franchise, dateRange }: Props) {
       });
     },
   });
+
+  const { mutate: openDashboardMutation, isPending: isOpenDashboardLoading } = useMutation({
+    mutationFn: getFranchiseAdministratorToken,
+    onSuccess: (data) => {
+      const url = `${window.location.origin}/myFranchise/login?token=${encodeURIComponent(data.data.token)}`;
+      setDashboardLink(url);
+      setDashboardDialogOpen(true);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleCopyDashboardLink = () => {
+    if (dashboardLink) {
+      navigator.clipboard.writeText(dashboardLink);
+      toast({
+        title: "Copied",
+        description: "Link copied to clipboard",
+      });
+    }
+  };
+
+  const handleDashboardDialogOpenChange = (newOpen: boolean) => {
+    setDashboardDialogOpen(newOpen);
+    if (!newOpen) setDashboardLink(null);
+  };
 
   const handleCopyToken = () => {
     if (generatedToken) {
@@ -233,6 +266,68 @@ export default function ({ franchise, dateRange }: Props) {
           </Dialog>
         )}
         <MakeBillDialog franchise={franchise} />
+        {isAdmin && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0"
+              disabled={isOpenDashboardLoading}
+              onClick={() => openDashboardMutation(franchise.ID)}
+              title="Get link to open franchise dashboard in an incognito window"
+            >
+              <ExternalLink className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{isOpenDashboardLoading ? "Loading…" : "Open dashboard"}</span>
+            </Button>
+            <Dialog open={dashboardDialogOpen} onOpenChange={handleDashboardDialogOpenChange}>
+              <DialogContent className="sm:max-w-[500px] max-w-[95vw]">
+                <DialogHeader>
+                  <DialogTitle className="text-base sm:text-lg">Open franchise dashboard</DialogTitle>
+                  <DialogDescription className="text-xs sm:text-sm">
+                    Open the link below in an <strong>incognito or private window</strong> to log in to the{" "}
+                    <span className="font-semibold">{franchise.name}</span> dashboard without affecting your current session.
+                  </DialogDescription>
+                </DialogHeader>
+                {dashboardLink && (
+                  <div className="space-y-3 py-2">
+                    <label className="text-xs sm:text-sm font-medium">Login link</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={dashboardLink}
+                        readOnly
+                        className="font-mono text-xs flex-1 min-w-0"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={handleCopyDashboardLink}
+                        className="flex-shrink-0"
+                        title="Copy link"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Copy the link and paste it into a new incognito/private window. The token in the link expires in 30 days.
+                    </p>
+                  </div>
+                )}
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => handleDashboardDialogOpenChange(false)}>
+                    Close
+                  </Button>
+                  {dashboardLink && (
+                    <Button onClick={handleCopyDashboardLink}>
+                      <Copy className="h-4 w-4 sm:mr-2" />
+                      Copy link
+                    </Button>
+                  )}
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
         <Button 
           onClick={()=> navigate(franchise.ID.toString())}
           size="sm"
