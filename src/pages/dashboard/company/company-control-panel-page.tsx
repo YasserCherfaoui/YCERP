@@ -228,6 +228,11 @@ const quickMenu: Array<{
     href: "broken-items-transfers",
   },
   {
+    label: "Ship from store",
+    icon: Truck,
+    href: "ship-from-store",
+  },
+  {
     label: "Send WhatsApp",
     icon: MessageSquare,
   },

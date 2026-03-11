@@ -1,6 +1,6 @@
 import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
-import { AlertTriangle, Apple, BarChart, Bell, DollarSign, ReceiptText, ShoppingCart, Users, Wallet, Warehouse } from "lucide-react";
+import { AlertTriangle, Apple, BarChart, Bell, DollarSign, Package, ReceiptText, ShoppingCart, Users, Wallet, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
 import FranchiseTile from "./franchise-tile";
 
@@ -51,6 +51,11 @@ const quickMenu = [
     label: "Variant Deposits",
     icon: Wallet,
     href: "variant-deposits",
+  },
+  {
+    label: "Ship from store",
+    icon: Package,
+    href: "ship-from-store",
   },
   {
     label: "Statistics",
