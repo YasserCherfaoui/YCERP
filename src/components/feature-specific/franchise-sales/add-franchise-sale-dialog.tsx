@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +41,7 @@ import { getBOGOLineTotal } from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, ShoppingCart } from "lucide-react";
+import { Info, Plus, ShoppingCart } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -99,25 +100,22 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
       (i: { product_variant_id: number }) => i.product_variant_id === deposit.product_variant_id
     );
     if (!invItem?.product) return;
-    const product = invItem.product as { price?: number; franchise_price?: number; vip_franchise_price?: number | null };
-    const franchisePrice =
-      franchise.franchise_type === "vip" && product.vip_franchise_price != null
-        ? product.vip_franchise_price
-        : product.franchise_price ?? product.price ?? 0;
+    const product = invItem.product as { price?: number };
+    const listPrice = product.price ?? 0;
     const item: SaleItemEntity = {
       product_variant_id: deposit.product_variant_id,
       variant_qr_code: (invItem as { product_variant?: { qr_code?: string } }).product_variant?.qr_code ?? "",
-      price: franchisePrice,
+      price: listPrice,
       quantity: deposit.quantity,
       discount: 0,
     };
     setSaleItems([item]);
     form.setValue("phone_number", deposit.customer_phone);
-    form.setValue("discount", deposit.amount_paid);
+    form.setValue("discount", 0);
     form.setValue("sale_items", [
-      { product_variant_id: deposit.product_variant_id, price: franchisePrice, quantity: deposit.quantity, discount: 0 },
+      { product_variant_id: deposit.product_variant_id, price: listPrice, quantity: deposit.quantity, discount: 0 },
     ]);
-  }, [initialFromDeposit, open, inventory?.data?.items, franchise.ID, franchise.franchise_type, form]);
+  }, [initialFromDeposit, open, inventory?.data?.items, franchise.ID, form]);
 
   const barcodes: string[] =
     inventory?.data?.items.map((item: { product_variant?: { qr_code?: string } }) => item.product_variant?.qr_code ?? "") ??
@@ -271,8 +269,16 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
     },
   });
   const { mutate: fulfillDepositMutation, isPending: isFulfillPending } = useMutation({
-    mutationFn: (depositId: number) => fulfillVariantDeposit(depositId),
-    onSuccess: (_, depositId) => {
+    mutationFn: (payload: {
+      depositId: number;
+      discount: number;
+      rating?: number;
+    }) =>
+      fulfillVariantDeposit(payload.depositId, {
+        discount: payload.discount,
+        rating: payload.rating,
+      }),
+    onSuccess: () => {
       setOpen(false);
       onOpenChange?.(false);
       toast({
@@ -296,7 +302,11 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
   const isPending = isCreatePending || isFulfillPending;
   const handleCreateSale = (data: CreateSaleSchema) => {
     if (initialFromDeposit) {
-      fulfillDepositMutation(initialFromDeposit.depositId);
+      fulfillDepositMutation({
+        depositId: initialFromDeposit.depositId,
+        discount: Math.max(0, data.discount ?? 0),
+        rating: data.rating,
+      });
       return;
     }
     // Validate all prices don't exceed product prices
@@ -346,14 +356,29 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-2">
-          <span></span>
+          {initialFromDeposit && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                The client has submitted a deposit of{" "}
+                <strong>
+                  {new Intl.NumberFormat("en-DZ", {
+                    style: "currency",
+                    currency: "DZD",
+                  }).format(initialFromDeposit.deposit.amount_paid)}
+                </strong>{" "}
+                before. Use the summary below to set an optional sale discount if needed.
+              </AlertDescription>
+            </Alert>
+          )}
           <Input
             id="barcde-input"
             value={input}
             placeholder="Scan barcode..."
             className="w-full"
             onChange={(e) => setInput(e.target.value)}
-            autoFocus
+            autoFocus={!initialFromDeposit}
+            disabled={!!initialFromDeposit}
           />
 
           <Form {...form}>
@@ -556,6 +581,18 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                 )}
               </span>
 
+              {initialFromDeposit && (
+                <>
+                  <div className="text-lg text-muted-foreground">Deposit:</div>
+                  <span className="text-lg font-medium text-muted-foreground">
+                    {new Intl.NumberFormat("en-DZ", {
+                      style: "currency",
+                      currency: "DZD",
+                    }).format(initialFromDeposit.deposit.amount_paid)}
+                  </span>
+                </>
+              )}
+
               <div className="flex gap-2 items-center text-lg">Discount:</div>
               <FormField
                 name={`discount`}
@@ -564,7 +601,7 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                   <FormItem>
                     <FormControl>
                       <Input
-                        className="w-20"
+                        className="w-28"
                         {...field}
                         value={Number.isNaN(field.value) ? 0 : field.value}
                         onChange={(e) => {

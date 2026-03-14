@@ -84,13 +84,21 @@ export const updateVariantDeposit = async (
 
 /** Franchise admin: fulfill deposit by creating a sale */
 export const fulfillVariantDeposit = async (
-  id: number
+  id: number,
+  body?: { discount?: number; rating?: number }
 ): Promise<
   APIResponse<{ deposit: VariantDeposit; sale: { id: number; total: number } }>
 > => {
   const response = await fetch(
     `${baseUrl}/franchise/variant-deposits/${id}/fulfill`,
-    { method: "POST", headers: getAuthHeaders() }
+    {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        discount: body?.discount ?? 0,
+        ...(body?.rating != null ? { rating: body.rating } : {}),
+      }),
+    }
   );
   await handleApiError(response);
   return response.json();
@@ -150,13 +158,21 @@ export const updateVariantDepositCompany = async (
 /** Company admin: fulfill deposit */
 export const fulfillVariantDepositCompany = async (
   franchiseId: number,
-  depositId: number
+  depositId: number,
+  body?: { discount?: number; rating?: number }
 ): Promise<
   APIResponse<{ deposit: VariantDeposit; sale: { id: number; total: number } }>
 > => {
   const response = await fetch(
     `${baseUrl}/franchises/${franchiseId}/variant-deposits/${depositId}/fulfill`,
-    { method: "POST", headers: getAuthHeaders() }
+    {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        discount: body?.discount ?? 0,
+        ...(body?.rating != null ? { rating: body.rating } : {}),
+      }),
+    }
   );
   await handleApiError(response);
   return response.json();
