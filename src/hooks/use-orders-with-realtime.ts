@@ -78,6 +78,7 @@ const useWebSocket = (url: string) => {
 
 export const useOrdersWithRealtime = (
     page = 0,
+    limit = 10,
     status?: string,
     taken_by_id?: number,
     wilaya?: string,
@@ -93,9 +94,10 @@ export const useOrdersWithRealtime = (
     const { lastMessage } = useWebSocket(wsUrl);
     // Main orders query
     const ordersQuery = useQuery({
-        queryKey: ['orders', page, status, taken_by_id, wilaya, phone_number, yalidine_status, employee_id, delivery_date, confirmed_variant_id],
+        queryKey: ['orders', page, limit, status, taken_by_id, wilaya, phone_number, yalidine_status, employee_id, delivery_date, confirmed_variant_id],
         queryFn: () => getWooCommerceOrders({
             _page: page,
+            limit,
             status: status,
             taken_by_id: taken_by_id,
             wilaya: wilaya,

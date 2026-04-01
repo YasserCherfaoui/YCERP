@@ -1,6 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { ExitBill } from "@/models/data/bill.model";
 import { FranchisePayment } from "@/models/data/franchise.model";
+import type { APIError } from "@/models/responses/api-response.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateExitBillSchema, CreateFranchisePayment, UpdateExitBillSchema } from "@/schemas/bill";
 
@@ -16,7 +17,13 @@ export const createExitBill = async (data: CreateExitBillSchema): Promise<APIRes
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create exit bill.");
+        const err = new Error(errorData.message || "Failed to create exit bill.") as Error & {
+            apiError?: APIError;
+        };
+        if (errorData.error) {
+            err.apiError = errorData.error as APIError;
+        }
+        throw err;
     }
 
     const apiResponse: APIResponse<ExitBill> = await response.json();

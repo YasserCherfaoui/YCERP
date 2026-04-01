@@ -25,12 +25,14 @@ import { createExitBill } from "@/services/bill-service";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { processBarcode } from "@/utils/process-barcode";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppleIcon, Barcode, ReceiptText, Scan } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import ExitBillInsufficientInventoryDialog from "@/components/feature-specific/company-missing-variants/exit-bill-insufficient-inventory-dialog";
+import type { InventoryShortfallItem } from "@/models/data/missing-variant.model";
 import MakeBillTile from "./make-bill-tile";
 
 interface Props {
@@ -47,6 +49,11 @@ export default function ({ franchise }: Props) {
     company = useSelector((state: RootState) => state.user.company);
   }
   const [billItems, setBillItems] = useState<Array<BillItem>>([]);
+  const [insufficientOpen, setInsufficientOpen] = useState(false);
+  const [inventoryShortfalls, setInventoryShortfalls] = useState<
+    InventoryShortfallItem[]
+  >([]);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const form = useForm<CreateExitBillSchema>({
     resolver: zodResolver(createExitBillSchema),
@@ -60,6 +67,7 @@ export default function ({ franchise }: Props) {
     mutationFn: createExitBill,
     onSuccess: () => {
       setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
       toast({
         title: "Bill Created",
         description: "Bill was created successfully",
@@ -67,10 +75,26 @@ export default function ({ franchise }: Props) {
       form.reset();
       setBillItems([]);
     },
-    onError: () => {
+    onError: (
+      error: Error & {
+        apiError?: {
+          code?: string;
+          details?: { shortfalls?: InventoryShortfallItem[] };
+        };
+      }
+    ) => {
+      const shortfalls = error.apiError?.details?.shortfalls;
+      if (
+        error.apiError?.code === "inventory/insufficient" &&
+        shortfalls?.length
+      ) {
+        setInventoryShortfalls(shortfalls);
+        setInsufficientOpen(true);
+        return;
+      }
       toast({
         title: "Error creating bill",
-        description: "Something went wrong",
+        description: error.message || "Something went wrong",
         variant: "destructive",
       });
     },
@@ -138,6 +162,12 @@ export default function ({ franchise }: Props) {
   };
 
   return (
+    <>
+      <ExitBillInsufficientInventoryDialog
+        open={insufficientOpen}
+        onOpenChange={setInsufficientOpen}
+        shortfalls={inventoryShortfalls}
+      />
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={"outline"} size="sm" className="flex-shrink-0">
@@ -221,5 +251,6 @@ export default function ({ franchise }: Props) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

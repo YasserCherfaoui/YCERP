@@ -72,6 +72,16 @@ export interface CreateExitBillFromMissingVariantsRequest {
   comment?: string;
 }
 
+/** Returned in API error details when exit bill creation fails due to low stock */
+export interface InventoryShortfallItem {
+  inventory_item_id: number;
+  product_variant_id: number;
+  barcode: string;
+  actual_quantity: number;
+  needed_quantity: number;
+  item_name: string;
+}
+
 export interface CreateExitBillFromMissingVariantsResponse {
   exit_bill: {
     id: number;

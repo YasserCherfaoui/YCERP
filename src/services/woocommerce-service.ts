@@ -15,6 +15,7 @@ const token = localStorage.getItem("token");
 export const getWooCommerceOrders = async (
     params: {
         _page: number;
+        limit?: number;
         status?: string;
         taken_by_id?: number;
         wilaya?: string;
@@ -31,6 +32,7 @@ export const getWooCommerceOrders = async (
     }
 ): Promise<APIResponse<WooOrdersResponse>> => {
     let url = `${baseUrl}/woocommerce/?page=${params._page + 1}`;
+    if (params.limit) url += `&limit=${params.limit}`;
     if (params.status) url += `&status=${encodeURIComponent(params.status)}`;
     if (params.taken_by_id) url += `&taken_by_id=${params.taken_by_id}`;
     if (params.wilaya) url += `&wilaya=${encodeURIComponent(params.wilaya)}`;
@@ -57,6 +59,109 @@ export const getWooCommerceOrders = async (
     }
     const data: APIResponse<WooOrdersResponse> = await response.json();
     return data;
+};
+
+export type YalidineReconciliationMatchState = "match" | "mismatch" | "incomplete";
+
+export interface YalidineReconciliationRow {
+  order_id: number;
+  tracking_number: string;
+  my_erp_status: string;
+  latest_yalidine_order_history: string;
+  yalidine_status: string;
+  /** True only when both DB and API have a status and they are equal */
+  is_match: boolean;
+  /** match: equal non-empty; mismatch: differ or only one side; incomplete: both empty */
+  match_state?: YalidineReconciliationMatchState;
+}
+
+/** Same filter shape as GET /woocommerce — string IDs match backend query params */
+export type YalidineReconciliationFilters = {
+  status: string;
+  company_id: string;
+  taken_by_id?: string;
+  wilaya?: string;
+  phone_number?: string;
+  shipping_provider?: string;
+  yalidine_status?: string;
+  product_variant_id?: string;
+  start?: string;
+  end?: string;
+};
+
+export interface YalidineReconciliationCompareResponse {
+  rows: YalidineReconciliationRow[];
+  meta?: {
+    total_items: number;
+    total_pages: number;
+    current_page: number;
+    per_page: number;
+  };
+}
+
+export interface YalidineReconciliationFixResponse {
+  checked: number;
+  matched: number;
+  fixed: number;
+  history_inserted: number;
+  status_updated: number;
+  errors: number;
+}
+
+export const compareYalidineReconciliation = async (body: {
+  filters: YalidineReconciliationFilters;
+  /** 0-based page of batches (independent from orders table page size) */
+  page: number;
+  /** How many orders to load from the API for this batch (max 100) */
+  limit: number;
+}): Promise<APIResponse<YalidineReconciliationCompareResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(`${baseUrl}/woocommerce/yalidine-reconciliation/compare`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + currentToken,
+    },
+    body: JSON.stringify({
+      filters: body.filters,
+      page: body.page,
+      limit: body.limit,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to compare Yalidine statuses");
+  }
+
+  return await response.json();
+};
+
+export const fixYalidineReconciliation = async (body: {
+  filters: YalidineReconciliationFilters;
+  page: number;
+  limit: number;
+}): Promise<APIResponse<YalidineReconciliationFixResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(`${baseUrl}/woocommerce/yalidine-reconciliation/fix`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + currentToken,
+    },
+    body: JSON.stringify({
+      filters: body.filters,
+      page: body.page,
+      limit: body.limit,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fix Yalidine discrepancies");
+  }
+
+  return await response.json();
 };
 
 export const getWooCommerceOrder = async (orderID: number): Promise<APIResponse<WooOrder>> => {
