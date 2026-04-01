@@ -5,6 +5,7 @@ import {
     MissingVariantListResponse,
     MissingVariantRequest
 } from "@/models/data/missing-variant.model";
+import type { APIError } from "@/models/responses/api-response.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import {
     CreateExitBillFromMissingVariantsSchema,
@@ -24,7 +25,13 @@ const getAuthHeaders = () => {
 const handleApiError = async (response: Response) => {
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "API request failed");
+    const err = new Error(errorData.message || "API request failed") as Error & {
+      apiError?: APIError;
+    };
+    if (errorData.error) {
+      err.apiError = errorData.error as APIError;
+    }
+    throw err;
   }
 };
 

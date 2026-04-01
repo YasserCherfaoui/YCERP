@@ -26,21 +26,39 @@ import { updateCompanyInventoryItem } from "@/services/inventory-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
 interface Props {
   inventoryItem: InventoryItem;
+  /** When set with onOpenChange, dialog is controlled (e.g. quick-fix from another dialog). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: ReactNode;
 }
 
-export default function ({ inventoryItem }: Props) {
-  const [open, setOpen] = useState(false);
+export default function UpdateInventoryItemDialog({
+  inventoryItem,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  trigger,
+}: Props) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled =
+    controlledOpen !== undefined && controlledOnOpenChange !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? controlledOnOpenChange : setInternalOpen;
+
   const form = useForm<UpdateInventoryItemSchema>({
     resolver: zodResolver(updateInventoryItem),
     defaultValues: {
-      quantity: 0,
+      quantity: inventoryItem.quantity,
     },
   });
+
+  useEffect(() => {
+    form.reset({ quantity: inventoryItem.quantity });
+  }, [inventoryItem.ID, inventoryItem.quantity, form]);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { mutate: updateItemMutation } = useMutation({
@@ -48,6 +66,7 @@ export default function ({ inventoryItem }: Props) {
       updateCompanyInventoryItem(inventoryItem.ID, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["company-missing-variants"] });
       toast({
         title: "Success",
         description: "Inventory item updated successfully",
@@ -64,11 +83,16 @@ export default function ({ inventoryItem }: Props) {
   });
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant={"ghost"}>
-          <Edit2 />
-        </Button>
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button variant={"ghost"}>
+            <Edit2 />
+          </Button>
+        </DialogTrigger>
+      )}
+      {isControlled && trigger ? (
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+      ) : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Inventory Item</DialogTitle>

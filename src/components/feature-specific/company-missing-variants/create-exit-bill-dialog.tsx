@@ -28,11 +28,13 @@ import { getAllProductsWithVariantsByCompany } from "@/services/product-service"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { ProductVariantCombobox } from "../company-products/product-variant-combobox";
+import ExitBillInsufficientInventoryDialog from "./exit-bill-insufficient-inventory-dialog";
+import type { InventoryShortfallItem } from "@/models/data/missing-variant.model";
 
 interface CreateExitBillDialogProps {
   open: boolean;
@@ -51,8 +53,11 @@ export default function CreateExitBillDialog({
   companyId,
   onMutationStateChange
 }: CreateExitBillDialogProps) {
-  console.log('Dialog props:', { open, selectedRequests, franchiseId, companyId });
-  
+  const [insufficientOpen, setInsufficientOpen] = useState(false);
+  const [inventoryShortfalls, setInventoryShortfalls] = useState<
+    InventoryShortfallItem[]
+  >([]);
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   let company = useSelector((state: RootState) => state.company.company);
@@ -161,8 +166,16 @@ export default function CreateExitBillDialog({
       // Don't reset the form - just close the dialog
       onOpenChange(false);
     },
-    onError: (error: Error) => {
-      console.error('Mutation error:', error);
+    onError: (error: Error & { apiError?: { code?: string; details?: { shortfalls?: InventoryShortfallItem[] } } }) => {
+      const shortfalls = error.apiError?.details?.shortfalls;
+      if (
+        error.apiError?.code === "inventory/insufficient" &&
+        shortfalls?.length
+      ) {
+        setInventoryShortfalls(shortfalls);
+        setInsufficientOpen(true);
+        return;
+      }
       toast({
         title: "Error",
         description: error.message || "Failed to create exit bill",
@@ -214,6 +227,12 @@ export default function CreateExitBillDialog({
   });
 
   return (
+    <>
+      <ExitBillInsufficientInventoryDialog
+        open={insufficientOpen}
+        onOpenChange={setInsufficientOpen}
+        shortfalls={inventoryShortfalls}
+      />
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -456,5 +475,6 @@ export default function CreateExitBillDialog({
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 }

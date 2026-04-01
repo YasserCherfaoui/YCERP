@@ -7,6 +7,7 @@ import CreateOrderFromScratchDialog from "@/components/feature-specific/orders/c
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
 import OrderStatusCards from "@/components/feature-specific/orders/order-status-cards";
 import ManagerStatusCards from "@/components/feature-specific/orders/manager-status-cards";
+import YalidineReconciliationDialog from "@/components/feature-specific/orders/yalidine-reconciliation-dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DataTable } from "@/components/ui/data-table";
@@ -59,7 +60,7 @@ import {
     UserIcon,
     XCircleIcon
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -81,6 +82,7 @@ export default function CompanyOrdersPage() {
   }
 
   const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedStatus, setSelectedStatus] = useState("unconfirmed");
   const [selectedUser, setSelectedUser] = useState<number | undefined>(
     undefined
@@ -114,6 +116,7 @@ export default function CompanyOrdersPage() {
 
   const { orders, meta } = useOrdersWithRealtime(
     currentPage,
+    pageSize,
     selectedStatus,
     selectedUser,
     selectedWilaya,
@@ -128,6 +131,10 @@ export default function CompanyOrdersPage() {
   useEffect(() => {
     setCurrentPage(0);
   }, [selectedStatus, selectedUser, selectedWilaya]);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [pageSize]);
 
   useQuery({
     queryKey: ["inventory", company.ID],
@@ -298,6 +305,7 @@ export default function CompanyOrdersPage() {
   const [importCSVOpen, setImportCSVOpen] = useState(false);
   // Add state for create order dialog
   const [createOrderOpen, setCreateOrderOpen] = useState(false);
+  const [yalidineReconciliationOpen, setYalidineReconciliationOpen] = useState(false);
 
   // Statuses and icons
   const statusTabs = [
@@ -358,6 +366,33 @@ export default function CompanyOrdersPage() {
       .map((item) => item.product_variant)
       .filter((v): v is NonNullable<typeof v> => Boolean(v)) || [];
 
+  const yalidineReconciliationFilters = useMemo(
+    () => ({
+      status: selectedStatus,
+      company_id: String(company.ID),
+      taken_by_id: selectedUser !== undefined ? String(selectedUser) : "",
+      wilaya: selectedWilaya ?? "",
+      phone_number: debouncedPhoneNumber,
+      shipping_provider:
+        selectedShippingProvider === "my_companies" ? "my_companies" : "",
+      yalidine_status: selectedYalidineStatus ?? "",
+      product_variant_id:
+        selectedConfirmedVariant !== undefined
+          ? String(selectedConfirmedVariant)
+          : "",
+    }),
+    [
+      selectedStatus,
+      company.ID,
+      selectedUser,
+      selectedWilaya,
+      debouncedPhoneNumber,
+      selectedShippingProvider,
+      selectedYalidineStatus,
+      selectedConfirmedVariant,
+    ]
+  );
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center gap-4">
@@ -393,6 +428,12 @@ export default function CompanyOrdersPage() {
               )}
             </Button>
           )}
+          <Button
+            variant="outline"
+            onClick={() => setYalidineReconciliationOpen(true)}
+          >
+            Reconcile Yalidine
+          </Button>
           <Button
             onClick={() => setAssignOpen(true)}
             disabled={isModerator || selectedRows.length === 0}
@@ -607,6 +648,23 @@ export default function CompanyOrdersPage() {
         onValueChange={setSelectedStatus}
         className="w-full mt-6"
       >
+        <div className="flex items-center gap-2 mb-4">
+          <span>Page size:</span>
+          <Select
+            value={String(pageSize)}
+            onValueChange={(value) => setPageSize(Number(value))}
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Page size" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <TabsList className="mb-4 flex flex-wrap gap-2">
           {statusTabs.map((tab) => (
             <TabsTrigger
@@ -673,6 +731,11 @@ export default function CompanyOrdersPage() {
       <CreateOrderFromScratchDialog
         open={createOrderOpen}
         setOpen={setCreateOrderOpen}
+      />
+      <YalidineReconciliationDialog
+        open={yalidineReconciliationOpen}
+        setOpen={setYalidineReconciliationOpen}
+        filters={yalidineReconciliationFilters}
       />
     </div>
   );
