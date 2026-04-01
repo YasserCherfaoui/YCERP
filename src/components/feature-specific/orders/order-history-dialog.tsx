@@ -8,7 +8,7 @@ import { useState } from "react";
 import AddOrderHistoryDialog from "./add-order-history-dialog";
 
 
-function HistoryList({ title, histories }: { title: string; histories: { status: string; date: string | Date; ID: number ; qualification?: Qualification; wilaya_name?: string; commune_name?: string; center_name?: string }[] }) {
+function HistoryList({ title, histories }: { title: string; histories: { status: string; date: string | Date; ID: number ; qualification?: Qualification; wilaya_name?: string; commune_name?: string; center_name?: string; reason?: string }[] }) {
   return (
     <div className="flex-1 min-w-0">
       <h3 className="font-semibold mb-2">{title}</h3>
@@ -16,8 +16,8 @@ function HistoryList({ title, histories }: { title: string; histories: { status:
         {histories && histories.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {histories.map((h) => (
-              <li key={h.ID} className="flex flex-col md:flex-row md:justify-between md:items-center text-sm gap-1 md:gap-0">
-                <div className="flex items-center gap-2">
+              <li key={h.ID} className="flex flex-col md:flex-row md:justify-between md:items-start text-sm gap-2 md:gap-2">
+                <div className="flex items-start gap-2">
                   <span>{h.status || "No status"}</span>
                   <span 
                     style={{
@@ -29,10 +29,11 @@ function HistoryList({ title, histories }: { title: string; histories: { status:
                     }}
                   >{h.qualification?.name || "No qualification"}</span>
                 </div>
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
                   {h.wilaya_name && <span>Wilaya: {h.wilaya_name}</span>}
                   {h.commune_name && <span>Commune: {h.commune_name}</span>}
                   {h.center_name && <span>Center: {h.center_name}</span>}
+                  {h.reason?.trim() && <span>Reason: {h.reason}</span>}
                 </div>
                 <span className="text-xs text-muted-foreground">{typeof h.date === 'string' ? new Date(h.date).toLocaleString() : h.date.toLocaleString()}</span>
               </li>
