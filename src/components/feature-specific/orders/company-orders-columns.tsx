@@ -239,7 +239,18 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
             className="flex flex-col items-center justify-center p-2 rounded cursor-pointer hover:bg-accent"
             onClick={() => setOpen(true)}
           >
-            {statuses.length === 0 ? "No status" : <>{lastStatus.status}</>}
+            {statuses.length === 0 ? (
+              "No status"
+            ) : (
+              <>
+                <span>{lastStatus.status}</span>
+                {lastStatus.reason?.trim() && (
+                  <span className="text-xs text-muted-foreground">
+                    Reason: {lastStatus.reason}
+                  </span>
+                )}
+              </>
+            )}
           </div>
           <OrderHistoryDialog order={order} open={open} setOpen={setOpen} />
         </>
