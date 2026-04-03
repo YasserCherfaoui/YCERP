@@ -37,11 +37,11 @@ import {
   getFranchiseInventory,
 } from "@/services/franchise-service";
 import { fulfillVariantDeposit } from "@/services/variant-deposits-service";
-import { getBOGOLineTotal } from "@/utils/pricing-utils";
+import { computePairPromoLineTotals, getBOGOLineTotal } from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Info, Plus, ShoppingCart } from "lucide-react";
+import { Info, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -238,6 +238,11 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
       Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
     );
   }
+
+  function removeSaleItem(index: number) {
+    setSaleItems((prev) => prev.filter((_, i) => i !== index));
+  }
+
   const queryClient = useQueryClient();
   const { mutate: downloadAndPrintFranchisePDFMutation } = useMutation({
     mutationFn: downloadAndPrintFranchisePDF,
@@ -390,6 +395,9 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                     <TableHead>Price</TableHead>
                     <TableHead>Quantity</TableHead>
                     <TableHead>Discount</TableHead>
+                    <TableHead className="w-[52px]">
+                      <span className="sr-only">Remove line</span>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -401,6 +409,11 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                         productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + curr.quantity;
                       }
                     });
+                    const pairTotals = computePairPromoLineTotals(
+                      saleItems,
+                      inventory?.data?.items ?? [],
+                      franchise
+                    );
                     return saleItems.map((saleItem, idx) => {
                     const inventoryItem = inventory?.data?.items.find(
                       (s) =>
@@ -411,8 +424,11 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                     const productId = inventoryItem?.product_id;
                     const totalQtyForProduct = productId != null ? (productTotalQty[productId] ?? 0) : 0;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
-                    const isBOGO = product?.is_bogo && totalQtyForProduct >= 2;
+                    const isPairLine = pairTotals.active && product?.pairable;
+                    const isBOGO = !isPairLine && product?.is_bogo && totalQtyForProduct >= 2;
                     const bogoProductTotal = isBOGO && product ? getBOGOLineTotal(product.price, totalQtyForProduct) : 0;
+                    const pairLineNet =
+                      isPairLine ? pairTotals.lineTotals[idx] ?? 0 : 0;
 
                     return (
                     <TableRow key={idx}>
@@ -425,6 +441,15 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                                 style: "currency",
                                 currency: "DZD",
                               }).format(product.promo_price ?? 0)}
+                            </Badge>
+                          )}
+                          {isPairLine && (
+                            <Badge variant="secondary" className="w-fit">
+                              Pair:{" "}
+                              {new Intl.NumberFormat("en-DZ", {
+                                style: "currency",
+                                currency: "DZD",
+                              }).format(pairLineNet)}
                             </Badge>
                           )}
                           {isBOGO && (
@@ -502,6 +527,17 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                           )}
                         />
                       </TableCell>
+                      <TableCell className="align-middle">
+                        <Button
+                          type="button"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 bg-red-600 text-white hover:bg-red-700 hover:text-white"
+                          onClick={() => removeSaleItem(idx)}
+                          aria-label="Remove line"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                   });
@@ -559,18 +595,26 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                 {new Intl.NumberFormat("en-DZ", {
                   style: "currency",
                   currency: "DZD",
-                }).format(
+                }                ).format(
                   (() => {
                     const productTotalQty: Record<number, number> = {};
                     saleItems.forEach((c) => {
                       const inv = inventory?.data?.items.find((s) => s.product_variant_id === c.product_variant_id);
                       if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
                     });
-                    return saleItems.reduce((prev, curr) => {
+                    const pairTotals = computePairPromoLineTotals(
+                      saleItems,
+                      inventory?.data?.items ?? [],
+                      franchise
+                    );
+                    return saleItems.reduce((prev, curr, idx) => {
                       const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
                       const prod = invItem?.product;
                       const pid = invItem?.product_id;
                       const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
+                      if (pairTotals.active && prod?.pairable) {
+                        return prev + (pairTotals.lineTotals[idx] ?? 0);
+                      }
                       const lineTotal =
                         prod?.is_bogo && totalQty >= 2
                           ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
@@ -622,18 +666,26 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                 {new Intl.NumberFormat("en-DZ", {
                   style: "currency",
                   currency: "DZD",
-                }).format(
+                }                ).format(
                   (() => {
                     const productTotalQty: Record<number, number> = {};
                     saleItems.forEach((c) => {
                       const inv = inventory?.data?.items.find((s) => s.product_variant_id === c.product_variant_id);
                       if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
                     });
-                    return saleItems.reduce((prev, curr) => {
+                    const pairTotals = computePairPromoLineTotals(
+                      saleItems,
+                      inventory?.data?.items ?? [],
+                      franchise
+                    );
+                    return saleItems.reduce((prev, curr, idx) => {
                       const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
                       const prod = invItem?.product;
                       const pid = invItem?.product_id;
                       const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
+                      if (pairTotals.active && prod?.pairable) {
+                        return prev + (pairTotals.lineTotals[idx] ?? 0);
+                      }
                       const lineTotal =
                         prod?.is_bogo && totalQty >= 2
                           ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity

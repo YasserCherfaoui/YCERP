@@ -14,6 +14,8 @@ export interface Product {
     company_id: number;
     is_woo_picture: boolean;
     is_bogo: boolean;
+    /** When true, unit joins the pairable pool (min/max pairing when 2+ pairable units). */
+    pairable?: boolean;
     is_active: boolean;
     product_images: ProductImage[];
     product_variants: ProductVariant[];

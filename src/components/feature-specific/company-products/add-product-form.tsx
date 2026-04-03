@@ -294,6 +294,22 @@ export default function () {
               </FormItem>
             )}
           />
+          <FormField
+            name="pairable"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center gap-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel>Pairable (pair promo when 2+ pairable units in cart)</FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </Form>
         <DialogFooter>
           <DialogClose asChild>
