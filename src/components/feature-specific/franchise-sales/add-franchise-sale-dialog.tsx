@@ -3,44 +3,44 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { VariantDepositResponse } from "@/models/data/variant-deposit.model";
 import { SaleItemEntity } from "@/models/data/sale.model";
+import { VariantDepositResponse } from "@/models/data/variant-deposit.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
 import {
-  createFranchiseSale,
-  downloadAndPrintFranchisePDF,
-  getFranchiseInventory,
+    createFranchiseSale,
+    downloadAndPrintFranchisePDF,
+    getFranchiseInventory,
 } from "@/services/franchise-service";
 import { fulfillVariantDeposit } from "@/services/variant-deposits-service";
 import {
-  computeCombinableLineTotals,
-  computePairPromoLineTotals,
-  getBOGOLineTotal,
+    computeCombinableLineTotals,
+    computePairPromoLineTotals,
+    getBOGOLineTotal,
 } from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
