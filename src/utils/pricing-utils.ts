@@ -175,3 +175,71 @@ export function computePairPromoLineTotals(
   }
   return { active: true, lineTotals };
 }
+
+/**
+ * Combinable anchor promo: 2+ combinable units → one anchor unit at first_price (franchise 0 on server);
+ * preview uses first_price / list price minus per-line discount. Non-combinable lines use list line total.
+ */
+export function computeCombinableLineTotals(
+  saleItems: SaleLineForPair[],
+  inventoryItems: InventoryRowForPair[]
+): { active: boolean; lineTotals: number[] } {
+  const lineTotals = saleItems.map(() => 0);
+  let combinableUnits = 0;
+  for (let i = 0; i < saleItems.length; i++) {
+    const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
+    if (inv?.product?.combinable) combinableUnits += saleItems[i].quantity;
+  }
+  if (combinableUnits < 2) {
+    return { active: false, lineTotals };
+  }
+
+  let anchorPid: number | null = null;
+  let bestFp = 0;
+  let hasAnchor = false;
+  for (let i = 0; i < saleItems.length; i++) {
+    const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
+    const p = inv?.product;
+    if (!inv || !p?.combinable || saleItems[i].quantity <= 0) continue;
+    const fp = p.first_price;
+    if (
+      !hasAnchor ||
+      fp < bestFp ||
+      (fp === bestFp && inv.product_id < (anchorPid ?? Infinity))
+    ) {
+      bestFp = fp;
+      anchorPid = inv.product_id;
+      hasAnchor = true;
+    }
+  }
+  if (!hasAnchor || anchorPid === null) {
+    return { active: false, lineTotals };
+  }
+
+  let anchorTaken = false;
+  for (let li = 0; li < saleItems.length; li++) {
+    const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[li].product_variant_id);
+    const p = inv?.product;
+    const qty = saleItems[li].quantity;
+    const disc = saleItems[li].discount;
+    if (!p?.combinable) {
+      lineTotals[li] = (saleItems[li].price - disc) * qty;
+      continue;
+    }
+    let promoQty = 0;
+    if (inv!.product_id === anchorPid && !anchorTaken && qty > 0) {
+      promoQty = 1;
+      anchorTaken = true;
+    }
+    const normalQty = qty - promoQty;
+    let net = 0;
+    if (promoQty > 0) {
+      net += (p.first_price - disc) * promoQty;
+    }
+    if (normalQty > 0) {
+      net += (p.price - disc) * normalQty;
+    }
+    lineTotals[li] = net;
+  }
+  return { active: true, lineTotals };
+}

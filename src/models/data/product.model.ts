@@ -16,6 +16,8 @@ export interface Product {
     is_bogo: boolean;
     /** When true, unit joins the pairable pool (min/max pairing when 2+ pairable units). */
     pairable?: boolean;
+    /** When true, unit joins combinable pool (anchor at first_price when 2+ combinable units). */
+    combinable?: boolean;
     is_active: boolean;
     product_images: ProductImage[];
     product_variants: ProductVariant[];

@@ -310,6 +310,24 @@ export default function () {
               </FormItem>
             )}
           />
+          <FormField
+            name="combinable"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center gap-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel>
+                  Combinable (anchor at first price when 2+ combinable units in cart)
+                </FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </Form>
         <DialogFooter>
           <DialogClose asChild>

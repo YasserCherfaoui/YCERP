@@ -44,6 +44,7 @@ export default function MyForm({ product }: Props) {
       is_woo_picture: product.is_woo_picture,
       is_bogo: product.is_bogo,
       pairable: product.pairable ?? false,
+      combinable: product.combinable ?? false,
       is_active: product.is_active,
     },
   });
@@ -287,6 +288,25 @@ export default function MyForm({ product }: Props) {
                   />
                 </FormControl>
                 <FormLabel>Pairable (pair promo when 2+ pairable units in cart)</FormLabel>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="combinable"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center gap-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel>
+                  Combinable (anchor at first price when 2+ combinable units in cart)
+                </FormLabel>
                 <FormMessage />
               </FormItem>
             )}
