@@ -14,6 +14,7 @@ export const createProductSchema = z.object({
     colors: z.array(z.string(), { message: "Color is required" }).optional(),
     is_bogo: z.boolean().optional(),
     pairable: z.boolean().optional(),
+    combinable: z.boolean().optional(),
     is_active: z.boolean().optional(),
 })
 
@@ -30,6 +31,7 @@ export const productDefaultValues = {
     sizes: [],
     is_bogo: false,
     pairable: false,
+    combinable: false,
     is_active: true,
 }
 
@@ -75,6 +77,7 @@ export const updateProductSchema = z.object({
     is_woo_picture: z.boolean().optional(),
     is_bogo: z.boolean().optional(),
     pairable: z.boolean().optional(),
+    combinable: z.boolean().optional(),
     is_active: z.boolean().optional(),
 });
 

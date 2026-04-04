@@ -37,7 +37,11 @@ import {
   getFranchiseInventory,
 } from "@/services/franchise-service";
 import { fulfillVariantDeposit } from "@/services/variant-deposits-service";
-import { computePairPromoLineTotals, getBOGOLineTotal } from "@/utils/pricing-utils";
+import {
+  computeCombinableLineTotals,
+  computePairPromoLineTotals,
+  getBOGOLineTotal,
+} from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -414,6 +418,10 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       inventory?.data?.items ?? [],
                       franchise
                     );
+                    const combTotals = computeCombinableLineTotals(
+                      saleItems,
+                      inventory?.data?.items ?? []
+                    );
                     return saleItems.map((saleItem, idx) => {
                     const inventoryItem = inventory?.data?.items.find(
                       (s) =>
@@ -424,11 +432,22 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                     const productId = inventoryItem?.product_id;
                     const totalQtyForProduct = productId != null ? (productTotalQty[productId] ?? 0) : 0;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
-                    const isPairLine = pairTotals.active && product?.pairable;
-                    const isBOGO = !isPairLine && product?.is_bogo && totalQtyForProduct >= 2;
+                    const isCombLine =
+                      combTotals.active && product?.combinable;
+                    const isPairLine =
+                      pairTotals.active &&
+                      product?.pairable &&
+                      !(combTotals.active && product?.combinable);
+                    const isBOGO =
+                      !isPairLine &&
+                      !isCombLine &&
+                      product?.is_bogo &&
+                      totalQtyForProduct >= 2;
                     const bogoProductTotal = isBOGO && product ? getBOGOLineTotal(product.price, totalQtyForProduct) : 0;
                     const pairLineNet =
                       isPairLine ? pairTotals.lineTotals[idx] ?? 0 : 0;
+                    const combLineNet =
+                      isCombLine ? combTotals.lineTotals[idx] ?? 0 : 0;
 
                     return (
                     <TableRow key={idx}>
@@ -450,6 +469,15 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                                 style: "currency",
                                 currency: "DZD",
                               }).format(pairLineNet)}
+                            </Badge>
+                          )}
+                          {isCombLine && (
+                            <Badge variant="secondary" className="w-fit">
+                              Combinable:{" "}
+                              {new Intl.NumberFormat("en-DZ", {
+                                style: "currency",
+                                currency: "DZD",
+                              }).format(combLineNet)}
                             </Badge>
                           )}
                           {isBOGO && (
@@ -607,11 +635,18 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       inventory?.data?.items ?? [],
                       franchise
                     );
+                    const combTotals = computeCombinableLineTotals(
+                      saleItems,
+                      inventory?.data?.items ?? []
+                    );
                     return saleItems.reduce((prev, curr, idx) => {
                       const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
                       const prod = invItem?.product;
                       const pid = invItem?.product_id;
                       const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
+                      if (combTotals.active && prod?.combinable) {
+                        return prev + (combTotals.lineTotals[idx] ?? 0);
+                      }
                       if (pairTotals.active && prod?.pairable) {
                         return prev + (pairTotals.lineTotals[idx] ?? 0);
                       }
@@ -678,11 +713,18 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       inventory?.data?.items ?? [],
                       franchise
                     );
+                    const combTotals = computeCombinableLineTotals(
+                      saleItems,
+                      inventory?.data?.items ?? []
+                    );
                     return saleItems.reduce((prev, curr, idx) => {
                       const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
                       const prod = invItem?.product;
                       const pid = invItem?.product_id;
                       const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
+                      if (combTotals.active && prod?.combinable) {
+                        return prev + (combTotals.lineTotals[idx] ?? 0);
+                      }
                       if (pairTotals.active && prod?.pairable) {
                         return prev + (pairTotals.lineTotals[idx] ?? 0);
                       }
