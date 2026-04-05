@@ -1,3 +1,4 @@
+import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
 import { Product } from "@/models/data/product.model";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -5,6 +6,18 @@ const nameColumn: ColumnDef<Product> = {
   accessorKey: "name",
   id: "name",
   header: "Name",
+  cell: ({ row }) => {
+    const product = row.original;
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <span>{product.name}</span>
+        <PairableCombinableProductIcons
+          combinable={product.combinable}
+          pairable={product.pairable}
+        />
+      </div>
+    );
+  },
 };
 
 const normalFranchisePriceColumn: ColumnDef<Product> = {

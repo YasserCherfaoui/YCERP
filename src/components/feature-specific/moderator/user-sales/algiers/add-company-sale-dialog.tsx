@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
@@ -244,14 +245,20 @@ export default function () {
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           <span>{inventoryItem?.name}</span>
-                          {hasPromo && (
-                            <Badge variant="destructive" className="w-fit">
-                              Promo: {new Intl.NumberFormat("en-DZ", {
-                                style: "currency",
-                                currency: "DZD",
-                              }).format(product.promo_price ?? 0)}
-                            </Badge>
-                          )}
+                          <div className="flex flex-wrap items-center gap-1">
+                            {hasPromo && (
+                              <Badge variant="destructive" className="w-fit">
+                                Promo: {new Intl.NumberFormat("en-DZ", {
+                                  style: "currency",
+                                  currency: "DZD",
+                                }).format(product.promo_price ?? 0)}
+                              </Badge>
+                            )}
+                            <PairableCombinableProductIcons
+                              combinable={product?.combinable}
+                              pairable={product?.pairable}
+                            />
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>

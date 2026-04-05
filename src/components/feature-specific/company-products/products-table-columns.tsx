@@ -1,3 +1,4 @@
+import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -50,6 +51,18 @@ export const columns: ColumnDef<Product>[] = [
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const product = row.original;
+      return (
+        <div className="flex flex-wrap items-center gap-2">
+          <span>{product.name}</span>
+          <PairableCombinableProductIcons
+            combinable={product.combinable}
+            pairable={product.pairable}
+          />
+        </div>
       );
     },
   },

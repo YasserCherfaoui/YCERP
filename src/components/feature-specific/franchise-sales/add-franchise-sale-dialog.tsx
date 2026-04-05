@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -454,40 +455,46 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           <span>{inventoryItem?.name}</span>
-                          {hasPromo && (
-                            <Badge variant="destructive" className="w-fit">
-                              Promo: {new Intl.NumberFormat("en-DZ", {
-                                style: "currency",
-                                currency: "DZD",
-                              }).format(product.promo_price ?? 0)}
-                            </Badge>
-                          )}
-                          {isPairLine && (
-                            <Badge variant="secondary" className="w-fit">
-                              Pair:{" "}
-                              {new Intl.NumberFormat("en-DZ", {
-                                style: "currency",
-                                currency: "DZD",
-                              }).format(pairLineNet)}
-                            </Badge>
-                          )}
-                          {isCombLine && (
-                            <Badge variant="secondary" className="w-fit">
-                              Combinable:{" "}
-                              {new Intl.NumberFormat("en-DZ", {
-                                style: "currency",
-                                currency: "DZD",
-                              }).format(combLineNet)}
-                            </Badge>
-                          )}
-                          {isBOGO && (
-                            <Badge variant="secondary" className="w-fit">
-                              BOGO: {totalQtyForProduct} for {new Intl.NumberFormat("en-DZ", {
-                                style: "currency",
-                                currency: "DZD",
-                              }).format(bogoProductTotal)}
-                            </Badge>
-                          )}
+                          <div className="flex flex-wrap items-center gap-1">
+                            {hasPromo && (
+                              <Badge variant="destructive" className="w-fit">
+                                Promo: {new Intl.NumberFormat("en-DZ", {
+                                  style: "currency",
+                                  currency: "DZD",
+                                }).format(product.promo_price ?? 0)}
+                              </Badge>
+                            )}
+                            {isPairLine && (
+                              <Badge variant="secondary" className="w-fit">
+                                Pair:{" "}
+                                {new Intl.NumberFormat("en-DZ", {
+                                  style: "currency",
+                                  currency: "DZD",
+                                }).format(pairLineNet)}
+                              </Badge>
+                            )}
+                            {isCombLine && (
+                              <Badge variant="secondary" className="w-fit">
+                                Combinable:{" "}
+                                {new Intl.NumberFormat("en-DZ", {
+                                  style: "currency",
+                                  currency: "DZD",
+                                }).format(combLineNet)}
+                              </Badge>
+                            )}
+                            {isBOGO && (
+                              <Badge variant="secondary" className="w-fit">
+                                BOGO: {totalQtyForProduct} for {new Intl.NumberFormat("en-DZ", {
+                                  style: "currency",
+                                  currency: "DZD",
+                                }).format(bogoProductTotal)}
+                              </Badge>
+                            )}
+                            <PairableCombinableProductIcons
+                              combinable={product?.combinable}
+                              pairable={product?.pairable}
+                            />
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
