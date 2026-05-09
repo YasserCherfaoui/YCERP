@@ -39,6 +39,7 @@ import CompanyAffiliatesPage from "@/pages/dashboard/company/company-affiliates-
 import CompanyAlgiersSalesPage from "@/pages/dashboard/company/company-algiers-sales-page";
 import CompanyBillsPage from "@/pages/dashboard/company/company-bills-page";
 import CompanyControlPanelPage from "@/pages/dashboard/company/company-control-panel-page";
+import CompanySettingsPage from "@/pages/dashboard/company/company-settings-page";
 import CompanyFranchiseBillsPage from "@/pages/dashboard/company/company-franchise-bills-page";
 import CompanyFranchiseInventoryPage from "@/pages/dashboard/company/company-franchise-inventory-page";
 import CompanyFranchisePage from "@/pages/dashboard/company/company-franchise-page";
@@ -238,6 +239,7 @@ export default function AppRouter() {
             <Route index element={<CompanyPage />} />
             <Route path=":companyID" element={<CompanyLayout />}>
               <Route index element={<CompanyControlPanelPage />} />
+              <Route path="settings" element={<CompanySettingsPage />} />
               <Route path="franchises">
                 <Route index element={<CompanyFranchisesPage />} />
                 <Route path=":franchiseID" element={<SuperFranchiseRoute />}>

@@ -9,6 +9,13 @@ export interface Company {
     DeletedAt: string | null;
     company_name: string;
     address: string;
+    logo?: string;
+    registration_number?: string;
+    vat_number?: string;
+    /** When false, VIP franchises skip BOGO pricing (default true when omitted). */
+    vip_allow_bogo?: boolean;
+    vip_allow_pairable?: boolean;
+    vip_allow_combinable?: boolean;
     administrators: Administrator[];
     franchises?: Franchise[];
     products?: Product[];
