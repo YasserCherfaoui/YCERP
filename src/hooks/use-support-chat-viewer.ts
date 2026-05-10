@@ -1,5 +1,9 @@
 import { RootState } from "@/app/store";
 import type { FranchiseSupportChatUIMessage } from "@/hooks/use-franchise-support-chat";
+import {
+  franchiseChatMessageIsFromViewerIdentity,
+  resolveFranchiseChatViewerFromBranches,
+} from "@/lib/support-chat-viewer";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -13,41 +17,25 @@ export function useSupportChatIsOwnMessage(): (m: FranchiseSupportChatUIMessage)
   const user = useSelector((s: RootState) => s.user.user);
   const administrator = useSelector((s: RootState) => s.auth.user);
 
+  const viewer = useMemo(
+    () =>
+      resolveFranchiseChatViewerFromBranches(pathname, {
+        franchiseUser,
+        user,
+        administrator,
+      }),
+    [pathname, franchiseUser?.ID, user?.ID, administrator?.ID],
+  );
+
   return useMemo(() => {
-    if (pathname.startsWith("/myFranchise")) {
-      if (franchiseUser?.ID != null) {
-        return (m: FranchiseSupportChatUIMessage) =>
-          m.sender_actor === "franchise_administrator" && m.sender_actor_id === franchiseUser.ID;
-      }
-      if (user?.ID != null) {
-        return (m: FranchiseSupportChatUIMessage) =>
-          m.sender_actor === "user" && m.sender_actor_id === user.ID;
-      }
-    }
-
-    if (pathname.startsWith("/company")) {
-      if (administrator?.ID != null) {
-        return (m: FranchiseSupportChatUIMessage) =>
-          m.sender_actor === "administrator" && m.sender_actor_id === administrator.ID;
-      }
-      if (user?.ID != null) {
-        return (m: FranchiseSupportChatUIMessage) =>
-          m.sender_actor === "user" && m.sender_actor_id === user.ID;
-      }
-    }
-
-    if (pathname.includes("/moderator")) {
-      if (user?.ID != null) {
-        return (m: FranchiseSupportChatUIMessage) =>
-          m.sender_actor === "user" && m.sender_actor_id === user.ID;
-      }
-      if (administrator?.ID != null) {
-        return (m: FranchiseSupportChatUIMessage) =>
-          m.sender_actor === "administrator" && m.sender_actor_id === administrator.ID;
-      }
-    }
-
-    return () => false;
-  }, [pathname, franchiseUser?.ID, user?.ID, administrator?.ID]);
+    if (!viewer) return () => false;
+    return (m: FranchiseSupportChatUIMessage) =>
+      franchiseChatMessageIsFromViewerIdentity(
+        {
+          sender_actor: m.sender_actor,
+          sender_actor_id: m.sender_actor_id,
+        },
+        viewer,
+      );
+  }, [viewer]);
 }
-

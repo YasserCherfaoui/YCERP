@@ -106,10 +106,6 @@ export function useFranchiseSupportChat({
       return undefined;
     }
 
-    const invalidateThread = () => {
-      void queryClient.invalidateQueries({ queryKey: listKey });
-    };
-
     const scheduleReconnect = () => {
       if (!shouldReconnect.current) return;
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
@@ -124,7 +120,22 @@ export function useFranchiseSupportChat({
 
       ws.onopen = () => {
         setConnected(true);
-        void invalidateThread();
+        // Avoid full history refetch (GET …?limit=80) on every connect — WS delivers new rows; if we
+        // reconnected after missing traffic, pull only messages newer than what we already have.
+        void (async () => {
+          const prev = queryClient.getQueryData<FranchiseChatMessageRecord[]>(listKey) ?? [];
+          const maxId = prev.reduce((m, r) => (r.ID > m ? r.ID : m), 0);
+          if (maxId <= 0) return;
+          const res = await getFranchiseSupportChatMessages(franchiseId, {
+            since_id: maxId,
+            limit: 100,
+          });
+          const incoming = res.data ?? [];
+          if (!incoming.length) return;
+          queryClient.setQueryData<FranchiseChatMessageRecord[]>(listKey, (p) =>
+            mergeRecordsByID(p ?? [], incoming),
+          );
+        })();
       };
       ws.onclose = () => {
         setConnected(false);
@@ -171,10 +182,23 @@ export function useFranchiseSupportChat({
       if (!ws || ws.readyState !== WebSocket.OPEN || !trimmed) return false;
 
       ws.send(JSON.stringify({ type: "message", body: trimmed }));
+      /* Don't invalidate + refetch full page; broadcast (or incremental sync) updates the thread. */
       if (postSendInvalidateRef.current) clearTimeout(postSendInvalidateRef.current);
       postSendInvalidateRef.current = setTimeout(() => {
-        void queryClient.invalidateQueries({ queryKey: listKey });
-      }, 400);
+        void (async () => {
+          const prev = queryClient.getQueryData<FranchiseChatMessageRecord[]>(listKey) ?? [];
+          const maxId = prev.reduce((m, r) => (r.ID > m ? r.ID : m), 0);
+          const res = await getFranchiseSupportChatMessages(franchiseId, {
+            since_id: maxId,
+            limit: 20,
+          });
+          const incoming = res.data ?? [];
+          if (!incoming.length) return;
+          queryClient.setQueryData<FranchiseChatMessageRecord[]>(listKey, (p) =>
+            mergeRecordsByID(p ?? [], incoming),
+          );
+        })();
+      }, 500);
       return true;
     },
     [listKey, queryClient],
