@@ -1,5 +1,5 @@
-import FranchiseAppBar from "@/components/feature-specific/company-franchise/franchise-app-bar";
 import FranchiseMenu from "@/components/feature-specific/franchise-dashboard/franchise-menu";
+import FranchiseAppBar from "@/components/feature-specific/company-franchise/franchise-app-bar";
 
 export default function () {
   return (

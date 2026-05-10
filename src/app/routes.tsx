@@ -56,6 +56,7 @@ import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
 import CompanyBrokenItemsTransfersPage from "@/pages/dashboard/company/company-broken-items-transfers-page";
 import CompanyShipFromStorePage from "@/pages/dashboard/company/company-ship-from-store-page";
 import CompanyFranchiseShipFromStorePage from "@/pages/dashboard/company/company-franchise-ship-from-store-page";
+import CompanyFranchiseSupportRoutePage from "@/pages/dashboard/company/company-franchise-support-route-page";
 import CompanyFranchiseVariantDepositsPage from "@/pages/dashboard/company/company-franchise-variant-deposits-page";
 import CompanyStockAlertsConfigPage from "@/pages/dashboard/company/company-stock-alerts-config-page";
 import CompanyStockAlertsHistoryPage from "@/pages/dashboard/company/company-stock-alerts-history-page";
@@ -96,6 +97,7 @@ import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
 import FranchiseMissingVariantsPage from "@/pages/franchise/dashboard/franchise-missing-variants-page";
 import FranchiseVariantDepositsPage from "@/pages/franchise/dashboard/franchise-variant-deposits-page";
 import FranchiseShipFromStorePage from "@/pages/franchise/dashboard/franchise-ship-from-store-page";
+import FranchiseSupportChatPage from "@/pages/franchise/dashboard/franchise-support-chat-page";
 import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-products-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import FranchiseStockAlertsConfigPage from "@/pages/franchise/dashboard/franchise-stock-alerts-config-page";
@@ -157,6 +159,7 @@ export default function AppRouter() {
               <Route path="config" element={<FranchiseStockAlertsConfigPage />} />
               <Route path="notifications" element={<FranchiseStockAlertsNotificationsPage />} />
             </Route>
+            <Route path="support" element={<FranchiseSupportChatPage />} />
           </Route>
         </Route>
         //? USER ROUTES
@@ -205,6 +208,7 @@ export default function AppRouter() {
                 <Route path="ship-from-store" element={<CompanyFranchiseShipFromStorePage />} />
                 <Route path="variant-deposits" element={<CompanyFranchiseVariantDepositsPage />} />
                 <Route path="statistics" element={<CompanyFranchiseStatsPage />} />
+                <Route path="support" element={<CompanyFranchiseSupportRoutePage />} />
               </Route>
 
             </Route>
@@ -256,6 +260,7 @@ export default function AppRouter() {
                     path="statistics"
                     element={<CompanyFranchiseStatsPage />}
                   />
+                  <Route path="support" element={<CompanyFranchiseSupportRoutePage />} />
                 </Route>
               </Route>
               <Route path="warehouse" element={<WarehousePage />} />

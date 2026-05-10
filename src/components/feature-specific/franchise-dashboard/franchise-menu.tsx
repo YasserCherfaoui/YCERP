@@ -1,6 +1,6 @@
 import { RootState } from "@/app/store";
 import WideButton from "@/components/common/wide-button";
-import { AlertTriangle, Apple, BarChart, Bell, DollarSign, Package, ReceiptText, ShoppingCart, Users, Wallet, Warehouse } from "lucide-react";
+import { AlertTriangle, Apple, BarChart, Bell, DollarSign, MessageSquare, Package, ReceiptText, ShoppingCart, Users, Wallet, Warehouse } from "lucide-react";
 import { useSelector } from "react-redux";
 import FranchiseTile from "./franchise-tile";
 
@@ -76,5 +76,10 @@ const quickMenu = [
     label: "Customers",
     icon: Users,
     href: "crm/customers",
-  }
+  },
+  {
+    label: "Support chat",
+    icon: MessageSquare,
+    href: "support",
+  },
 ];
