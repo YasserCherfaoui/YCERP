@@ -97,7 +97,6 @@ import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
 import FranchiseMissingVariantsPage from "@/pages/franchise/dashboard/franchise-missing-variants-page";
 import FranchiseVariantDepositsPage from "@/pages/franchise/dashboard/franchise-variant-deposits-page";
 import FranchiseShipFromStorePage from "@/pages/franchise/dashboard/franchise-ship-from-store-page";
-import FranchiseSupportChatPage from "@/pages/franchise/dashboard/franchise-support-chat-page";
 import FranchiseProductsPage from "@/pages/franchise/dashboard/franchise-products-page";
 import FranchiseSalesPage from "@/pages/franchise/dashboard/franchise-sales-page";
 import FranchiseStockAlertsConfigPage from "@/pages/franchise/dashboard/franchise-stock-alerts-config-page";
@@ -116,7 +115,7 @@ import UserMenuPage from "@/pages/moderator/dashboard/user-menu-page";
 import UserSalesPage from "@/pages/moderator/dashboard/user-sales-page";
 import ModFranchiseRoute from "@/pages/moderator/mod-franchise-route";
 import NotFoundPage from "@/pages/not-found-page";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
 export default function AppRouter() {
   return (
@@ -159,7 +158,7 @@ export default function AppRouter() {
               <Route path="config" element={<FranchiseStockAlertsConfigPage />} />
               <Route path="notifications" element={<FranchiseStockAlertsNotificationsPage />} />
             </Route>
-            <Route path="support" element={<FranchiseSupportChatPage />} />
+            <Route path="support" element={<Navigate to="/myFranchise" replace />} />
           </Route>
         </Route>
         //? USER ROUTES
