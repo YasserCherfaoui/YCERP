@@ -1,17 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
-import { RootState } from "@/app/store";
 import { franchiseSupportChatUnreadRootKey } from "@/hooks/use-franchise-support-chat-unread";
 import { type FranchiseSupportChatUIMessage, useFranchiseSupportChat } from "@/hooks/use-franchise-support-chat";
 import { useSupportChatIsOwnMessage } from "@/hooks/use-support-chat-viewer";
-import { supportChatCursorKey, writeSupportChatCursor } from "@/lib/support-chat-read-cursor";
-import { resolveFranchiseChatViewerFromBranches } from "@/lib/support-chat-viewer";
 import { cn } from "@/lib/utils";
+import { postFranchiseSupportChatMarkRead } from "@/services/support-chat-service";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
 import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
 
 interface Props {
   franchiseId?: number;
@@ -22,19 +18,6 @@ export default function FranchiseSupportChatPanel({ franchiseId, className }: Pr
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [draft, setDraft] = useState("");
   const queryClient = useQueryClient();
-  const { pathname } = useLocation();
-  const franchiseUser = useSelector((s: RootState) => s.franchise.user);
-  const user = useSelector((s: RootState) => s.user.user);
-  const administrator = useSelector((s: RootState) => s.auth.user);
-  const viewer = useMemo(
-    () =>
-      resolveFranchiseChatViewerFromBranches(pathname, {
-        franchiseUser,
-        user,
-        administrator,
-      }),
-    [pathname, franchiseUser?.ID, user?.ID, administrator?.ID],
-  );
   const isOwnMessage = useSupportChatIsOwnMessage();
   const { messages, connected, loading, sendBody, loadOlder, refresh } =
     useFranchiseSupportChat({
@@ -48,11 +31,18 @@ export default function FranchiseSupportChatPanel({ franchiseId, className }: Pr
   );
 
   useEffect(() => {
-    if (!franchiseId || franchiseId <= 0 || !viewer || maxMsgId <= 0) return;
-    const key = supportChatCursorKey(franchiseId, viewer);
-    writeSupportChatCursor(key, maxMsgId);
-    void queryClient.invalidateQueries({ queryKey: [franchiseSupportChatUnreadRootKey] });
-  }, [franchiseId, viewer, maxMsgId, queryClient]);
+    if (!franchiseId || franchiseId <= 0 || maxMsgId <= 0) return;
+    const t = window.setTimeout(() => {
+      void postFranchiseSupportChatMarkRead(franchiseId, maxMsgId)
+        .then(() => {
+          void queryClient.invalidateQueries({ queryKey: [franchiseSupportChatUnreadRootKey] });
+        })
+        .catch(() => {
+          /* offline / auth */
+        });
+    }, 400);
+    return () => window.clearTimeout(t);
+  }, [franchiseId, maxMsgId, queryClient]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -249,7 +239,18 @@ function Bubble({
             compact && "mt-1 text-[9px]",
           )}
         >
-          {isOwn ? `You · ${when}` : when}
+          {isOwn ? (
+            <>
+              You · {when}
+              {message.seen_iso ? (
+                <span className="ml-1 text-primary-foreground/90" title="Seen by counterparty">
+                  · Read {formatTime(message.seen_iso)}
+                </span>
+              ) : null}
+            </>
+          ) : (
+            when
+          )}
         </div>
       </div>
     </div>

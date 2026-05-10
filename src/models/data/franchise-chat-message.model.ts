@@ -15,6 +15,8 @@ export interface FranchiseChatMessageRecord {
   sender_name: string;
   sender_email: string;
   body: string;
+  /** First time counterparty read past this message (server read receipt). */
+  seen_at?: string | null;
 }
 
 /** WebSocket broadcast payload (`gin.H`). */

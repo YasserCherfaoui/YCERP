@@ -1,60 +1,17 @@
 import { RootState } from "@/app/store";
-import {
-  franchiseChatMessageIsFromViewerIdentity,
-  resolveFranchiseChatViewerFromBranches,
-} from "@/lib/support-chat-viewer";
-import type { FranchiseChatViewerIdentity } from "@/lib/support-chat-viewer";
-import {
-  readSupportChatCursor,
-  supportChatCursorKey,
-  writeSupportChatCursor,
-} from "@/lib/support-chat-read-cursor";
-import { getFranchiseSupportChatMessages } from "@/services/support-chat-service";
+import { resolveFranchiseChatViewerFromBranches } from "@/lib/support-chat-viewer";
+import { getFranchiseSupportChatUnreadCount } from "@/services/support-chat-service";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
-const MAX_SINCE_FETCH = 100;
-/** Rare fallback sync when the panel is closed (no WebSocket); avoids hammering the API. */
+const MAX_CAP = 100;
+/** Rare fallback when the messages panel is closed (no WebSocket). */
 const UNREAD_IDLE_REFETCH_MS = 120_000;
-const HISTORY_SEED = 80;
 
 export const franchiseSupportChatUnreadRootKey = "franchise-support-chat-unread" as const;
 
-export async function fetchSupportChatUnreadCount(
-  franchiseId: number,
-  viewer: FranchiseChatViewerIdentity,
-): Promise<number> {
-  const key = supportChatCursorKey(franchiseId, viewer);
-  const cursor = readSupportChatCursor(key);
-
-  if (cursor === undefined) {
-    const seed = await getFranchiseSupportChatMessages(franchiseId, { limit: HISTORY_SEED });
-    const rows = seed.data ?? [];
-    const maxId = rows.reduce((m, r) => (r.ID > m ? r.ID : m), 0);
-    writeSupportChatCursor(key, maxId > 0 ? maxId : 0);
-    return 0;
-  }
-
-  const res = await getFranchiseSupportChatMessages(franchiseId, {
-    since_id: cursor,
-    limit: MAX_SINCE_FETCH,
-  });
-  const incoming = res.data ?? [];
-  let n = 0;
-  for (const r of incoming) {
-    if (!franchiseChatMessageIsFromViewerIdentity(r, viewer)) n += 1;
-  }
-  if (incoming.length >= MAX_SINCE_FETCH) {
-    return Math.max(n, MAX_SINCE_FETCH);
-  }
-  return n;
-}
-
-/**
- * Messages from others after local read cursor. First visit seeds cursor to latest id (no backlog badge).
- */
 export function useFranchiseSupportChatUnread(
   franchiseId: number | undefined,
   opts: { pollingEnabled: boolean },
@@ -79,7 +36,10 @@ export function useFranchiseSupportChatUnread(
       franchiseId != null && franchiseId > 0 && viewer
         ? [franchiseSupportChatUnreadRootKey, franchiseId, viewerTag]
         : [franchiseSupportChatUnreadRootKey, "off"],
-    queryFn: () => fetchSupportChatUnreadCount(franchiseId!, viewer!),
+    queryFn: async () => {
+      const res = await getFranchiseSupportChatUnreadCount(franchiseId!);
+      return res.data?.unread_count ?? 0;
+    },
     enabled: Boolean(franchiseId && franchiseId > 0 && viewer),
     staleTime: 60_000,
     refetchInterval: opts.pollingEnabled ? UNREAD_IDLE_REFETCH_MS : false,
@@ -90,15 +50,10 @@ export function useFranchiseSupportChatUnread(
   const raw = query.data ?? 0;
   return {
     unreadCount: raw,
-    showFloodedBadge: raw >= MAX_SINCE_FETCH,
+    showFloodedBadge: raw >= MAX_CAP,
   };
 }
 
-/**
- * Sum of unread across franchise threads (company / moderator dock FAB).
- * Keeps a slow periodic refetch (since-cursor only, not full history) so sidebar badges stay fresh
- * while one thread is open — cheap compared to the main chat WebSocket fetch.
- */
 export function useAggregateFranchiseSupportChatUnread(franchiseIds: number[]) {
   const { pathname } = useLocation();
   const franchiseUser = useSelector((s: RootState) => s.franchise.user);
@@ -123,8 +78,10 @@ export function useAggregateFranchiseSupportChatUnread(franchiseIds: number[]) {
   const queries = useQueries({
     queries: uniqueSorted.map((fid) => ({
       queryKey: [franchiseSupportChatUnreadRootKey, fid, viewerTag],
-      queryFn: () =>
-        viewer ? fetchSupportChatUnreadCount(fid, viewer) : Promise.resolve(0),
+      queryFn: async () => {
+        const res = await getFranchiseSupportChatUnreadCount(fid);
+        return res.data?.unread_count ?? 0;
+      },
       enabled: Boolean(viewer && uniqueSorted.length > 0),
       staleTime: 60_000,
       refetchInterval: UNREAD_IDLE_REFETCH_MS,
@@ -134,7 +91,7 @@ export function useAggregateFranchiseSupportChatUnread(franchiseIds: number[]) {
   });
 
   const total = queries.reduce((s, q) => s + (q.data ?? 0), 0);
-  const anyFlooded = queries.some((q) => (q.data ?? 0) >= MAX_SINCE_FETCH);
+  const anyFlooded = queries.some((q) => (q.data ?? 0) >= MAX_CAP);
 
   const unreadByFranchiseId = useMemo(() => {
     const m: Record<number, number> = {};
@@ -146,7 +103,7 @@ export function useAggregateFranchiseSupportChatUnread(franchiseIds: number[]) {
 
   return {
     unreadCount: total,
-    showFloodedBadge: anyFlooded || total >= MAX_SINCE_FETCH,
+    showFloodedBadge: anyFlooded || total >= MAX_CAP,
     unreadByFranchiseId,
   };
 }

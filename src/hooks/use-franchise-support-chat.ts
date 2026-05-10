@@ -20,6 +20,8 @@ export interface FranchiseSupportChatUIMessage {
   body: string;
   sortTime: number;
   created_iso: string;
+  /** ISO time when counterparty first read this message (outgoing read receipt). */
+  seen_iso?: string | null;
 }
 
 function mergeRecordsByID(
@@ -48,6 +50,7 @@ function recordFromWsPayload(d: FranchiseChatMessageEventData): FranchiseChatMes
     sender_name: d.sender_name,
     sender_email: d.sender_email,
     body: d.body,
+    seen_at: null,
   };
 }
 
@@ -63,6 +66,7 @@ function normalizeFromRecord(row: FranchiseChatMessageRecord): FranchiseSupportC
     body: row.body,
     sortTime: Number.isFinite(t) ? t : 0,
     created_iso: row.CreatedAt,
+    seen_iso: row.seen_at ?? null,
   };
 }
 
@@ -156,6 +160,9 @@ export function useFranchiseSupportChat({
             queryClient.setQueryData<FranchiseChatMessageRecord[]>(listKey, (prev) =>
               mergeRecordsByID(prev, [rec]),
             );
+          } else if (payload.event === "read_receipt") {
+            void queryClient.invalidateQueries({ queryKey: listKey });
+            void queryClient.invalidateQueries({ queryKey: ["franchise-support-chat-unread"] });
           }
         } catch {
           /* malformed */
@@ -201,7 +208,7 @@ export function useFranchiseSupportChat({
       }, 500);
       return true;
     },
-    [listKey, queryClient],
+    [listKey, queryClient, franchiseId],
   );
 
   const loadOlder = useCallback(async () => {

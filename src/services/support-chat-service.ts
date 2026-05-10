@@ -42,3 +42,36 @@ export function buildSupportChatWebSocketUrl(
   const enc = encodeURIComponent(token);
   return `${proto}://${host}/support/chat/ws?franchise_id=${franchiseId}&token=${enc}`;
 }
+
+export async function postFranchiseSupportChatMarkRead(
+  franchiseId: number,
+  lastReadMessageId: number,
+): Promise<APIResponse<{ ok: boolean }>> {
+  const res = await fetch(
+    `${getBaseUrl()}/support/chat/franchises/${franchiseId}/read`,
+    {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ last_read_message_id: lastReadMessageId }),
+    },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message ?? "Failed to mark chat as read.");
+  }
+  return data as APIResponse<{ ok: boolean }>;
+}
+
+export async function getFranchiseSupportChatUnreadCount(
+  franchiseId: number,
+): Promise<APIResponse<{ unread_count: number }>> {
+  const res = await fetch(
+    `${getBaseUrl()}/support/chat/franchises/${franchiseId}/unread-count`,
+    { method: "GET", headers: authHeaders() },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message ?? "Failed to load unread count.");
+  }
+  return data as APIResponse<{ unread_count: number }>;
+}
