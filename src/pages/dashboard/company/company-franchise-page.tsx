@@ -3,9 +3,9 @@ import FranchiseAppBar from "@/components/feature-specific/company-franchise/fra
 
 export default function () {
   return (
-    <div className="flex flex-col m-10">
+    <div className="mx-4 flex min-h-0 flex-col gap-6 py-6 md:mx-10 md:py-8">
       <FranchiseAppBar />
-      <div className="flex flex-col h-screen items-center justify-center">
+      <div className="flex w-full flex-col items-center gap-8 pb-10">
         <FranchiseMenu />
       </div>
     </div>

@@ -10,7 +10,7 @@ export default function () {
   );
   if (!franchise) return;
   return (
-    <div className="flex flex-col gap-4 items-center justify-center">
+    <div className="flex w-full flex-col items-center gap-6">
       <FranchiseTile franchise={franchise} />
       <div className="grid grid-cols-3 flex-wrap justify-center gap-4 self-center">
         {quickMenu.map((item, index) => (
