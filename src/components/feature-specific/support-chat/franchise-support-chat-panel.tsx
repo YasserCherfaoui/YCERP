@@ -35,7 +35,9 @@ export default function FranchiseSupportChatPanel({ franchiseId, className }: Pr
     const t = window.setTimeout(() => {
       void postFranchiseSupportChatMarkRead(franchiseId, maxMsgId)
         .then(() => {
-          void queryClient.invalidateQueries({ queryKey: [franchiseSupportChatUnreadRootKey] });
+          void queryClient.invalidateQueries({
+            queryKey: [franchiseSupportChatUnreadRootKey, franchiseId],
+          });
         })
         .catch(() => {
           /* offline / auth */

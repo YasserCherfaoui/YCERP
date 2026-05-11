@@ -1,3 +1,9 @@
+import { store } from "@/app/store";
+import { franchiseSupportChatUnreadRootKey } from "@/hooks/use-franchise-support-chat-unread";
+import {
+  isFranchiseChatMessageFromViewer,
+  resolveFranchiseChatViewerFromBranches,
+} from "@/lib/support-chat-viewer";
 import type {
   FranchiseChatMessageEventData,
   FranchiseChatMessageRecord,
@@ -9,6 +15,7 @@ import {
 } from "@/services/support-chat-service";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 export interface FranchiseSupportChatUIMessage {
   uid: number;
@@ -79,6 +86,9 @@ export function useFranchiseSupportChat({
   franchiseId,
   enabled = true,
 }: UseFranchiseSupportChatOptions) {
+  const { pathname } = useLocation();
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
   const queryClient = useQueryClient();
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -110,6 +120,9 @@ export function useFranchiseSupportChat({
       return undefined;
     }
 
+    /** After onclose, next onopen should catch up via GET since_id; first onopen of this effect has no prior close. */
+    let resumeSyncAfterDisconnect = false;
+
     const scheduleReconnect = () => {
       if (!shouldReconnect.current) return;
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
@@ -124,8 +137,10 @@ export function useFranchiseSupportChat({
 
       ws.onopen = () => {
         setConnected(true);
-        // Avoid full history refetch (GET …?limit=80) on every connect — WS delivers new rows; if we
-        // reconnected after missing traffic, pull only messages newer than what we already have.
+        if (!resumeSyncAfterDisconnect) {
+          return;
+        }
+        resumeSyncAfterDisconnect = false;
         void (async () => {
           const prev = queryClient.getQueryData<FranchiseChatMessageRecord[]>(listKey) ?? [];
           const maxId = prev.reduce((m, r) => (r.ID > m ? r.ID : m), 0);
@@ -142,6 +157,7 @@ export function useFranchiseSupportChat({
         })();
       };
       ws.onclose = () => {
+        resumeSyncAfterDisconnect = true;
         setConnected(false);
         scheduleReconnect();
       };
@@ -153,16 +169,61 @@ export function useFranchiseSupportChat({
         try {
           const payload = JSON.parse(ev.data as string) as {
             event?: string;
-            data?: FranchiseChatMessageEventData;
+            data?: FranchiseChatMessageEventData | Record<string, unknown>;
           };
-          if (payload.event === "message" && payload.data) {
-            const rec = recordFromWsPayload(payload.data);
+          if (payload.event === "message" && payload.data && "id" in (payload.data as object)) {
+            const rec = recordFromWsPayload(payload.data as FranchiseChatMessageEventData);
             queryClient.setQueryData<FranchiseChatMessageRecord[]>(listKey, (prev) =>
               mergeRecordsByID(prev, [rec]),
             );
-          } else if (payload.event === "read_receipt") {
-            void queryClient.invalidateQueries({ queryKey: listKey });
-            void queryClient.invalidateQueries({ queryKey: ["franchise-support-chat-unread"] });
+          } else if (payload.event === "read_receipt" && payload.data && franchiseId) {
+            const d = payload.data as {
+              franchise_id?: number;
+              last_read_message_id?: number;
+              reader_actor?: string;
+              reader_id?: number;
+            };
+            if (d.franchise_id !== franchiseId) return;
+
+            const state = store.getState();
+            const viewer = resolveFranchiseChatViewerFromBranches(pathnameRef.current, {
+              franchiseUser: state.franchise.user,
+              user: state.user.user,
+              administrator: state.auth.user,
+            });
+            const isSelfReceipt =
+              viewer != null &&
+              d.reader_actor === viewer.role &&
+              d.reader_id === viewer.id;
+
+            const unreadKey = [franchiseSupportChatUnreadRootKey, franchiseId] as const;
+
+            if (isSelfReceipt) {
+              void queryClient.invalidateQueries({ queryKey: unreadKey });
+              return;
+            }
+
+            const upTo = d.last_read_message_id ?? 0;
+            if (upTo > 0) {
+              const nowIso = new Date().toISOString();
+              queryClient.setQueryData<FranchiseChatMessageRecord[]>(listKey, (prev) => {
+                if (!prev?.length) return prev;
+                return prev.map((m) => {
+                  if (m.ID > upTo || m.seen_at) return m;
+                  const mine = isFranchiseChatMessageFromViewer(
+                    {
+                      sender_actor: m.sender_actor,
+                      sender_actor_id: m.sender_actor_id,
+                    },
+                    pathnameRef.current,
+                    state,
+                  );
+                  if (!mine) return m;
+                  return { ...m, seen_at: nowIso };
+                });
+              });
+            }
+            void queryClient.invalidateQueries({ queryKey: unreadKey });
           }
         } catch {
           /* malformed */
@@ -180,6 +241,8 @@ export function useFranchiseSupportChat({
       wsRef.current?.close();
       wsRef.current = null;
     };
+    // Intentionally omit `pathname`: including it tore down the socket on every route change and
+    // caused reconnect storms + repeating GET …/messages?since_id=… + Live/… flicker.
   }, [franchiseId, enabled, listKey, queryClient]);
 
   const sendBody = useCallback(
