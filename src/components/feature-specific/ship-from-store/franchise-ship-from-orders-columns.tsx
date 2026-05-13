@@ -1,6 +1,25 @@
+import OrderDetailsDialog from "@/components/feature-specific/orders/order-details-dialog";
 import { Badge } from "@/components/ui/badge";
-import { WooOrder } from "@/models/data/woo-order.model";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import {
+  FRANCHISE_ORDER_STATUSES,
+  FranchiseOrderStatus,
+  WooOrder,
+  isFranchiseOrderStatus,
+} from "@/models/data/woo-order.model";
+import { updateFranchiseOrderStatus } from "@/services/franchise-service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
+import { Eye } from "lucide-react";
+import { useState } from "react";
 
 function orderStatusVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   const s = status?.toLowerCase() ?? "";
@@ -10,21 +29,113 @@ function orderStatusVariant(status: string): "default" | "secondary" | "outline"
   return "outline";
 }
 
+function OrderNumberCell({ order }: { order: WooOrder }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button
+        variant="link"
+        className="h-auto justify-start p-0 font-medium"
+        onClick={() => setOpen(true)}
+      >
+        #{order.number || order.id}
+      </Button>
+      <div className="text-xs text-muted-foreground">
+        {new Date(order.date_created).toLocaleDateString()}
+      </div>
+      <OrderDetailsDialog order={order} open={open} setOpen={setOpen} />
+    </>
+  );
+}
+
+const FRANCHISE_ORDER_STATUS_LABELS: Record<FranchiseOrderStatus, string> = {
+  pending: "Pending",
+  packed: "Packed",
+  dispatched: "Dispatched",
+};
+
+const STATUS_RANK: Record<FranchiseOrderStatus, number> = {
+  pending: 1,
+  packed: 2,
+  dispatched: 3,
+};
+
+function FranchiseStatusCell({ order }: { order: WooOrder }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const current = isFranchiseOrderStatus(order.franchise_order_status)
+    ? order.franchise_order_status
+    : "pending";
+  const currentRank = STATUS_RANK[current];
+
+  const mutation = useMutation({
+    mutationFn: (status: FranchiseOrderStatus) =>
+      updateFranchiseOrderStatus(order.id, status),
+    onSuccess: (_data, status) => {
+      toast({
+        title: "Status updated",
+        description: `Order #${order.number || order.id} marked as ${FRANCHISE_ORDER_STATUS_LABELS[status]}.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["franchise-woo-orders"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Update failed",
+        description: error.message || "Could not update status.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  return (
+    <Select
+      value={current}
+      onValueChange={(value) => {
+        if (!isFranchiseOrderStatus(value) || value === current) return;
+        mutation.mutate(value);
+      }}
+      disabled={mutation.isPending}
+    >
+      <SelectTrigger className="h-8 w-[140px]">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {FRANCHISE_ORDER_STATUSES.map((status) => (
+          <SelectItem
+            key={status}
+            value={status}
+            disabled={STATUS_RANK[status] < currentRank}
+          >
+            {FRANCHISE_ORDER_STATUS_LABELS[status]}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function ViewDetailsCell({ order }: { order: WooOrder }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpen(true)}
+      >
+        <Eye className="mr-1 h-4 w-4" />
+        View
+      </Button>
+      <OrderDetailsDialog order={order} open={open} setOpen={setOpen} />
+    </>
+  );
+}
+
 export const franchiseShipFromOrdersColumns: ColumnDef<WooOrder>[] = [
   {
     accessorKey: "number",
     header: "Order",
-    cell: ({ row }) => {
-      const o = row.original;
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium">#{o.number || o.id}</span>
-          <span className="text-xs text-muted-foreground">
-            {new Date(o.date_created).toLocaleDateString()}
-          </span>
-        </div>
-      );
-    },
+    cell: ({ row }) => <OrderNumberCell order={row.original} />,
   },
   {
     accessorKey: "order_status",
@@ -70,6 +181,11 @@ export const franchiseShipFromOrdersColumns: ColumnDef<WooOrder>[] = [
       ),
   },
   {
+    id: "franchise_order_status",
+    header: "Franchise status",
+    cell: ({ row }) => <FranchiseStatusCell order={row.original} />,
+  },
+  {
     id: "items",
     header: "Items",
     cell: ({ row }) => {
@@ -81,5 +197,14 @@ export const franchiseShipFromOrdersColumns: ColumnDef<WooOrder>[] = [
         </span>
       );
     },
+  },
+  {
+    id: "actions",
+    header: () => <div className="text-right">Details</div>,
+    cell: ({ row }) => (
+      <div className="text-right">
+        <ViewDetailsCell order={row.original} />
+      </div>
+    ),
   },
 ];

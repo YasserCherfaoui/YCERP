@@ -71,6 +71,9 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
     header: "Franchise",
     cell: ({ row }: { row: { original: WooOrder } }) => {
       if (!row.original.franchise_id) return null;
+      const fStatus = row.original.franchise_order_status;
+      const fStatusVariant: "default" | "secondary" | "outline" =
+        fStatus === "dispatched" ? "default" : fStatus === "packed" ? "secondary" : "outline";
       return (
         <div className="flex flex-wrap gap-1">
           <Badge variant="outline">
@@ -79,6 +82,11 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
           {row.original.woo_shipping?.from_wilaya_name && (
             <Badge variant="secondary">
               From {row.original.woo_shipping.from_wilaya_name}
+            </Badge>
+          )}
+          {fStatus && (
+            <Badge variant={fStatusVariant} className="capitalize">
+              {fStatus}
             </Badge>
           )}
         </div>

@@ -58,6 +58,19 @@ export interface WooOrder {
   is_exchange?: boolean;
   return?: any | null;
   commission?: any | null;
+  franchise_order_status?: FranchiseOrderStatus | string;
+}
+
+export type FranchiseOrderStatus = "pending" | "packed" | "dispatched";
+
+export const FRANCHISE_ORDER_STATUSES: FranchiseOrderStatus[] = [
+  "pending",
+  "packed",
+  "dispatched",
+];
+
+export function isFranchiseOrderStatus(value: string | undefined | null): value is FranchiseOrderStatus {
+  return value === "pending" || value === "packed" || value === "dispatched";
 }
 
 export interface YalidineOrderHistory {

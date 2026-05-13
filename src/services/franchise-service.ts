@@ -111,6 +111,25 @@ export const listFranchiseWooOrders = async (): Promise<APIResponse<any[]>> => {
   return response.json();
 };
 
+export const updateFranchiseOrderStatus = async (
+  orderId: number,
+  status: "pending" | "packed" | "dispatched"
+): Promise<APIResponse<any>> => {
+  const response = await fetch(`${baseUrl}/franchise/woo-orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ status }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to update franchise order status.");
+  }
+  return response.json();
+};
+
 export const listFranchiseCommissions = async (): Promise<
   APIResponse<FranchiseCommissionsResponse>
 > => {
