@@ -53,14 +53,9 @@ const quickMenu = [
     href: "variant-deposits",
   },
   {
-    label: "Ship from store",
+    label: "Ship-from store",
     icon: Package,
     href: "ship-from-store",
-  },
-  {
-    label: "Ship-from orders",
-    icon: Package,
-    href: "ship-from-orders",
   },
   {
     label: "Statistics",

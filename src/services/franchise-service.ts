@@ -2,6 +2,7 @@ import { baseUrl } from "@/app/constants";
 import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { Franchise, FranchiseTotals } from "@/models/data/franchise.model";
+import { FranchiseCommissionsResponse } from "@/models/data/franchise-commission.model";
 import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
@@ -106,6 +107,22 @@ export const listFranchiseWooOrders = async (): Promise<APIResponse<any[]>> => {
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Failed to fetch franchise orders.");
+  }
+  return response.json();
+};
+
+export const listFranchiseCommissions = async (): Promise<
+  APIResponse<FranchiseCommissionsResponse>
+> => {
+  const response = await fetch(`${baseUrl}/franchise/commissions`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch franchise commissions.");
   }
   return response.json();
 };
