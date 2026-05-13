@@ -58,6 +58,11 @@ const quickMenu = [
     href: "ship-from-store",
   },
   {
+    label: "Ship-from orders",
+    icon: Package,
+    href: "ship-from-orders",
+  },
+  {
     label: "Statistics",
     icon: BarChart,
     href: "statistics",

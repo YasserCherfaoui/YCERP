@@ -46,6 +46,7 @@ export default function MyForm({ product }: Props) {
       pairable: product.pairable ?? false,
       combinable: product.combinable ?? false,
       is_active: product.is_active,
+      franchise_ship_commission: product.franchise_ship_commission ?? 800,
     },
   });
   const queryClient = useQueryClient();
@@ -166,6 +167,28 @@ export default function MyForm({ product }: Props) {
                       />
                     </FormControl>
 
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="col-span-3">
+              <FormField
+                control={form.control}
+                name="franchise_ship_commission"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Franchise ship commission (DZD)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="800"
+                        type="number"
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        value={Number(field.value ?? 800)}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

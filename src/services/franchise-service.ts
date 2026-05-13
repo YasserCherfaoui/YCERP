@@ -69,6 +69,47 @@ export const getMyCompanyFranchises = async (id: number): Promise<APIResponse<Ar
 
 }
 
+export type FranchiseVariantAvailability = {
+  franchise_id: number;
+  franchise_name: string;
+  quantity: number;
+};
+
+export const getFranchiseVariantAvailability = async (
+  companyId: number,
+  productVariantId: number
+): Promise<APIResponse<FranchiseVariantAvailability[]>> => {
+  const response = await fetch(
+    `${baseUrl}/franchises/company/${companyId}/variant-availability?product_variant_id=${productVariantId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch franchise availability.");
+  }
+  return response.json();
+};
+
+export const listFranchiseWooOrders = async (): Promise<APIResponse<any[]>> => {
+  const response = await fetch(`${baseUrl}/franchise/woo-orders`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch franchise orders.");
+  }
+  return response.json();
+};
+
 export const loginMyFranchise = async (data: LoginFormSchema): Promise<APIResponse<MyFranchiseAuthResponse>> => {
     const response = await fetch(`${baseUrl}/franchise/login`, {
         method: 'POST',

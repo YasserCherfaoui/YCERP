@@ -19,6 +19,7 @@ export interface Product {
     /** When true, unit joins combinable pool (anchor at first_price when 2+ combinable units). */
     combinable?: boolean;
     is_active: boolean;
+    franchise_ship_commission?: number;
     product_images: ProductImage[];
     product_variants: ProductVariant[];
     affiliate_props?: AffiliateProp[];

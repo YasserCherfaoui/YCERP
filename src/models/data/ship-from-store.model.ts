@@ -15,5 +15,7 @@ export interface ShipFromStore {
   franchise?: Franchise;
   franchise_administrator_id?: number;
   company_id?: number;
+  woo_order_id?: number;
+  confirmed_order_item_id?: number;
   quantity: number;
 }
