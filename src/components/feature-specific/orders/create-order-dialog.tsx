@@ -58,6 +58,8 @@ import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { ClientStatusDialog } from "./client-status-dialog";
+import { FranchiseOrderFulfillmentSection } from "./franchise-order-fulfillment-section";
+import { getMyCompanyFranchises } from "@/services/franchise-service";
 
 function CreateOrderDialog({
   wooOrder,
@@ -118,6 +120,8 @@ function CreateOrderDialog({
         comments: "",
         commune: "",
         wilaya: matchedWilaya?.label || "",
+        from_wilaya_id: undefined,
+        from_wilaya_name: "",
       },
       order_items: wooOrder.line_items.map((item) => {
         const variant = item.sku ? qrCodeToVariant[item.sku] : undefined;
@@ -138,6 +142,8 @@ function CreateOrderDialog({
       selected_center: "",
       first_delivery_cost: 0,
       second_delivery_cost: 0,
+      ship_from_franchise: false,
+      franchise_id: undefined,
     },
     // mode: "onChange",
   });
@@ -152,20 +158,32 @@ function CreateOrderDialog({
   const shipping = watch("shipping");
   const discount = watch("discount");
   const orderItems = watch("order_items");
+  const fromWilayaId = watch("shipping.from_wilaya_id");
+
+  const { data: franchisesData } = useQuery({
+    queryKey: ["company-franchises", company.ID],
+    queryFn: () => getMyCompanyFranchises(company.ID),
+    enabled: Boolean(company?.ID && open),
+  });
+  const franchises = franchisesData?.data ?? [];
 
   const [clientStatusDialogOpen, setClientStatusDialogOpen] = useState(false);
+
+  const originWilayaId =
+    watch("ship_from_franchise") && fromWilayaId ? Number(fromWilayaId) : 16;
 
   // Fetch yalidine Pricing with react-query
   const { data: yalidinePricing } = useQuery({
     queryKey: [
       "yalidine-pricing",
+      originWilayaId,
       shipping.state,
       watch("delivery_type") === "home"
         ? watch("selected_commune")
         : watch("selected_center"),
       watch("delivery_type"),
     ],
-    queryFn: () => getYalidinePricing(16, Number(shipping.state) ?? 16),
+    queryFn: () => getYalidinePricing(originWilayaId, Number(shipping.state) ?? 16),
     select: (res) => res.data,
     enabled:
       watch("shipping_provider") === "yalidine" &&
@@ -858,8 +876,16 @@ function CreateOrderDialog({
                   )}
                 />
               </div>
-              {/* Order Items Table Section */}
-              <div className="space-y-4 border rounded p-4 flex-1 min-w-[340px] xl:w-1/3 flex flex-col">
+              <div className="flex flex-col gap-4 flex-1 min-w-[340px] xl:w-1/3">
+                <FranchiseOrderFulfillmentSection
+                  form={form}
+                  companyId={company.ID}
+                  franchises={franchises}
+                  open={open}
+                  lineVariantIds={orderItems.map((item) => item.product_variant_id)}
+                />
+                {/* Order Items Table Section */}
+                <div className="space-y-4 border rounded p-4 flex flex-col">
                 <Label>Order Items</Label>
                 <ol className="flex flex-col gap-2">
                   {wooOrder.line_items.map((item, idx) => (
@@ -903,6 +929,9 @@ function CreateOrderDialog({
                                     `order_items.${idx}.product_id`,
                                     selectedVariant?.product_id ?? 0
                                   );
+                                  setValue("franchise_id", undefined);
+                                  setValue("shipping.from_wilaya_id", undefined);
+                                  setValue("shipping.from_wilaya_name", "");
                                 }}
                                 key={`variant-combobox-${idx}`}
                                 error={
@@ -1082,6 +1111,7 @@ function CreateOrderDialog({
                   </div>
                 </div>
               </div>
+            </div>
             </div>
             {errors && (
               <div className="text-red-500 text-sm">{errors.root?.message}</div>

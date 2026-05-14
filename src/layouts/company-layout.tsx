@@ -1,3 +1,4 @@
+import FranchiseSupportChatMessengerDock from "@/components/feature-specific/support-chat/franchise-support-chat-messenger-dock";
 import { baseUrl } from "@/app/constants";
 import { useAppDispatch } from "@/app/hooks";
 import { RootState } from "@/app/store";
@@ -41,7 +42,7 @@ export default function () {
       setLoading(false);
     };
     fetchCompany();
-  }, [params.companyId]);
+  }, [params.companyID]);
   
   // Check if user is orders_manager and restrict access to only orders page
   if (user && user.role === "orders_manager") {
@@ -55,5 +56,17 @@ export default function () {
   
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
-  return <Outlet />;
+  const companyIDNum =
+    params.companyID != null && params.companyID !== ""
+      ? Number(params.companyID)
+      : NaN;
+
+  return (
+    <>
+      <Outlet />
+      {Number.isFinite(companyIDNum) && companyIDNum > 0 ? (
+        <FranchiseSupportChatMessengerDock companyId={companyIDNum} />
+      ) : null}
+    </>
+  );
 }

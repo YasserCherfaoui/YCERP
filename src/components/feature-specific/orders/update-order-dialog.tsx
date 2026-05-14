@@ -53,6 +53,9 @@ import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { ClientStatusDialog } from "./client-status-dialog";
+import { FranchiseOrderFulfillmentSection } from "./franchise-order-fulfillment-section";
+import { getMyCompanyFranchises } from "@/services/franchise-service";
+import { CreateOrderSchema } from "@/schemas/order";
 
 // --- Types matching backend Go schemas ---
 export interface UpdateWooOrderItemSchema {
@@ -73,6 +76,8 @@ export interface UpdateWooShippingSchema {
   state_id?: string;
   wilaya_name?: string;
   commune_name?: string;
+  from_wilaya_id?: number;
+  from_wilaya_name?: string;
   comments?: string;
   employee_id?: number;
   expected_delivery_date?: string;
@@ -108,6 +113,8 @@ export interface UpdateWooOrderSchema {
   taken_by_id?: number;
   order_items?: UpdateWooOrderItemSchema[];
   shipping?: UpdateWooShippingSchema;
+  ship_from_franchise?: boolean;
+  franchise_id?: number;
 }
 
 // --- Utility: Map form state to API payload ---
@@ -151,6 +158,8 @@ function mapFormToApiPayload(form: any): UpdateWooOrderSchema {
       state_id: form.shipping?.state,
       wilaya_name: form.shipping?.wilaya,
       commune_name: form.shipping?.commune,
+      from_wilaya_id: form.shipping?.from_wilaya_id,
+      from_wilaya_name: form.shipping?.from_wilaya_name,
       comments: form.shipping?.comments,
     });
   }
@@ -161,6 +170,8 @@ function mapFormToApiPayload(form: any): UpdateWooOrderSchema {
     company_id: form.company_id,
     discount: form.discount,
     taken_by_id: form.taken_by_id,
+    ship_from_franchise: form.ship_from_franchise,
+    franchise_id: form.franchise_id,
     total: form.total !== undefined ? String(form.total) : undefined,
     order_items,
     shipping,
@@ -217,11 +228,13 @@ function useYalidineData(
   state: string | number,
   deliveryType: string,
   shippingProvider: string,
-  open: boolean
+  open: boolean,
+  fromWilayaId?: number
 ) {
+  const originWilaya = fromWilayaId && fromWilayaId > 0 ? fromWilayaId : 16;
   const yalidinePricing = useQuery({
-    queryKey: ["yalidine-pricing", state, deliveryType],
-    queryFn: () => getYalidinePricing(16, Number(state) ?? 16),
+    queryKey: ["yalidine-pricing", originWilaya, state, deliveryType],
+    queryFn: () => getYalidinePricing(originWilaya, Number(state) ?? 16),
     select: (res) => res.data,
     enabled: shippingProvider === "yalidine" && Boolean(state) && open,
   });
@@ -290,6 +303,8 @@ export default function UpdateOrderDialog({
         wilaya: order.woo_shipping?.wilaya_name,
         commune: order.woo_shipping?.commune_name,
         delivery_id: order.woo_shipping?.delivery_company_id,
+        from_wilaya_id: order.woo_shipping?.from_wilaya_id,
+        from_wilaya_name: order.woo_shipping?.from_wilaya_name,
       },
       customer_phone: order.customer_phone,
       customer_phone_2: order.customer_phone_2,
@@ -303,6 +318,8 @@ export default function UpdateOrderDialog({
       selected_center: order.woo_shipping?.selected_center || "",
       first_delivery_cost: order.woo_shipping?.first_delivery_cost || 0,
       second_delivery_cost: order.woo_shipping?.second_delivery_cost || 0,
+      ship_from_franchise: Boolean(order.franchise_id),
+      franchise_id: order.franchise_id ?? undefined,
     },
   });
   const {
@@ -340,8 +357,15 @@ export default function UpdateOrderDialog({
       watch("shipping.state"),
       watch("delivery_type"),
       watch("shipping_provider"),
-      open
+      open,
+      watch("ship_from_franchise") ? watch("shipping.from_wilaya_id") : undefined
     );
+  const { data: franchisesData } = useQuery({
+    queryKey: ["company-franchises", companyId],
+    queryFn: () => getMyCompanyFranchises(companyId),
+    enabled: Boolean(companyId && open),
+  });
+  const franchises = franchisesData?.data ?? [];
 
   // --- Effects ---
   useEffect(() => {
@@ -434,11 +458,22 @@ export default function UpdateOrderDialog({
                 yalidineCommunes={yalidineCommunes.data}
               />
               <CustomerInfoSection />
-              <OrderItemsSection
-                allVariants={allVariants}
-                getVariantCost={getVariantCost}
-                inventoryData={inventoryData}
-              />
+              <div className="flex flex-col gap-4 flex-1 min-w-[340px] xl:w-1/3">
+                <FranchiseOrderFulfillmentSection
+                  form={methods as unknown as import("react-hook-form").UseFormReturn<CreateOrderSchema>}
+                  companyId={companyId}
+                  franchises={franchises}
+                  open={open}
+                  lineVariantIds={(watch("order_items") || []).map(
+                    (item: any) => item.product_variant_id
+                  )}
+                />
+                <OrderItemsSection
+                  allVariants={allVariants}
+                  getVariantCost={getVariantCost}
+                  inventoryData={inventoryData}
+                />
+              </div>
             </div>
             <SummarySection
               allVariants={allVariants}
@@ -801,7 +836,7 @@ function OrderItemsSection({
   const orderItems = watch("order_items") || [];
 
   return (
-    <section className="border rounded p-4 flex-1 min-w-[340px] xl:w-1/3 flex flex-col">
+    <section className="border rounded p-4 flex flex-col">
       <div className="mb-2 font-semibold">Order Items</div>
       <div className="overflow-x-auto flex-1 flex flex-col min-h-0">
         <div className="flex-1 min-h-0 max-h-52 overflow-y-auto">

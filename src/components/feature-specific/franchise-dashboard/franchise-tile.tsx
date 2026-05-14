@@ -6,13 +6,16 @@ interface Props {
 
 export default function ({ franchise }: Props) {
   return (
-    <div className="flex gap-4">
-      <div className="text-5xl bg-gray-500 w-20 h-20 rounded-3xl  text-center flex justify-center items-center text-white">
+    <div className="flex w-full max-w-2xl flex-col items-center gap-3 pt-2 sm:flex-row sm:items-start sm:gap-4 sm:pt-0">
+      <div
+        aria-hidden
+        className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-muted text-2xl font-semibold tabular-nums text-muted-foreground sm:size-16 sm:text-3xl"
+      >
         {franchise.name.charAt(0).toUpperCase()}
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-xl">{franchise.name}</span>
-        <span className="text-sm">
+      <div className="flex min-w-0 flex-col gap-1 text-center sm:text-left">
+        <span className="text-xl font-semibold leading-tight">{franchise.name}</span>
+        <span className="break-words text-sm text-muted-foreground">
           {franchise.address}, {franchise.city}, {franchise.state}.
         </span>
       </div>

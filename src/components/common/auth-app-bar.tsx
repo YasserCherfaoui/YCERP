@@ -120,13 +120,15 @@ export default function AuthAppBar() {
   }
 
   return fullName ? (
-    <div className="flex items-center justify-between p-4 w-1/2 m-auto">
-      <div>Welcome, {fullName}</div>
-      <div className="flex items-center gap-4">
+    <header className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 border-b border-border/40 px-4 py-3 sm:gap-4 sm:px-6">
+      <div className="min-w-0 max-w-full shrink text-sm sm:text-base">
+        <span className="break-words">Welcome, {fullName}</span>
+      </div>
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 md:gap-4">
         {/* Theme toggle */}
         <ModeToggle />
         {/* Color pickers */}
-        <div  className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-1 text-xs">
             BG
             <input
@@ -151,8 +153,8 @@ export default function AuthAppBar() {
         </div>
         {/* User dropdown */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Avatar>
+          <DropdownMenuTrigger className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring">
+            <Avatar className="h-9 w-9">
               <AvatarImage src="https://github.com/shadcn.png" />
               <AvatarFallback>{fullName?.charAt(0)}</AvatarFallback>
             </Avatar>
@@ -165,7 +167,7 @@ export default function AuthAppBar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </div>
+    </header>
   ) : null;
 }
 

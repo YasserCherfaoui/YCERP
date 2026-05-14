@@ -1,5 +1,37 @@
+import type { Company } from "@/models/data/company.model";
 import { Franchise, FRANCHISE_TYPES, FranchiseType } from "@/models/data/franchise.model";
 import { Product } from "@/models/data/product.model";
+
+export function pairableEligibleForFranchiseSale(
+  franchise: Franchise,
+  company: Company | null | undefined,
+  product: Product | undefined
+): boolean {
+  if (!product?.pairable) return false;
+  if (franchise.franchise_type !== FRANCHISE_TYPES.VIP) return true;
+  return company?.vip_allow_pairable !== false;
+}
+
+export function combinableEligibleForFranchiseSale(
+  franchise: Franchise,
+  company: Company | null | undefined,
+  product: Product | undefined
+): boolean {
+  if (!product?.combinable) return false;
+  if (franchise.franchise_type !== FRANCHISE_TYPES.VIP) return true;
+  return company?.vip_allow_combinable !== false;
+}
+
+export function bogoEligibleForFranchiseSale(
+  franchise: Franchise,
+  company: Company | null | undefined,
+  product: Product | undefined,
+  totalQtyForProduct: number
+): boolean {
+  if (totalQtyForProduct < 2 || !product?.is_bogo) return false;
+  if (franchise.franchise_type !== FRANCHISE_TYPES.VIP) return true;
+  return company?.vip_allow_bogo !== false;
+}
 
 /**
  * Get the appropriate franchise price based on franchise type
@@ -143,9 +175,12 @@ export function computePairPromoLineTotals(
 ): { active: boolean; lineTotals: number[] } {
   const lineTotals = saleItems.map(() => 0);
   let pairableUnits = 0;
+  const co = franchise.company;
   for (let i = 0; i < saleItems.length; i++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
-    if (inv?.product?.pairable) pairableUnits += saleItems[i].quantity;
+    if (pairableEligibleForFranchiseSale(franchise, co, inv?.product)) {
+      pairableUnits += saleItems[i].quantity;
+    }
   }
   if (pairableUnits < 2) {
     return { active: false, lineTotals };
@@ -154,7 +189,7 @@ export function computePairPromoLineTotals(
   for (let li = 0; li < saleItems.length; li++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[li].product_variant_id);
     const p = inv?.product;
-    if (!inv || !p?.pairable) continue;
+    if (!inv || !pairableEligibleForFranchiseSale(franchise, co, p)) continue;
     const fp = getFranchisePrice(p, franchise);
     for (let u = 0; u < saleItems[li].quantity; u++) {
       pool.push({
@@ -181,14 +216,18 @@ export function computePairPromoLineTotals(
  * preview uses first_price / list price minus per-line discount. Non-combinable lines use list line total.
  */
 export function computeCombinableLineTotals(
+  franchise: Franchise,
   saleItems: SaleLineForPair[],
   inventoryItems: InventoryRowForPair[]
 ): { active: boolean; lineTotals: number[] } {
   const lineTotals = saleItems.map(() => 0);
+  const co = franchise.company;
   let combinableUnits = 0;
   for (let i = 0; i < saleItems.length; i++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
-    if (inv?.product?.combinable) combinableUnits += saleItems[i].quantity;
+    if (combinableEligibleForFranchiseSale(franchise, co, inv?.product)) {
+      combinableUnits += saleItems[i].quantity;
+    }
   }
   if (combinableUnits < 2) {
     return { active: false, lineTotals };
@@ -200,7 +239,7 @@ export function computeCombinableLineTotals(
   for (let i = 0; i < saleItems.length; i++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
     const p = inv?.product;
-    if (!inv || !p?.combinable || saleItems[i].quantity <= 0) continue;
+    if (!inv || !combinableEligibleForFranchiseSale(franchise, co, p) || saleItems[i].quantity <= 0) continue;
     const fp = p.first_price;
     if (
       !hasAnchor ||
@@ -222,7 +261,7 @@ export function computeCombinableLineTotals(
     const p = inv?.product;
     const qty = saleItems[li].quantity;
     const disc = saleItems[li].discount;
-    if (!p?.combinable) {
+    if (!combinableEligibleForFranchiseSale(franchise, co, p)) {
       lineTotals[li] = (saleItems[li].price - disc) * qty;
       continue;
     }

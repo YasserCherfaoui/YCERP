@@ -1,6 +1,7 @@
 import { ClientStatus } from "@/models/data/client-status.model";
 import { Company } from "@/models/data/company.model";
 import { DeliveryCompany, DeliveryEmployee } from "@/models/data/delivery.model";
+import { Franchise } from "@/models/data/franchise.model";
 import { Product, ProductVariant } from "@/models/data/product.model";
 import { Qualification } from "@/models/data/qualification.model";
 import { User } from "./user.model";
@@ -51,10 +52,25 @@ export interface WooOrder {
   customer_phone_count?: number;
   company_id?: number | null;
   company?: Company | null;
+  franchise_id?: number | null;
+  franchise?: Franchise | null;
   discount?: number;
   is_exchange?: boolean;
   return?: any | null;
   commission?: any | null;
+  franchise_order_status?: FranchiseOrderStatus | string;
+}
+
+export type FranchiseOrderStatus = "pending" | "packed" | "dispatched";
+
+export const FRANCHISE_ORDER_STATUSES: FranchiseOrderStatus[] = [
+  "pending",
+  "packed",
+  "dispatched",
+];
+
+export function isFranchiseOrderStatus(value: string | undefined | null): value is FranchiseOrderStatus {
+  return value === "pending" || value === "packed" || value === "dispatched";
 }
 
 export interface YalidineOrderHistory {
@@ -157,6 +173,8 @@ export interface WooShipping {
   state_id: string;
   wilaya_name: string;
   commune_name: string;
+  from_wilaya_id?: number;
+  from_wilaya_name?: string;
   delivery_company_id?: number;
   delivery_company?: DeliveryCompany;
   employee_id?: number;

@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { User } from "@/models/data/user.model";
 import { YALIDINE_STATUSES } from "@/models/data/woo-order.model";
 import { getCompanyInventory } from "@/services/inventory-service";
+import { getMyCompanyFranchises } from "@/services/franchise-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
 import { getUsersByCompany } from "@/services/user-service";
 import {
@@ -98,6 +99,9 @@ export default function CompanyOrdersPage() {
   const [selectedConfirmedVariant, setSelectedConfirmedVariant] = useState<
     number | undefined
   >(undefined);
+  const [selectedFranchise, setSelectedFranchise] = useState<number | undefined>(
+    undefined
+  );
   const [selectedShippingProvider, setSelectedShippingProvider] = useState<
     string | undefined
   >(undefined);
@@ -125,7 +129,8 @@ export default function CompanyOrdersPage() {
     undefined,
     undefined,
     selectedConfirmedVariant,
-    company.ID
+    company.ID,
+    selectedFranchise
   );
 
   useEffect(() => {
@@ -356,6 +361,13 @@ export default function CompanyOrdersPage() {
     },
   ];
 
+  const { data: franchisesData } = useQuery({
+    queryKey: ["company-franchises", company.ID],
+    queryFn: () => getMyCompanyFranchises(company.ID),
+    enabled: Boolean(company?.ID),
+  });
+  const franchises = franchisesData?.data ?? [];
+
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", company.ID],
     queryFn: () => getCompanyInventory(company!.ID),
@@ -537,6 +549,25 @@ export default function CompanyOrdersPage() {
                 ?.quantity.toString()}
             />
           </div>
+          <span>Ship-from franchise:</span>
+          <Select
+            value={selectedFranchise ? String(selectedFranchise) : "all"}
+            onValueChange={(value) =>
+              setSelectedFranchise(value === "all" ? undefined : Number(value))
+            }
+          >
+            <SelectTrigger className="w-[220px]">
+              <SelectValue placeholder="All franchises" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All franchises</SelectItem>
+              {franchises.map((franchise) => (
+                <SelectItem key={franchise.ID} value={String(franchise.ID)}>
+                  {franchise.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div id="#secondary-filters">
           <div className="flex gap-2 items-center mb-4">

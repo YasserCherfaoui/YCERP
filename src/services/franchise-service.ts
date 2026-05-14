@@ -2,6 +2,7 @@ import { baseUrl } from "@/app/constants";
 import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { Franchise, FranchiseTotals } from "@/models/data/franchise.model";
+import { FranchiseCommissionsResponse } from "@/models/data/franchise-commission.model";
 import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
@@ -69,6 +70,82 @@ export const getMyCompanyFranchises = async (id: number): Promise<APIResponse<Ar
 
 }
 
+export type FranchiseVariantAvailability = {
+  franchise_id: number;
+  franchise_name: string;
+  quantity: number;
+};
+
+export const getFranchiseVariantAvailability = async (
+  companyId: number,
+  productVariantId: number
+): Promise<APIResponse<FranchiseVariantAvailability[]>> => {
+  const response = await fetch(
+    `${baseUrl}/franchises/company/${companyId}/variant-availability?product_variant_id=${productVariantId}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch franchise availability.");
+  }
+  return response.json();
+};
+
+export const listFranchiseWooOrders = async (): Promise<APIResponse<any[]>> => {
+  const response = await fetch(`${baseUrl}/franchise/woo-orders`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch franchise orders.");
+  }
+  return response.json();
+};
+
+export const updateFranchiseOrderStatus = async (
+  orderId: number,
+  status: "pending" | "packed" | "dispatched"
+): Promise<APIResponse<any>> => {
+  const response = await fetch(`${baseUrl}/franchise/woo-orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+    body: JSON.stringify({ status }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to update franchise order status.");
+  }
+  return response.json();
+};
+
+export const listFranchiseCommissions = async (): Promise<
+  APIResponse<FranchiseCommissionsResponse>
+> => {
+  const response = await fetch(`${baseUrl}/franchise/commissions`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch franchise commissions.");
+  }
+  return response.json();
+};
+
 export const loginMyFranchise = async (data: LoginFormSchema): Promise<APIResponse<MyFranchiseAuthResponse>> => {
     const response = await fetch(`${baseUrl}/franchise/login`, {
         method: 'POST',
@@ -126,8 +203,22 @@ export const getFranchiseExitBills = async (id: number): Promise<APIResponse<Arr
 
 }
 
-export const getSuperFranchiseExitBills = async (id: number): Promise<APIResponse<Array<ExitBill>>> => {
-    const response = await fetch(`${baseUrl}/franchises/bills/exit/${id}`, {
+export type FranchiseBillsDateParams = {
+    dateFrom?: string;
+    dateTo?: string;
+};
+
+function franchiseBillsQueryString(params?: FranchiseBillsDateParams): string {
+    if (!params?.dateFrom && !params?.dateTo) return "";
+    const sp = new URLSearchParams();
+    if (params.dateFrom) sp.set("date_from", params.dateFrom);
+    if (params.dateTo) sp.set("date_to", params.dateTo);
+    const q = sp.toString();
+    return q ? `?${q}` : "";
+}
+
+export const getSuperFranchiseExitBills = async (id: number, params?: FranchiseBillsDateParams): Promise<APIResponse<Array<ExitBill>>> => {
+    const response = await fetch(`${baseUrl}/franchises/bills/exit/${id}${franchiseBillsQueryString(params)}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -164,8 +255,8 @@ export const getFranchiseEntryBills = async (id: number): Promise<APIResponse<Ar
 
 }
 
-export const getSuperFranchiseEntryBills = async (id: number): Promise<APIResponse<Array<EntryBill>>> => {
-    const response = await fetch(`${baseUrl}/franchises/bills/entry/${id}`, {
+export const getSuperFranchiseEntryBills = async (id: number, params?: FranchiseBillsDateParams): Promise<APIResponse<Array<EntryBill>>> => {
+    const response = await fetch(`${baseUrl}/franchises/bills/entry/${id}${franchiseBillsQueryString(params)}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -320,8 +411,8 @@ export const createFranchiseSale = async (data: CreateSaleSchema): Promise<APIRe
 
 }
 
-export const getFranchisePaymentTotals = async (franchiseID: number): Promise<APIResponse<FranchiseTotals>> => {
-    const response = await fetch(`${baseUrl}/franchise/payment-totals/${franchiseID}`, {
+export const getFranchisePaymentTotals = async (franchiseID: number, params?: FranchiseBillsDateParams): Promise<APIResponse<FranchiseTotals>> => {
+    const response = await fetch(`${baseUrl}/franchise/payment-totals/${franchiseID}${franchiseBillsQueryString(params)}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -340,8 +431,8 @@ export const getFranchisePaymentTotals = async (franchiseID: number): Promise<AP
 }
 
 
-export const getCompanyFranchisePaymentTotals = async (franchiseID: number): Promise<APIResponse<FranchiseTotals>> => {
-    const response = await fetch(`${baseUrl}/franchise/payment-totals/${franchiseID}`, {
+export const getCompanyFranchisePaymentTotals = async (franchiseID: number, params?: FranchiseBillsDateParams): Promise<APIResponse<FranchiseTotals>> => {
+    const response = await fetch(`${baseUrl}/franchise/payment-totals/${franchiseID}${franchiseBillsQueryString(params)}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

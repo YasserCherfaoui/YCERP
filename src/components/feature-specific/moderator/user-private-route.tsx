@@ -1,3 +1,4 @@
+import FranchiseSupportChatMessengerDock from "@/components/feature-specific/support-chat/franchise-support-chat-messenger-dock";
 import useUser from "@/hooks/use-user";
 import React, { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -37,7 +38,12 @@ const PrivateRoute: React.FC = () => {
     return <div>Loading...</div>;
   }
 
-  return isAuthenticated ? <Outlet /> : null;
+  return isAuthenticated ? (
+    <>
+      <Outlet />
+      <FranchiseSupportChatMessengerDock />
+    </>
+  ) : null;
 };
 
 export default PrivateRoute;

@@ -39,9 +39,12 @@ import {
 } from "@/services/franchise-service";
 import { fulfillVariantDeposit } from "@/services/variant-deposits-service";
 import {
-    computeCombinableLineTotals,
-    computePairPromoLineTotals,
-    getBOGOLineTotal,
+  bogoEligibleForFranchiseSale,
+  combinableEligibleForFranchiseSale,
+  computeCombinableLineTotals,
+  computePairPromoLineTotals,
+  getBOGOLineTotal,
+  pairableEligibleForFranchiseSale,
 } from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -420,6 +423,7 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       franchise
                     );
                     const combTotals = computeCombinableLineTotals(
+                      franchise,
                       saleItems,
                       inventory?.data?.items ?? []
                     );
@@ -432,18 +436,22 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                     const product = inventoryItem?.product;
                     const productId = inventoryItem?.product_id;
                     const totalQtyForProduct = productId != null ? (productTotalQty[productId] ?? 0) : 0;
+                    const co = franchise.company;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
                     const isCombLine =
-                      combTotals.active && product?.combinable;
+                      combTotals.active &&
+                      combinableEligibleForFranchiseSale(franchise, co, product);
                     const isPairLine =
                       pairTotals.active &&
-                      product?.pairable &&
-                      !(combTotals.active && product?.combinable);
+                      pairableEligibleForFranchiseSale(franchise, co, product) &&
+                      !(
+                        combTotals.active &&
+                        combinableEligibleForFranchiseSale(franchise, co, product)
+                      );
                     const isBOGO =
                       !isPairLine &&
                       !isCombLine &&
-                      product?.is_bogo &&
-                      totalQtyForProduct >= 2;
+                      bogoEligibleForFranchiseSale(franchise, co, product, totalQtyForProduct);
                     const bogoProductTotal = isBOGO && product ? getBOGOLineTotal(product.price, totalQtyForProduct) : 0;
                     const pairLineNet =
                       isPairLine ? pairTotals.lineTotals[idx] ?? 0 : 0;
@@ -643,22 +651,34 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       franchise
                     );
                     const combTotals = computeCombinableLineTotals(
+                      franchise,
                       saleItems,
                       inventory?.data?.items ?? []
                     );
+                    const co = franchise.company;
                     return saleItems.reduce((prev, curr, idx) => {
                       const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
                       const prod = invItem?.product;
                       const pid = invItem?.product_id;
                       const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
-                      if (combTotals.active && prod?.combinable) {
+                      if (
+                        combTotals.active &&
+                        combinableEligibleForFranchiseSale(franchise, co, prod)
+                      ) {
                         return prev + (combTotals.lineTotals[idx] ?? 0);
                       }
-                      if (pairTotals.active && prod?.pairable) {
+                      if (
+                        pairTotals.active &&
+                        pairableEligibleForFranchiseSale(franchise, co, prod) &&
+                        !(
+                          combTotals.active &&
+                          combinableEligibleForFranchiseSale(franchise, co, prod)
+                        )
+                      ) {
                         return prev + (pairTotals.lineTotals[idx] ?? 0);
                       }
                       const lineTotal =
-                        prod?.is_bogo && totalQty >= 2
+                        bogoEligibleForFranchiseSale(franchise, co, prod, totalQty) && prod
                           ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
                           : (curr.price - curr.discount) * curr.quantity;
                       return prev + lineTotal;
@@ -721,22 +741,34 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       franchise
                     );
                     const combTotals = computeCombinableLineTotals(
+                      franchise,
                       saleItems,
                       inventory?.data?.items ?? []
                     );
+                    const co = franchise.company;
                     return saleItems.reduce((prev, curr, idx) => {
                       const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
                       const prod = invItem?.product;
                       const pid = invItem?.product_id;
                       const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
-                      if (combTotals.active && prod?.combinable) {
+                      if (
+                        combTotals.active &&
+                        combinableEligibleForFranchiseSale(franchise, co, prod)
+                      ) {
                         return prev + (combTotals.lineTotals[idx] ?? 0);
                       }
-                      if (pairTotals.active && prod?.pairable) {
+                      if (
+                        pairTotals.active &&
+                        pairableEligibleForFranchiseSale(franchise, co, prod) &&
+                        !(
+                          combTotals.active &&
+                          combinableEligibleForFranchiseSale(franchise, co, prod)
+                        )
+                      ) {
                         return prev + (pairTotals.lineTotals[idx] ?? 0);
                       }
                       const lineTotal =
-                        prod?.is_bogo && totalQty >= 2
+                        bogoEligibleForFranchiseSale(franchise, co, prod, totalQty) && prod
                           ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
                           : (curr.price - curr.discount) * curr.quantity;
                       return prev + lineTotal;

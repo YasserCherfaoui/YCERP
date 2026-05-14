@@ -1,7 +1,7 @@
 import { baseUrl } from "@/app/constants";
 import { Order } from "@/models/data/order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CenterListResponse, CommuneListResponse, PricingResponse, YalidineCache } from "@/models/responses/yalidine.cache";
+import { CenterListResponse, CommuneListResponse, PricingResponse, WilayaListResponse, YalidineCache } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema } from "@/schemas/order";
 
 export const createOrder = async (orderData: CreateOrderSchema): Promise<APIResponse<Order>> => {
@@ -105,6 +105,20 @@ export const getYalidineCenters = async (wilaya: number): Promise<APIResponse<Ce
   const cache: APIResponse<CenterListResponse> = await response.json();
   return cache;
 } 
+
+export const getYalidineWilayas = async (): Promise<APIResponse<WilayaListResponse>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/wilayas`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to get yalidine wilayas.");
+  }
+  return response.json();
+}
 
 export const getYalidinePricing = async (fromWilaya: number, toWilaya: number): Promise<APIResponse<PricingResponse>> => {
   const response = await fetch(`${baseUrl}/woocommerce/fees/${fromWilaya}/${toWilaya}`, {

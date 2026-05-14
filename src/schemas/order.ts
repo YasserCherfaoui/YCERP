@@ -18,6 +18,8 @@ export const createShippingSchema = z.object({
   commune: z.string(),
   delivery_id: z.number().optional().nullable(),
   comments: z.string().optional(),
+  from_wilaya_id: z.number().optional(),
+  from_wilaya_name: z.string().optional(),
 });
 
 export const createOrderSchema = z.object({
@@ -36,6 +38,8 @@ export const createOrderSchema = z.object({
   first_delivery_cost: z.number().optional(),
   second_delivery_cost: z.number().optional(),
   order_ticket_id: z.number().optional(),
+  ship_from_franchise: z.boolean().optional().default(false),
+  franchise_id: z.number().optional(),
 }).superRefine((data, ctx) => {
   if (data.shipping_provider === 'yalidine') {
     if (data.delivery_type === 'home' && !data.selected_commune) {
@@ -59,6 +63,22 @@ export const createOrderSchema = z.object({
       message: 'A delivery company must be selected',
       path: ['shipping', 'delivery_id'],
     });
+  }
+  if (data.ship_from_franchise) {
+    if (!data.franchise_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'A franchise must be selected',
+        path: ['franchise_id'],
+      });
+    }
+    if (data.shipping_provider === 'yalidine' && !data.shipping.from_wilaya_id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Delivery from wilaya is required',
+        path: ['shipping', 'from_wilaya_id'],
+      });
+    }
   }
 });
 

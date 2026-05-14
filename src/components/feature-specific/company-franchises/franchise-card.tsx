@@ -1,17 +1,18 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Franchise } from "@/models/data/franchise.model";
+import { FRANCHISE_TYPES, Franchise } from "@/models/data/franchise.model";
 import { deleteFranchise, getFranchiseAdministratorToken } from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleUserRound, Copy, ExternalLink, Inspect, Key, MapPin, Trash2 } from "lucide-react";
@@ -137,7 +138,14 @@ export default function ({ franchise, dateRange }: Props) {
   return (
     <Card className="p-4 flex flex-col gap-2">
       <CardTitle className="text-lg sm:text-xl flex justify-between items-center gap-2">
-        <span className="truncate flex-1">{franchise.name}</span>
+        <span className="flex min-w-0 flex-1 items-center gap-2">
+          <span className="truncate">{franchise.name}</span>
+          {franchise.franchise_type === FRANCHISE_TYPES.VIP && (
+            <Badge variant="secondary" className="shrink-0 text-xs font-semibold uppercase tracking-wide bg-yellow-300 text-black" color="primary">
+              VIP
+            </Badge>
+          )}
+        </span>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant={"ghost"} className="text-red-500 flex-shrink-0">
