@@ -3,7 +3,14 @@ import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { FranchiseTotals } from "@/models/data/franchise.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { FileText, Package, PackageMinus, PackagePlus } from "lucide-react";
+import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
+
+const formatDZD = (amount: number) =>
+  new Intl.NumberFormat("en-DZ", {
+    style: "currency",
+    currency: "DZD",
+  }).format(amount);
 
 interface Props {
   exitBills?: APIResponse<Array<ExitBill>>;
@@ -14,6 +21,23 @@ interface Props {
 export default function ({ exitBills, entryBills, paymentTotals }: Props) {
   const {pathname} = useLocation(); 
   const isModerator = pathname.includes("moderator");
+
+  const exitBillsTotal = useMemo(
+    () =>
+      exitBills?.data?.reduce(
+        (sum, bill) => sum + (bill.franchise_total_amount ?? 0),
+        0
+      ) ?? 0,
+    [exitBills?.data]
+  );
+
+  const entryBillsTotal = useMemo(
+    () =>
+      entryBills?.data?.reduce((sum, bill) => sum + (bill.total ?? 0), 0) ??
+      0,
+    [entryBills?.data]
+  );
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -25,7 +49,9 @@ export default function ({ exitBills, entryBills, paymentTotals }: Props) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{exitBills?.data?.length}</div>
-          <p className="text-xs text-muted-foreground"></p>
+          <p className="text-xs text-muted-foreground">
+            {formatDZD(exitBillsTotal)}
+          </p>
         </CardContent>
       </Card>
       <Card>
@@ -37,7 +63,9 @@ export default function ({ exitBills, entryBills, paymentTotals }: Props) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{entryBills?.data?.length}</div>
-          <p className="text-xs text-muted-foreground"></p>
+          <p className="text-xs text-muted-foreground">
+            {formatDZD(entryBillsTotal)}
+          </p>
         </CardContent>
       </Card>
       <Card className={`${isModerator ? "hidden" : ""}`}>

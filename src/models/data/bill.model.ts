@@ -39,6 +39,8 @@ export type BillItemModel = {
     product_variant: ProductVariant;
     product_variant_id: number;
     quantity: number;
+    franchise_price?: number;
+    first_price?: number;
 }
 
 export type EntryBill = {
