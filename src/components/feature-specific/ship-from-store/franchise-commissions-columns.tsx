@@ -1,6 +1,10 @@
+import { FranchiseCommissionDetailsDialog } from "@/components/feature-specific/ship-from-store/franchise-commission-details-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { FranchiseCommission } from "@/models/data/franchise-commission.model";
 import { ColumnDef } from "@tanstack/react-table";
+import { Eye } from "lucide-react";
+import { useState } from "react";
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("en-DZ", {
@@ -25,7 +29,31 @@ function statusLabel(status: string) {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+function CommissionDetailsCell({ commission }: { commission: FranchiseCommission }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
+        <Eye className="mr-1 h-4 w-4" />
+        Details
+      </Button>
+      <FranchiseCommissionDetailsDialog
+        commission={commission}
+        open={open}
+        onOpenChange={setOpen}
+      />
+    </>
+  );
+}
+
 export const franchiseCommissionsColumns: ColumnDef<FranchiseCommission>[] = [
+  {
+    accessorKey: "ID",
+    header: "ID",
+    cell: ({ row }) => (
+      <span className="font-mono text-sm tabular-nums">{row.original.ID}</span>
+    ),
+  },
   {
     accessorKey: "CreatedAt",
     header: "Date",
@@ -112,6 +140,15 @@ export const franchiseCommissionsColumns: ColumnDef<FranchiseCommission>[] = [
       <Badge variant={statusVariant(row.original.status)}>
         {statusLabel(row.original.status)}
       </Badge>
+    ),
+  },
+  {
+    id: "details",
+    header: () => <div className="text-right">Details</div>,
+    cell: ({ row }) => (
+      <div className="text-right">
+        <CommissionDetailsCell commission={row.original} />
+      </div>
     ),
   },
 ];

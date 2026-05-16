@@ -10,10 +10,10 @@ import { ShipFromStore } from "@/models/data/ship-from-store.model";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 export function createCompanyShipFromStoreColumns(
-  onEdit: (record: ShipFromStore) => void,
-  onDelete: (record: ShipFromStore) => void
+  onEdit?: (record: ShipFromStore) => void,
+  onDelete?: (record: ShipFromStore) => void
 ): ColumnDef<ShipFromStore>[] {
-  return [
+  const base: ColumnDef<ShipFromStore>[] = [
     {
       accessorKey: "CreatedAt",
       header: "Date",
@@ -45,7 +45,10 @@ export function createCompanyShipFromStoreColumns(
       accessorKey: "quantity",
       header: "Qty",
     },
-    {
+  ];
+
+  if (onEdit && onDelete) {
+    base.push({
       id: "actions",
       cell: ({ row }) => {
         const record = row.original;
@@ -69,6 +72,8 @@ export function createCompanyShipFromStoreColumns(
           </DropdownMenu>
         );
       },
-    },
-  ];
+    });
+  }
+
+  return base;
 }

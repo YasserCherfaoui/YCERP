@@ -228,9 +228,9 @@ const quickMenu: Array<{
     href: "broken-items-transfers",
   },
   {
-    label: "Ship from store",
-    icon: Truck,
-    href: "ship-from-store",
+    label: "Franchise fulfillment",
+    icon: Store,
+    href: "franchise-fulfillment",
   },
   {
     label: "Send WhatsApp",

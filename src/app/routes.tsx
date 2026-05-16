@@ -54,7 +54,7 @@ import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
 import CompanySalesSwitchPage from "@/pages/dashboard/company/company-sales-switch-page";
 import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
 import CompanyBrokenItemsTransfersPage from "@/pages/dashboard/company/company-broken-items-transfers-page";
-import CompanyShipFromStorePage from "@/pages/dashboard/company/company-ship-from-store-page";
+import CompanyFranchiseFulfillmentPage from "@/pages/dashboard/company/company-franchise-fulfillment-page";
 import CompanyFranchiseShipFromStorePage from "@/pages/dashboard/company/company-franchise-ship-from-store-page";
 import CompanyFranchiseSupportRoutePage from "@/pages/dashboard/company/company-franchise-support-route-page";
 import CompanyFranchiseVariantDepositsPage from "@/pages/dashboard/company/company-franchise-variant-deposits-page";
@@ -227,6 +227,14 @@ export default function AppRouter() {
               <Route path="notifications" element={<ModeratorStockAlertsNotificationsPage />} />
             </Route>
             <Route path="broken-items-transfers" element={<ModeratorBrokenItemsTransfersPage />} />
+            <Route
+              path="franchise-fulfillment"
+              element={<CompanyFranchiseFulfillmentPage />}
+            />
+            <Route
+              path="ship-from-store"
+              element={<Navigate to="franchise-fulfillment?tab=shipments" replace />}
+            />
             <Route path="issues" element={<IssuesPage />} />
             <Route path="crm">
               <Route path="customers" element={<CustomersPage />} />
@@ -320,7 +328,14 @@ export default function AppRouter() {
                 <Route path="notifications" element={<CompanyStockAlertsNotificationsPage />} />
               </Route>
               <Route path="broken-items-transfers" element={<CompanyBrokenItemsTransfersPage />} />
-              <Route path="ship-from-store" element={<CompanyShipFromStorePage />} />
+              <Route
+                path="franchise-fulfillment"
+                element={<CompanyFranchiseFulfillmentPage />}
+              />
+              <Route
+                path="ship-from-store"
+                element={<Navigate to="franchise-fulfillment?tab=shipments" replace />}
+              />
               <Route path="crm">
                 <Route index element={<CustomersPage />} />
                 <Route path="customers" element={<CustomersPage />} />
