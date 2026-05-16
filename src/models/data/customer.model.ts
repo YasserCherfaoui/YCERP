@@ -1,11 +1,26 @@
 import { Franchise } from "./franchise.model";
 import { Review } from "./review.model";
 
+export interface CustomerAffiliation {
+  id: number;
+  customer_phone: string;
+  company_id: number;
+  franchise_id?: number | null;
+  franchise?: Franchise | null;
+  total_orders?: number;
+  delivered_orders?: number;
+  delivery_rate?: number;
+  stats_updated_at?: string | Date;
+  created_at?: string | Date;
+  updated_at?: string | Date;
+}
+
 export interface Customer {
   phone: string;
   company_id: number;
   franchise_id?: number | null;
   franchise?: Franchise | null;
+  affiliations?: CustomerAffiliation[];
   birthday?: string | Date | null;
   first_name: string;
   last_name: string;
