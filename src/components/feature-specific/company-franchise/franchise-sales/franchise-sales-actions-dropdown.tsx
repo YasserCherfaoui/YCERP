@@ -1,6 +1,7 @@
 import CreateFranchiseReturnDialog from "@/components/feature-specific/company-franchise/franchise-sales/create-franchise-return-dialog";
 import UpdateFranchiseReturnDialog from "@/components/feature-specific/company-franchise/franchise-sales/update-franchise-return-dialog";
 import CompanySaleDetailsDialog from "@/components/feature-specific/company-sales/company-sale-details-dialog";
+import EditSaleCustomerDialog from "@/components/feature-specific/sales/edit-sale-customer-dialog";
 import FranchiseRemoveSaleDialog from "@/components/feature-specific/franchise-sales/franchise-remove-sale-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,8 +11,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { RootState } from "@/app/store";
 import { Sale } from "@/models/data/sale.model";
 import { MoreHorizontal } from "lucide-react";
+import { useSelector } from "react-redux";
 
 
 interface Props {
@@ -19,6 +22,7 @@ interface Props {
 }
 
 export default function ({ sale }: Props) {
+  const franchise = useSelector((state: RootState) => state.franchise.franchise);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,6 +39,7 @@ export default function ({ sale }: Props) {
           Copy sale ID
         </DropdownMenuItem>
         <CompanySaleDetailsDialog sale={sale} />
+        <EditSaleCustomerDialog sale={sale} salesQueryFranchiseId={franchise?.ID} />
         {sale.return ? <UpdateFranchiseReturnDialog sale={sale} /> : <CreateFranchiseReturnDialog sale={sale} />}
         <FranchiseRemoveSaleDialog sale={sale} />
       </DropdownMenuContent>

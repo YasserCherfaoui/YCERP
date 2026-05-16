@@ -11,6 +11,7 @@ import { downloadAndPrintPDF } from "@/services/sale-service";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal, Printer } from "lucide-react";
 import CompanyRemoveSaleDialog from "./company-remove-sale-dialog";
+import EditSaleCustomerDialog from "@/components/feature-specific/sales/edit-sale-customer-dialog";
 import CompanySaleDetailsDialog from "./company-sale-details-dialog";
 import CreateSaleReturnDialog from "./create-sale-return-dialog";
 
@@ -38,6 +39,7 @@ export default function ({ sale }: Props) {
           Copy sale ID
         </DropdownMenuItem>
         <CompanySaleDetailsDialog sale={sale} />
+        <EditSaleCustomerDialog sale={sale} />
         <CreateSaleReturnDialog sale={sale} />
         <DropdownMenuItem onClick={() => downloadAndPrintMutation(sale.ID)}>
           <Printer />

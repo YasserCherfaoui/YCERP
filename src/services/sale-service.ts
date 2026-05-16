@@ -60,6 +60,27 @@ export const getCompanyAlgiersSales = async (companyID: number): Promise<APIResp
     return apiResponse;
 }
 
+export const updateSaleCustomer = async (
+    saleID: number,
+    data: { phone_number: string; rating: number | null }
+): Promise<APIResponse<Sale>> => {
+    const response = await fetch(`${baseUrl}/sales/${saleID}/customer`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update sale customer info.");
+    }
+
+    return await response.json();
+}
+
 export const removeSale = async (saleID: number): Promise<APIResponse<void>> => {
     const response = await fetch(`${baseUrl}/sales/${saleID}`, {
         method: 'DELETE',

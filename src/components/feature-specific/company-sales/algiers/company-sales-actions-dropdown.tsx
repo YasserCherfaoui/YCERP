@@ -10,6 +10,7 @@ import { Sale } from "@/models/data/sale.model";
 import { downloadAndPrintPDF } from "@/services/sale-service";
 import { useMutation } from "@tanstack/react-query";
 import { MoreHorizontal, Printer } from "lucide-react";
+import EditSaleCustomerDialog from "@/components/feature-specific/sales/edit-sale-customer-dialog";
 import CompanyRemoveSaleDialog from "./company-remove-sale-dialog";
 import CompanySaleDetailsDialog from "./company-sale-details-dialog";
 import CreateSaleReturnDialog from "./create-sale-return-dialog";
@@ -38,6 +39,7 @@ export default function ({ sale }: Props) {
           Copy sale ID
         </DropdownMenuItem>
         <CompanySaleDetailsDialog sale={sale} />
+        <EditSaleCustomerDialog sale={sale} />
         <CreateSaleReturnDialog sale={sale} />
         <DropdownMenuItem onClick={() => downloadAndPrintMutation(sale.ID)}>
           <Printer />

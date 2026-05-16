@@ -391,6 +391,27 @@ export const getFranchiseSales = async (franchiseID: number): Promise<APIRespons
 
 }
 
+export const updateFranchiseSaleCustomer = async (
+    saleID: number,
+    data: { phone_number: string; rating: number | null }
+): Promise<APIResponse<Sale>> => {
+    const response = await fetch(`${baseUrl}/franchise/sales/${saleID}/customer`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update sale customer info.");
+    }
+
+    return await response.json();
+}
+
 export const createFranchiseSale = async (data: CreateSaleSchema): Promise<APIResponse<Sale>> => {
     const response = await fetch(`${baseUrl}/franchise/sale`, {
         method: 'POST',
