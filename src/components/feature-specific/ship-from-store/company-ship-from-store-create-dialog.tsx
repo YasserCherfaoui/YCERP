@@ -88,6 +88,7 @@ export function CompanyShipFromStoreCreateDialog({
     onSuccess: () => {
       toast({ title: "Ship-from-store recorded", description: "Record created successfully." });
       queryClient.invalidateQueries({ queryKey: ["company-ship-from-store", companyId] });
+      queryClient.invalidateQueries({ queryKey: ["company-franchise-fulfillment-shipments"] });
       onOpenChange(false);
       setFranchiseId(defaultFranchiseId ?? undefined);
       setProductVariantId(undefined);

@@ -109,6 +109,11 @@ const quickMenu = [
     href: "broken-items-transfers",
   },
   {
+    label: "Franchise fulfillment",
+    icon: Package,
+    href: "franchise-fulfillment",
+  },
+  {
     label: "CRM Customers",
     icon: Users,
     href: "crm/customers",

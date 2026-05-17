@@ -85,7 +85,7 @@ export const updateVariantDeposit = async (
 /** Franchise admin: fulfill deposit by creating a sale */
 export const fulfillVariantDeposit = async (
   id: number,
-  body?: { discount?: number; rating?: number }
+  body?: { discount?: number; rating?: number; phone_number?: string }
 ): Promise<
   APIResponse<{ deposit: VariantDeposit; sale: { id: number; total: number } }>
 > => {
@@ -97,6 +97,7 @@ export const fulfillVariantDeposit = async (
       body: JSON.stringify({
         discount: body?.discount ?? 0,
         ...(body?.rating != null ? { rating: body.rating } : {}),
+        ...(body?.phone_number ? { phone_number: body.phone_number } : {}),
       }),
     }
   );
@@ -159,7 +160,7 @@ export const updateVariantDepositCompany = async (
 export const fulfillVariantDepositCompany = async (
   franchiseId: number,
   depositId: number,
-  body?: { discount?: number; rating?: number }
+  body?: { discount?: number; rating?: number; phone_number?: string }
 ): Promise<
   APIResponse<{ deposit: VariantDeposit; sale: { id: number; total: number } }>
 > => {
@@ -171,6 +172,7 @@ export const fulfillVariantDepositCompany = async (
       body: JSON.stringify({
         discount: body?.discount ?? 0,
         ...(body?.rating != null ? { rating: body.rating } : {}),
+        ...(body?.phone_number ? { phone_number: body.phone_number } : {}),
       }),
     }
   );

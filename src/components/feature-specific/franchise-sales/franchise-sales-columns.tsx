@@ -46,6 +46,15 @@ export const franchiseSalesColumns: ColumnDef<Sale>[] = [
     cell: ({ row }) => new Date(row.original.CreatedAt).toUTCString(),
   },
   {
+    accessorKey: "phone_number",
+    header: "Phone",
+    cell: ({ row }) => row.original.phone_number || "—",
+    filterFn: (row, _id, value) => {
+      const phone = row.original.phone_number ?? "";
+      return phone.toLowerCase().includes(value.toLowerCase());
+    },
+  },
+  {
     header: "Status",
     cell: ({ row }) => {
       const data = row.original;

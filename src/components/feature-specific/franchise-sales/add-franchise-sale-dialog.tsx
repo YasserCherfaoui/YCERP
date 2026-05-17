@@ -16,9 +16,11 @@ import {
     FormControl,
     FormField,
     FormItem,
+    FormLabel,
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { StarRatingInput } from "@/components/ui/star-rating-input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     Table,
@@ -57,6 +59,11 @@ import { useSelector } from "react-redux";
 export interface AddFranchiseSaleDialogInitialDeposit {
   deposit: VariantDepositResponse;
   depositId: number;
+}
+
+function salePhoneForPayload(phone?: string | null): string | undefined {
+  const trimmed = phone?.trim();
+  return trimmed ? trimmed : undefined;
 }
 
 export interface AddFranchiseSaleDialogProps {
@@ -286,10 +293,12 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
       depositId: number;
       discount: number;
       rating?: number;
+      phone_number?: string;
     }) =>
       fulfillVariantDeposit(payload.depositId, {
         discount: payload.discount,
         rating: payload.rating,
+        phone_number: payload.phone_number,
       }),
     onSuccess: () => {
       setOpen(false);
@@ -314,11 +323,13 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
   });
   const isPending = isCreatePending || isFulfillPending;
   const handleCreateSale = (data: CreateSaleSchema) => {
+    const phone_number = salePhoneForPayload(data.phone_number);
     if (initialFromDeposit) {
       fulfillDepositMutation({
         depositId: initialFromDeposit.depositId,
         discount: Math.max(0, data.discount ?? 0),
         rating: data.rating,
+        phone_number,
       });
       return;
     }
@@ -349,7 +360,7 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
       return;
     }
     
-    createFranchiseSaleMutation(data);
+    createFranchiseSaleMutation({ ...data, phone_number });
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -395,6 +406,23 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
           />
 
           <Form {...form}>
+            <FormField
+              name="phone_number"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Customer phone (optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. 0550123456"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <ScrollArea className="max-h-[400px]">
               <Table>
                 <TableHeader>
@@ -588,26 +616,6 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                 </TableBody>
               </Table>
             </ScrollArea>
-            <div className="flex gap-2 items-center text-lg">Phone Number:</div>
-            <FormField
-              name={`phone_number`}
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        form.setValue("phone_number", value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="flex gap-2 items-center text-lg">Rating (1-5):</div>
             <FormField
               name={`rating`}
@@ -615,17 +623,9 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="5"
-                      {...field}
-                      value={field.value ?? ""}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        form.setValue("rating", value ? parseInt(value) : undefined);
-                      }}
-                      placeholder="Optional: Rate customer experience (1-5)"
+                    <StarRatingInput
+                      value={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />

@@ -43,6 +43,7 @@ export function CompanyShipFromStoreEditDialog({
     onSuccess: () => {
       toast({ title: "Updated", description: "Tracking number updated." });
       queryClient.invalidateQueries({ queryKey: ["company-ship-from-store", companyId] });
+      queryClient.invalidateQueries({ queryKey: ["company-franchise-fulfillment-shipments"] });
       onOpenChange(false);
     },
     onError: (error: Error) => {

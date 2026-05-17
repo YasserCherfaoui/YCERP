@@ -12,6 +12,7 @@ export interface FranchiseCommission {
   confirmed_order_item_id: number;
   confirmed_order_item?: ConfirmedOrderItem;
   franchise_id: number;
+  franchise?: { ID?: number; name?: string };
   company_id: number;
   product_id: number;
   product_variant_id: number;
