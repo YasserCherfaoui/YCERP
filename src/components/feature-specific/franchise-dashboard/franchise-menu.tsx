@@ -58,6 +58,11 @@ const quickMenu = [
     href: "ship-from-store",
   },
   {
+    label: "Web order refund",
+    icon: ReceiptText,
+    href: "woo-refund",
+  },
+  {
     label: "Statistics",
     icon: BarChart,
     href: "statistics",

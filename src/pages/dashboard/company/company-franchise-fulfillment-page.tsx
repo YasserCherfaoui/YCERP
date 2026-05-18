@@ -6,6 +6,14 @@ import { CompanyShipFromStoreEditDialog } from "@/components/feature-specific/sh
 import { createCompanyShipFromStoreColumns } from "@/components/feature-specific/ship-from-store/company-ship-from-store-columns";
 import { companyFranchiseCommissionsColumns } from "@/components/feature-specific/ship-from-store/company-franchise-commissions-columns";
 import { companyFranchiseFulfillmentOrdersColumns } from "@/components/feature-specific/ship-from-store/company-franchise-fulfillment-orders-columns";
+import { CompanyFranchiseWooRefundDetailDialog } from "@/components/feature-specific/woo-refund/company-franchise-woo-refund-detail-dialog";
+import { CompanyFranchiseWooRefundsTable } from "@/components/feature-specific/woo-refund/company-franchise-woo-refunds-table";
+import { MarkWooRefundReimbursedDialog } from "@/components/feature-specific/woo-refund/mark-woo-refund-reimbursed-dialog";
+import {
+  canSettleRefund,
+  effectiveReimbursementStatus,
+  totalOutstandingReimbursement,
+} from "@/components/feature-specific/woo-refund/woo-refund-reimbursement";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -37,6 +45,7 @@ import {
   FranchiseOrderStatus,
 } from "@/models/data/woo-order.model";
 import { ShipFromStore } from "@/models/data/ship-from-store.model";
+import { FranchiseWooRefund } from "@/models/data/franchise-woo-refund.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { getMyCompanyFranchises } from "@/services/franchise-service";
 import {
@@ -46,10 +55,14 @@ import {
   listCompanyFranchiseFulfillmentShipments,
 } from "@/services/franchise-fulfillment-service";
 import {
+  listCompanyWooRefunds,
+  markCompanyWooRefundReimbursed,
+} from "@/services/woo-refund-service";
+import {
   deleteShipFromStoreAdmin,
 } from "@/services/ship-from-store-service";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { endOfDay, format, startOfDay } from "date-fns";
 import {
   CalendarIcon,
   CheckCircle2,
@@ -57,15 +70,17 @@ import {
   Package,
   Plus,
   Receipt,
+  RotateCcw,
   ShoppingBag,
   XCircle,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useLocation, useSearchParams } from "react-router-dom";
 
-const TAB_VALUES = ["shipments", "orders", "commissions"] as const;
+const TAB_VALUES = ["shipments", "orders", "commissions", "refunds"] as const;
 type TabValue = (typeof TAB_VALUES)[number];
 
 function isTabValue(value: string | null): value is TabValue {
@@ -115,6 +130,19 @@ export default function CompanyFranchiseFulfillmentPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editRecord, setEditRecord] = useState<ShipFromStore | null>(null);
   const [deleteRecord, setDeleteRecord] = useState<ShipFromStore | null>(null);
+  const [detailRefund, setDetailRefund] = useState<FranchiseWooRefund | null>(
+    null
+  );
+  const [settleRefunds, setSettleRefunds] = useState<FranchiseWooRefund[]>([]);
+  const [settleDialogOpen, setSettleDialogOpen] = useState(false);
+  const [reimbursementFilter, setReimbursementFilter] = useState<string>("all");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (isTabValue(tab) && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams, activeTab]);
 
   const handleTabChange = (value: string) => {
     if (!isTabValue(value)) return;
@@ -172,12 +200,118 @@ export default function CompanyFranchiseFulfillmentPage() {
     enabled: !!companyId,
   });
 
+  const refundsQuery = useQuery({
+    queryKey: [
+      "company-franchise-fulfillment-refunds",
+      companyId,
+      franchiseFilter,
+      reimbursementFilter,
+    ],
+    queryFn: () =>
+      listCompanyWooRefunds({
+        franchise_id: franchiseFilter,
+        reimbursement_status:
+          reimbursementFilter === "all" ? undefined : reimbursementFilter,
+        limit: 200,
+      }),
+    enabled: !!companyId,
+  });
+
+  const allRefundsForOutstandingQuery = useQuery({
+    queryKey: [
+      "company-franchise-fulfillment-refunds-outstanding",
+      companyId,
+      franchiseFilter,
+    ],
+    queryFn: () =>
+      listCompanyWooRefunds({
+        franchise_id: franchiseFilter,
+        limit: 500,
+      }),
+    enabled: !!companyId,
+  });
+
+  const markReimbursedMutation = useMutation({
+    mutationFn: async ({
+      refundIds,
+      paymentReference,
+    }: {
+      refundIds: number[];
+      paymentReference: string;
+    }) => {
+      const results = await Promise.allSettled(
+        refundIds.map((id) =>
+          markCompanyWooRefundReimbursed(id, {
+            payment_reference: paymentReference || undefined,
+          })
+        )
+      );
+      const failed = results.filter((r) => r.status === "rejected").length;
+      if (failed > 0) {
+        throw new Error(
+          `${failed} of ${refundIds.length} refund(s) could not be settled.`
+        );
+      }
+      return results.length;
+    },
+    onSuccess: (count) => {
+      toast({
+        title: "Reimbursement recorded",
+        description:
+          count === 1
+            ? "The franchise has been marked as paid back."
+            : `${count} refunds marked as paid back.`,
+      });
+      setSettleDialogOpen(false);
+      setSettleRefunds([]);
+      queryClient.invalidateQueries({
+        queryKey: ["company-franchise-fulfillment-refunds"],
+      });
+    },
+    onError: (e: Error) => {
+      toast({
+        title: "Could not record payment",
+        description: e.message,
+        variant: "destructive",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["company-franchise-fulfillment-refunds"],
+      });
+    },
+  });
+
   const shipments = shipmentsQuery.data?.data ?? [];
   const orders: WooOrder[] = ordersQuery.data?.data ?? [];
   const commissionsData: FranchiseCommissionsResponse | undefined =
     commissionsQuery.data?.data;
   const commissions = commissionsData?.commissions ?? [];
   const totals = commissionsData?.totals;
+
+  const refunds = useMemo(() => {
+    let rows = refundsQuery.data?.data ?? [];
+    if (dateRange?.from) {
+      const from = startOfDay(dateRange.from);
+      rows = rows.filter((r) => new Date(r.CreatedAt) >= from);
+    }
+    if (dateRange?.to) {
+      const to = endOfDay(dateRange.to);
+      rows = rows.filter((r) => new Date(r.CreatedAt) <= to);
+    }
+    return rows;
+  }, [refundsQuery.data, dateRange]);
+
+  const pendingReimbursementTotal = useMemo(
+    () =>
+      totalOutstandingReimbursement(
+        allRefundsForOutstandingQuery.data?.data ?? []
+      ),
+    [allRefundsForOutstandingQuery.data]
+  );
+
+  const pendingSettleCount = useMemo(
+    () => refunds.filter((r) => canSettleRefund(r)).length,
+    [refunds]
+  );
 
   const orderStats = useMemo(() => {
     const open = orders.filter((order) => {
@@ -234,12 +368,20 @@ export default function CompanyFranchiseFulfillmentPage() {
             </span>
           </div>
         </div>
-        {isAdmin && activeTab === "shipments" && (
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            New shipment
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild>
+            <Link to={isModerator ? "../woo-refund" : "woo-refund"}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Web order refund
+            </Link>
           </Button>
-        )}
+          {isAdmin && activeTab === "shipments" && (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              New shipment
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -326,6 +468,22 @@ export default function CompanyFranchiseFulfillmentPage() {
           </Select>
         )}
 
+        {activeTab === "refunds" && (
+          <Select
+            value={reimbursementFilter}
+            onValueChange={setReimbursementFilter}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Reimbursement" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All reimbursements</SelectItem>
+              <SelectItem value="pending">Pending payback</SelectItem>
+              <SelectItem value="paid">Paid back</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
         {activeTab === "commissions" && (
           <Select value={commissionStatus} onValueChange={setCommissionStatus}>
             <SelectTrigger className="w-[150px]">
@@ -391,6 +549,13 @@ export default function CompanyFranchiseFulfillmentPage() {
             Commissions
             <Badge variant="secondary" className="ml-2">
               {commissions.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="refunds">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Refunds
+            <Badge variant="secondary" className="ml-2">
+              {refunds.length}
             </Badge>
           </TabsTrigger>
         </TabsList>
@@ -479,7 +644,94 @@ export default function CompanyFranchiseFulfillmentPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="refunds" className="mt-4 space-y-3">
+          {pendingReimbursementTotal > 0 && reimbursementFilter !== "paid" && (
+            <Card>
+              <CardContent className="pt-4">
+                <p className="text-sm text-muted-foreground">
+                  Outstanding franchise reimbursements (cash refunds & exchange)
+                </p>
+                <p className="text-2xl font-semibold">
+                  {formatCurrency(pendingReimbursementTotal)}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {pendingSettleCount} refund{pendingSettleCount === 1 ? "" : "s"} — select
+                  rows below, then click <strong>Settle</strong>.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          <Card>
+            <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <CardTitle className="text-base">Web order refunds</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1 max-w-xl">
+                  Local exchange rows show returned vs exchange lines and cash
+                  balance. Select pending reimbursements, then use{" "}
+                  <strong>Settle</strong> to record company payment to franchises.
+                </p>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link to={isModerator ? "../woo-refund" : "woo-refund"}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  New refund
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {refundsQuery.isLoading ? (
+                <p className="text-sm text-muted-foreground">Loading...</p>
+              ) : refundsQuery.isError ? (
+                <p className="text-sm text-destructive">Failed to load refunds.</p>
+              ) : refunds.length === 0 ? (
+                <EmptyState
+                  icon={<RotateCcw className="h-6 w-6" />}
+                  title="No refunds"
+                  description="No web order refunds match your filters."
+                />
+              ) : (
+                <CompanyFranchiseWooRefundsTable
+                  refunds={refunds}
+                  onView={setDetailRefund}
+                  onRequestSettle={(rows) => {
+                    setSettleRefunds(rows);
+                    setSettleDialogOpen(true);
+                  }}
+                  isSettling={markReimbursedMutation.isPending}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
+      <CompanyFranchiseWooRefundDetailDialog
+        refund={detailRefund}
+        open={!!detailRefund}
+        onOpenChange={(open) => !open && setDetailRefund(null)}
+        onRecordPayment={(r) => {
+          setSettleRefunds([r]);
+          setSettleDialogOpen(true);
+        }}
+      />
+
+      <MarkWooRefundReimbursedDialog
+        refunds={settleRefunds}
+        open={settleDialogOpen}
+        onOpenChange={(open) => {
+          setSettleDialogOpen(open);
+          if (!open) setSettleRefunds([]);
+        }}
+        isPending={markReimbursedMutation.isPending}
+        onConfirm={(paymentReference) => {
+          if (settleRefunds.length === 0) return;
+          markReimbursedMutation.mutate({
+            refundIds: settleRefunds.map((r) => r.ID),
+            paymentReference,
+          });
+        }}
+      />
 
       {isAdmin && (
         <>

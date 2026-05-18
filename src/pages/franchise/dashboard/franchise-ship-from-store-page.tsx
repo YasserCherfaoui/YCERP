@@ -4,6 +4,12 @@ import { franchiseCommissionsColumns } from "@/components/feature-specific/ship-
 import { franchiseShipFromOrdersColumns } from "@/components/feature-specific/ship-from-store/franchise-ship-from-orders-columns";
 import { franchiseShipFromStoreColumns } from "@/components/feature-specific/ship-from-store/franchise-ship-from-store-columns";
 import { ShipFromStoreDialog } from "@/components/feature-specific/ship-from-store/ship-from-store-dialog";
+import { CompanyFranchiseWooRefundDetailDialog } from "@/components/feature-specific/woo-refund/company-franchise-woo-refund-detail-dialog";
+import { createFranchiseWooRefundsColumns } from "@/components/feature-specific/woo-refund/franchise-woo-refunds-columns";
+import {
+  effectiveReimbursementStatus,
+  totalOutstandingReimbursement,
+} from "@/components/feature-specific/woo-refund/woo-refund-reimbursement";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,14 +19,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FranchiseCommissionsResponse } from "@/models/data/franchise-commission.model";
+import { FranchiseWooRefund } from "@/models/data/franchise-woo-refund.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import {
   listFranchiseCommissions,
   listFranchiseWooOrders,
 } from "@/services/franchise-service";
 import { listShipFromStoreFranchise } from "@/services/ship-from-store-service";
+import { listFranchiseWooRefunds } from "@/services/woo-refund-service";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -28,14 +43,16 @@ import {
   Package,
   Plus,
   Receipt,
+  RotateCcw,
   ShoppingBag,
   XCircle,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
-const TAB_VALUES = ["shipments", "orders", "commissions"] as const;
+const TAB_VALUES = ["shipments", "orders", "commissions", "refunds"] as const;
 type TabValue = (typeof TAB_VALUES)[number];
 
 function isTabValue(value: string | null): value is TabValue {
@@ -60,6 +77,17 @@ export default function FranchiseShipFromStorePage() {
     : "shipments";
   const [activeTab, setActiveTab] = useState<TabValue>(initialTab);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [detailRefund, setDetailRefund] = useState<FranchiseWooRefund | null>(
+    null
+  );
+  const [reimbursementFilter, setReimbursementFilter] = useState<string>("all");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (isTabValue(tab) && tab !== activeTab) {
+      setActiveTab(tab);
+    }
+  }, [searchParams, activeTab]);
 
   const handleTabChange = (value: string) => {
     if (!isTabValue(value)) return;
@@ -87,12 +115,43 @@ export default function FranchiseShipFromStorePage() {
     enabled: !!franchise,
   });
 
+  const refundsQuery = useQuery({
+    queryKey: ["franchise-woo-refunds", reimbursementFilter],
+    queryFn: () =>
+      listFranchiseWooRefunds({
+        reimbursement_status:
+          reimbursementFilter === "all" ? undefined : reimbursementFilter,
+        limit: 200,
+      }),
+    enabled: !!franchise,
+  });
+
+  const allRefundsForOutstandingQuery = useQuery({
+    queryKey: ["franchise-woo-refunds-outstanding"],
+    queryFn: () => listFranchiseWooRefunds({ limit: 500 }),
+    enabled: !!franchise,
+  });
+
   const shipments = shipmentsQuery.data?.data ?? [];
   const orders: WooOrder[] = ordersQuery.data?.data ?? [];
   const commissionsData: FranchiseCommissionsResponse | undefined =
     commissionsQuery.data?.data;
   const commissions = commissionsData?.commissions ?? [];
   const totals = commissionsData?.totals;
+  const refunds = refundsQuery.data?.data ?? [];
+
+  const refundColumns = useMemo(
+    () => createFranchiseWooRefundsColumns(setDetailRefund),
+    []
+  );
+
+  const pendingPaybackTotal = useMemo(
+    () =>
+      totalOutstandingReimbursement(
+        allRefundsForOutstandingQuery.data?.data ?? []
+      ),
+    [allRefundsForOutstandingQuery.data]
+  );
 
   const orderStats = useMemo(() => {
     const open = orders.filter((order) => {
@@ -119,11 +178,37 @@ export default function FranchiseShipFromStorePage() {
             </span>
           </div>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New shipment
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild>
+            <Link to="../woo-refund">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Web order refund
+            </Link>
+          </Button>
+          {activeTab === "shipments" && (
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              New shipment
+            </Button>
+          )}
+        </div>
       </div>
+
+      {activeTab === "refunds" && (
+        <Select
+          value={reimbursementFilter}
+          onValueChange={setReimbursementFilter}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Company payback" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All refunds</SelectItem>
+            <SelectItem value="pending">Awaiting company payment</SelectItem>
+            <SelectItem value="paid">Paid by company</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <SummaryCard
@@ -173,6 +258,13 @@ export default function FranchiseShipFromStorePage() {
             Commissions
             <Badge variant="secondary" className="ml-2">
               {commissions.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="refunds">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Refunds
+            <Badge variant="secondary" className="ml-2">
+              {refunds.length}
             </Badge>
           </TabsTrigger>
         </TabsList>
@@ -267,7 +359,64 @@ export default function FranchiseShipFromStorePage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="refunds" className="mt-4 space-y-3">
+          {pendingPaybackTotal > 0 && reimbursementFilter !== "paid" && (
+            <Card>
+              <CardContent className="pt-4">
+                <p className="text-sm text-muted-foreground">
+                  Company still owes you (cash you paid to customers)
+                </p>
+                <p className="text-2xl font-semibold">
+                  {formatCurrency(pendingPaybackTotal)}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle className="text-base">Refunds at my store</CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Returns processed here. Company payback status is updated by
+                  headquarters.
+                </p>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="../woo-refund">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New refund
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {refundsQuery.isLoading ? (
+                <p className="text-sm text-muted-foreground">Loading refunds...</p>
+              ) : refundsQuery.isError ? (
+                <p className="text-sm text-destructive">Failed to load refunds.</p>
+              ) : refunds.length === 0 ? (
+                <EmptyState
+                  icon={<RotateCcw className="h-6 w-6" />}
+                  title="No refunds yet"
+                  description="Web order returns recorded at your store will appear here."
+                />
+              ) : (
+                <DataTable
+                  data={refunds}
+                  searchColumn="order"
+                  columns={refundColumns}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
+      <CompanyFranchiseWooRefundDetailDialog
+        refund={detailRefund}
+        open={!!detailRefund}
+        onOpenChange={(open) => !open && setDetailRefund(null)}
+      />
 
       <ShipFromStoreDialog
         open={createDialogOpen}

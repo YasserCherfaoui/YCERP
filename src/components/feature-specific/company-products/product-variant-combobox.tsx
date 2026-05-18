@@ -28,6 +28,8 @@ interface ProductVariantComboboxProps {
   disabled?: boolean;
   error?: string;
   extraText?: string;
+  /** Shown in the dropdown list next to each variant (e.g. unit price). */
+  variantSuffix?: (variantId: number) => string;
 }
 
 export function ProductVariantCombobox({
@@ -37,6 +39,7 @@ export function ProductVariantCombobox({
   placeholder = "Select variant...",
   disabled = false,
   extraText = "",
+  variantSuffix,
   error,
 }: ProductVariantComboboxProps) {
   const [open, setOpen] = React.useState(false);
@@ -85,7 +88,14 @@ export function ProductVariantCombobox({
                       value === variant.ID ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {variant.qr_code}
+                  <span className="flex flex-1 items-center justify-between gap-2">
+                    <span>{variant.qr_code}</span>
+                    {variantSuffix?.(variant.ID) ? (
+                      <span className="text-muted-foreground text-xs font-normal">
+                        {variantSuffix(variant.ID)}
+                      </span>
+                    ) : null}
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

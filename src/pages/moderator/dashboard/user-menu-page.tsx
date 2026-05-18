@@ -114,6 +114,11 @@ const quickMenu = [
     href: "franchise-fulfillment",
   },
   {
+    label: "Web order refund",
+    icon: ReceiptText,
+    href: "woo-refund",
+  },
+  {
     label: "CRM Customers",
     icon: Users,
     href: "crm/customers",
