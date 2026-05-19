@@ -48,6 +48,7 @@ interface DataTableProps<TData, TValue> {
   selectedRows?: string[]; // List of selected row IDs
   setSelectedRows?: (ids: string[]) => void; // Setter for selected row IDs
   getRowId?: (row: TData) => string; // Function to get row ID
+  isRowSelectable?: (row: TData) => boolean;
   searchBar?: boolean;
 }
 
@@ -61,6 +62,7 @@ export function DataTable<TData, TValue>({
   selectedRows,
   setSelectedRows,
   getRowId,
+  isRowSelectable,
   searchBar = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -116,7 +118,9 @@ export function DataTable<TData, TValue>({
     pageCount,
     // Only enable row selection if all required props are present
     ...(selectionEnabled && {
-      enableRowSelection: true,
+      enableRowSelection: isRowSelectable
+        ? (row) => isRowSelectable(row.original)
+        : true,
       getRowId: getRowId,
       rowSelection,
       onRowSelectionChange: (updater: any) => {

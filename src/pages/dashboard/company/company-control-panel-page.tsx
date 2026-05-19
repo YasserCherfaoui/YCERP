@@ -233,6 +233,11 @@ const quickMenu: Array<{
     href: "franchise-fulfillment",
   },
   {
+    label: "Web order refund",
+    icon: ReceiptText,
+    href: "woo-refund",
+  },
+  {
     label: "Send WhatsApp",
     icon: MessageSquare,
   },
