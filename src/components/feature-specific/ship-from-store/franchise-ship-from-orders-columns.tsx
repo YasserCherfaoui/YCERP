@@ -52,13 +52,24 @@ const FRANCHISE_ORDER_STATUS_LABELS: Record<FranchiseOrderStatus, string> = {
   pending: "Pending",
   packed: "Packed",
   dispatched: "Dispatched",
+  not_available: "Not Available",
 };
 
 const STATUS_RANK: Record<FranchiseOrderStatus, number> = {
   pending: 1,
   packed: 2,
   dispatched: 3,
+  not_available: 0,
 };
+
+function isFranchiseStatusOptionDisabled(
+  option: FranchiseOrderStatus,
+  current: FranchiseOrderStatus
+): boolean {
+  if (current === "not_available") return option !== "not_available";
+  if (option === "not_available") return current === "dispatched";
+  return STATUS_RANK[option] < STATUS_RANK[current];
+}
 
 function FranchiseStatusCell({ order }: { order: WooOrder }) {
   const queryClient = useQueryClient();
@@ -66,7 +77,6 @@ function FranchiseStatusCell({ order }: { order: WooOrder }) {
   const current = isFranchiseOrderStatus(order.franchise_order_status)
     ? order.franchise_order_status
     : "pending";
-  const currentRank = STATUS_RANK[current];
 
   const mutation = useMutation({
     mutationFn: (status: FranchiseOrderStatus) =>
@@ -104,7 +114,7 @@ function FranchiseStatusCell({ order }: { order: WooOrder }) {
           <SelectItem
             key={status}
             value={status}
-            disabled={STATUS_RANK[status] < currentRank}
+            disabled={isFranchiseStatusOptionDisabled(status, current)}
           >
             {FRANCHISE_ORDER_STATUS_LABELS[status]}
           </SelectItem>

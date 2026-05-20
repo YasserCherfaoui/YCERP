@@ -113,7 +113,7 @@ export const listFranchiseWooOrders = async (): Promise<APIResponse<any[]>> => {
 
 export const updateFranchiseOrderStatus = async (
   orderId: number,
-  status: "pending" | "packed" | "dispatched"
+  status: "pending" | "packed" | "dispatched" | "not_available"
 ): Promise<APIResponse<any>> => {
   const response = await fetch(`${baseUrl}/franchise/woo-orders/${orderId}/status`, {
     method: "PATCH",

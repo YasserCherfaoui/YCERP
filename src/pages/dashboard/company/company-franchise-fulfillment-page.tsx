@@ -100,6 +100,7 @@ const FRANCHISE_STATUS_LABELS: Record<FranchiseOrderStatus, string> = {
   pending: "Pending",
   packed: "Packed",
   dispatched: "Dispatched",
+  not_available: "Not Available",
 };
 
 export default function CompanyFranchiseFulfillmentPage() {
