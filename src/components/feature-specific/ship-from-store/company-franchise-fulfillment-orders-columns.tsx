@@ -22,6 +22,7 @@ const FRANCHISE_ORDER_STATUS_LABELS: Record<FranchiseOrderStatus, string> = {
   pending: "Pending",
   packed: "Packed",
   dispatched: "Dispatched",
+  not_available: "Not Available",
 };
 
 function OrderNumberCell({ order }: { order: WooOrder }) {
