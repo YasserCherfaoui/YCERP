@@ -91,6 +91,9 @@ export function useFranchiseSupportChat({
   pathnameRef.current = pathname;
   const queryClient = useQueryClient();
   const wsRef = useRef<WebSocket | null>(null);
+  /** Franchise id for the socket in wsRef; guards sendBody when switching threads. */
+  const wsFranchiseIdRef = useRef<number | null>(null);
+  const connectionGenRef = useRef(0);
   const reconnectRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const postSendInvalidateRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shouldReconnect = useRef(true);
@@ -113,29 +116,52 @@ export function useFranchiseSupportChat({
   useEffect(() => {
     shouldReconnect.current = true;
     if (!franchiseId || !enabled) {
+      wsFranchiseIdRef.current = null;
       return undefined;
     }
     const token = localStorage.getItem("token");
     if (!token) {
+      wsFranchiseIdRef.current = null;
       return undefined;
     }
+
+    const connectionGen = ++connectionGenRef.current;
+    const roomFranchiseId = franchiseId;
 
     /** After onclose, next onopen should catch up via GET since_id; first onopen of this effect has no prior close. */
     let resumeSyncAfterDisconnect = false;
 
+    const isActiveConnection = () => connectionGenRef.current === connectionGen;
+
+    const detachSocket = (ws: WebSocket) => {
+      ws.onopen = null;
+      ws.onclose = null;
+      ws.onerror = null;
+      ws.onmessage = null;
+    };
+
     const scheduleReconnect = () => {
-      if (!shouldReconnect.current) return;
+      if (!shouldReconnect.current || !isActiveConnection()) return;
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       reconnectRef.current = setTimeout(runConnect, 2500);
     };
 
     function runConnect() {
-      wsRef.current?.close();
-      const url = buildSupportChatWebSocketUrl(franchiseId, token);
+      if (!isActiveConnection()) return;
+
+      const prev = wsRef.current;
+      if (prev) {
+        detachSocket(prev);
+        prev.close();
+      }
+
+      const url = buildSupportChatWebSocketUrl(roomFranchiseId, token);
       const ws = new WebSocket(url);
       wsRef.current = ws;
+      wsFranchiseIdRef.current = roomFranchiseId;
 
       ws.onopen = () => {
+        if (!isActiveConnection() || wsRef.current !== ws) return;
         setConnected(true);
         if (!resumeSyncAfterDisconnect) {
           return;
@@ -145,7 +171,7 @@ export function useFranchiseSupportChat({
           const prev = queryClient.getQueryData<FranchiseChatMessageRecord[]>(listKey) ?? [];
           const maxId = prev.reduce((m, r) => (r.ID > m ? r.ID : m), 0);
           if (maxId <= 0) return;
-          const res = await getFranchiseSupportChatMessages(franchiseId, {
+          const res = await getFranchiseSupportChatMessages(roomFranchiseId, {
             since_id: maxId,
             limit: 100,
           });
@@ -157,15 +183,19 @@ export function useFranchiseSupportChat({
         })();
       };
       ws.onclose = () => {
+        if (!isActiveConnection() || wsRef.current !== ws) return;
+        wsFranchiseIdRef.current = null;
         resumeSyncAfterDisconnect = true;
         setConnected(false);
         scheduleReconnect();
       };
       ws.onerror = () => {
+        if (!isActiveConnection() || wsRef.current !== ws) return;
         ws.close();
       };
 
       ws.onmessage = (ev) => {
+        if (!isActiveConnection() || wsRef.current !== ws) return;
         try {
           const payload = JSON.parse(ev.data as string) as {
             event?: string;
@@ -176,14 +206,14 @@ export function useFranchiseSupportChat({
             queryClient.setQueryData<FranchiseChatMessageRecord[]>(listKey, (prev) =>
               mergeRecordsByID(prev, [rec]),
             );
-          } else if (payload.event === "read_receipt" && payload.data && franchiseId) {
+          } else if (payload.event === "read_receipt" && payload.data && roomFranchiseId) {
             const d = payload.data as {
               franchise_id?: number;
               last_read_message_id?: number;
               reader_actor?: string;
               reader_id?: number;
             };
-            if (d.franchise_id !== franchiseId) return;
+            if (d.franchise_id !== roomFranchiseId) return;
 
             const state = store.getState();
             const viewer = resolveFranchiseChatViewerFromBranches(pathnameRef.current, {
@@ -196,7 +226,7 @@ export function useFranchiseSupportChat({
               d.reader_actor === viewer.role &&
               d.reader_id === viewer.id;
 
-            const unreadKey = [franchiseSupportChatUnreadRootKey, franchiseId] as const;
+            const unreadKey = [franchiseSupportChatUnreadRootKey, roomFranchiseId] as const;
 
             if (isSelfReceipt) {
               void queryClient.invalidateQueries({ queryKey: unreadKey });
@@ -234,12 +264,18 @@ export function useFranchiseSupportChat({
     runConnect();
 
     return () => {
+      connectionGenRef.current += 1;
       shouldReconnect.current = false;
       setConnected(false);
       if (reconnectRef.current) clearTimeout(reconnectRef.current);
       if (postSendInvalidateRef.current) clearTimeout(postSendInvalidateRef.current);
-      wsRef.current?.close();
-      wsRef.current = null;
+      const ws = wsRef.current;
+      if (ws && wsFranchiseIdRef.current === roomFranchiseId) {
+        detachSocket(ws);
+        ws.close();
+        wsRef.current = null;
+        wsFranchiseIdRef.current = null;
+      }
     };
     // Intentionally omit `pathname`: including it tore down the socket on every route change and
     // caused reconnect storms + repeating GET …/messages?since_id=… + Live/… flicker.
@@ -249,7 +285,15 @@ export function useFranchiseSupportChat({
     (body: string) => {
       const ws = wsRef.current;
       const trimmed = body.trim();
-      if (!ws || ws.readyState !== WebSocket.OPEN || !trimmed) return false;
+      if (
+        !franchiseId ||
+        wsFranchiseIdRef.current !== franchiseId ||
+        !ws ||
+        ws.readyState !== WebSocket.OPEN ||
+        !trimmed
+      ) {
+        return false;
+      }
 
       ws.send(JSON.stringify({ type: "message", body: trimmed }));
       /* Don't invalidate + refetch full page; broadcast (or incremental sync) updates the thread. */
