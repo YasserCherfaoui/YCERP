@@ -64,6 +64,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endOfDay, format, startOfDay } from "date-fns";
 import {
+  Car,
   CalendarIcon,
   CheckCircle2,
   Coins,
@@ -72,6 +73,7 @@ import {
   Receipt,
   RotateCcw,
   ShoppingBag,
+  Truck,
   XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -102,6 +104,44 @@ const FRANCHISE_STATUS_LABELS: Record<FranchiseOrderStatus, string> = {
   dispatched: "Dispatched",
   not_available: "Not Available",
 };
+
+const ORDER_STATUS_SUMMARY = [
+  {
+    status: "packing",
+    label: "Packing",
+    icon: <Package className="h-4 w-4 text-blue-500" />,
+  },
+  {
+    status: "dispaching",
+    label: "Dispatching",
+    icon: <Truck className="h-4 w-4 text-violet-500" />,
+  },
+  {
+    status: "deliviring",
+    label: "Delivering",
+    icon: <Car className="h-4 w-4 text-amber-500" />,
+  },
+  {
+    status: "delivered",
+    label: "Delivered",
+    icon: <CheckCircle2 className="h-4 w-4 text-emerald-500" />,
+  },
+  {
+    status: "returning",
+    label: "Returning",
+    icon: <RotateCcw className="h-4 w-4 text-orange-500" />,
+  },
+  {
+    status: "returned",
+    label: "Returned",
+    icon: <RotateCcw className="h-4 w-4 text-rose-500" />,
+  },
+  {
+    status: "cancelled",
+    label: "Cancelled",
+    icon: <XCircle className="h-4 w-4 text-slate-500" />,
+  },
+] as const;
 
 export default function CompanyFranchiseFulfillmentPage() {
   let company = useSelector((state: RootState) => state.company.company);
@@ -322,6 +362,20 @@ export default function CompanyFranchiseFulfillmentPage() {
     return { total: orders.length, open };
   }, [orders]);
 
+  const orderStatusSummaries = useMemo(() => {
+    const counts = orders.reduce<Record<string, number>>((acc, order) => {
+      const status = (order.order_status ?? "").toLowerCase();
+      if (!status) return acc;
+      acc[status] = (acc[status] ?? 0) + 1;
+      return acc;
+    }, {});
+
+    return ORDER_STATUS_SUMMARY.map((item) => ({
+      ...item,
+      count: counts[item.status] ?? 0,
+    }));
+  }, [orders]);
+
   const shipmentColumns = useMemo(
     () =>
       isAdmin
@@ -528,6 +582,11 @@ export default function CompanyFranchiseFulfillmentPage() {
           hint="Awaiting delivery"
         />
       </div>
+
+      <OrderStatusSummaryCards
+        summaries={orderStatusSummaries}
+        total={orderStats.total}
+      />
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList>
@@ -791,6 +850,40 @@ function SummaryCard({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function OrderStatusSummaryCards({
+  summaries,
+  total,
+}: {
+  summaries: Array<(typeof ORDER_STATUS_SUMMARY)[number] & { count: number }>;
+  total: number;
+}) {
+  return (
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-base font-semibold">Order status summary</h2>
+        <p className="text-xs text-muted-foreground">
+          Based on the franchise order list and current page filters.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+        {summaries.map((item) => {
+          const percentage =
+            total > 0 ? Math.round((item.count / total) * 100) : 0;
+          return (
+            <SummaryCard
+              key={item.status}
+              icon={item.icon}
+              label={item.label}
+              value={item.count.toLocaleString()}
+              hint={`${percentage}% of orders`}
+            />
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
