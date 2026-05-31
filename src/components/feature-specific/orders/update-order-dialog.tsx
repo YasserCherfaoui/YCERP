@@ -464,9 +464,13 @@ export default function UpdateOrderDialog({
                   companyId={companyId}
                   franchises={franchises}
                   open={open}
-                  lineVariantIds={(watch("order_items") || []).map(
-                    (item: any) => item.product_variant_id
-                  )}
+                  lineItems={(watch("order_items") || []).map((item: any) => ({
+                    product_variant_id: item.product_variant_id,
+                    quantity: item.quantity,
+                    label:
+                      allVariants.find((v: any) => v.ID === item.product_variant_id)
+                        ?.qr_code || undefined,
+                  }))}
                 />
                 <OrderItemsSection
                   allVariants={allVariants}

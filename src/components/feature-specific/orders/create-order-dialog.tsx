@@ -882,7 +882,15 @@ function CreateOrderDialog({
                   companyId={company.ID}
                   franchises={franchises}
                   open={open}
-                  lineVariantIds={orderItems.map((item) => item.product_variant_id)}
+                  lineItems={orderItems.map((item, idx) => ({
+                    product_variant_id: item.product_variant_id,
+                    quantity: item.quantity,
+                    label:
+                      allVariants.find((v) => v.ID === item.product_variant_id)
+                        ?.qr_code ||
+                      wooOrder.line_items[idx]?.name ||
+                      undefined,
+                  }))}
                 />
                 {/* Order Items Table Section */}
                 <div className="space-y-4 border rounded p-4 flex flex-col">
