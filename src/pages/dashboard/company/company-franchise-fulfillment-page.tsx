@@ -4,7 +4,7 @@ import ConfirmDialog from "@/components/common/confirm-dialog";
 import { CompanyShipFromStoreCreateDialog } from "@/components/feature-specific/ship-from-store/company-ship-from-store-create-dialog";
 import { CompanyShipFromStoreEditDialog } from "@/components/feature-specific/ship-from-store/company-ship-from-store-edit-dialog";
 import { createCompanyShipFromStoreColumns } from "@/components/feature-specific/ship-from-store/company-ship-from-store-columns";
-import { companyFranchiseCommissionsColumns } from "@/components/feature-specific/ship-from-store/company-franchise-commissions-columns";
+import { CompanyFranchiseCommissionsTable } from "@/components/feature-specific/ship-from-store/company-franchise-commissions-table";
 import { companyFranchiseFulfillmentOrdersColumns } from "@/components/feature-specific/ship-from-store/company-franchise-fulfillment-orders-columns";
 import { CompanyFranchiseWooRefundDetailDialog } from "@/components/feature-specific/woo-refund/company-franchise-woo-refund-detail-dialog";
 import { CompanyFranchiseWooRefundsTable } from "@/components/feature-specific/woo-refund/company-franchise-woo-refunds-table";
@@ -49,6 +49,7 @@ import { FranchiseWooRefund } from "@/models/data/franchise-woo-refund.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { getMyCompanyFranchises } from "@/services/franchise-service";
 import {
+  bulkMarkFranchiseCommissionsPaid,
   FranchiseFulfillmentListParams,
   listCompanyFranchiseFulfillmentCommissions,
   listCompanyFranchiseFulfillmentOrders,
@@ -96,7 +97,14 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount);
 
-const COMMISSION_STATUSES = ["pending", "approved", "cancelled"] as const;
+const COMMISSION_STATUSES = ["pending", "approved", "paid", "cancelled"] as const;
+
+const COMMISSION_STATUS_LABELS: Record<(typeof COMMISSION_STATUSES)[number], string> = {
+  pending: "Pending",
+  approved: "Approved",
+  paid: "Paid",
+  cancelled: "Cancelled",
+};
 
 const FRANCHISE_STATUS_LABELS: Record<FranchiseOrderStatus, string> = {
   pending: "Pending",
@@ -270,6 +278,32 @@ export default function CompanyFranchiseFulfillmentPage() {
         limit: 500,
       }),
     enabled: !!companyId,
+  });
+
+  const markPaidMutation = useMutation({
+    mutationFn: (commissionIds: number[]) =>
+      bulkMarkFranchiseCommissionsPaid(commissionIds, companyId),
+    onSuccess: (res) => {
+      const updated = res.data?.updated_count ?? 0;
+      const skipped = res.data?.skipped_count ?? 0;
+      toast({
+        title: "Commissions marked as paid",
+        description:
+          skipped > 0
+            ? `${updated} updated, ${skipped} skipped (not approved or not in your company).`
+            : `${updated} commission${updated === 1 ? "" : "s"} marked as paid.`,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["company-franchise-fulfillment-commissions"],
+      });
+    },
+    onError: (e: Error) => {
+      toast({
+        title: "Could not mark as paid",
+        description: e.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const markReimbursedMutation = useMutation({
@@ -548,7 +582,7 @@ export default function CompanyFranchiseFulfillmentPage() {
               <SelectItem value="all">All commission statuses</SelectItem>
               {COMMISSION_STATUSES.map((s) => (
                 <SelectItem key={s} value={s}>
-                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                  {COMMISSION_STATUS_LABELS[s]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -696,9 +730,12 @@ export default function CompanyFranchiseFulfillmentPage() {
                   description="No commission rows match your filters."
                 />
               ) : (
-                <DataTable
-                  data={commissions}
-                  columns={companyFranchiseCommissionsColumns}
+                <CompanyFranchiseCommissionsTable
+                  commissions={commissions}
+                  onRequestMarkPaid={(rows) =>
+                    markPaidMutation.mutate(rows.map((r) => r.ID))
+                  }
+                  isMarkingPaid={markPaidMutation.isPending}
                 />
               )}
             </CardContent>
@@ -893,8 +930,9 @@ function CommissionsTotals({
   totals: FranchiseCommissionsResponse["totals"] | undefined;
 }) {
   if (!totals) return null;
+  const paidAmount = totals.paid_amount ?? 0;
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
       <SummaryCard
         icon={<Coins className="h-4 w-4 text-amber-500" />}
         label="Pending"
@@ -904,6 +942,13 @@ function CommissionsTotals({
         icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
         label="Approved"
         value={formatCurrency(totals.approved_amount)}
+        hint="Awaiting payout"
+      />
+      <SummaryCard
+        icon={<CheckCircle2 className="h-4 w-4 text-teal-600" />}
+        label="Paid"
+        value={formatCurrency(paidAmount)}
+        hint="Paid to franchises"
       />
       <SummaryCard
         icon={<XCircle className="h-4 w-4 text-rose-500" />}
@@ -914,7 +959,7 @@ function CommissionsTotals({
         icon={<Receipt className="h-4 w-4 text-primary" />}
         label="Net earnings"
         value={formatCurrency(totals.total_amount)}
-        hint="Approved + pending"
+        hint="Approved + pending (excludes paid)"
       />
     </div>
   );

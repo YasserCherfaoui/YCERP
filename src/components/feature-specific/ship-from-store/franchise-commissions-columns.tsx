@@ -17,6 +17,8 @@ function statusVariant(status: string): "default" | "secondary" | "outline" | "d
   switch (status) {
     case "approved":
       return "default";
+    case "paid":
+      return "outline";
     case "cancelled":
       return "destructive";
     case "pending":
@@ -26,6 +28,7 @@ function statusVariant(status: string): "default" | "secondary" | "outline" | "d
 }
 
 function statusLabel(status: string) {
+  if (status === "paid") return "Paid";
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 

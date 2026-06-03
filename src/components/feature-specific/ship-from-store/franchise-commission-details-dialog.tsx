@@ -25,11 +25,18 @@ function statusVariant(status: string): "default" | "secondary" | "outline" | "d
   switch (status) {
     case "approved":
       return "default";
+    case "paid":
+      return "outline";
     case "cancelled":
       return "destructive";
     default:
       return "secondary";
   }
+}
+
+function statusLabel(status: string) {
+  if (status === "paid") return "Paid";
+  return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -78,7 +85,7 @@ export function FranchiseCommissionDetailsDialog({
             <DialogTitle className="flex flex-wrap items-center gap-2">
               Commission #{commission.ID}
               <Badge variant={statusVariant(commission.status)}>
-                {commission.status}
+                {statusLabel(commission.status)}
               </Badge>
             </DialogTitle>
             <DialogDescription>

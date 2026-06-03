@@ -81,3 +81,27 @@ export const listCompanyFranchiseFulfillmentCommissions = async (
   }
   return response.json();
 };
+
+export interface BulkMarkCommissionsPaidResult {
+  updated_count: number;
+  skipped_count: number;
+}
+
+export const bulkMarkFranchiseCommissionsPaid = async (
+  ids: number[],
+  companyId?: number
+): Promise<APIResponse<BulkMarkCommissionsPaidResult>> => {
+  const search = companyId != null ? `?company_id=${companyId}` : "";
+  const response = await fetch(
+    `${baseUrl}/franchise-fulfillment/commissions/bulk-status${search}`,
+    {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ ids, status: "paid" }),
+    }
+  );
+  if (!response.ok) {
+    await parseError(response, "Failed to mark commissions as paid.");
+  }
+  return response.json();
+};
