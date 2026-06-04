@@ -461,8 +461,9 @@ function CommissionsTotals({
   totals: FranchiseCommissionsResponse["totals"] | undefined;
 }) {
   if (!totals) return null;
+  const paidAmount = totals.paid_amount ?? 0;
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
       <SummaryCard
         icon={<Coins className="h-4 w-4 text-amber-500" />}
         label="Pending"
@@ -472,6 +473,13 @@ function CommissionsTotals({
         icon={<CheckCircle2 className="h-4 w-4 text-emerald-500" />}
         label="Approved"
         value={formatCurrency(totals.approved_amount)}
+        hint="Awaiting payout"
+      />
+      <SummaryCard
+        icon={<CheckCircle2 className="h-4 w-4 text-teal-600" />}
+        label="Paid"
+        value={formatCurrency(paidAmount)}
+        hint="Paid by company"
       />
       <SummaryCard
         icon={<XCircle className="h-4 w-4 text-rose-500" />}
@@ -482,7 +490,7 @@ function CommissionsTotals({
         icon={<Receipt className="h-4 w-4 text-primary" />}
         label="Net earnings"
         value={formatCurrency(totals.total_amount)}
-        hint="Approved + pending"
+        hint="Approved + pending (excludes paid)"
       />
     </div>
   );

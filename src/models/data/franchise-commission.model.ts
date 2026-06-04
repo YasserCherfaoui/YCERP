@@ -1,6 +1,6 @@
 import { ConfirmedOrderItem, WooOrder } from "@/models/data/woo-order.model";
 
-export type FranchiseCommissionStatus = "pending" | "approved" | "cancelled";
+export type FranchiseCommissionStatus = "pending" | "approved" | "paid" | "cancelled";
 
 export interface FranchiseCommission {
   ID: number;
@@ -25,6 +25,7 @@ export interface FranchiseCommission {
 export interface FranchiseCommissionTotals {
   pending_amount: number;
   approved_amount: number;
+  paid_amount: number;
   cancelled_amount: number;
   total_amount: number;
 }
