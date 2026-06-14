@@ -4,6 +4,8 @@ import {
     InventoryItem,
     InventoryItemTransactionLog,
     InventoryDiscrepanciesResponse,
+    InventorySnapshotResponse,
+    InventoryItemBalanceAtResponse,
 } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
@@ -135,6 +137,30 @@ export const getFranchiseInventoryTotalCost = async (franchiseID: number): Promi
     return apiResponse;
 }
 
+export const alignInventoryDiscrepancies = async (
+    inventoryId: number,
+    itemId?: number
+): Promise<APIResponse<{ drift_found: number; aligned: number; no_op: number }>> => {
+    const params = new URLSearchParams({
+        inventory_id: String(inventoryId),
+    });
+    if (itemId != null) {
+        params.set("item_id", String(itemId));
+    }
+    const response = await fetch(`${baseUrl}/inventory/audit/discrepancies/align?${params}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to align inventory ledger drift.");
+    }
+    return response.json();
+};
+
 export const getInventoryDiscrepancies = async (
     inventoryId: number,
     limit = 10,
@@ -158,6 +184,56 @@ export const getInventoryDiscrepancies = async (
     }
     const apiResponse: APIResponse<InventoryDiscrepanciesResponse> = await response.json();
     return apiResponse;
+};
+
+export const getInventorySnapshot = async (
+    inventoryId: number,
+    date?: string
+): Promise<APIResponse<InventorySnapshotResponse>> => {
+    const params = new URLSearchParams({
+        inventory_id: String(inventoryId),
+    });
+    if (date) {
+        params.set("date", date);
+    }
+    const response = await fetch(`${baseUrl}/inventory/snapshot?${params}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory snapshot.");
+    }
+    return response.json();
+};
+
+export const getInventoryItemBalanceAt = async (
+    itemId: number,
+    at?: string
+): Promise<APIResponse<InventoryItemBalanceAtResponse>> => {
+    const params = new URLSearchParams();
+    if (at) {
+        params.set("at", at);
+    }
+    const query = params.toString();
+    const url = query
+        ? `${baseUrl}/inventory/item/${itemId}/balance?${query}`
+        : `${baseUrl}/inventory/item/${itemId}/balance`;
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch item balance.");
+    }
+    return response.json();
 };
 
 export const getInventoryByVariant = async (productVariantId: number): Promise<APIResponse<InventoryItem[]>> => {

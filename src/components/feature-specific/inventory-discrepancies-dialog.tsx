@@ -17,16 +17,12 @@ import {
 } from "@/components/ui/table";
 import { InventoryDiscrepancy } from "@/models/data/inventory.model";
 import {
+    alignInventoryDiscrepancies,
     getInventoryDiscrepancies,
-    updateCompanyInventoryItem,
 } from "@/services/inventory-service";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle } from "lucide-react";
 import { useCallback, useState } from "react";
-
-const DISCREPANCY_FIX_COMMENT =
-    "Discrepancy correction - quantity reset to match last transaction log";
-const DISCREPANCY_FIX_TRANSACTION_TYPE = "discrepancy_correction";
 
 interface Props {
     open: boolean;
@@ -50,16 +46,10 @@ export default function InventoryDiscrepanciesDialog({
     });
 
     const handleFixDiscrepancies = useCallback(async () => {
-        if (!data?.discrepancies?.length) return;
+        if (!inventoryId || !data?.discrepancies?.length) return;
         setFixing(true);
         try {
-            for (const row of data.discrepancies as InventoryDiscrepancy[]) {
-                await updateCompanyInventoryItem(row.inventory_item_id, {
-                    quantity: row.last_logged_quantity,
-                    comment: DISCREPANCY_FIX_COMMENT,
-                    transaction_type: DISCREPANCY_FIX_TRANSACTION_TYPE,
-                });
-            }
+            await alignInventoryDiscrepancies(inventoryId);
             await queryClient.invalidateQueries({ queryKey: ["inventory"] });
             await queryClient.invalidateQueries({
                 queryKey: ["company-inventory"],
@@ -77,10 +67,10 @@ export default function InventoryDiscrepanciesDialog({
         } finally {
             setFixing(false);
         }
-    }, [data?.discrepancies, queryClient, onOpenChange]);
+    }, [data?.discrepancies?.length, inventoryId, queryClient, onOpenChange]);
 
     const discrepancies = data?.discrepancies ?? [];
-    const canFix = discrepancies.length > 0 && !fixing;
+    const canFix = discrepancies.length > 0 && !fixing && inventoryId != null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -92,8 +82,9 @@ export default function InventoryDiscrepanciesDialog({
                     </DialogTitle>
                 </DialogHeader>
                 <p className="text-muted-foreground text-sm">
-                    Items whose current quantity does not match the last
-                    transaction log (first 10 for this inventory).
+                    Items where current stock (projection) does not match the
+                    ledger balance. Fixing aligns the ledger to current stock
+                    without changing quantities on the shelf.
                 </p>
                 {isLoading ? (
                     <div className="py-8 text-center text-muted-foreground">
@@ -119,12 +110,11 @@ export default function InventoryDiscrepanciesDialog({
                                         Current
                                     </TableHead>
                                     <TableHead className="text-right">
-                                        Last logged
+                                        Ledger
                                     </TableHead>
                                     <TableHead className="text-right">
-                                        Discrepancy
+                                        Delta
                                     </TableHead>
-                                    <TableHead>Last log</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -140,7 +130,7 @@ export default function InventoryDiscrepanciesDialog({
                                                 {row.current_quantity}
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                {row.last_logged_quantity}
+                                                {row.ledger_balance}
                                             </TableCell>
                                             <TableCell
                                                 className={`text-right font-medium ${
@@ -153,9 +143,6 @@ export default function InventoryDiscrepanciesDialog({
                                                     ? "+"
                                                     : ""}
                                                 {row.discrepancy}
-                                            </TableCell>
-                                            <TableCell className="text-muted-foreground text-sm">
-                                                {row.last_log_timestamp ?? "—"}
                                             </TableCell>
                                         </TableRow>
                                     )
@@ -175,7 +162,7 @@ export default function InventoryDiscrepanciesDialog({
                         disabled={!canFix}
                         onClick={handleFixDiscrepancies}
                     >
-                        {fixing ? "Fixing…" : "Fix discrepancies"}
+                        {fixing ? "Aligning…" : "Align ledger to stock"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

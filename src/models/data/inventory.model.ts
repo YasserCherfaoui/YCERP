@@ -69,12 +69,11 @@ export interface InventoryDiscrepancy {
     inventory_item_id: number;
     item_name: string;
     current_quantity: number;
-    last_logged_quantity: number;
+    ledger_balance: number;
     discrepancy: number;
     product_name: string;
     variant_info: string;
     inventory_name: string;
-    last_log_timestamp: string | null;
 }
 
 export interface InventoryDiscrepanciesResponse {
@@ -83,4 +82,29 @@ export interface InventoryDiscrepanciesResponse {
     limit: number;
     offset: number;
     warning?: string;
+}
+
+export interface InventorySnapshotItem {
+    inventory_item_id: number;
+    item_name: string;
+    product_name: string;
+    variant_info: string;
+    closing_quantity: number;
+    closing_broken_count: number;
+    last_entry_id?: number;
+}
+
+export interface InventorySnapshotResponse {
+    snapshot_date: string;
+    inventory_id: number;
+    items: InventorySnapshotItem[];
+    total: number;
+}
+
+export interface InventoryItemBalanceAtResponse {
+    inventory_item_id: number;
+    balance: number;
+    at: string;
+    used_snapshot: boolean;
+    snapshot_date?: string;
 }
