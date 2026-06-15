@@ -50,6 +50,8 @@ interface DataTableProps<TData, TValue> {
   getRowId?: (row: TData) => string; // Function to get row ID
   isRowSelectable?: (row: TData) => boolean;
   searchBar?: boolean;
+  searchPlaceholder?: string;
+  initialColumnVisibility?: VisibilityState;
 }
 
 export function DataTable<TData, TValue>({
@@ -64,13 +66,15 @@ export function DataTable<TData, TValue>({
   getRowId,
   isRowSelectable,
   searchBar = true,
+  searchPlaceholder = "Filter Product Name...",
+  initialColumnVisibility = {},
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+    React.useState<VisibilityState>(initialColumnVisibility);
 
   // Only enable selection if all required props are present
   const selectionEnabled = !!selectedRows && !!setSelectedRows && !!getRowId;
@@ -189,7 +193,7 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center py-4">
         {searchBar && (
           <Input
-            placeholder="Filter Product Name..."
+            placeholder={searchPlaceholder}
             value={
               (table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""
             }

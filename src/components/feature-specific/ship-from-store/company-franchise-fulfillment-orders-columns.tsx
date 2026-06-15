@@ -183,12 +183,39 @@ function ShippingLabelActionCell({
   return <UploadLabelCell order={order} companyId={companyId} />;
 }
 
+export const FRANCHISE_FULFILLMENT_ORDER_SEARCH_COLUMN = "order_search";
+
+function franchiseFulfillmentOrderSearchText(order: WooOrder): string {
+  return [
+    order.id?.toString(),
+    order.number,
+    order.tracking_number,
+    order.customer_phone,
+    order.customer_phone_2,
+  ]
+    .filter((part) => part != null && String(part).trim() !== "")
+    .join(" ")
+    .toLowerCase();
+}
+
 export function createCompanyFranchiseFulfillmentOrdersColumns(options?: {
   companyId?: number;
 }): ColumnDef<WooOrder>[] {
   const companyId = options?.companyId;
 
   return [
+    {
+      id: FRANCHISE_FULFILLMENT_ORDER_SEARCH_COLUMN,
+      accessorFn: (row) => franchiseFulfillmentOrderSearchText(row),
+      filterFn: (row, _id, value) => {
+        const q = String(value ?? "")
+          .trim()
+          .toLowerCase();
+        if (!q) return true;
+        return franchiseFulfillmentOrderSearchText(row.original).includes(q);
+      },
+      enableHiding: false,
+    },
     {
       accessorKey: "number",
       header: "Order",
