@@ -1,16 +1,12 @@
-import { RootState } from "@/app/store";
 import TransactionsLogDialog from "@/components/feature-specific/company-warehouse/transactions-log-dialog";
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { InventoryItem } from "@/models/data/inventory.model";
-import { getFranchiseInventoryTransactionLogs } from "@/services/inventory-service";
-import { useQuery } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import Barcode from "react-barcode";
-import { useSelector } from "react-redux";
 
 export const franchiseInventoryColumns: ColumnDef<InventoryItem>[] = [
   {
@@ -136,27 +132,11 @@ export const franchiseInventoryColumns: ColumnDef<InventoryItem>[] = [
   },
   {
     header: "Actions",
-    cell: ({ row }) => {
-      const franchise = useSelector(
-        (state: RootState) => state.franchise.franchise
-      );
-      const { data: logData } = useQuery({
-        queryKey: ["inventory-log", franchise?.ID ?? 0],
-        queryFn: () => getFranchiseInventoryTransactionLogs(franchise?.ID ?? 0),
-        enabled: !!franchise,
-      });
-      return (
-        <>
-          <UpdateInventoryItemDialog inventoryItem={row.original} />
-          <TransactionsLogDialog
-            logs={
-              logData?.data?.filter(
-                (log) => log.inventory_item_id == row.original.ID
-              ) ?? []
-            }
-          />
-        </>
-      );
-    },
+    cell: ({ row }) => (
+      <>
+        <UpdateInventoryItemDialog inventoryItem={row.original} />
+        <TransactionsLogDialog inventoryItemId={row.original.ID} />
+      </>
+    ),
   },
  ];
