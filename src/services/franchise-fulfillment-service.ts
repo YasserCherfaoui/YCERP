@@ -105,3 +105,47 @@ export const bulkMarkFranchiseCommissionsPaid = async (
   }
   return response.json();
 };
+
+export const uploadWooOrderShippingLabel = async (
+  orderId: number,
+  file: File,
+  companyId?: number
+): Promise<APIResponse<{ has_shipping_label: boolean }>> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const qs =
+    companyId != null ? `?company_id=${encodeURIComponent(String(companyId))}` : "";
+  const response = await fetch(
+    `${baseUrl}/franchise-fulfillment/orders/${orderId}/shipping-label${qs}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: formData,
+    }
+  );
+  if (!response.ok) {
+    await parseError(response, "Failed to upload shipping label.");
+  }
+  return response.json();
+};
+
+export const getCompanyWooOrderShippingLabelUrl = async (
+  orderId: number,
+  companyId?: number
+): Promise<APIResponse<{ signed_url: string }>> => {
+  const qs =
+    companyId != null ? `?company_id=${encodeURIComponent(String(companyId))}` : "";
+  const response = await fetch(
+    `${baseUrl}/franchise-fulfillment/orders/${orderId}/shipping-label${qs}`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    }
+  );
+  if (!response.ok) {
+    await parseError(response, "Failed to fetch shipping label.");
+  }
+  return response.json();
+};
