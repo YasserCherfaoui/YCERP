@@ -5,7 +5,7 @@ import { CompanyShipFromStoreCreateDialog } from "@/components/feature-specific/
 import { CompanyShipFromStoreEditDialog } from "@/components/feature-specific/ship-from-store/company-ship-from-store-edit-dialog";
 import { createCompanyShipFromStoreColumns } from "@/components/feature-specific/ship-from-store/company-ship-from-store-columns";
 import { CompanyFranchiseCommissionsTable } from "@/components/feature-specific/ship-from-store/company-franchise-commissions-table";
-import { companyFranchiseFulfillmentOrdersColumns } from "@/components/feature-specific/ship-from-store/company-franchise-fulfillment-orders-columns";
+import { createCompanyFranchiseFulfillmentOrdersColumns, FRANCHISE_FULFILLMENT_ORDER_SEARCH_COLUMN } from "@/components/feature-specific/ship-from-store/company-franchise-fulfillment-orders-columns";
 import { CompanyFranchiseWooRefundDetailDialog } from "@/components/feature-specific/woo-refund/company-franchise-woo-refund-detail-dialog";
 import { CompanyFranchiseWooRefundsTable } from "@/components/feature-specific/woo-refund/company-franchise-woo-refunds-table";
 import { MarkWooRefundReimbursedDialog } from "@/components/feature-specific/woo-refund/mark-woo-refund-reimbursed-dialog";
@@ -421,6 +421,11 @@ export default function CompanyFranchiseFulfillmentPage() {
     [isAdmin]
   );
 
+  const orderColumns = useMemo(
+    () => createCompanyFranchiseFulfillmentOrdersColumns({ companyId }),
+    [companyId]
+  );
+
   const handleDeleteConfirm = async () => {
     if (!deleteRecord) return;
     try {
@@ -702,8 +707,12 @@ export default function CompanyFranchiseFulfillmentPage() {
               ) : (
                 <DataTable
                   data={orders}
-                  searchColumn="number"
-                  columns={companyFranchiseFulfillmentOrdersColumns}
+                  searchColumn={FRANCHISE_FULFILLMENT_ORDER_SEARCH_COLUMN}
+                  searchPlaceholder="Search phone, tracking, or order #..."
+                  initialColumnVisibility={{
+                    [FRANCHISE_FULFILLMENT_ORDER_SEARCH_COLUMN]: false,
+                  }}
+                  columns={orderColumns}
                 />
               )}
             </CardContent>

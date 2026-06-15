@@ -59,6 +59,7 @@ export interface WooOrder {
   return?: any | null;
   commission?: any | null;
   franchise_order_status?: FranchiseOrderStatus | string;
+  has_shipping_label?: boolean;
 }
 
 export type FranchiseOrderStatus = "pending" | "packed" | "dispatched" | "not_available";

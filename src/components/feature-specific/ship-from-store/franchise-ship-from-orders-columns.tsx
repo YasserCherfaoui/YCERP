@@ -15,10 +15,13 @@ import {
   WooOrder,
   isFranchiseOrderStatus,
 } from "@/models/data/woo-order.model";
-import { updateFranchiseOrderStatus } from "@/services/franchise-service";
+import {
+  getFranchiseWooOrderShippingLabelUrl,
+  updateFranchiseOrderStatus,
+} from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Eye } from "lucide-react";
+import { Eye, Loader2, Printer } from "lucide-react";
 import { useState } from "react";
 
 function orderStatusVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
@@ -141,6 +144,48 @@ function ViewDetailsCell({ order }: { order: WooOrder }) {
   );
 }
 
+function PrintLabelCell({ order }: { order: WooOrder }) {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+
+  const handlePrint = async () => {
+    setLoading(true);
+    try {
+      const response = await getFranchiseWooOrderShippingLabelUrl(order.id);
+      const url = response.data?.signed_url;
+      if (!url) {
+        throw new Error("No download URL returned.");
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      toast({
+        title: "Could not open label",
+        description:
+          error instanceof Error ? error.message : "Failed to fetch shipping label.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      disabled={!order.has_shipping_label || loading}
+      onClick={handlePrint}
+    >
+      {loading ? (
+        <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+      ) : (
+        <Printer className="mr-1 h-4 w-4" />
+      )}
+      Print label
+    </Button>
+  );
+}
+
 export const franchiseShipFromOrdersColumns: ColumnDef<WooOrder>[] = [
   {
     accessorKey: "number",
@@ -210,9 +255,10 @@ export const franchiseShipFromOrdersColumns: ColumnDef<WooOrder>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="text-right">Details</div>,
+    header: () => <div className="text-right">Actions</div>,
     cell: ({ row }) => (
-      <div className="text-right">
+      <div className="flex justify-end gap-1">
+        <PrintLabelCell order={row.original} />
         <ViewDetailsCell order={row.original} />
       </div>
     ),

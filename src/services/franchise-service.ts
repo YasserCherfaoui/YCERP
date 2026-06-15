@@ -130,6 +130,22 @@ export const updateFranchiseOrderStatus = async (
   return response.json();
 };
 
+export const getFranchiseWooOrderShippingLabelUrl = async (
+  orderId: number
+): Promise<APIResponse<{ signed_url: string }>> => {
+  const response = await fetch(`${baseUrl}/franchise/woo-orders/${orderId}/shipping-label`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch shipping label.");
+  }
+  return response.json();
+};
+
 export const listFranchiseCommissions = async (): Promise<
   APIResponse<FranchiseCommissionsResponse>
 > => {
