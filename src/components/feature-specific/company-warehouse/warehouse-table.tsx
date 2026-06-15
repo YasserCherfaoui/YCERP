@@ -29,7 +29,6 @@ import {
 import { InventoryItemWithCost } from "@/models/responses/inventory-with-cost.model";
 import {
   getCompanyInventory,
-  getCompanyInventoryTransactionLogs,
   getInventoryTotalCost,
 } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
@@ -77,11 +76,6 @@ export default function () {
         typeof updater === "function" ? updater(old.pagination) : updater,
     }));
   };
-  const { data: logData } = useQuery({
-    queryKey: ["inventory-log", company?.ID ?? 0],
-    queryFn: () => getCompanyInventoryTransactionLogs(company?.ID ?? 0),
-    enabled: !!company,
-  });
   const columns: ColumnDef<InventoryItemWithCost>[] = [
     {
       header: "Product",
@@ -139,13 +133,7 @@ export default function () {
       cell: ({ row }) => (
         <>
           <UpdateInventoryItemDialog inventoryItem={row.original} />
-          <TransactionsLogDialog
-            logs={
-              logData?.data?.filter(
-                (log) => log.inventory_item_id == row.original.ID
-              ) ?? []
-            }
-          />
+          <TransactionsLogDialog inventoryItemId={row.original.ID} />
         </>
       ),
     },

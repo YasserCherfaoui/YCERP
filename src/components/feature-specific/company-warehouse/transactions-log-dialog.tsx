@@ -16,16 +16,24 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { InventoryItemTransactionLog } from "@/models/data/inventory.model";
-import { History } from "lucide-react";
+import { getInventoryItemTransactionLogs } from "@/services/inventory-service";
+import { useQuery } from "@tanstack/react-query";
+import { History, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
-  logs: InventoryItemTransactionLog[];
+  inventoryItemId: number;
 }
 
-export default function ({ logs }: Props) {
+export default function ({ inventoryItemId }: Props) {
   const [open, setOpen] = useState(false);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["inventory-item-transaction-logs", inventoryItemId],
+    queryFn: () => getInventoryItemTransactionLogs(inventoryItemId),
+    enabled: open && inventoryItemId > 0,
+  });
+  const logs = data?.data ?? [];
+
   return (
     <Dialog open={open} onOpenChange={setOpen} >
       <DialogTrigger>
@@ -48,7 +56,30 @@ export default function ({ logs }: Props) {
               <TableHead>Reference Type</TableHead>
             </TableHeader>
             <TableBody>
-              {logs.sort((a, b) => new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()).map((l) => (
+              {isLoading && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                  </TableCell>
+                </TableRow>
+              )}
+              {isError && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-destructive">
+                    Failed to load transaction logs.
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoading && !isError && logs.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    No transaction logs found.
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isLoading && !isError && logs
+                .sort((a, b) => new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime())
+                .map((l) => (
                 <TableRow key={l.ID}>
                   <TableCell>
                     {new Date(l.CreatedAt).toLocaleString()}

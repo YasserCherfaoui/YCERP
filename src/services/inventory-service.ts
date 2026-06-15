@@ -65,6 +65,25 @@ export const updateCompanyInventoryItem = async (itemID: number, data: UpdateInv
 
 }
 
+export const getInventoryItemTransactionLogs = async (
+    itemId: number
+): Promise<APIResponse<InventoryItemTransactionLog[]>> => {
+    const response = await fetch(`${baseUrl}/inventory/item/${itemId}/transactions`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory item transactions.");
+    }
+    const apiResponse: APIResponse<InventoryItemTransactionLog[]> = await response.json();
+    return apiResponse;
+}
+
 export const getCompanyInventoryTransactionLogs = async (comapnyID: number): Promise<APIResponse<InventoryItemTransactionLog[]>> => {
     const response = await fetch(`${baseUrl}/inventory/transactions/${comapnyID}`, {
         method: 'GET',
