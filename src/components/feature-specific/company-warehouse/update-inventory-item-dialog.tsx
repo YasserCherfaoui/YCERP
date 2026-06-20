@@ -66,6 +66,12 @@ export default function UpdateInventoryItemDialog({
       updateCompanyInventoryItem(inventoryItem.ID, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["company-inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["franchise-inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["inventory-total-cost"] });
+      queryClient.invalidateQueries({
+        queryKey: ["inventory-item-transaction-logs", inventoryItem.ID],
+      });
       queryClient.invalidateQueries({ queryKey: ["company-missing-variants"] });
       toast({
         title: "Success",
