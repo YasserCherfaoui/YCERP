@@ -25,30 +25,43 @@ import { updateProduct } from "@/services/product-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface Props {
   product: Product;
 }
+
+function getProductFormValues(product: Product): UpdateProductSchema {
+  return {
+    name: product.name,
+    first_price: product.first_price,
+    franchise_price: product.franchise_price,
+    vip_franchise_price: product.vip_franchise_price,
+    price: product.price,
+    promo_price: product.promo_price,
+    description: product.description,
+    is_woo_picture: product.is_woo_picture,
+    is_bogo: product.is_bogo,
+    pairable: product.pairable ?? false,
+    combinable: product.combinable ?? false,
+    is_active: product.is_active,
+    franchise_ship_commission: product.franchise_ship_commission ?? 800,
+  };
+}
+
 export default function MyForm({ product }: Props) {
+  const [open, setOpen] = useState(false);
   const form = useForm<UpdateProductSchema>({
     resolver: zodResolver(updateProductSchema),
-    defaultValues: {
-      name: product.name,
-      first_price: product.first_price,
-      franchise_price: product.franchise_price,
-      price: product.price,
-      promo_price: product.promo_price,
-      description: product.description,
-      is_woo_picture: product.is_woo_picture,
-      is_bogo: product.is_bogo,
-      pairable: product.pairable ?? false,
-      combinable: product.combinable ?? false,
-      is_active: product.is_active,
-      franchise_ship_commission: product.franchise_ship_commission ?? 800,
-    },
+    defaultValues: getProductFormValues(product),
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(getProductFormValues(product));
+    }
+  }, [open, product, form]);
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { mutate: updateProductMutation, isPending } = useMutation({
@@ -72,9 +85,15 @@ export default function MyForm({ product }: Props) {
   });
 
   function onSubmit(values: UpdateProductSchema) {
-    updateProductMutation(values);
+    updateProductMutation({
+      ...values,
+      franchise_ship_commission:
+        values.franchise_ship_commission ??
+        product.franchise_ship_commission ??
+        800,
+    });
   }
-  const [open, setOpen] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -184,9 +203,11 @@ export default function MyForm({ product }: Props) {
                       <Input
                         placeholder="800"
                         type="number"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        value={Number(field.value ?? 800)}
+                        min={0}
+                        value={field.value ?? 800}
+                        onChange={(e) =>
+                          field.onChange(Number(e.target.value))
+                        }
                       />
                     </FormControl>
                     <FormMessage />
