@@ -46,7 +46,10 @@ function getProductFormValues(product: Product): UpdateProductSchema {
     pairable: product.pairable ?? false,
     combinable: product.combinable ?? false,
     is_active: product.is_active,
-    franchise_ship_commission: product.franchise_ship_commission ?? 800,
+    franchise_ship_commission:
+      product.franchise_ship_commission !== undefined
+        ? product.franchise_ship_commission
+        : 800,
   };
 }
 
@@ -88,9 +91,11 @@ export default function MyForm({ product }: Props) {
     updateProductMutation({
       ...values,
       franchise_ship_commission:
-        values.franchise_ship_commission ??
-        product.franchise_ship_commission ??
-        800,
+        values.franchise_ship_commission !== undefined
+          ? values.franchise_ship_commission
+          : product.franchise_ship_commission !== undefined
+            ? product.franchise_ship_commission
+            : 800,
     });
   }
 
@@ -204,7 +209,9 @@ export default function MyForm({ product }: Props) {
                         placeholder="800"
                         type="number"
                         min={0}
-                        value={field.value ?? 800}
+                        value={
+                          field.value !== undefined ? field.value : 800
+                        }
                         onChange={(e) =>
                           field.onChange(Number(e.target.value))
                         }
