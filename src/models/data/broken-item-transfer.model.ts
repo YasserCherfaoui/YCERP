@@ -37,3 +37,20 @@ export interface BrokenItemTransferItem {
     broken_item?: BrokenItem;
     quantity: number;
 }
+
+export interface BrokenItemTransferStatusCounts {
+    pending: number;
+    approved: number;
+    rejected: number;
+}
+
+export interface BrokenItemTransferListResponse {
+    transfers: BrokenItemTransfer[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        total_pages: number;
+    };
+    status_counts: BrokenItemTransferStatusCounts;
+}

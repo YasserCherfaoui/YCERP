@@ -10,6 +10,7 @@ import {
   Package,
   PackageX,
   ReceiptText,
+  RotateCcw,
   ShoppingCart,
   Store,
   Ticket,
@@ -107,6 +108,11 @@ const quickMenu = [
     label: "Broken Items Transfers",
     icon: PackageX,
     href: "broken-items-transfers",
+  },
+  {
+    label: "Declared Quantities",
+    icon: RotateCcw,
+    href: "broken-items-declarations",
   },
   {
     label: "Franchise fulfillment",

@@ -24,3 +24,26 @@ export interface BrokenItem {
     status: string; // "pending", "partially_recovered", "fully_recovered", "lost"
     reason: string;
 }
+
+export interface BrokenItemListItem extends BrokenItem {
+    recoverable_quantity: number;
+    blocked_by_pending_transfer: boolean;
+}
+
+export interface BrokenItemStatusCounts {
+    pending: number;
+    partially_recovered: number;
+    fully_recovered: number;
+    lost: number;
+}
+
+export interface BrokenItemListResponse {
+    items: BrokenItemListItem[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        total_pages: number;
+    };
+    status_counts: BrokenItemStatusCounts;
+}
