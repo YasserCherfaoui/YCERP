@@ -54,6 +54,7 @@ import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
 import CompanySalesSwitchPage from "@/pages/dashboard/company/company-sales-switch-page";
 import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
 import CompanyBrokenItemsTransfersPage from "@/pages/dashboard/company/company-broken-items-transfers-page";
+import CompanyBrokenItemsDeclarationsPage from "@/pages/dashboard/company/company-broken-items-declarations-page";
 import CompanyFranchiseFulfillmentPage from "@/pages/dashboard/company/company-franchise-fulfillment-page";
 import CompanyWooRefundPage from "@/pages/dashboard/company/company-woo-refund-page";
 import CompanyFranchiseShipFromStorePage from "@/pages/dashboard/company/company-franchise-ship-from-store-page";
@@ -109,6 +110,7 @@ import HomePage from "@/pages/home-page";
 import UserLoginPage from "@/pages/moderator/auth/login-page";
 import ModeratorMobilePage from "@/pages/moderator/dashboard/moderator-mobile-page";
 import ModeratorBrokenItemsTransfersPage from "@/pages/moderator/dashboard/moderator-broken-items-transfers-page";
+import ModeratorBrokenItemsDeclarationsPage from "@/pages/moderator/dashboard/moderator-broken-items-declarations-page";
 import ModeratorStockAlertsHistoryPage from "@/pages/moderator/dashboard/moderator-stock-alerts-history-page";
 import ModeratorStockAlertsNotificationsPage from "@/pages/moderator/dashboard/moderator-stock-alerts-notifications-page";
 import ModeratorStockAlertsPage from "@/pages/moderator/dashboard/moderator-stock-alerts-page";
@@ -230,6 +232,7 @@ export default function AppRouter() {
               <Route path="notifications" element={<ModeratorStockAlertsNotificationsPage />} />
             </Route>
             <Route path="broken-items-transfers" element={<ModeratorBrokenItemsTransfersPage />} />
+            <Route path="broken-items-declarations" element={<ModeratorBrokenItemsDeclarationsPage />} />
             <Route
               path="franchise-fulfillment"
               element={<CompanyFranchiseFulfillmentPage />}
@@ -332,6 +335,7 @@ export default function AppRouter() {
                 <Route path="notifications" element={<CompanyStockAlertsNotificationsPage />} />
               </Route>
               <Route path="broken-items-transfers" element={<CompanyBrokenItemsTransfersPage />} />
+              <Route path="broken-items-declarations" element={<CompanyBrokenItemsDeclarationsPage />} />
               <Route
                 path="franchise-fulfillment"
                 element={<CompanyFranchiseFulfillmentPage />}

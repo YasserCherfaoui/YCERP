@@ -9,7 +9,15 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Check, X } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Eye, Check } from "lucide-react";
 import { useState } from "react";
 import ApproveTransferDialog from "./approve-transfer-dialog";
 import { format } from "date-fns";
@@ -17,9 +25,21 @@ import { format } from "date-fns";
 interface TransfersListProps {
   transfers: BrokenItemTransfer[];
   isLoading?: boolean;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+  };
+  onPageChange?: (page: number) => void;
 }
 
-export function TransfersList({ transfers, isLoading }: TransfersListProps) {
+export function TransfersList({
+  transfers,
+  isLoading,
+  pagination,
+  onPageChange,
+}: TransfersListProps) {
   const [selectedTransfer, setSelectedTransfer] = useState<BrokenItemTransfer | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -56,6 +76,9 @@ export function TransfersList({ transfers, isLoading }: TransfersListProps) {
       </div>
     );
   }
+
+  const currentPage = pagination?.page ?? 1;
+  const totalPages = pagination?.total_pages ?? 1;
 
   return (
     <>
@@ -97,7 +120,7 @@ export function TransfersList({ transfers, isLoading }: TransfersListProps) {
                   {transfer.requested_by?.full_name || transfer.requested_by?.email || `Admin ${transfer.requested_by_id}`}
                 </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {transfer.created_at 
+                  {transfer.created_at
                     ? format(new Date(transfer.created_at), "MMM dd, yyyy HH:mm")
                     : "N/A"}
                 </TableCell>
@@ -131,7 +154,68 @@ export function TransfersList({ transfers, isLoading }: TransfersListProps) {
         </Table>
       </div>
 
-      {selectedTransfer && (
+      {pagination && totalPages > 1 && onPageChange ? (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) onPageChange(currentPage - 1);
+                }}
+                className={currentPage <= 1 ? "pointer-events-none opacity-50" : undefined}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => {
+                if (totalPages <= 7) return true;
+                return (
+                  p === 1 ||
+                  p === totalPages ||
+                  Math.abs(p - currentPage) <= 1
+                );
+              })
+              .map((p, idx, arr) => {
+                const prev = arr[idx - 1];
+                const showEllipsis = prev !== undefined && p - prev > 1;
+                return (
+                  <span key={p} className="flex items-center">
+                    {showEllipsis ? (
+                      <PaginationItem>
+                        <span className="px-2 text-muted-foreground">…</span>
+                      </PaginationItem>
+                    ) : null}
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        isActive={p === currentPage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onPageChange(p);
+                        }}
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </span>
+                );
+              })}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages) onPageChange(currentPage + 1);
+                }}
+                className={currentPage >= totalPages ? "pointer-events-none opacity-50" : undefined}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      ) : null}
+
+      {selectedTransfer ? (
         <ApproveTransferDialog
           transfer={selectedTransfer}
           open={dialogOpen}
@@ -142,7 +226,7 @@ export function TransfersList({ transfers, isLoading }: TransfersListProps) {
             }
           }}
         />
-      )}
+      ) : null}
     </>
   );
 }

@@ -16,6 +16,7 @@ import {
   Package,
   PackageX,
   ReceiptText,
+  RotateCcw,
   ShoppingCart,
   Store,
   Truck,
@@ -226,6 +227,11 @@ const quickMenu: Array<{
     label: "Broken Items Transfers",
     icon: PackageX,
     href: "broken-items-transfers",
+  },
+  {
+    label: "Declared Quantities",
+    icon: RotateCcw,
+    href: "broken-items-declarations",
   },
   {
     label: "Franchise fulfillment",

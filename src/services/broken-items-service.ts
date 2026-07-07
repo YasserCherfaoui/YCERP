@@ -1,7 +1,13 @@
 import { baseUrl } from "@/app/constants";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { BrokenItem } from "@/models/data/broken-item.model";
-import { BrokenItemTransfer } from "@/models/data/broken-item-transfer.model";
+import {
+    BrokenItem,
+    BrokenItemListResponse,
+} from "@/models/data/broken-item.model";
+import {
+    BrokenItemTransfer,
+    BrokenItemTransferListResponse,
+} from "@/models/data/broken-item-transfer.model";
 
 export interface RecordBrokenItemsRequest {
     inventory_id: number;
@@ -28,6 +34,25 @@ export interface GetTransferRequestsParams {
     status?: "pending" | "approved" | "rejected";
     company_id?: number;
     franchise_id?: number;
+    page?: number;
+    limit?: number;
+}
+
+export interface GetBrokenItemsParams {
+    company_id?: number;
+    franchise_id?: number;
+    inventory_id?: number;
+    location_type?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+    recoverable_only?: boolean;
+}
+
+export interface RecoverBrokenItemRequest {
+    inventory_item_id: number;
+    product_variant_id: number;
+    recovered_quantity: number;
 }
 
 export const recordBrokenItems = async (
@@ -91,13 +116,70 @@ export const approveTransfer = async (
     return await response.json();
 };
 
+export const getBrokenItems = async (
+    params?: GetBrokenItemsParams
+): Promise<APIResponse<BrokenItem[] | BrokenItemListResponse>> => {
+    const queryParams = new URLSearchParams();
+    if (params?.company_id) queryParams.append("company_id", params.company_id.toString());
+    if (params?.franchise_id) queryParams.append("franchise_id", params.franchise_id.toString());
+    if (params?.inventory_id) queryParams.append("inventory_id", params.inventory_id.toString());
+    if (params?.location_type) queryParams.append("location_type", params.location_type);
+    if (params?.status) queryParams.append("status", params.status);
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.recoverable_only) queryParams.append("recoverable_only", "true");
+
+    const url = `${baseUrl}/broken-items${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch broken items.");
+    }
+
+    return await response.json();
+};
+
+export const recoverBrokenItem = async (
+    data: RecoverBrokenItemRequest
+): Promise<APIResponse<BrokenItem>> => {
+    const response = await fetch(`${baseUrl}/broken-items/recover`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+            inventory_item_id: data.inventory_item_id,
+            product_variant_id: data.product_variant_id,
+            recovered_quantity: data.recovered_quantity,
+        }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to recover broken item.");
+    }
+
+    return await response.json();
+};
+
 export const getTransferRequests = async (
     params?: GetTransferRequestsParams
-): Promise<APIResponse<BrokenItemTransfer[]>> => {
+): Promise<APIResponse<BrokenItemTransferListResponse>> => {
     const queryParams = new URLSearchParams();
     if (params?.status) queryParams.append("status", params.status);
     if (params?.company_id) queryParams.append("company_id", params.company_id.toString());
     if (params?.franchise_id) queryParams.append("franchise_id", params.franchise_id.toString());
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
 
     const url = `${baseUrl}/broken-items/transfers${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
 
