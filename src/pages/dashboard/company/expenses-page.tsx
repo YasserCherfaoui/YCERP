@@ -11,11 +11,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Expense, ExpensesListResponseData } from "@/models/data/expenses/expense.model";
 import ExpensesCategoriesPage from "@/pages/dashboard/company/expenses-categories-page";
-import { getDeliveredAggregates, sumExpenses } from "@/services/expense-reports-service";
+import { downloadDeliveredOrdersCsv, getDeliveredAggregates, sumExpenses } from "@/services/expense-reports-service";
 import { approveExpense, createExpense, deleteExpense, listExpenses, markExpensePaid, updateExpense } from "@/services/expenses-service";
 import { getWooCommerceOrders } from "@/services/woocommerce-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { endOfDay, format, startOfDay } from "date-fns";
+import { Download } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
@@ -176,6 +177,20 @@ export default function ExpensesPage() {
   const benefitsYalidine: number = deliveredAgg?.total_benefits_yalidine ?? 0;
   const benefitsMyCompanies: number = deliveredAgg?.total_benefits_my_companies ?? 0;
   const benefitsTotal: number = deliveredAgg?.total_benefits ?? (benefitsYalidine + benefitsMyCompanies);
+
+  const exportDeliveredCsvMut = useMutation({
+    mutationFn: downloadDeliveredOrdersCsv,
+    onSuccess: () => {
+      toast({ title: "CSV exported", description: "Delivered orders details downloaded." });
+    },
+    onError: (err: Error) => {
+      toast({
+        title: "Export failed",
+        description: err?.message || "Could not export delivered orders CSV.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Analytics: Expenses and Returns (same logic as above but using analytics range)
   const { data: sumResAnalytics } = useQuery({
@@ -406,6 +421,22 @@ export default function ExpensesPage() {
                 onSelect={setAnalyticsRange}
               />
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!analyticsEnabled || exportDeliveredCsvMut.isPending}
+              onClick={() => {
+                if (!analyticsYmdBounds.start || !analyticsYmdBounds.end) return;
+                exportDeliveredCsvMut.mutate({
+                  company_id: companyId,
+                  start: analyticsYmdBounds.start,
+                  end: analyticsYmdBounds.end,
+                });
+              }}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {exportDeliveredCsvMut.isPending ? "Exporting…" : "Export delivered CSV"}
+            </Button>
           </Card>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>

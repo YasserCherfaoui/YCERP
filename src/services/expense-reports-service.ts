@@ -1,3 +1,4 @@
+import { baseUrl } from "@/app/constants";
 import { apiFetch, buildQueryString } from "@/lib/api-fetch";
 import { APIResponse } from "@/models/responses/api-response.model";
 
@@ -35,6 +36,39 @@ export interface DeliveredAggregatesResponse {
 export async function getDeliveredAggregates(params: { company_id: number; start?: string; end?: string }): Promise<APIResponse<DeliveredAggregatesResponse>> {
   const qs = buildQueryString(params as any);
   return apiFetch<DeliveredAggregatesResponse>(`/delivery/reports/delivered-aggregates${qs}`);
+}
+
+export async function downloadDeliveredOrdersCsv(params: {
+  company_id: number;
+  start: string;
+  end: string;
+}): Promise<void> {
+  const qs = buildQueryString(params as any);
+  const response = await fetch(`${baseUrl}/delivery/reports/delivered-orders-csv${qs}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    let message = "Failed to export delivered orders CSV.";
+    try {
+      const err = await response.json();
+      message = err?.message || err?.error?.description || message;
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(message);
+  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `delivered-orders-${params.start}-${params.end}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
 }
 
 
