@@ -21,6 +21,21 @@ export async function sumExpenses(params: { company_id?: number; franchise_id?: 
   return apiFetch<ExpensesTotalResponse>(`/expenses/reports/sum${qs}`);
 }
 
+export interface ReturnedOrdersCountResponse {
+  count: number;
+  cost: number;
+}
+
+/** Count returned woo_orders filtered by updated_at; cost = count * 100 */
+export async function countReturnedOrders(params: {
+  company_id: number;
+  start: string;
+  end: string;
+}): Promise<APIResponse<ReturnedOrdersCountResponse>> {
+  const qs = buildQueryString(params as any);
+  return apiFetch<ReturnedOrdersCountResponse>(`/expenses/reports/returned-count${qs}`);
+}
+
 export interface DeliveredAggregatesResponse {
   total_delivered_orders_amount_yalidine: number;
   total_delivered_orders_amount_my_companies: number;
@@ -38,20 +53,19 @@ export async function getDeliveredAggregates(params: { company_id: number; start
   return apiFetch<DeliveredAggregatesResponse>(`/delivery/reports/delivered-aggregates${qs}`);
 }
 
-export async function downloadDeliveredOrdersCsv(params: {
-  company_id: number;
-  start: string;
-  end: string;
-}): Promise<void> {
-  const qs = buildQueryString(params as any);
-  const response = await fetch(`${baseUrl}/delivery/reports/delivered-orders-csv${qs}`, {
+async function downloadCsvFile(
+  path: string,
+  filename: string,
+  fallbackError: string
+): Promise<void> {
+  const response = await fetch(`${baseUrl}${path}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
   if (!response.ok) {
-    let message = "Failed to export delivered orders CSV.";
+    let message = fallbackError;
     try {
       const err = await response.json();
       message = err?.message || err?.error?.description || message;
@@ -64,11 +78,37 @@ export async function downloadDeliveredOrdersCsv(params: {
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `delivered-orders-${params.start}-${params.end}.csv`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
   window.URL.revokeObjectURL(url);
+}
+
+export async function downloadDeliveredOrdersCsv(params: {
+  company_id: number;
+  start: string;
+  end: string;
+}): Promise<void> {
+  const qs = buildQueryString(params as any);
+  return downloadCsvFile(
+    `/delivery/reports/delivered-orders-csv${qs}`,
+    `delivered-orders-${params.start}-${params.end}.csv`,
+    "Failed to export delivered orders CSV."
+  );
+}
+
+export async function downloadDeliveredProductsCsv(params: {
+  company_id: number;
+  start: string;
+  end: string;
+}): Promise<void> {
+  const qs = buildQueryString(params as any);
+  return downloadCsvFile(
+    `/delivery/reports/delivered-products-csv${qs}`,
+    `delivered-products-${params.start}-${params.end}.csv`,
+    "Failed to export delivered products CSV."
+  );
 }
 
 

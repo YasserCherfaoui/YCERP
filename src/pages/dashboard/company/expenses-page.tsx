@@ -11,11 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Expense, ExpensesListResponseData } from "@/models/data/expenses/expense.model";
 import ExpensesCategoriesPage from "@/pages/dashboard/company/expenses-categories-page";
-import { downloadDeliveredOrdersCsv, getDeliveredAggregates, sumExpenses } from "@/services/expense-reports-service";
+import { countReturnedOrders, downloadDeliveredOrdersCsv, downloadDeliveredProductsCsv, getDeliveredAggregates, sumExpenses } from "@/services/expense-reports-service";
 import { approveExpense, createExpense, deleteExpense, listExpenses, markExpensePaid, updateExpense } from "@/services/expenses-service";
-import { getWooCommerceOrders } from "@/services/woocommerce-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { endOfDay, format, startOfDay } from "date-fns";
+import { format } from "date-fns";
 import { Download } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -52,22 +51,12 @@ export default function ExpensesPage() {
 
   // Local calendar day as YYYY-MM-DD (never use toISOString — timezone shifts the day)
   const toYmd = (d?: Date) => (d ? format(d, "yyyy-MM-dd") : undefined);
-  const toIsoStart = (d?: Date) => (d ? startOfDay(d).toISOString() : undefined);
-  const toIsoEnd = (d?: Date) => (d ? endOfDay(d).toISOString() : undefined);
   /** Inclusive local-day bounds for APIs that take YYYY-MM-DD start/end */
   const computeYmdBounds = (range?: DateRange) => {
     if (!range?.from) return { start: undefined as string | undefined, end: undefined as string | undefined };
     const start = toYmd(range.from)!;
     const end = toYmd(range.to ?? range.from)!;
     return { start, end };
-  };
-  /** Inclusive ISO bounds for APIs that take timestamps */
-  const computeIsoBounds = (range?: DateRange) => {
-    if (!range?.from) return { start: undefined as string | undefined, end: undefined as string | undefined };
-    return {
-      start: toIsoStart(range.from),
-      end: toIsoEnd(range.to ?? range.from),
-    };
   };
   const date_from = toYmd(dateRange?.from);
   const date_to = toYmd(dateRange?.to ?? dateRange?.from);
@@ -138,23 +127,19 @@ export default function ExpensesPage() {
     enabled: Boolean(companyId),
   });
 
-  const expensesIsoBounds = computeIsoBounds(dateRange);
-  const { data: returnedOrders } = useQuery({
+  const { data: returnedOrdersCountRes } = useQuery({
     queryKey: ["returned-orders-count", companyId, date_from, date_to],
     queryFn: async () =>
-      (await getWooCommerceOrders({
-        _page: 0,
-        status: "returned",
+      (await countReturnedOrders({
         company_id: companyId,
-        start: expensesIsoBounds.start,
-        end: expensesIsoBounds.end,
+        start: date_from!,
+        end: date_to!,
       })).data,
-    enabled: Boolean(companyId && dateRange?.from),
+    enabled: Boolean(companyId && date_from && date_to),
   });
 
   // Analytics Tab Queries
   const analyticsYmdBounds = computeYmdBounds(analyticsRange);
-  const analyticsIsoBounds = computeIsoBounds(analyticsRange);
   const analyticsEnabled = Boolean(companyId && analyticsYmdBounds.start && analyticsYmdBounds.end);
 
   // Delivered aggregates (amounts, counts, benefits — same delivery-date logic)
@@ -192,6 +177,20 @@ export default function ExpensesPage() {
     },
   });
 
+  const exportProductsCsvMut = useMutation({
+    mutationFn: downloadDeliveredProductsCsv,
+    onSuccess: () => {
+      toast({ title: "CSV exported", description: "Confirmed products quantities downloaded." });
+    },
+    onError: (err: Error) => {
+      toast({
+        title: "Export failed",
+        description: err?.message || "Could not export delivered products CSV.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Analytics: Expenses and Returns (same logic as above but using analytics range)
   const { data: sumResAnalytics } = useQuery({
     queryKey: ["expenses-sum-analytics", companyId, analyticsYmdBounds.start, analyticsYmdBounds.end],
@@ -204,27 +203,23 @@ export default function ExpensesPage() {
     enabled: analyticsEnabled,
   });
   const { data: returnedOrdersAnalytics } = useQuery({
-    queryKey: ["returned-orders-count-analytics", companyId, analyticsIsoBounds.start, analyticsIsoBounds.end],
+    queryKey: ["returned-orders-count-analytics", companyId, analyticsYmdBounds.start, analyticsYmdBounds.end],
     queryFn: async () =>
-      (await getWooCommerceOrders({
-        _page: 0,
-        status: "returned",
+      (await countReturnedOrders({
         company_id: companyId,
-        start: analyticsIsoBounds.start,
-        end: analyticsIsoBounds.end,
+        start: analyticsYmdBounds.start!,
+        end: analyticsYmdBounds.end!,
       })).data,
     enabled: analyticsEnabled,
   });
 
   const expensesSumAnalytics = (sumResAnalytics as any)?.total ?? 0;
-  const returnedCountAnalytics = returnedOrdersAnalytics?.meta?.total_items ?? (returnedOrdersAnalytics?.orders?.length || 0);
-  // TODO: Replace the static unit cost if server provides cost per return
-  const returnedCostAnalytics = returnedCountAnalytics * 100;
+  const returnedCountAnalytics = returnedOrdersAnalytics?.count ?? 0;
+  const returnedCostAnalytics = returnedOrdersAnalytics?.cost ?? returnedCountAnalytics * 100;
   const totalExpensesAnalytics = expensesSumAnalytics + returnedCostAnalytics;
 
-
-  const returnedCount = returnedOrders?.meta?.total_items ?? (returnedOrders?.orders?.length || 0);
-  const returnedCost = returnedCount * 100;
+  const returnedCount = returnedOrdersCountRes?.count ?? 0;
+  const returnedCost = returnedOrdersCountRes?.cost ?? returnedCount * 100;
   const expensesSum = (sumRes as any)?.total ?? 0;
   const totalWithReturns = expensesSum + returnedCost;
   const updateMut = useMutation({
@@ -436,6 +431,22 @@ export default function ExpensesPage() {
             >
               <Download className="mr-2 h-4 w-4" />
               {exportDeliveredCsvMut.isPending ? "Exporting…" : "Export delivered CSV"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!analyticsEnabled || exportProductsCsvMut.isPending}
+              onClick={() => {
+                if (!analyticsYmdBounds.start || !analyticsYmdBounds.end) return;
+                exportProductsCsvMut.mutate({
+                  company_id: companyId,
+                  start: analyticsYmdBounds.start,
+                  end: analyticsYmdBounds.end,
+                });
+              }}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              {exportProductsCsvMut.isPending ? "Exporting…" : "Export products CSV"}
             </Button>
           </Card>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
