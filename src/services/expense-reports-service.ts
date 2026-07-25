@@ -24,6 +24,9 @@ export interface DeliveredAggregatesResponse {
   total_delivered_orders_amount_yalidine: number;
   total_delivered_orders_amount_my_companies: number;
   total_delivered_orders_amount: number;
+  total_delivered_orders_count_yalidine: number;
+  total_delivered_orders_count_my_companies: number;
+  total_delivered_orders_count: number;
   total_benefits_yalidine: number;
   total_benefits_my_companies: number;
   total_benefits: number;

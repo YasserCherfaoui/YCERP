@@ -15,7 +15,9 @@ import { getDeliveredAggregates, sumExpenses } from "@/services/expense-reports-
 import { approveExpense, createExpense, deleteExpense, listExpenses, markExpensePaid, updateExpense } from "@/services/expenses-service";
 import { getWooCommerceOrders } from "@/services/woocommerce-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { endOfDay, format, startOfDay } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
+import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
@@ -25,7 +27,8 @@ export default function ExpensesPage() {
   const user = useSelector((state: RootState) => state.auth.user);
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") === "categories" ? "categories" : "expenses";
+  const tabParam = searchParams.get("tab");
+  const initialTab = tabParam === "categories" || tabParam === "analytics" ? tabParam : "expenses";
   const [tab, setTab] = useState<string>(initialTab);
   type StatusFilter = "recorded" | "approved" | "paid" | "cancelled" | "";
   const [status, setStatus] = useState<StatusFilter>("");
@@ -37,33 +40,36 @@ export default function ExpensesPage() {
   );
 
   // Date range default: current month start to end
-  const computeCurrentMonthRange = () => {
+  const computeCurrentMonthRange = (): DateRange => {
     const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    return { from: start, to: end } as { from: Date; to: Date };
+    const from = new Date(now.getFullYear(), now.getMonth(), 1);
+    const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { from, to };
   };
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>(computeCurrentMonthRange());
-  const [analyticsRange, setAnalyticsRange] = useState<{ from?: Date; to?: Date }>({ from: computeCurrentMonthRange().from, to: computeCurrentMonthRange().to });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(computeCurrentMonthRange);
+  const [analyticsRange, setAnalyticsRange] = useState<DateRange | undefined>(computeCurrentMonthRange);
 
-  const toYmd = (d?: Date) => (d ? new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0, 10) : undefined);
-  const toIso = (d?: Date, endOfDay = false) => {
-    if (!d) return undefined;
-    const dt = new Date(d);
-    if (endOfDay) dt.setHours(23, 59, 59, 999); else dt.setHours(0, 0, 0, 0);
-    return dt.toISOString();
-  };
-  const computeBounds = (range?: { from?: Date; to?: Date }) => {
-    if (!range?.from && !range?.to) return { start: undefined as string | undefined, end: undefined as string | undefined };
-    const from = range?.from ? new Date(range.from) : undefined;
-    const to = range?.to ? new Date(range.to) : from;
-    if (!from) return { start: undefined, end: undefined };
-    const start = toIso(from, false);
-    const end = toIso(to!, true);
+  // Local calendar day as YYYY-MM-DD (never use toISOString — timezone shifts the day)
+  const toYmd = (d?: Date) => (d ? format(d, "yyyy-MM-dd") : undefined);
+  const toIsoStart = (d?: Date) => (d ? startOfDay(d).toISOString() : undefined);
+  const toIsoEnd = (d?: Date) => (d ? endOfDay(d).toISOString() : undefined);
+  /** Inclusive local-day bounds for APIs that take YYYY-MM-DD start/end */
+  const computeYmdBounds = (range?: DateRange) => {
+    if (!range?.from) return { start: undefined as string | undefined, end: undefined as string | undefined };
+    const start = toYmd(range.from)!;
+    const end = toYmd(range.to ?? range.from)!;
     return { start, end };
   };
+  /** Inclusive ISO bounds for APIs that take timestamps */
+  const computeIsoBounds = (range?: DateRange) => {
+    if (!range?.from) return { start: undefined as string | undefined, end: undefined as string | undefined };
+    return {
+      start: toIsoStart(range.from),
+      end: toIsoEnd(range.to ?? range.from),
+    };
+  };
   const date_from = toYmd(dateRange?.from);
-  const date_to = toYmd(dateRange?.to);
+  const date_to = toYmd(dateRange?.to ?? dateRange?.from);
 
   const companyId = company?.ID ?? 0;
 
@@ -131,51 +137,68 @@ export default function ExpensesPage() {
     enabled: Boolean(companyId),
   });
 
+  const expensesIsoBounds = computeIsoBounds(dateRange);
   const { data: returnedOrders } = useQuery({
     queryKey: ["returned-orders-count", companyId, date_from, date_to],
     queryFn: async () =>
-      (await getWooCommerceOrders({ _page: 0, status: "returned", company_id: companyId, start: toIso(dateRange?.from), end: toIso(dateRange?.to, true) })).data,
-    enabled: Boolean(companyId),
+      (await getWooCommerceOrders({
+        _page: 0,
+        status: "returned",
+        company_id: companyId,
+        start: expensesIsoBounds.start,
+        end: expensesIsoBounds.end,
+      })).data,
+    enabled: Boolean(companyId && dateRange?.from),
   });
+
   // Analytics Tab Queries
-  const analyticsBounds = computeBounds(analyticsRange);
-  const { data: yalidineDelivered } = useQuery({
-    queryKey: ["analytics-delivered-yalidine", companyId, analyticsBounds.start, analyticsBounds.end],
-    queryFn: async () => (await getWooCommerceOrders({ _page: 0, status: "delivered", company_id: companyId, shipping_provider: "yalidine", start: analyticsBounds.start, end: analyticsBounds.end })).data,
-    enabled: Boolean(companyId),
-  });
-  const { data: myCompaniesDelivered } = useQuery({
-    queryKey: ["analytics-delivered-my_companies", companyId, analyticsBounds.start, analyticsBounds.end],
-    queryFn: async () => (await getWooCommerceOrders({ _page: 0, status: "delivered", company_id: companyId, shipping_provider: "my_companies", start: analyticsBounds.start, end: analyticsBounds.end })).data,
-    enabled: Boolean(companyId),
-  });
+  const analyticsYmdBounds = computeYmdBounds(analyticsRange);
+  const analyticsIsoBounds = computeIsoBounds(analyticsRange);
+  const analyticsEnabled = Boolean(companyId && analyticsYmdBounds.start && analyticsYmdBounds.end);
 
-  // Delivered aggregates
+  // Delivered aggregates (amounts, counts, benefits — same delivery-date logic)
   const { data: deliveredAgg } = useQuery({
-    queryKey: ["delivered-aggregates", companyId, analyticsBounds.start?.slice(0,10), analyticsBounds.end?.slice(0,10)],
-    queryFn: async () => (await getDeliveredAggregates({ company_id: companyId, start: analyticsBounds.start?.slice(0,10), end: analyticsBounds.end?.slice(0,10) })).data,
-    enabled: Boolean(companyId),
+    queryKey: ["delivered-aggregates", companyId, analyticsYmdBounds.start, analyticsYmdBounds.end],
+    queryFn: async () =>
+      (await getDeliveredAggregates({
+        company_id: companyId,
+        start: analyticsYmdBounds.start,
+        end: analyticsYmdBounds.end,
+      })).data,
+    enabled: analyticsEnabled,
   });
-  const yalidineDeliveredAmount: number = (deliveredAgg as any)?.total_delivered_orders_amount_yalidine ?? 0;
-  const myCompaniesDeliveredAmount: number = (deliveredAgg as any)?.total_delivered_orders_amount_my_companies ?? 0;
-  const totalDeliveredAmountApi: number = (deliveredAgg as any)?.total_delivered_orders_amount ?? (yalidineDeliveredAmount + myCompaniesDeliveredAmount);
-  const benefitsYalidine: number = (deliveredAgg as any)?.total_benefits_yalidine ?? 0;
-  const benefitsMyCompanies: number = (deliveredAgg as any)?.total_benefits_my_companies ?? 0;
-  const benefitsTotal: number = (deliveredAgg as any)?.total_benefits ?? (benefitsYalidine + benefitsMyCompanies);
-
-  const totalDeliveredCount = (yalidineDelivered?.meta?.total_items || yalidineDelivered?.orders?.length || 0) + (myCompaniesDelivered?.meta?.total_items || myCompaniesDelivered?.orders?.length || 0);
-  const totalDeliveredAmount = totalDeliveredAmountApi;
+  const yalidineDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount_yalidine ?? 0;
+  const myCompaniesDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount_my_companies ?? 0;
+  const totalDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount ?? (yalidineDeliveredAmount + myCompaniesDeliveredAmount);
+  const yalidineDeliveredCount: number = deliveredAgg?.total_delivered_orders_count_yalidine ?? 0;
+  const myCompaniesDeliveredCount: number = deliveredAgg?.total_delivered_orders_count_my_companies ?? 0;
+  const totalDeliveredCount: number = deliveredAgg?.total_delivered_orders_count ?? (yalidineDeliveredCount + myCompaniesDeliveredCount);
+  const benefitsYalidine: number = deliveredAgg?.total_benefits_yalidine ?? 0;
+  const benefitsMyCompanies: number = deliveredAgg?.total_benefits_my_companies ?? 0;
+  const benefitsTotal: number = deliveredAgg?.total_benefits ?? (benefitsYalidine + benefitsMyCompanies);
 
   // Analytics: Expenses and Returns (same logic as above but using analytics range)
   const { data: sumResAnalytics } = useQuery({
-    queryKey: ["expenses-sum-analytics", companyId, analyticsBounds.start?.slice(0,10), analyticsBounds.end?.slice(0,10)],
-    queryFn: async () => (await sumExpenses({ company_id: companyId, start: analyticsBounds.start?.slice(0,10), end: analyticsBounds.end?.slice(0,10) })).data,
-    enabled: Boolean(companyId),
+    queryKey: ["expenses-sum-analytics", companyId, analyticsYmdBounds.start, analyticsYmdBounds.end],
+    queryFn: async () =>
+      (await sumExpenses({
+        company_id: companyId,
+        start: analyticsYmdBounds.start,
+        end: analyticsYmdBounds.end,
+      })).data,
+    enabled: analyticsEnabled,
   });
   const { data: returnedOrdersAnalytics } = useQuery({
-    queryKey: ["returned-orders-count-analytics", companyId, analyticsBounds.start, analyticsBounds.end],
-    queryFn: async () => (await getWooCommerceOrders({ _page: 0, status: "returned", company_id: companyId, start: analyticsBounds.start, end: analyticsBounds.end })).data,
-    enabled: Boolean(companyId),
+    queryKey: ["returned-orders-count-analytics", companyId, analyticsIsoBounds.start, analyticsIsoBounds.end],
+    queryFn: async () =>
+      (await getWooCommerceOrders({
+        _page: 0,
+        status: "returned",
+        company_id: companyId,
+        start: analyticsIsoBounds.start,
+        end: analyticsIsoBounds.end,
+      })).data,
+    enabled: analyticsEnabled,
   });
 
   const expensesSumAnalytics = (sumResAnalytics as any)?.total ?? 0;
@@ -225,11 +248,9 @@ export default function ExpensesPage() {
         <div className="w-[320px]">
           <label className="text-sm block mb-1">Date Range</label>
           <DatePickerWithRange
-            date={{ from: dateRange.from, to: dateRange.to }}
-            onSelect={(range: any) => {
-              const from = range?.from ?? dateRange.from;
-              const to = range?.to ?? range?.from ?? dateRange.to;
-              setDateRange({ from, to });
+            date={dateRange}
+            onSelect={(range) => {
+              setDateRange(range);
               setPage(1);
             }}
           />
@@ -381,32 +402,29 @@ export default function ExpensesPage() {
             <div className="w-[320px]">
               <label className="text-sm block mb-1">Date</label>
               <DatePickerWithRange
-                date={{ from: analyticsRange?.from, to: analyticsRange?.to }}
-                onSelect={(range: any) => {
-                  const from = range?.from ?? analyticsRange?.from;
-                  const to = range?.to ?? range?.from ?? analyticsRange?.to;
-                  setAnalyticsRange({ from, to });
-                }}
+                date={analyticsRange}
+                onSelect={setAnalyticsRange}
               />
             </div>
           </Card>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
               <CardHeader><CardTitle>Total Yalidine's Delivered Orders</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{yalidineDelivered ? (yalidineDelivered.meta?.total_items || yalidineDelivered.orders?.length || 0) : "-"}</div></CardContent>
+              <CardContent><div className="text-xl font-bold">{deliveredAgg ? yalidineDeliveredCount : "-"}</div></CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle>Total My Company's Delivered Orders</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{myCompaniesDelivered ? (myCompaniesDelivered.meta?.total_items || myCompaniesDelivered.orders?.length || 0) : "-"}</div></CardContent>
+              <CardContent><div className="text-xl font-bold">{deliveredAgg ? myCompaniesDeliveredCount : "-"}</div></CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle>Total Delivered Orders</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{totalDeliveredCount}</div></CardContent>
+              <CardContent><div className="text-xl font-bold">{deliveredAgg ? totalDeliveredCount : "-"}</div></CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle>Total Yalidine's Delivered Orders Amount</CardTitle></CardHeader>
               <CardContent>
                 <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(yalidineDeliveredAmount)}</div>
+                <div className="text-xs text-muted-foreground mt-1">{yalidineDeliveredCount} orders</div>
                 <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsYalidine)}</div>
               </CardContent>
             </Card>
@@ -414,6 +432,7 @@ export default function ExpensesPage() {
               <CardHeader><CardTitle>Total My Company's Delivered Orders Amount</CardTitle></CardHeader>
               <CardContent>
                 <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(myCompaniesDeliveredAmount)}</div>
+                <div className="text-xs text-muted-foreground mt-1">{myCompaniesDeliveredCount} orders</div>
                 <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsMyCompanies)}</div>
               </CardContent>
             </Card>
@@ -421,6 +440,7 @@ export default function ExpensesPage() {
               <CardHeader><CardTitle>Total Delivered Orders Amount</CardTitle></CardHeader>
               <CardContent>
                 <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(totalDeliveredAmount)}</div>
+                <div className="text-xs text-muted-foreground mt-1">{totalDeliveredCount} orders</div>
                 <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsTotal)}</div>
               </CardContent>
             </Card>
@@ -433,6 +453,7 @@ export default function ExpensesPage() {
               <CardContent>
                 {/* TODO: Replace static unit cost calculation when server provides precise returned cost */}
                 <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(returnedCostAnalytics)}</div>
+                <div className="text-xs text-muted-foreground mt-1">{returnedCountAnalytics} returned × 100 DZD</div>
               </CardContent>
             </Card>
             <Card>
