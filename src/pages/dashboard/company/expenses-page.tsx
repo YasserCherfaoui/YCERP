@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import ExpenseForm from "@/components/feature-specific/expenses/expense-form";
 import ExpensesAppBar from "@/components/feature-specific/expenses/expenses-app-bar";
+import DeliveryFeeCorrectionDialog from "@/components/feature-specific/expenses/delivery-fee-correction-dialog";
 import MissingLivreReconciliationDialog from "@/components/feature-specific/expenses/missing-livre-reconciliation-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -106,6 +107,7 @@ export default function ExpensesPage() {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [missingLivreOpen, setMissingLivreOpen] = useState(false);
+  const [deliveryFeeOpen, setDeliveryFeeOpen] = useState(false);
   const createMut = useMutation({
     mutationFn: createExpense,
     onSuccess: () => {
@@ -459,15 +461,33 @@ export default function ExpensesPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
               Reconcile missing Livré
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!analyticsEnabled}
+              onClick={() => setDeliveryFeeOpen(true)}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Correct delivery fees
+            </Button>
           </Card>
           {analyticsYmdBounds.start && analyticsYmdBounds.end && (
-            <MissingLivreReconciliationDialog
-              open={missingLivreOpen}
-              setOpen={setMissingLivreOpen}
-              companyId={companyId}
-              start={analyticsYmdBounds.start}
-              end={analyticsYmdBounds.end}
-            />
+            <>
+              <MissingLivreReconciliationDialog
+                open={missingLivreOpen}
+                setOpen={setMissingLivreOpen}
+                companyId={companyId}
+                start={analyticsYmdBounds.start}
+                end={analyticsYmdBounds.end}
+              />
+              <DeliveryFeeCorrectionDialog
+                open={deliveryFeeOpen}
+                setOpen={setDeliveryFeeOpen}
+                companyId={companyId}
+                start={analyticsYmdBounds.start}
+                end={analyticsYmdBounds.end}
+              />
+            </>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
