@@ -166,6 +166,92 @@ export const fixYalidineReconciliation = async (body: {
   return await response.json();
 };
 
+export interface MissingLivreRow {
+  order_id: number;
+  tracking_number: string;
+  my_erp_status: string;
+  latest_yalidine_order_history: string;
+  yalidine_status: string;
+  updated_at: string;
+  can_fix: boolean;
+}
+
+export interface MissingLivreCompareResponse {
+  rows: MissingLivreRow[];
+  meta?: {
+    total_items: number;
+    total_pages: number;
+    current_page: number;
+    per_page: number;
+  };
+}
+
+export interface MissingLivreFixResponse {
+  checked: number;
+  matched: number;
+  fixed: number;
+  history_inserted: number;
+  status_updated: number;
+  errors: number;
+  skipped_no_live: number;
+}
+
+export const compareMissingLivreReconciliation = async (body: {
+  company_id: number;
+  start: string;
+  end: string;
+  page: number;
+  limit: number;
+}): Promise<APIResponse<MissingLivreCompareResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-reconciliation/missing-livre/compare`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + currentToken,
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to load orders missing Livré history");
+  }
+
+  return await response.json();
+};
+
+export const fixMissingLivreReconciliation = async (body: {
+  company_id: number;
+  start: string;
+  end: string;
+  page: number;
+  limit: number;
+}): Promise<APIResponse<MissingLivreFixResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-reconciliation/missing-livre/fix`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + currentToken,
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to reconcile missing Livré histories");
+  }
+
+  return await response.json();
+};
+
 export const getWooCommerceOrder = async (orderID: number): Promise<APIResponse<WooOrder>> => {
     const response = await fetch(`${baseUrl}/woocommerce/${orderID}`, {
         method: "GET",

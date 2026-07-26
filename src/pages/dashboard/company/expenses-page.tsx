@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import ExpenseForm from "@/components/feature-specific/expenses/expense-form";
 import ExpensesAppBar from "@/components/feature-specific/expenses/expenses-app-bar";
+import MissingLivreReconciliationDialog from "@/components/feature-specific/expenses/missing-livre-reconciliation-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
@@ -15,7 +16,7 @@ import { countReturnedOrders, downloadDeliveredOrdersCsv, downloadDeliveredProdu
 import { approveExpense, createExpense, deleteExpense, listExpenses, markExpensePaid, updateExpense } from "@/services/expenses-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Download } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
@@ -104,6 +105,7 @@ export default function ExpensesPage() {
   });
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [missingLivreOpen, setMissingLivreOpen] = useState(false);
   const createMut = useMutation({
     mutationFn: createExpense,
     onSuccess: () => {
@@ -448,7 +450,25 @@ export default function ExpensesPage() {
               <Download className="mr-2 h-4 w-4" />
               {exportProductsCsvMut.isPending ? "Exporting…" : "Export products CSV"}
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!analyticsEnabled}
+              onClick={() => setMissingLivreOpen(true)}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Reconcile missing Livré
+            </Button>
           </Card>
+          {analyticsYmdBounds.start && analyticsYmdBounds.end && (
+            <MissingLivreReconciliationDialog
+              open={missingLivreOpen}
+              setOpen={setMissingLivreOpen}
+              companyId={companyId}
+              start={analyticsYmdBounds.start}
+              end={analyticsYmdBounds.end}
+            />
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
               <CardHeader><CardTitle>Total Yalidine's Delivered Orders</CardTitle></CardHeader>
