@@ -111,4 +111,28 @@ export async function downloadDeliveredProductsCsv(params: {
   );
 }
 
+export interface DeliveredProductSoldRow {
+  product_id: number;
+  product_name: string;
+  quantity: number;
+  first_price: number;
+  line_total: number;
+}
+
+export interface DeliveredProductsSoldResponse {
+  rows: DeliveredProductSoldRow[];
+  total_cogs: number;
+  start: string;
+  end: string;
+}
+
+export async function getDeliveredProductsSold(params: {
+  company_id: number;
+  start: string;
+  end: string;
+}): Promise<APIResponse<DeliveredProductsSoldResponse>> {
+  const qs = buildQueryString(params as any);
+  return apiFetch<DeliveredProductsSoldResponse>(`/delivery/reports/delivered-products-sold${qs}`);
+}
+
 

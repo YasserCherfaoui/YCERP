@@ -2,6 +2,7 @@ import { RootState } from "@/app/store";
 import ExpenseForm from "@/components/feature-specific/expenses/expense-form";
 import ExpensesAppBar from "@/components/feature-specific/expenses/expenses-app-bar";
 import DeliveryFeeCorrectionDialog from "@/components/feature-specific/expenses/delivery-fee-correction-dialog";
+import DeliveredProductsSoldDialog from "@/components/feature-specific/expenses/delivered-products-sold-dialog";
 import MissingLivreReconciliationDialog from "@/components/feature-specific/expenses/missing-livre-reconciliation-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +18,7 @@ import { countReturnedOrders, downloadDeliveredOrdersCsv, downloadDeliveredProdu
 import { approveExpense, createExpense, deleteExpense, listExpenses, markExpensePaid, updateExpense } from "@/services/expenses-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, Package, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
@@ -108,6 +109,7 @@ export default function ExpensesPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [missingLivreOpen, setMissingLivreOpen] = useState(false);
   const [deliveryFeeOpen, setDeliveryFeeOpen] = useState(false);
+  const [productsSoldOpen, setProductsSoldOpen] = useState(false);
   const createMut = useMutation({
     mutationFn: createExpense,
     onSuccess: () => {
@@ -470,6 +472,15 @@ export default function ExpensesPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
               Correct delivery fees
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!analyticsEnabled}
+              onClick={() => setProductsSoldOpen(true)}
+            >
+              <Package className="mr-2 h-4 w-4" />
+              Products sold
+            </Button>
           </Card>
           {analyticsYmdBounds.start && analyticsYmdBounds.end && (
             <>
@@ -483,6 +494,13 @@ export default function ExpensesPage() {
               <DeliveryFeeCorrectionDialog
                 open={deliveryFeeOpen}
                 setOpen={setDeliveryFeeOpen}
+                companyId={companyId}
+                start={analyticsYmdBounds.start}
+                end={analyticsYmdBounds.end}
+              />
+              <DeliveredProductsSoldDialog
+                open={productsSoldOpen}
+                setOpen={setProductsSoldOpen}
                 companyId={companyId}
                 start={analyticsYmdBounds.start}
                 end={analyticsYmdBounds.end}
