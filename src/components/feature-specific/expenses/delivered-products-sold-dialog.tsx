@@ -70,8 +70,9 @@ export default function DeliveredProductsSoldDialog({
         <DialogHeader>
           <DialogTitle>Products sold (COGS)</DialogTitle>
           <DialogDescription>
-            Confirmed products on delivered orders for {rangeLabel}, using the same delivery-date
-            filters as analytics. Line total is quantity × first price.
+            Confirmed products on delivered orders with a Yalidine{" "}
+            <span className="font-medium">Livré</span> history between {rangeLabel}. Line total is
+            quantity × first price. Same filter as Livré-date analytics (Yalidine only).
           </DialogDescription>
         </DialogHeader>
 
