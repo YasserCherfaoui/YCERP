@@ -289,7 +289,7 @@ export default function ExpensesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(returnedCost )}</div>
-            <div className="text-xs text-muted-foreground">{returnedCount} returned × 100 DZD</div>
+            <div className="text-xs text-muted-foreground">{returnedCount} Yalidine return parcels × 100 DZD</div>
           </CardContent>
         </Card>
         <Card>
@@ -551,9 +551,8 @@ export default function ExpensesPage() {
             <Card>
               <CardHeader><CardTitle>Total Returned Cost</CardTitle></CardHeader>
               <CardContent>
-                {/* TODO: Replace static unit cost calculation when server provides precise returned cost */}
                 <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(returnedCostAnalytics)}</div>
-                <div className="text-xs text-muted-foreground mt-1">{returnedCountAnalytics} returned × 100 DZD</div>
+                <div className="text-xs text-muted-foreground mt-1">{returnedCountAnalytics} Yalidine return parcels × 100 DZD</div>
               </CardContent>
             </Card>
             <Card>

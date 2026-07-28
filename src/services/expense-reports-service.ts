@@ -26,7 +26,7 @@ export interface ReturnedOrdersCountResponse {
   cost: number;
 }
 
-/** Count returned woo_orders filtered by updated_at; cost = count * 100 */
+/** Count Yalidine return parcels (by last_status + date_last_status); cost = count * 100 */
 export async function countReturnedOrders(params: {
   company_id: number;
   start: string;
