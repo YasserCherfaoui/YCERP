@@ -101,6 +101,9 @@ export const salesQuantityRequestSchema = z.object({
     end_date: z.date(),
     page: z.number().optional(),
     limit: z.number().optional(),
+    search: z.string().optional(),
+    sort_by: z.string().optional(),
+    sort_order: z.enum(["asc", "desc"]).optional(),
 });
 
 export type SalesQuantityRequestSchema = z.infer<typeof salesQuantityRequestSchema>

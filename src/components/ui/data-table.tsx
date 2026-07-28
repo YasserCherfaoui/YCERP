@@ -1,6 +1,7 @@
 import {
     ColumnDef,
     ColumnFiltersState,
+    OnChangeFn,
     SortingState,
     VisibilityState,
     flexRender,
@@ -52,6 +53,12 @@ interface DataTableProps<TData, TValue> {
   searchBar?: boolean;
   searchPlaceholder?: string;
   initialColumnVisibility?: VisibilityState;
+  /** When set, search is controlled by the parent (API-driven). */
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  /** When set with onSortingChange, sorting is controlled by the parent (API-driven). */
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
 }
 
 export function DataTable<TData, TValue>({
@@ -68,13 +75,24 @@ export function DataTable<TData, TValue>({
   searchBar = true,
   searchPlaceholder = "Filter Product Name...",
   initialColumnVisibility = {},
+  searchValue,
+  onSearchChange,
+  sorting: controlledSorting,
+  onSortingChange: controlledOnSortingChange,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [internalSorting, setInternalSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(initialColumnVisibility);
+
+  const isServerSearch = typeof onSearchChange === "function";
+  const isServerSorting = typeof controlledOnSortingChange === "function";
+  const sorting = isServerSorting ? controlledSorting ?? [] : internalSorting;
+  const setSorting = isServerSorting
+    ? controlledOnSortingChange!
+    : setInternalSorting;
 
   // Only enable selection if all required props are present
   const selectionEnabled = !!selectedRows && !!setSelectedRows && !!getRowId;
@@ -114,11 +132,13 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
+    getSortedRowModel: isServerSorting ? undefined : getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
+    getFilteredRowModel: isServerSearch ? undefined : getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     manualPagination: isManual,
+    manualSorting: isServerSorting,
+    manualFiltering: isServerSearch,
     pageCount,
     // Only enable row selection if all required props are present
     ...(selectionEnabled && {
@@ -183,10 +203,14 @@ export function DataTable<TData, TValue>({
   }, [someChecked]);
 
   useEffect(() => {
-    if (table.getState().pagination.pageIndex !== 0) {
+    if (!isServerSearch && table.getState().pagination.pageIndex !== 0) {
       table.setPageIndex(0);
     }
-  }, [columnFilters]);
+  }, [columnFilters, isServerSearch]);
+
+  const searchInputValue = isServerSearch
+    ? searchValue ?? ""
+    : ((table.getColumn(searchColumn)?.getFilterValue() as string) ?? "");
 
   return (
     <div>
@@ -194,12 +218,14 @@ export function DataTable<TData, TValue>({
         {searchBar && (
           <Input
             placeholder={searchPlaceholder}
-            value={
-              (table.getColumn(searchColumn)?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn(searchColumn)?.setFilterValue(event.target.value)
-            }
+            value={searchInputValue}
+            onChange={(event) => {
+              if (isServerSearch) {
+                onSearchChange?.(event.target.value);
+              } else {
+                table.getColumn(searchColumn)?.setFilterValue(event.target.value);
+              }
+            }}
             className="max-w-sm"
           />
         )}
