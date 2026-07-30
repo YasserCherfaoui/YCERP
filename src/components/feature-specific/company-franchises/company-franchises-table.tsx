@@ -1,8 +1,10 @@
 import { RootState } from "@/app/store";
+import { ExitBill } from "@/models/data/bill.model";
+import { getCompanyExitBills } from "@/services/bill-service";
 import { getMyCompanyFranchises } from "@/services/franchise-service";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
@@ -31,6 +33,22 @@ export default function () {
     queryFn: () => getMyCompanyFranchises(company?.ID ?? 0),
   });
 
+  const { data: preparingBillsData } = useQuery({
+    enabled: !!company,
+    queryKey: ["preparing-exit-bills", company?.ID],
+    queryFn: () => getCompanyExitBills(company?.ID ?? 0, { status: "preparing" }),
+  });
+
+  const preparingByFranchise = useMemo(() => {
+    const map = new Map<number, ExitBill[]>();
+    for (const bill of preparingBillsData?.data ?? []) {
+      const list = map.get(bill.franchise_id) ?? [];
+      list.push(bill);
+      map.set(bill.franchise_id, list);
+    }
+    return map;
+  }, [preparingBillsData?.data]);
+
   return (
     <div className="space-y-6">
       {/* Admin-only date range picker and summary insights */}
@@ -58,6 +76,7 @@ export default function () {
           <FranchiseCard 
             key={index} 
             franchise={franchise} 
+            preparingExitBills={preparingByFranchise.get(franchise.ID) ?? []}
             dateRange={dateRange ? {
               from: dateRange.from,
               to: dateRange.to

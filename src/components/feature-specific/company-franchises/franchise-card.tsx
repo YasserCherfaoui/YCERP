@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { ExitBill } from "@/models/data/bill.model";
 import { FRANCHISE_TYPES, Franchise } from "@/models/data/franchise.model";
 import { deleteFranchise, getFranchiseAdministratorToken } from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -20,21 +21,27 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FranchiseInsights from "./franchise-insights";
 import MakeBillDialog from "./make-bill-dialog";
+import PrepareExitBillDialog from "./prepare-exit-bill-dialog";
+import PreparingExitBillsPicker from "./preparing-exit-bills-picker";
 
 interface Props {
   franchise: Franchise;
+  preparingExitBills?: ExitBill[];
   dateRange?: {
     from: Date | undefined;
     to: Date | undefined;
   };
 }
 
-export default function ({ franchise, dateRange }: Props) {
+export default function ({ franchise, preparingExitBills = [], dateRange }: Props) {
   const [open, setOpen] = useState(false);
   const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
   const [generatedToken, setGeneratedToken] = useState<string | null>(null);
   const [dashboardDialogOpen, setDashboardDialogOpen] = useState(false);
   const [dashboardLink, setDashboardLink] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [prepareBill, setPrepareBill] = useState<ExitBill | null>(null);
+  const [prepareOpen, setPrepareOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -43,6 +50,22 @@ export default function ({ franchise, dateRange }: Props) {
   // Check if user is admin (not moderator)
   const isModerator = pathname.includes("moderator");
   const isAdmin = !isModerator;
+
+  const handlePreparingBadgeClick = () => {
+    if (preparingExitBills.length === 0) return;
+    if (preparingExitBills.length === 1) {
+      setPrepareBill(preparingExitBills[0]);
+      setPrepareOpen(true);
+      return;
+    }
+    setPickerOpen(true);
+  };
+
+  const handlePickBill = (bill: ExitBill) => {
+    setPickerOpen(false);
+    setPrepareBill(bill);
+    setPrepareOpen(true);
+  };
   const { mutate: deleteFranchiseMutation, isPending } = useMutation({
     mutationFn: deleteFranchise,
     onSuccess: () => {
@@ -143,6 +166,23 @@ export default function ({ franchise, dateRange }: Props) {
           {franchise.franchise_type === FRANCHISE_TYPES.VIP && (
             <Badge variant="secondary" className="shrink-0 text-xs font-semibold uppercase tracking-wide bg-yellow-300 text-black" color="primary">
               VIP
+            </Badge>
+          )}
+          {preparingExitBills.length > 0 && (
+            <Badge
+              role="button"
+              tabIndex={0}
+              onClick={handlePreparingBadgeClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handlePreparingBadgeClick();
+                }
+              }}
+              variant="secondary"
+              className="shrink-0 cursor-pointer text-xs font-semibold uppercase tracking-wide bg-yellow-300 text-black hover:bg-yellow-400"
+            >
+              Preparing{preparingExitBills.length > 1 ? ` (${preparingExitBills.length})` : ""}
             </Badge>
           )}
         </span>
@@ -345,6 +385,20 @@ export default function ({ franchise, dateRange }: Props) {
           <span className="hidden sm:inline">Consult</span>
         </Button>
       </CardFooter>
+      <PreparingExitBillsPicker
+        bills={preparingExitBills}
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        onSelect={handlePickBill}
+      />
+      <PrepareExitBillDialog
+        bill={prepareBill}
+        open={prepareOpen}
+        onOpenChange={(next) => {
+          setPrepareOpen(next);
+          if (!next) setPrepareBill(null);
+        }}
+      />
     </Card>
   );
 }
