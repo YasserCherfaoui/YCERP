@@ -17,7 +17,7 @@ import {
   validateMissingEntryExitBill,
 } from "@/utils/validate-entry-exit-bill";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Barcode, PackageCheck, Scan } from "lucide-react";
+import { Barcode, PackageCheck, Printer, Scan } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {
@@ -38,6 +38,94 @@ function variantLabel(item: {
     return `${pv.product.name} — ${pv.color ?? ""}`;
   }
   return pv?.qr_code ?? "Unknown";
+}
+
+function printRemainingItems(
+  billId: number,
+  franchiseName: string | undefined,
+  remaining: Array<{
+    name: string;
+    color: string;
+    size: string;
+    barcode: string;
+    quantity: number;
+  }>
+) {
+  const rows = remaining
+    .map(
+      (item) => `
+      <tr>
+        <td>${escapeHtml(item.name)}</td>
+        <td>${escapeHtml(item.color)}</td>
+        <td style="text-align:center">${escapeHtml(item.size)}</td>
+        <td>${escapeHtml(item.barcode)}</td>
+        <td style="text-align:right;font-weight:600">${item.quantity}</td>
+      </tr>`
+    )
+    .join("");
+
+  const totalQty = remaining.reduce((sum, item) => sum + item.quantity, 0);
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>EXB-${billId} Remaining Items</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
+    h1 { font-size: 18px; margin: 0 0 4px; }
+    .meta { font-size: 12px; color: #444; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f3f3f3; }
+    .footer { margin-top: 16px; font-size: 13px; font-weight: 600; }
+    @media print {
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Prepare Exit Bill EXB-${billId} — Remaining Items</h1>
+  <div class="meta">
+    ${franchiseName ? `Franchise: ${escapeHtml(franchiseName)}<br/>` : ""}
+    Printed: ${new Date().toLocaleString()}<br/>
+    Lines: ${remaining.length} · Total qty: ${totalQty}
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Color</th>
+        <th>Size</th>
+        <th>Barcode</th>
+        <th>Qty</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows || `<tr><td colspan="5">No remaining items</td></tr>`}
+    </tbody>
+  </table>
+  <div class="footer">Total remaining quantity: ${totalQty}</div>
+</body>
+</html>`;
+
+  const printWindow = window.open("", "_blank", "width=800,height=600");
+  if (!printWindow) {
+    throw new Error("Popup blocked. Please allow popups to print.");
+  }
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.onload = () => {
+    printWindow.print();
+    printWindow.onafterprint = () => printWindow.close();
+  };
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 export default function PrepareExitBillDialog({
@@ -120,6 +208,36 @@ export default function PrepareExitBillDialog({
       });
     },
   });
+
+  const handlePrintRemaining = () => {
+    if (!bill) return;
+    if (remainingItems.length === 0) {
+      toast({
+        title: "Nothing to print",
+        description: "There are no remaining items",
+      });
+      return;
+    }
+    try {
+      printRemainingItems(
+        bill.ID,
+        bill.franchise?.name,
+        remainingItems.map(({ exitItem, remaining }) => ({
+          name: exitItem.product_variant?.product?.name ?? "Unknown",
+          color: exitItem.product_variant?.color ?? "",
+          size: String(exitItem.product_variant?.size ?? ""),
+          barcode: exitItem.product_variant?.qr_code ?? "",
+          quantity: remaining,
+        }))
+      );
+    } catch (error) {
+      toast({
+        title: "Print failed",
+        description: error instanceof Error ? error.message : "Could not print",
+        variant: "destructive",
+      });
+    }
+  };
 
   const runScan = () => {
     if (!bill) return;
@@ -257,6 +375,15 @@ export default function PrepareExitBillDialog({
             disabled={isPending}
           >
             Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handlePrintRemaining}
+            disabled={remainingItems.length === 0 || isPending}
+          >
+            <Printer className="h-4 w-4 sm:mr-2" />
+            Print remaining
           </Button>
           <Button
             disabled={!canSubmit || isPending}
