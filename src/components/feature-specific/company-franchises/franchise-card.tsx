@@ -11,10 +11,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { ExitBill } from "@/models/data/bill.model";
 import { FRANCHISE_TYPES, Franchise } from "@/models/data/franchise.model";
-import { deleteFranchise, getFranchiseAdministratorToken } from "@/services/franchise-service";
+import {
+  deleteFranchise,
+  getFranchiseAdministratorToken,
+  updateFranchiseRequireOrderAlert,
+} from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleUserRound, Copy, ExternalLink, Inspect, Key, MapPin, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -85,6 +91,30 @@ export default function ({ franchise, preparingExitBills = [], dateRange }: Prop
         variant: "destructive",
       });
       setOpen(false);
+    },
+  });
+
+  const {
+    mutate: toggleOrderAlertMutation,
+    isPending: isOrderAlertPending,
+  } = useMutation({
+    mutationFn: (enabled: boolean) =>
+      updateFranchiseRequireOrderAlert(franchise.ID, enabled),
+    onSuccess: (_data, enabled) => {
+      toast({
+        title: enabled ? "Order alert enabled" : "Order alert disabled",
+        description: enabled
+          ? `${franchise.name} must respond to pending order popups.`
+          : `${franchise.name} will not receive pending order popups.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["franchises"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Could not update order alert",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -230,6 +260,26 @@ export default function ({ franchise, preparingExitBills = [], dateRange }: Prop
           </span>
           {franchise.city}, {franchise.state}
         </div>
+
+        {isAdmin && (
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-lg border p-3">
+            <div className="space-y-0.5">
+              <Label htmlFor={`require-order-alert-${franchise.ID}`}>
+                Require order alert
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Force this franchise to respond to new ship-from-store order
+                popups.
+              </p>
+            </div>
+            <Switch
+              id={`require-order-alert-${franchise.ID}`}
+              checked={!!franchise.require_order_alert}
+              disabled={isOrderAlertPending}
+              onCheckedChange={(checked) => toggleOrderAlertMutation(checked)}
+            />
+          </div>
+        )}
         
         {/* Admin-only insights */}
         {isAdmin && dateRange && dateRange.from && dateRange.to && (

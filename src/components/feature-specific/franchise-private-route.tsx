@@ -1,4 +1,5 @@
 import { FranchiseSupportChatMessengerDockFranchiseApp } from "@/components/feature-specific/support-chat/franchise-support-chat-messenger-dock";
+import FranchisePendingOrderAlertsHost from "@/components/feature-specific/ship-from-store/franchise-pending-order-alerts-host";
 import useFranchise from "@/hooks/use-franchise";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
@@ -13,6 +14,7 @@ export default function () {
   return isAuthenticated ? (
     <>
       <Outlet />
+      <FranchisePendingOrderAlertsHost />
       <FranchiseSupportChatMessengerDockFranchiseApp />
     </>
   ) : (
