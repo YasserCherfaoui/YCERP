@@ -1,7 +1,8 @@
 import { RootState } from "@/app/store";
 import AppBarBackButton from "@/components/common/app-bar-back-button";
 import CreateDeliveryEmployeeDialog from "@/components/feature-specific/delivery/CreateDeliveryEmployeeDialog";
-import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/delivery-employee-columns";
+import { deliveryEmployeeColumns } from "@/components/feature-specific/delivery/delivery-employee-columns.tsx";
+import DeliveryPaymentLedgerForm from "@/components/feature-specific/delivery/delivery-payment-ledger-form";
 import { deliveryOrdersColumns } from "@/components/feature-specific/delivery/delivery-orders-columns";
 import PrintDeliveryEmployeeTableDialog from "@/components/feature-specific/delivery/PrintDeliveryEmployeeTableDialog";
 import { Button } from "@/components/ui/button";
@@ -36,9 +37,9 @@ import {
   Undo2Icon,
   XIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const ORDER_STATUSES = [
   {
@@ -80,6 +81,7 @@ const ORDER_STATUSES = [
 
 export default function DeliveryDashboardPage() {
   const params = useParams();
+  const navigate = useNavigate();
   const deliveryCompanyId = Number(params.id);
   const companyId = useSelector((state: RootState) => state.company.companyID);
   const [employeeDialogOpen, setEmployeeDialogOpen] = useState(false);
@@ -165,6 +167,14 @@ export default function DeliveryDashboardPage() {
   const company = companyData?.data ?? null;
   const employees: DeliveryEmployee[] = employeesData?.data || [];
   const selectedEmployeeNumeric = selectedEmployeeId === "all" ? undefined : Number(selectedEmployeeId);
+  const employeeColumns = useMemo(
+    () =>
+      deliveryEmployeeColumns({
+        onViewProfile: (employee) =>
+          navigate(`employees/${employee.ID}`),
+      }),
+    [navigate]
+  );
 
   // Employee collections report
   const { data: collections } = useQuery({
@@ -212,6 +222,7 @@ export default function DeliveryDashboardPage() {
         onOpenChange={setEmployeeDialogOpen}
         company={company}
       />
+      <DeliveryPaymentLedgerForm employees={employees} />
       {/* Tabs */}
       <Tabs defaultValue="orders" className="w-full mt-4">
         <TabsList className="mb-4">
@@ -347,7 +358,7 @@ export default function DeliveryDashboardPage() {
           {employeesError && <div>Error loading employees.</div>}
           {!employeesLoading && !employeesError && (
             <DataTable
-              columns={deliveryEmployeeColumns}
+              columns={employeeColumns}
               data={employees}
               searchColumn="name"
             />

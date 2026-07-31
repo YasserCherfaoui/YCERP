@@ -38,3 +38,17 @@ export interface DeliveryCost {
     express_cost: number;
 
 }
+
+export interface DeliveryEmployeePayment {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt: string | null;
+    delivery_employee_id: number;
+    delivery_company_id: number;
+    company_id: number;
+    amount: number;
+    collected_at: string;
+    created_by: number;
+    notes: string;
+}
