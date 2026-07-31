@@ -222,7 +222,17 @@ export const createProductVariant = async (productVariantData: CreateProductVari
 
 
 export const getProductSales = async (data: SalesQuantityRequestSchema): Promise<APIResponse<CompanyStatsResponse>> => {
-    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit ?? 10}`, {
+    const params = new URLSearchParams({
+        startDate: data.start_date.toISOString().split('T')[0],
+        endDate: data.end_date.toISOString().split('T')[0],
+        page: String(data.page ?? 1),
+        limit: String(data.limit ?? 10),
+    });
+    if (data.search) params.set("search", data.search);
+    if (data.sort_by) params.set("sort_by", data.sort_by);
+    if (data.sort_order) params.set("sort_order", data.sort_order);
+
+    const response = await fetch(`${baseUrl}/products/sales-quantities/${data.company_id}?${params}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -241,7 +251,17 @@ export const getProductSales = async (data: SalesQuantityRequestSchema): Promise
 
 
 export const getProductSalesByFranchise = async (data: SalesQuantityRequestSchema): Promise<APIResponse<CompanyStatsResponse>> => {
-    const response = await fetch(`${baseUrl}/products/sales-quantities-franchise/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit ?? 10}`, {
+    const params = new URLSearchParams({
+        startDate: data.start_date.toISOString().split('T')[0],
+        endDate: data.end_date.toISOString().split('T')[0],
+        page: String(data.page ?? 1),
+        limit: String(data.limit ?? 10),
+    });
+    if (data.search) params.set("search", data.search);
+    if (data.sort_by) params.set("sort_by", data.sort_by);
+    if (data.sort_order) params.set("sort_order", data.sort_order);
+
+    const response = await fetch(`${baseUrl}/products/sales-quantities-franchise/${data.company_id}?${params}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -260,7 +280,17 @@ export const getProductSalesByFranchise = async (data: SalesQuantityRequestSchem
 
 
 export const getProductPurchases = async (data: SalesQuantityRequestSchema): Promise<APIResponse<ProductPurchasesResponse>> => {
-    const response = await fetch(`${baseUrl}/supplier-bills/quantities/${data.company_id}?startDate=${data.start_date.toISOString().split('T')[0]}&endDate=${data.end_date.toISOString().split('T')[0]}&page=${data.page}&limit=${data.limit ?? 10}`, {
+    const params = new URLSearchParams({
+        startDate: data.start_date.toISOString().split('T')[0],
+        endDate: data.end_date.toISOString().split('T')[0],
+        page: String(data.page ?? 1),
+        limit: String(data.limit ?? 10),
+    });
+    if (data.search) params.set("search", data.search);
+    if (data.sort_by) params.set("sort_by", data.sort_by);
+    if (data.sort_order) params.set("sort_order", data.sort_order);
+
+    const response = await fetch(`${baseUrl}/supplier-bills/quantities/${data.company_id}?${params}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

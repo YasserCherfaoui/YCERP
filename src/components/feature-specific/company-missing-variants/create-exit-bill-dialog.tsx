@@ -142,11 +142,15 @@ export default function CreateExitBillDialog({
   const { mutate: createExitBillMutation, isPending } = useMutation({
     mutationFn: createExitBillFromMissingVariants,
     onSuccess: (data) => {
-      console.log('Success:', data);
       const response = data.data;
       if (!response) return;
-      let message = `Exit bill created successfully with ${response.total_bill_items} items.`;
-      
+
+      const billId = response.exit_bill.ID ?? response.exit_bill.id;
+      const appended = !!response.appended;
+      let message = appended
+        ? `Items added to preparing exit bill EXB-${billId} (${response.total_bill_items} items total).`
+        : `Exit bill EXB-${billId} created successfully with ${response.total_bill_items} items.`;
+
       if (response.fulfilled_requests > 0) {
         message += ` ${response.fulfilled_requests} requests fully fulfilled.`;
       }
@@ -156,13 +160,14 @@ export default function CreateExitBillDialog({
       if (response.additional_items_processed > 0) {
         message += ` ${response.additional_items_processed} additional items processed.`;
       }
-      
+
       toast({
-        title: "Success",
+        title: appended ? "Added to Preparing Exit Bill" : "Success",
         description: message,
       });
       queryClient.invalidateQueries({ queryKey: ["company-missing-variants"] });
       queryClient.invalidateQueries({ queryKey: ["exit_bills"] });
+      queryClient.invalidateQueries({ queryKey: ["preparing-exit-bills"] });
       // Don't reset the form - just close the dialog
       onOpenChange(false);
     },

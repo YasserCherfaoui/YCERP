@@ -1,9 +1,9 @@
 import { baseUrl } from "@/app/constants";
-import { ExitBill } from "@/models/data/bill.model";
+import { ExitBill, ExitBillStatus } from "@/models/data/bill.model";
 import { FranchisePayment } from "@/models/data/franchise.model";
 import type { APIError } from "@/models/responses/api-response.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { CreateExitBillSchema, CreateFranchisePayment, UpdateExitBillSchema } from "@/schemas/bill";
+import { CreateExitBillSchema, CreateFranchisePayment, PrepareExitBillSchema, UpdateExitBillSchema } from "@/schemas/bill";
 
 export const createExitBill = async (data: CreateExitBillSchema): Promise<APIResponse<ExitBill>> => {
     const response = await fetch(`${baseUrl}/bills/exit`, {
@@ -31,14 +31,25 @@ export const createExitBill = async (data: CreateExitBillSchema): Promise<APIRes
 
 }
 
-export const getCompanyExitBills = async (companyID: number): Promise<APIResponse<Array<ExitBill>>> => {
-    const response = await fetch(`${baseUrl}/bills/exit/company/${companyID}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+export const getCompanyExitBills = async (
+    companyID: number,
+    options?: { status?: ExitBillStatus | string }
+): Promise<APIResponse<Array<ExitBill>>> => {
+    const params = new URLSearchParams();
+    if (options?.status) {
+        params.set("status", options.status);
+    }
+    const query = params.toString();
+    const response = await fetch(
+        `${baseUrl}/bills/exit/company/${companyID}${query ? `?${query}` : ""}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
         }
-    });
+    );
 
     if (!response.ok) {
         const errorData = await response.json();
@@ -48,6 +59,28 @@ export const getCompanyExitBills = async (companyID: number): Promise<APIRespons
     const apiResponse: APIResponse<Array<ExitBill>> = await response.json();
     return apiResponse;
 
+}
+
+export const prepareExitBill = async (
+    exitBillID: number,
+    data: PrepareExitBillSchema
+): Promise<APIResponse<ExitBill>> => {
+    const response = await fetch(`${baseUrl}/bills/exit/${exitBillID}/prepare`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to prepare exit bill.");
+    }
+
+    const apiResponse: APIResponse<ExitBill> = await response.json();
+    return apiResponse;
 }
 
 export const removeExitBill = async (billID: number): Promise<APIResponse<void>> => {

@@ -11,6 +11,7 @@ export const createFranchiseSchema = z.object({
     franchise_admin_email: z.string().email({ message: "Invalid email address" }),
     franchise_admin_password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
     franchise_type: z.enum([FRANCHISE_TYPES.NORMAL, FRANCHISE_TYPES.VIP]).optional().default(FRANCHISE_TYPES.NORMAL),
+    require_order_alert: z.boolean().optional().default(false),
 })
 
 export type CreateFranchiseSchema = z.infer<typeof createFranchiseSchema>
@@ -21,6 +22,7 @@ export const updateFranchiseSchema = z.object({
     city: z.string().min(1, { message: "Franchise city is required" }).optional(),
     state: z.string().min(1, { message: "Franchise state is required" }).optional(),
     franchise_type: z.enum([FRANCHISE_TYPES.NORMAL, FRANCHISE_TYPES.VIP]).optional(),
+    require_order_alert: z.boolean().optional(),
 })
 
 export type UpdateFranchiseSchema = z.infer<typeof updateFranchiseSchema>

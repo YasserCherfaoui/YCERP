@@ -11,30 +11,43 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { ExitBill } from "@/models/data/bill.model";
 import { FRANCHISE_TYPES, Franchise } from "@/models/data/franchise.model";
-import { deleteFranchise, getFranchiseAdministratorToken } from "@/services/franchise-service";
+import {
+  deleteFranchise,
+  getFranchiseAdministratorToken,
+  updateFranchiseRequireOrderAlert,
+} from "@/services/franchise-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CircleUserRound, Copy, ExternalLink, Inspect, Key, MapPin, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FranchiseInsights from "./franchise-insights";
 import MakeBillDialog from "./make-bill-dialog";
+import PrepareExitBillDialog from "./prepare-exit-bill-dialog";
+import PreparingExitBillsPicker from "./preparing-exit-bills-picker";
 
 interface Props {
   franchise: Franchise;
+  preparingExitBills?: ExitBill[];
   dateRange?: {
     from: Date | undefined;
     to: Date | undefined;
   };
 }
 
-export default function ({ franchise, dateRange }: Props) {
+export default function ({ franchise, preparingExitBills = [], dateRange }: Props) {
   const [open, setOpen] = useState(false);
   const [tokenDialogOpen, setTokenDialogOpen] = useState(false);
   const [generatedToken, setGeneratedToken] = useState<string | null>(null);
   const [dashboardDialogOpen, setDashboardDialogOpen] = useState(false);
   const [dashboardLink, setDashboardLink] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [prepareBill, setPrepareBill] = useState<ExitBill | null>(null);
+  const [prepareOpen, setPrepareOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -43,6 +56,22 @@ export default function ({ franchise, dateRange }: Props) {
   // Check if user is admin (not moderator)
   const isModerator = pathname.includes("moderator");
   const isAdmin = !isModerator;
+
+  const handlePreparingBadgeClick = () => {
+    if (preparingExitBills.length === 0) return;
+    if (preparingExitBills.length === 1) {
+      setPrepareBill(preparingExitBills[0]);
+      setPrepareOpen(true);
+      return;
+    }
+    setPickerOpen(true);
+  };
+
+  const handlePickBill = (bill: ExitBill) => {
+    setPickerOpen(false);
+    setPrepareBill(bill);
+    setPrepareOpen(true);
+  };
   const { mutate: deleteFranchiseMutation, isPending } = useMutation({
     mutationFn: deleteFranchise,
     onSuccess: () => {
@@ -62,6 +91,30 @@ export default function ({ franchise, dateRange }: Props) {
         variant: "destructive",
       });
       setOpen(false);
+    },
+  });
+
+  const {
+    mutate: toggleOrderAlertMutation,
+    isPending: isOrderAlertPending,
+  } = useMutation({
+    mutationFn: (enabled: boolean) =>
+      updateFranchiseRequireOrderAlert(franchise.ID, enabled),
+    onSuccess: (_data, enabled) => {
+      toast({
+        title: enabled ? "Order alert enabled" : "Order alert disabled",
+        description: enabled
+          ? `${franchise.name} must respond to pending order popups.`
+          : `${franchise.name} will not receive pending order popups.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["franchises"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Could not update order alert",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -145,6 +198,23 @@ export default function ({ franchise, dateRange }: Props) {
               VIP
             </Badge>
           )}
+          {preparingExitBills.length > 0 && (
+            <Badge
+              role="button"
+              tabIndex={0}
+              onClick={handlePreparingBadgeClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handlePreparingBadgeClick();
+                }
+              }}
+              variant="secondary"
+              className="shrink-0 cursor-pointer text-xs font-semibold uppercase tracking-wide bg-yellow-300 text-black hover:bg-yellow-400"
+            >
+              Preparing{preparingExitBills.length > 1 ? ` (${preparingExitBills.length})` : ""}
+            </Badge>
+          )}
         </span>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -190,6 +260,26 @@ export default function ({ franchise, dateRange }: Props) {
           </span>
           {franchise.city}, {franchise.state}
         </div>
+
+        {isAdmin && (
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-lg border p-3">
+            <div className="space-y-0.5">
+              <Label htmlFor={`require-order-alert-${franchise.ID}`}>
+                Require order alert
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Force this franchise to respond to new ship-from-store order
+                popups.
+              </p>
+            </div>
+            <Switch
+              id={`require-order-alert-${franchise.ID}`}
+              checked={!!franchise.require_order_alert}
+              disabled={isOrderAlertPending}
+              onCheckedChange={(checked) => toggleOrderAlertMutation(checked)}
+            />
+          </div>
+        )}
         
         {/* Admin-only insights */}
         {isAdmin && dateRange && dateRange.from && dateRange.to && (
@@ -345,6 +435,20 @@ export default function ({ franchise, dateRange }: Props) {
           <span className="hidden sm:inline">Consult</span>
         </Button>
       </CardFooter>
+      <PreparingExitBillsPicker
+        bills={preparingExitBills}
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        onSelect={handlePickBill}
+      />
+      <PrepareExitBillDialog
+        bill={prepareBill}
+        open={prepareOpen}
+        onOpenChange={(next) => {
+          setPrepareOpen(next);
+          if (!next) setPrepareBill(null);
+        }}
+      />
     </Card>
   );
 }

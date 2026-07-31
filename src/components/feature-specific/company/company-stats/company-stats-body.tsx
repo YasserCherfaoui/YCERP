@@ -13,9 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { getProductPurchases, getProductSales } from "@/services/product-service";
 import { useQuery } from "@tanstack/react-query";
+import { SortingState } from "@tanstack/react-table";
 import { format, subMonths } from "date-fns";
 import { CalendarIcon, Package, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { companyStatsColumns } from "./company-stats-columns";
@@ -30,6 +31,26 @@ export default function CompanyStatsBody() {
     to: new Date(),
   });
   const [currentPage, setCurrentPage] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "total_sold_quantity", desc: true },
+  ]);
+  const [purchasesSorting, setPurchasesSorting] = useState<SortingState>([
+    { id: "total_bill_quantity", desc: true },
+  ]);
+
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+      setCurrentPage(0);
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [searchInput]);
+
+  const salesSort = sorting[0];
+  const purchasesSort = purchasesSorting[0];
+
   const { data } = useQuery({
     queryKey: [
       "product-sales",
@@ -37,6 +58,9 @@ export default function CompanyStatsBody() {
       date?.from || new Date(),
       date?.to || new Date(),
       currentPage,
+      debouncedSearch,
+      salesSort?.id,
+      salesSort?.desc,
     ],
     queryFn: () =>
       getProductSales({
@@ -44,6 +68,9 @@ export default function CompanyStatsBody() {
         start_date: date?.from || new Date(),
         end_date: date?.to || new Date(),
         page: currentPage + 1,
+        search: debouncedSearch || undefined,
+        sort_by: salesSort?.id,
+        sort_order: salesSort?.desc === false ? "asc" : "desc",
       }),
     enabled: !!company?.ID && !!date?.from && !!date?.to,
   });
@@ -55,6 +82,9 @@ export default function CompanyStatsBody() {
       date?.from || new Date(),
       date?.to || new Date(),
       currentPage,
+      debouncedSearch,
+      purchasesSort?.id,
+      purchasesSort?.desc,
     ],
     queryFn: () =>
       getProductPurchases({
@@ -62,11 +92,23 @@ export default function CompanyStatsBody() {
         start_date: date?.from || new Date(),
         end_date: date?.to || new Date(),
         page: currentPage + 1,
+        search: debouncedSearch || undefined,
+        sort_by: purchasesSort?.id,
+        sort_order: purchasesSort?.desc === false ? "asc" : "desc",
       }),
     enabled: !!company?.ID && !!date?.from && !!date?.to,
   });
+
   return (
-    <Tabs defaultValue="sales" className="w-full">
+    <Tabs
+      defaultValue="sales"
+      className="w-full"
+      onValueChange={() => {
+        setCurrentPage(0);
+        setSearchInput("");
+        setDebouncedSearch("");
+      }}
+    >
       <TabsList className="mb-4 w-full flex">
         <TabsTrigger value="sales" className="flex-1 flex items-center gap-2 justify-center">
           <ShoppingCart className="w-4 h-4" />
@@ -112,7 +154,10 @@ export default function CompanyStatsBody() {
                     mode="range"
                     defaultMonth={date?.from}
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={(range) => {
+                      setDate(range);
+                      setCurrentPage(0);
+                    }}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
@@ -124,6 +169,16 @@ export default function CompanyStatsBody() {
               columns={companyStatsColumns}
               data={data?.data?.products || []}
               searchColumn="name"
+              searchPlaceholder="Search product name..."
+              searchValue={searchInput}
+              onSearchChange={setSearchInput}
+              sorting={sorting}
+              onSortingChange={(updater) => {
+                setSorting((prev) =>
+                  typeof updater === "function" ? updater(prev) : updater
+                );
+                setCurrentPage(0);
+              }}
               paginationMeta={data?.data?.pagination}
               onPageChange={(page) => setCurrentPage(page)}
               currentPage={currentPage}
@@ -166,7 +221,10 @@ export default function CompanyStatsBody() {
                     mode="range"
                     defaultMonth={date?.from}
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={(range) => {
+                      setDate(range);
+                      setCurrentPage(0);
+                    }}
                     numberOfMonths={2}
                   />
                 </PopoverContent>
@@ -178,6 +236,16 @@ export default function CompanyStatsBody() {
               columns={companyPurchasesColumns}
               data={purchasesData?.data?.products || []}
               searchColumn="name"
+              searchPlaceholder="Search product name..."
+              searchValue={searchInput}
+              onSearchChange={setSearchInput}
+              sorting={purchasesSorting}
+              onSortingChange={(updater) => {
+                setPurchasesSorting((prev) =>
+                  typeof updater === "function" ? updater(prev) : updater
+                );
+                setCurrentPage(0);
+              }}
               paginationMeta={purchasesData?.data?.pagination}
               onPageChange={(page) => setCurrentPage(page)}
               currentPage={currentPage}

@@ -1,3 +1,4 @@
+import { ExitBillStatusBadge } from "@/components/feature-specific/bills/exit-bill-status-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -82,7 +83,7 @@ export const franchiseExitBillsColumns: ColumnDef<ExitBill>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => `EXB-${row.original.ID}`,
+    cell: ({ row }) => <ExitBillStatusBadge bill={row.original} />,
   },
   {
     accessorKey: "franchise_total_amount",
@@ -123,7 +124,9 @@ export const franchiseExitBillsColumns: ColumnDef<ExitBill>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <FranchiseExitBillDialog bill={exitBill} />
-            <FranchiseEntryBillsForm bill={exitBill} />
+            {exitBill.status !== "preparing" && (
+              <FranchiseEntryBillsForm bill={exitBill} />
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );

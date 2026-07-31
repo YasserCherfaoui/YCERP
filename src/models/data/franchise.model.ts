@@ -21,6 +21,8 @@ export interface Franchise {
     city: string;
     state: string;
     franchise_type: FranchiseType;
+    /** When true, franchise portal shows blocking pending-order alerts. */
+    require_order_alert?: boolean;
     company_id: number;
     company?: Company;
     inventory: Inventory;

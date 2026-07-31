@@ -1,4 +1,4 @@
-import { baseUrl } from "@/app/constants";
+import { baseUrl, getBaseUrl } from "@/app/constants";
 import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { Franchise, FranchiseTotals } from "@/models/data/franchise.model";
@@ -32,6 +32,30 @@ export const createFranchise = async (data: CreateFranchiseSchema): Promise<APIR
     return apiResponse;
 
 }
+
+export const updateFranchiseRequireOrderAlert = async (
+  franchiseId: number,
+  requireOrderAlert: boolean
+): Promise<APIResponse<Franchise>> => {
+  const response = await fetch(
+    `${baseUrl}/franchises/${franchiseId}/require-order-alert`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ require_order_alert: requireOrderAlert }),
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || "Failed to update order alert setting."
+    );
+  }
+  return response.json();
+};
 
 export const getFranchise = async (id: number): Promise<APIResponse<Franchise>> => {
     const response = await fetch(`${baseUrl}/franchises/${id}`, {
@@ -111,6 +135,18 @@ export const listFranchiseWooOrders = async (): Promise<APIResponse<any[]>> => {
   return response.json();
 };
 
+/** Authenticated franchise pending-order WebSocket (token + franchise_id query params). */
+export function buildFranchiseOrdersWebSocketUrl(
+  franchiseId: number,
+  token: string
+): string {
+  const apiUrl = getBaseUrl();
+  const proto = apiUrl.startsWith("https") ? "wss" : "ws";
+  const host = apiUrl.replace(/^https?:\/\//, "");
+  const enc = encodeURIComponent(token);
+  return `${proto}://${host}/franchise/ws/orders?franchise_id=${franchiseId}&token=${enc}`;
+}
+
 export const updateFranchiseOrderStatus = async (
   orderId: number,
   status: "pending" | "packed" | "dispatched" | "not_available"
@@ -123,11 +159,24 @@ export const updateFranchiseOrderStatus = async (
     },
     body: JSON.stringify({ status }),
   });
+  const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update franchise order status.");
+    const description =
+      payload?.error?.description ||
+      payload?.message ||
+      "Failed to update franchise order status.";
+    const steps = payload?.error?.details?.steps;
+    const detail =
+      Array.isArray(steps) && steps.length > 0
+        ? `${description} | steps: ${steps.join(" → ")}`
+        : description;
+    console.error("[franchise-order-status] failed", payload);
+    throw new Error(detail);
   }
-  return response.json();
+  if (status === "not_available") {
+    console.info("[franchise-order-status] not_available success", payload);
+  }
+  return payload;
 };
 
 export const getFranchiseWooOrderShippingLabelUrl = async (

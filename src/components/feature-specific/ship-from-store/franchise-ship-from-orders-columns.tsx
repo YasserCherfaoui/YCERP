@@ -1,3 +1,4 @@
+import ConfirmDialog from "@/components/common/confirm-dialog";
 import OrderDetailsDialog from "@/components/feature-specific/orders/order-details-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,7 @@ function isFranchiseStatusOptionDisabled(
 function FranchiseStatusCell({ order }: { order: WooOrder }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [notAvailableConfirmOpen, setNotAvailableConfirmOpen] = useState(false);
   const current = isFranchiseOrderStatus(order.franchise_order_status)
     ? order.franchise_order_status
     : "pending";
@@ -84,12 +86,18 @@ function FranchiseStatusCell({ order }: { order: WooOrder }) {
   const mutation = useMutation({
     mutationFn: (status: FranchiseOrderStatus) =>
       updateFranchiseOrderStatus(order.id, status),
-    onSuccess: (_data, status) => {
+    onSuccess: (data, status) => {
+      const restore = data?.data?.inventory_restore;
+      let description = `Order #${order.number || order.id} marked as ${FRANCHISE_ORDER_STATUS_LABELS[status]}.`;
+      if (status === "not_available" && restore) {
+        description += ` Restored ${restore.restored_units}/${restore.expected_units} unit(s).`;
+      }
       toast({
         title: "Status updated",
-        description: `Order #${order.number || order.id} marked as ${FRANCHISE_ORDER_STATUS_LABELS[status]}.`,
+        description,
       });
       queryClient.invalidateQueries({ queryKey: ["franchise-woo-orders"] });
+      setNotAvailableConfirmOpen(false);
     },
     onError: (error: Error) => {
       toast({
@@ -101,29 +109,59 @@ function FranchiseStatusCell({ order }: { order: WooOrder }) {
   });
 
   return (
-    <Select
-      value={current}
-      onValueChange={(value) => {
-        if (!isFranchiseOrderStatus(value) || value === current) return;
-        mutation.mutate(value);
-      }}
-      disabled={mutation.isPending}
-    >
-      <SelectTrigger className="h-8 w-[140px]">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {FRANCHISE_ORDER_STATUSES.map((status) => (
-          <SelectItem
-            key={status}
-            value={status}
-            disabled={isFranchiseStatusOptionDisabled(status, current)}
-          >
-            {FRANCHISE_ORDER_STATUS_LABELS[status]}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <>
+      <Select
+        value={current}
+        onValueChange={(value) => {
+          if (!isFranchiseOrderStatus(value)) return;
+          if (value === "not_available") {
+            setNotAvailableConfirmOpen(true);
+            return;
+          }
+          if (value === current) return;
+          mutation.mutate(value);
+        }}
+        disabled={mutation.isPending}
+      >
+        <SelectTrigger className="h-8 w-[140px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {FRANCHISE_ORDER_STATUSES.map((status) => (
+            <SelectItem
+              key={status}
+              value={status}
+              disabled={isFranchiseStatusOptionDisabled(status, current)}
+            >
+              {FRANCHISE_ORDER_STATUS_LABELS[status]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <ConfirmDialog
+        open={notAvailableConfirmOpen}
+        onOpenChange={setNotAvailableConfirmOpen}
+        title="Mark order as not available?"
+        description={
+          <>
+            This restores reserved line quantities back to your franchise
+            inventory and cancels related commissions.
+            <span className="mt-2 block font-medium text-foreground">
+              Order #{order.number || order.id}
+            </span>
+          </>
+        }
+        confirmText={
+          mutation.isPending ? "Restoring…" : "Confirm not available"
+        }
+        cancelText="Cancel"
+        onConfirm={() => {
+          if (!mutation.isPending) {
+            mutation.mutate("not_available");
+          }
+        }}
+      />
+    </>
   );
 }
 

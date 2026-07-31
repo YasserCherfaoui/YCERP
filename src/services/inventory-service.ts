@@ -272,3 +272,22 @@ export const getInventoryByVariant = async (productVariantId: number): Promise<A
     return apiResponse;
 }
 
+export const clearBrokenCounts = async (
+    inventoryItemIds: number[]
+): Promise<APIResponse<{ cleared: number }>> => {
+    const response = await fetch(`${baseUrl}/inventory/broken-count/clear`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ inventory_item_ids: inventoryItemIds }),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to clear broken counts.");
+    }
+    return response.json();
+};
+
+

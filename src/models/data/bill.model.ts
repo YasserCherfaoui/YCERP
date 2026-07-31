@@ -2,6 +2,8 @@ import { Company } from "./company.model";
 import { Franchise } from "./franchise.model";
 import { ProductVariant } from "./product.model";
 
+export type ExitBillStatus = "pending" | "preparing" | "prepared";
+
 export type BillItem = {
     product_variant_id: number;
     quantity: number;
@@ -23,7 +25,7 @@ export type ExitBill = {
     franchise_total_amount: number;
     company_total_amount: number;
     cogs: number;
-    status: string;
+    status: ExitBillStatus | string;
     entry_bill?:EntryBill;
 }
 

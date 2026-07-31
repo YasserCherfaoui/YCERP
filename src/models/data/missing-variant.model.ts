@@ -84,41 +84,51 @@ export interface InventoryShortfallItem {
 
 export interface CreateExitBillFromMissingVariantsResponse {
   exit_bill: {
-    id: number;
+    ID?: number;
+    id?: number;
     franchise_id: number;
     company_id: number;
     franchise_total_amount: number;
     company_total_amount: number;
     cogs: number;
     status: string;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
+    CreatedAt?: string;
+    UpdatedAt?: string;
     franchise: {
-      id: number;
+      id?: number;
+      ID?: number;
       name: string;
     };
     company: {
-      id: number;
+      id?: number;
+      ID?: number;
       company_name: string;
     };
     bill_items: Array<{
-      id: number;
+      id?: number;
+      ID?: number;
       product_variant_id: number;
       quantity: number;
       product_variant: {
-        id: number;
+        id?: number;
+        ID?: number;
         color: string;
         size: number;
         product: {
-          id: number;
+          id?: number;
+          ID?: number;
           name: string;
         };
       };
     }>;
   };
+  appended?: boolean;
   fulfilled_requests: number;
   partially_fulfilled_requests: number;
   total_processed_requests: number;
   additional_items_processed: number;
   total_bill_items: number;
+  items_added_or_merged?: number;
 }

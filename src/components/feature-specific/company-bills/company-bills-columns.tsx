@@ -1,3 +1,4 @@
+import { ExitBillStatusBadge } from "@/components/feature-specific/bills/exit-bill-status-badge";
 import RemoveBillActionDialog from "@/components/feature-specific/company-bills/remove-bill-action-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -113,6 +114,12 @@ export const companyBillColumns: ColumnDef<ExitBill>[] = [
       },
     accessorKey: "CreatedAt",
     cell: ({row})=> new Date(row.original.CreatedAt).toUTCString()
+  },
+  {
+    accessorKey: "status",
+    id: "status",
+    header: () => <div>Status</div>,
+    cell: ({ row }) => <ExitBillStatusBadge bill={row.original} />,
   },
   {
     id: "actions",

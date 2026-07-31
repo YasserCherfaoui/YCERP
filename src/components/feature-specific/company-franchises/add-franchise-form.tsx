@@ -13,6 +13,7 @@ import {
 import {
     Form,
     FormControl,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/select";
 
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { FRANCHISE_TYPES } from "@/models/data/franchise.model";
 import {
@@ -57,6 +59,7 @@ export default function () {
       franchise_admin_email: "",
       franchise_admin_password: "",
       franchise_type: "normal",
+      require_order_alert: false,
     },
   });
   const { toast } = useToast();
@@ -195,6 +198,27 @@ export default function () {
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="require_order_alert"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Require order alert</FormLabel>
+                    <FormDescription>
+                      Force this franchise to respond to new ship-from-store
+                      order popups.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
