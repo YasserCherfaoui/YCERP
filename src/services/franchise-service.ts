@@ -159,11 +159,24 @@ export const updateFranchiseOrderStatus = async (
     },
     body: JSON.stringify({ status }),
   });
+  const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update franchise order status.");
+    const description =
+      payload?.error?.description ||
+      payload?.message ||
+      "Failed to update franchise order status.";
+    const steps = payload?.error?.details?.steps;
+    const detail =
+      Array.isArray(steps) && steps.length > 0
+        ? `${description} | steps: ${steps.join(" → ")}`
+        : description;
+    console.error("[franchise-order-status] failed", payload);
+    throw new Error(detail);
   }
-  return response.json();
+  if (status === "not_available") {
+    console.info("[franchise-order-status] not_available success", payload);
+  }
+  return payload;
 };
 
 export const getFranchiseWooOrderShippingLabelUrl = async (

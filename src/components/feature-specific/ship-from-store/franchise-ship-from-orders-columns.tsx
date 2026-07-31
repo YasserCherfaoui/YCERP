@@ -86,14 +86,15 @@ function FranchiseStatusCell({ order }: { order: WooOrder }) {
   const mutation = useMutation({
     mutationFn: (status: FranchiseOrderStatus) =>
       updateFranchiseOrderStatus(order.id, status),
-    onSuccess: (_data, status) => {
+    onSuccess: (data, status) => {
+      const restore = data?.data?.inventory_restore;
+      let description = `Order #${order.number || order.id} marked as ${FRANCHISE_ORDER_STATUS_LABELS[status]}.`;
+      if (status === "not_available" && restore) {
+        description += ` Restored ${restore.restored_units}/${restore.expected_units} unit(s).`;
+      }
       toast({
         title: "Status updated",
-        description: `Order #${order.number || order.id} marked as ${FRANCHISE_ORDER_STATUS_LABELS[status]}.${
-          status === "not_available"
-            ? " Reserved stock was restored to inventory."
-            : ""
-        }`,
+        description,
       });
       queryClient.invalidateQueries({ queryKey: ["franchise-woo-orders"] });
       setNotAvailableConfirmOpen(false);

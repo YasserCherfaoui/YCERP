@@ -53,17 +53,27 @@ export default function FranchisePendingOrderAlertDialog({
       if (!order) throw new Error("No order selected");
       return updateFranchiseOrderStatus(order.id, status);
     },
-    onSuccess: (_data, status) => {
+    onSuccess: (data, status) => {
       if (!order) return;
+      const restore = data?.data?.inventory_restore;
+      let description = `Order #${order.number || order.id} marked as ${
+        status === "packed" ? "Packed" : "Not available"
+      }.`;
+      if (status === "not_available" && restore) {
+        description += ` Restored ${restore.restored_units}/${restore.expected_units} unit(s).`;
+        if (Array.isArray(restore.items)) {
+          const actions = restore.items
+            .map(
+              (i: { inventory_item_id: number; action: string; units_restored: number }) =>
+                `#${i.inventory_item_id}:${i.action}+${i.units_restored}`
+            )
+            .join(", ");
+          if (actions) description += ` [${actions}]`;
+        }
+      }
       toast({
         title: "Status updated",
-        description: `Order #${order.number || order.id} marked as ${
-          status === "packed" ? "Packed" : "Not available"
-        }.${
-          status === "not_available"
-            ? " Reserved stock was restored to inventory."
-            : ""
-        }`,
+        description,
       });
       queryClient.invalidateQueries({ queryKey: ["franchise-woo-orders"] });
       setNotAvailableConfirmOpen(false);
