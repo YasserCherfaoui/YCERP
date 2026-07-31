@@ -35,3 +35,21 @@ export async function getEmployeePaymentsSum(params: {
   const qs = buildQueryString(params as Record<string, string | number>);
   return apiFetch<EmployeePaymentsSumResponse>(`/delivery/reports/employee-payments-sum${qs}`);
 }
+
+export interface EmployeePaymentByEmployeeRow {
+  delivery_employee_id: number;
+  employee_name: string;
+  total_amount: number;
+  count: number;
+}
+
+export async function getEmployeePaymentsByEmployee(params: {
+  company_id: number;
+  start: string;
+  end: string;
+}): Promise<APIResponse<{ rows: EmployeePaymentByEmployeeRow[] }>> {
+  const qs = buildQueryString(params as Record<string, string | number>);
+  return apiFetch<{ rows: EmployeePaymentByEmployeeRow[] }>(
+    `/delivery/reports/employee-payments-by-employee${qs}`
+  );
+}
