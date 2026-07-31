@@ -3,6 +3,7 @@ import ExpenseForm from "@/components/feature-specific/expenses/expense-form";
 import ExpensesAppBar from "@/components/feature-specific/expenses/expenses-app-bar";
 import DeliveryFeeCorrectionDialog from "@/components/feature-specific/expenses/delivery-fee-correction-dialog";
 import DeliveredProductsSoldDialog from "@/components/feature-specific/expenses/delivered-products-sold-dialog";
+import DeliveryEmployeePaymentsDialog from "@/components/feature-specific/expenses/delivery-employee-payments-dialog";
 import MissingLivreReconciliationDialog from "@/components/feature-specific/expenses/missing-livre-reconciliation-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Expense, ExpensesListResponseData } from "@/models/data/expenses/expense.model";
 import ExpensesCategoriesPage from "@/pages/dashboard/company/expenses-categories-page";
+import { getEmployeePaymentsSum } from "@/services/delivery-payments-service";
 import { countReturnedOrders, downloadDeliveredOrdersCsv, downloadDeliveredProductsCsv, getDeliveredAggregates, sumExpenses } from "@/services/expense-reports-service";
 import { approveExpense, createExpense, deleteExpense, listExpenses, markExpensePaid, updateExpense } from "@/services/expenses-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -110,6 +112,7 @@ export default function ExpensesPage() {
   const [missingLivreOpen, setMissingLivreOpen] = useState(false);
   const [deliveryFeeOpen, setDeliveryFeeOpen] = useState(false);
   const [productsSoldOpen, setProductsSoldOpen] = useState(false);
+  const [employeePaymentsOpen, setEmployeePaymentsOpen] = useState(false);
   const createMut = useMutation({
     mutationFn: createExpense,
     onSuccess: () => {
@@ -218,11 +221,23 @@ export default function ExpensesPage() {
       })).data,
     enabled: analyticsEnabled,
   });
+  const { data: employeePaymentsSumRes } = useQuery({
+    queryKey: ["employee-payments-sum", companyId, analyticsYmdBounds.start, analyticsYmdBounds.end],
+    queryFn: async () =>
+      (await getEmployeePaymentsSum({
+        company_id: companyId,
+        start: analyticsYmdBounds.start!,
+        end: analyticsYmdBounds.end!,
+      })).data,
+    enabled: analyticsEnabled,
+  });
 
   const expensesSumAnalytics = (sumResAnalytics as any)?.total ?? 0;
   const returnedCountAnalytics = returnedOrdersAnalytics?.count ?? 0;
   const returnedCostAnalytics = returnedOrdersAnalytics?.cost ?? returnedCountAnalytics * 100;
   const totalExpensesAnalytics = expensesSumAnalytics + returnedCostAnalytics;
+  const employeePaymentsTotal = employeePaymentsSumRes?.total_amount ?? 0;
+  const employeePaymentsCount = employeePaymentsSumRes?.count ?? 0;
 
   const returnedCount = returnedOrdersCountRes?.count ?? 0;
   const returnedCost = returnedOrdersCountRes?.cost ?? returnedCount * 100;
@@ -505,6 +520,13 @@ export default function ExpensesPage() {
                 start={analyticsYmdBounds.start}
                 end={analyticsYmdBounds.end}
               />
+              <DeliveryEmployeePaymentsDialog
+                open={employeePaymentsOpen}
+                setOpen={setEmployeePaymentsOpen}
+                companyId={companyId}
+                start={analyticsYmdBounds.start}
+                end={analyticsYmdBounds.end}
+              />
             </>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -558,6 +580,20 @@ export default function ExpensesPage() {
             <Card>
               <CardHeader><CardTitle>Total Expenses</CardTitle></CardHeader>
               <CardContent><div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(totalExpensesAnalytics)}</div></CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Total Collected from Delivery Employees</CardTitle></CardHeader>
+              <CardContent>
+                <button
+                  type="button"
+                  className="text-xl font-bold underline-offset-4 hover:underline cursor-pointer text-left disabled:cursor-default disabled:no-underline"
+                  disabled={!analyticsEnabled}
+                  onClick={() => setEmployeePaymentsOpen(true)}
+                >
+                  {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(employeePaymentsTotal)}
+                </button>
+                <div className="text-xs text-muted-foreground mt-1">{employeePaymentsCount} payment{employeePaymentsCount === 1 ? "" : "s"}</div>
+              </CardContent>
             </Card>
           </div>
         </TabsContent>

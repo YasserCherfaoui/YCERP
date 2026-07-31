@@ -86,6 +86,7 @@ import QuickActionsPage from "@/pages/dashboard/quick-actions-page";
 import SettingsPage from "@/pages/dashboard/settings-page";
 import DeliveryDashboardPage from "@/pages/delivery/dashboard/delivery-dashboard-page";
 import DeliveryEmployeeDashboardPage from "@/pages/delivery/delivery-employee-dashboard-page";
+import DeliveryEmployeeProfilePage from "@/pages/delivery/delivery-employee-profile-page";
 import DeliveryListPage from "@/pages/delivery/delivery-list-page";
 import DeliveryLoginPage from "@/pages/delivery/delivery-login-page";
 import FeaturesPage from "@/pages/features";
@@ -225,6 +226,7 @@ export default function AppRouter() {
             <Route path="delivery">
               <Route index element={<DeliveryListPage />} />
               <Route path=":id" element={<DeliveryDashboardPage />} />
+              <Route path=":id/employees/:employeeId" element={<DeliveryEmployeeProfilePage />} />
             </Route>
             <Route path="stock-alerts">
               <Route index element={<ModeratorStockAlertsPage />} />
@@ -320,6 +322,7 @@ export default function AppRouter() {
               <Route path="delivery">
                 <Route index element={<DeliveryListPage />} />
                 <Route path=":id" element={<DeliveryDashboardPage />} />
+                <Route path=":id/employees/:employeeId" element={<DeliveryEmployeeProfilePage />} />
               </Route>
               <Route path="order-tickets" element={<OrderTicketsPage />} />
               <Route path="missing-variants" element={<CompanyMissingVariantsPage />} />

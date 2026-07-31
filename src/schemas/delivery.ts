@@ -25,3 +25,11 @@ export const loginEmployeeSchema = z.object({
 });
 
 export type LoginEmployeeSchema = z.infer<typeof loginEmployeeSchema>;
+
+export const createDeliveryPaymentSchema = z.object({
+  delivery_employee_id: z.coerce.number().int().positive({ message: "Select a delivery employee" }),
+  amount: z.coerce.number().int().positive({ message: "Amount must be a positive number" }),
+  notes: z.string().optional(),
+});
+
+export type CreateDeliveryPaymentSchema = z.infer<typeof createDeliveryPaymentSchema>;
