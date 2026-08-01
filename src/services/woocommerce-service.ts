@@ -866,4 +866,47 @@ export const getManagerOrderStatusCount = async (params?: {
 
   const data = await response.json();
   return data;
+};
+
+export interface WooLineItemGroup {
+  name: string;
+  sku: string;
+  total_quantity: number;
+  orders_count: number;
 }
+
+export interface WooLineItemsSummary {
+  orders_count: number;
+  total_quantity: number;
+  line_items: WooLineItemGroup[];
+  start_date: string;
+  end_date: string;
+}
+
+export const getWooLineItemsSummary = async (params: {
+  company_id: number;
+  start_date: string;
+  end_date: string;
+}): Promise<APIResponse<WooLineItemsSummary>> => {
+  const currentToken = localStorage.getItem("token");
+  const query = new URLSearchParams({
+    company_id: String(params.company_id),
+    start_date: params.start_date,
+    end_date: params.end_date,
+  });
+  const response = await fetch(
+    `${baseUrl}/woocommerce/line-items-summary?${query.toString()}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + currentToken,
+      },
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fetch line items summary");
+  }
+  return response.json();
+};

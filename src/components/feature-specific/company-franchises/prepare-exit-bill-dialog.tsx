@@ -167,6 +167,16 @@ export default function PrepareExitBillDialog({
     return map;
   }, [remainingItems]);
 
+  const remainingUnits = useMemo(
+    () => remainingItems.reduce((sum, { remaining }) => sum + remaining, 0),
+    [remainingItems]
+  );
+
+  const checkingUnits = useMemo(
+    () => checkedItems.reduce((sum, item) => sum + item.quantity, 0),
+    [checkedItems]
+  );
+
   const missing = bill
     ? validateMissingEntryExitBill({
         entryItems: checkedItems,
@@ -305,7 +315,8 @@ export default function PrepareExitBillDialog({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-[320px]">
             <div className="flex flex-col gap-2 border rounded-md p-3">
               <h3 className="font-semibold text-sm">
-                Remaining ({remainingItems.length})
+                Remaining ({remainingItems.length} variants, {remainingUnits}{" "}
+                units)
               </h3>
               <ScrollArea className="h-[300px]">
                 <ul className="flex flex-col gap-2 pr-2">
@@ -334,7 +345,7 @@ export default function PrepareExitBillDialog({
 
             <div className="flex flex-col gap-2 border rounded-md p-3">
               <h3 className="font-semibold text-sm">
-                Checking ({checkedItems.length})
+                Checking ({checkedItems.length} variants, {checkingUnits} units)
               </h3>
               <ScrollArea className="h-[300px]">
                 <ul className="flex flex-col gap-2 pr-2">
