@@ -244,6 +244,11 @@ const quickMenu: Array<{
     href: "woo-refund",
   },
   {
+    label: "Web order line items",
+    icon: Package,
+    href: "woo-line-items",
+  },
+  {
     label: "Send WhatsApp",
     icon: MessageSquare,
   },

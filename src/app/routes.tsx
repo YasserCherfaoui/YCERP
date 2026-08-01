@@ -57,6 +57,7 @@ import CompanyBrokenItemsTransfersPage from "@/pages/dashboard/company/company-b
 import CompanyBrokenItemsDeclarationsPage from "@/pages/dashboard/company/company-broken-items-declarations-page";
 import CompanyFranchiseFulfillmentPage from "@/pages/dashboard/company/company-franchise-fulfillment-page";
 import CompanyWooRefundPage from "@/pages/dashboard/company/company-woo-refund-page";
+import CompanyWooLineItemsSummaryPage from "@/pages/dashboard/company/company-woo-line-items-summary-page";
 import CompanyFranchiseShipFromStorePage from "@/pages/dashboard/company/company-franchise-ship-from-store-page";
 import CompanyFranchiseSupportRoutePage from "@/pages/dashboard/company/company-franchise-support-route-page";
 import CompanyFranchiseVariantDepositsPage from "@/pages/dashboard/company/company-franchise-variant-deposits-page";
@@ -241,6 +242,10 @@ export default function AppRouter() {
             />
             <Route path="woo-refund" element={<CompanyWooRefundPage />} />
             <Route
+              path="woo-line-items"
+              element={<CompanyWooLineItemsSummaryPage />}
+            />
+            <Route
               path="ship-from-store"
               element={<Navigate to="franchise-fulfillment?tab=shipments" replace />}
             />
@@ -344,6 +349,10 @@ export default function AppRouter() {
                 element={<CompanyFranchiseFulfillmentPage />}
               />
               <Route path="woo-refund" element={<CompanyWooRefundPage />} />
+              <Route
+                path="woo-line-items"
+                element={<CompanyWooLineItemsSummaryPage />}
+              />
               <Route
                 path="ship-from-store"
                 element={<Navigate to="franchise-fulfillment?tab=shipments" replace />}
