@@ -32,12 +32,15 @@ interface OrderDetailsDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   ordersQueryKey?: any[];
+  /** When true, shows a DELETED badge (soft-deleted reference). */
+  isDeleted?: boolean;
 }
 
 export default function OrderDetailsDialog({
   order,
   open,
   setOpen,
+  isDeleted,
 }: OrderDetailsDialogProps) {
   const { data: center } = useQuery({
     queryKey: ["yalidine-center", order.woo_shipping?.selected_center],
@@ -70,6 +73,9 @@ export default function OrderDetailsDialog({
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
             Order Details #{order.number || order.id}
+            {isDeleted && (
+              <Badge variant="destructive">DELETED</Badge>
+            )}
           </DialogTitle>
           <DialogDescription>
             Comprehensive information for this WooCommerce order
