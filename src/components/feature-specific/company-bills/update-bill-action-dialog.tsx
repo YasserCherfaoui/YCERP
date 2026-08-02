@@ -59,11 +59,14 @@ export default function UpdateBillActionDialog({
   const [qrInput, setQrInput] = useState("");
 
   function toFormItems(items: BillItemModel[]) {
-    return items.map((item) => ({
-      id: item.id,
-      product_variant_id: item.product_variant_id,
-      quantity: item.quantity,
-    }));
+    return items.map((item) => {
+      const id = item.id ?? item.ID;
+      return {
+        ...(id != null ? { id } : {}),
+        product_variant_id: item.product_variant_id,
+        quantity: item.quantity,
+      };
+    });
   }
 
   const qrCodeMap = inventoryItems.reduce(
