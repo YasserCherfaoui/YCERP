@@ -63,6 +63,8 @@ export interface InventoryItemTransactionLog {
     comment: string;
     reference_id?: number;
     reference_type: string;
+    /** True when the referenced entity is soft-deleted. */
+    reference_deleted?: boolean;
 }
 
 export interface InventoryDiscrepancy {
@@ -107,4 +109,11 @@ export interface InventoryItemBalanceAtResponse {
     at: string;
     used_snapshot: boolean;
     snapshot_date?: string;
+}
+
+export interface InventoryReferenceResponse {
+    reference_type: string;
+    reference_id: number;
+    deleted: boolean;
+    data: unknown;
 }

@@ -30,7 +30,9 @@ export type ExitBill = {
 }
 
 export type BillItemModel = {
-    id: number;
+    /** Prefer lowercase; API often returns GORM `ID`. */
+    id?: number;
+    ID?: number;
     CreatedAt: string;
     UpdatedAt: string;
     DeletedAt?: string;

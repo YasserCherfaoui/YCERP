@@ -6,6 +6,7 @@ import {
     InventoryDiscrepanciesResponse,
     InventorySnapshotResponse,
     InventoryItemBalanceAtResponse,
+    InventoryReferenceResponse,
 } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
@@ -83,6 +84,27 @@ export const getInventoryItemTransactionLogs = async (
     const apiResponse: APIResponse<InventoryItemTransactionLog[]> = await response.json();
     return apiResponse;
 }
+
+export const getInventoryReference = async (
+    referenceType: string,
+    referenceId: number
+): Promise<APIResponse<InventoryReferenceResponse>> => {
+    const response = await fetch(
+        `${baseUrl}/inventory/reference/${encodeURIComponent(referenceType)}/${referenceId}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch reference details.");
+    }
+    return response.json();
+};
 
 export const getCompanyInventoryTransactionLogs = async (comapnyID: number): Promise<APIResponse<InventoryItemTransactionLog[]>> => {
     const response = await fetch(`${baseUrl}/inventory/transactions/${comapnyID}`, {
