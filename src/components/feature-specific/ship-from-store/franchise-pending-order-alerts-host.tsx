@@ -13,7 +13,7 @@ export default function FranchisePendingOrderAlertsHost() {
     (state: RootState) => state.franchise.franchise
   );
   const enabled = !!franchise?.require_order_alert;
-  const { current, queueLength, dismissOrder } =
+  const { current, queueLength, dismissOrder, snooze } =
     useFranchisePendingOrderAlerts(enabled ? franchise?.ID : undefined);
 
   if (!enabled) {
@@ -25,6 +25,7 @@ export default function FranchisePendingOrderAlertsHost() {
       order={current}
       remainingCount={queueLength}
       onAcknowledged={dismissOrder}
+      onSnooze={() => snooze()}
     />
   );
 }

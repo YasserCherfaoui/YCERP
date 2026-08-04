@@ -5,6 +5,27 @@ import {
 import type { WooOrder } from "@/models/data/woo-order.model";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+const SNOOZE_MS = 10 * 60 * 1000;
+
+function snoozeStorageKey(franchiseId: number) {
+  return `franchise-order-alert-snooze-until:${franchiseId}`;
+}
+
+function readSnoozeUntil(franchiseId: number): number | null {
+  try {
+    const raw = localStorage.getItem(snoozeStorageKey(franchiseId));
+    if (!raw) return null;
+    const until = Number(raw);
+    if (!Number.isFinite(until) || until <= Date.now()) {
+      localStorage.removeItem(snoozeStorageKey(franchiseId));
+      return null;
+    }
+    return until;
+  } catch {
+    return null;
+  }
+}
+
 interface FranchiseOrderPendingEvent {
   event: string;
   data: WooOrder;
@@ -48,11 +69,16 @@ async function fetchPendingOrders(): Promise<WooOrder[]> {
 /**
  * Keeps a FIFO queue of pending ship-from-store orders for the franchise portal.
  * Catch-up on connect/reconnect + live WS `franchise_order_pending` events.
+ * Supports a temporary snooze that hides the alert UI without acknowledging orders.
  */
 export function useFranchisePendingOrderAlerts(franchiseId: number | undefined) {
   const [queue, setQueue] = useState<WooOrder[]>([]);
+  const [snoozeUntil, setSnoozeUntil] = useState<number | null>(() =>
+    franchiseId && franchiseId > 0 ? readSnoozeUntil(franchiseId) : null
+  );
   const shouldReconnect = useRef(true);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const snoozeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
   const enqueue = useCallback((orders: WooOrder[]) => {
@@ -62,6 +88,63 @@ export function useFranchisePendingOrderAlerts(franchiseId: number | undefined) 
   const dismissOrder = useCallback((orderId: number) => {
     setQueue((prev) => prev.filter((o) => o.id !== orderId));
   }, []);
+
+  const clearSnooze = useCallback(() => {
+    if (franchiseId && franchiseId > 0) {
+      try {
+        localStorage.removeItem(snoozeStorageKey(franchiseId));
+      } catch {
+        // ignore storage errors
+      }
+    }
+    setSnoozeUntil(null);
+  }, [franchiseId]);
+
+  const snooze = useCallback(
+    (durationMs: number = SNOOZE_MS) => {
+      if (!franchiseId || franchiseId <= 0) return;
+      const until = Date.now() + durationMs;
+      try {
+        localStorage.setItem(snoozeStorageKey(franchiseId), String(until));
+      } catch {
+        // ignore storage errors; in-memory snooze still applies
+      }
+      setSnoozeUntil(until);
+    },
+    [franchiseId]
+  );
+
+  // Rehydrate / clear snooze when franchise changes
+  useEffect(() => {
+    if (!franchiseId || franchiseId <= 0) {
+      setSnoozeUntil(null);
+      return;
+    }
+    setSnoozeUntil(readSnoozeUntil(franchiseId));
+  }, [franchiseId]);
+
+  // Wake up when snooze expires
+  useEffect(() => {
+    if (snoozeTimeoutRef.current) {
+      clearTimeout(snoozeTimeoutRef.current);
+      snoozeTimeoutRef.current = null;
+    }
+    if (snoozeUntil == null) return;
+    const remaining = snoozeUntil - Date.now();
+    if (remaining <= 0) {
+      clearSnooze();
+      return;
+    }
+    snoozeTimeoutRef.current = setTimeout(() => {
+      clearSnooze();
+    }, remaining);
+    return () => {
+      if (snoozeTimeoutRef.current) {
+        clearTimeout(snoozeTimeoutRef.current);
+        snoozeTimeoutRef.current = null;
+      }
+    };
+  }, [snoozeUntil, clearSnooze]);
 
   const loadCatchUp = useCallback(async () => {
     try {
@@ -143,7 +226,14 @@ export function useFranchisePendingOrderAlerts(franchiseId: number | undefined) 
     };
   }, [franchiseId, enqueue, loadCatchUp]);
 
-  const current = queue[0] ?? null;
+  const isSnoozed = snoozeUntil != null && snoozeUntil > Date.now();
+  const current = isSnoozed ? null : queue[0] ?? null;
 
-  return { current, queueLength: queue.length, dismissOrder };
+  return {
+    current,
+    queueLength: queue.length,
+    dismissOrder,
+    snooze,
+    isSnoozed,
+  };
 }
