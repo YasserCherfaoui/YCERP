@@ -27,6 +27,7 @@ import {
   Phone,
   Printer,
   ShoppingCart,
+  Timer,
   User,
 } from "lucide-react";
 import { useState } from "react";
@@ -35,12 +36,14 @@ interface Props {
   order: WooOrder | null;
   remainingCount: number;
   onAcknowledged: (orderId: number) => void;
+  onSnooze: () => void;
 }
 
 export default function FranchisePendingOrderAlertDialog({
   order,
   remainingCount,
   onAcknowledged,
+  onSnooze,
 }: Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -136,8 +139,8 @@ export default function FranchisePendingOrderAlertDialog({
                     New ship-from-store order #{order.number || order.id}
                   </DialogTitle>
                   <DialogDescription>
-                    Update the franchise status to continue. This alert stays open
-                    until the order is marked packed or not available.
+                    Update the franchise status to continue, or snooze this alert
+                    for 10 minutes to keep working in the portal.
                     {remainingCount > 1
                       ? ` (${remainingCount} pending orders)`
                       : null}
@@ -282,22 +285,39 @@ export default function FranchisePendingOrderAlertDialog({
                 </div>
 
                 <DialogFooter className="gap-2 sm:justify-between">
-                  <Button
-                    variant="outline"
-                    disabled={
-                      !order.has_shipping_label ||
-                      labelLoading ||
-                      mutation.isPending
-                    }
-                    onClick={() => void handlePrintLabel()}
-                  >
-                    {labelLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Printer className="mr-2 h-4 w-4" />
-                    )}
-                    Print label
-                  </Button>
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-2">
+                    <Button
+                      variant="outline"
+                      disabled={
+                        !order.has_shipping_label ||
+                        labelLoading ||
+                        mutation.isPending
+                      }
+                      onClick={() => void handlePrintLabel()}
+                    >
+                      {labelLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Printer className="mr-2 h-4 w-4" />
+                      )}
+                      Print label
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      disabled={mutation.isPending}
+                      onClick={() => {
+                        onSnooze();
+                        toast({
+                          title: "Reminder set",
+                          description:
+                            "This alert will come back in 10 minutes.",
+                        });
+                      }}
+                    >
+                      <Timer className="mr-2 h-4 w-4" />
+                      Remind me in 10 minutes
+                    </Button>
+                  </div>
                   <div className="flex flex-col-reverse gap-2 sm:flex-row sm:gap-2">
                     <Button
                       variant="destructive"
