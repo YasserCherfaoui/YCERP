@@ -21,13 +21,15 @@ import {
 import { getInventoryItemTransactionLogs } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
 import { History, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 interface Props {
   inventoryItemId: number;
+  /** Custom clickable trigger; defaults to a History icon button */
+  trigger?: ReactNode;
 }
 
-export default function ({ inventoryItemId }: Props) {
+export default function ({ inventoryItemId, trigger }: Props) {
   const [open, setOpen] = useState(false);
   const [referenceOpen, setReferenceOpen] = useState(false);
   const [selectedReference, setSelectedReference] = useState<{
@@ -51,10 +53,12 @@ export default function ({ inventoryItemId }: Props) {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>
-          <Button variant={"ghost"}>
-            <History />
-          </Button>
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <Button variant={"ghost"}>
+              <History />
+            </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="w-fit ">
           <DialogHeader>

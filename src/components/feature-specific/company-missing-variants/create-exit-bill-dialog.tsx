@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import TransactionsLogDialog from "@/components/feature-specific/company-warehouse/transactions-log-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -310,9 +311,31 @@ export default function CreateExitBillDialog({
                                   </Badge>
                                 )}
                               </div>
-                              <Badge variant="outline" className="text-xs">
-                                Original: {request.requested_quantity}
-                              </Badge>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  Franchise stock:{" "}
+                                  {request.franchise_inventory_item_id ? (
+                                    <TransactionsLogDialog
+                                      inventoryItemId={request.franchise_inventory_item_id}
+                                      trigger={
+                                        <button
+                                          type="button"
+                                          className="ml-1 font-semibold text-primary underline-offset-2 hover:underline"
+                                        >
+                                          {request.franchise_inventory_quantity ?? 0}
+                                        </button>
+                                      }
+                                    />
+                                  ) : (
+                                    <span className="ml-1">
+                                      {request.franchise_inventory_quantity ?? 0}
+                                    </span>
+                                  )}
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  Original: {request.requested_quantity}
+                                </Badge>
+                              </div>
                             </div>
                             <FormField
                               control={form.control}

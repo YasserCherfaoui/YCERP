@@ -35,6 +35,10 @@ export interface MissingVariantRequestResponse {
   product_variant_color: string;
   product_variant_size: number;
   requested_quantity: number;
+  /** Current stock of this variant in the franchise inventory */
+  franchise_inventory_quantity: number;
+  /** Franchise inventory item id (for transaction logs); omitted if no item exists */
+  franchise_inventory_item_id?: number;
   status: MissingVariantStatus;
   comment?: string;
   created_at: string;
