@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
+  Calendar,
   Loader2,
   MapPin,
   Package,
@@ -31,6 +32,21 @@ import {
   User,
 } from "lucide-react";
 import { useState } from "react";
+
+function formatOrderCreatedAt(order: WooOrder): string {
+  const raw = order.created_at || order.date_created;
+  if (!raw) return "—";
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString(undefined, {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 interface Props {
   order: WooOrder | null;
@@ -148,6 +164,18 @@ export default function FranchisePendingOrderAlertDialog({
                 </DialogHeader>
 
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+                  <div className="flex items-center gap-3 rounded-lg border bg-muted/40 px-4 py-3">
+                    <Calendar className="h-7 w-7 shrink-0 text-foreground" />
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Order created
+                      </div>
+                      <div className="truncate text-xl font-semibold tabular-nums sm:text-2xl">
+                        {formatOrderCreatedAt(order)}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Card>
                       <CardHeader className="pb-2">
