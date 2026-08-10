@@ -3,6 +3,26 @@ import { FranchiseCommissionsResponse } from "@/models/data/franchise-commission
 import { ShipFromStore } from "@/models/data/ship-from-store.model";
 import { WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
+import { QueryClient } from "@tanstack/react-query";
+
+/** Patch has_shipping_label in-place so the orders table does not refetch/reorder. */
+export function markOrderHasShippingLabelInCache(
+  queryClient: QueryClient,
+  orderId: number
+) {
+  queryClient.setQueriesData<APIResponse<WooOrder[]>>(
+    { queryKey: ["company-franchise-fulfillment-orders"] },
+    (old) => {
+      if (!old?.data) return old;
+      return {
+        ...old,
+        data: old.data.map((order) =>
+          order.id === orderId ? { ...order, has_shipping_label: true } : order
+        ),
+      };
+    }
+  );
+}
 
 const authHeaders = () => ({
   "Content-Type": "application/json",

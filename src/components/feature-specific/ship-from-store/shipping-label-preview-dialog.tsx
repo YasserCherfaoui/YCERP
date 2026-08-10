@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { WooOrder } from "@/models/data/woo-order.model";
 import {
   getCompanyWooOrderShippingLabelUrl,
+  markOrderHasShippingLabelInCache,
   uploadWooOrderShippingLabel,
 } from "@/services/franchise-fulfillment-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -50,9 +51,7 @@ export function ShippingLabelPreviewDialog({
         title: "Label replaced",
         description: `Shipping label updated for order #${order.number || order.id}.`,
       });
-      await queryClient.invalidateQueries({
-        queryKey: ["company-franchise-fulfillment-orders"],
-      });
+      markOrderHasShippingLabelInCache(queryClient, order.id);
       await queryClient.invalidateQueries({
         queryKey: ["company-shipping-label-url", order.id, companyId],
       });

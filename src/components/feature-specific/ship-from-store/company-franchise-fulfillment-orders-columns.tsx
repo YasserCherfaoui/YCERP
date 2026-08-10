@@ -9,7 +9,10 @@ import {
   WooOrder,
   isFranchiseOrderStatus,
 } from "@/models/data/woo-order.model";
-import { uploadWooOrderShippingLabel } from "@/services/franchise-fulfillment-service";
+import {
+  markOrderHasShippingLabelInCache,
+  uploadWooOrderShippingLabel,
+} from "@/services/franchise-fulfillment-service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Eye, FileSearch, Printer, Upload } from "lucide-react";
@@ -106,9 +109,7 @@ function UploadLabelCell({
         title: "Label uploaded",
         description: `Shipping label saved for order #${order.number || order.id}.`,
       });
-      queryClient.invalidateQueries({
-        queryKey: ["company-franchise-fulfillment-orders"],
-      });
+      markOrderHasShippingLabelInCache(queryClient, order.id);
     },
     onError: (error: Error) => {
       toast({
