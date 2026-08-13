@@ -7,10 +7,10 @@ export default function () {
   const company = useSelector((state: RootState) => state.company.company);
   if (!company) return;
   return (
-    <div className="flex justify-between">
-      <div className="flex gap-4 items-center">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
         <AppBarBackButton destination="Sales Menu" />
-        <span className="text-2xl font-bold">
+        <span className="truncate text-lg font-bold sm:text-2xl">
           {company.company_name} &gt; Sales
         </span>
       </div>

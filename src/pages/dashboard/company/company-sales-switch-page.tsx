@@ -10,28 +10,28 @@ export default function () {
   const navigate = useNavigate();
   const company = useSelector((state: RootState) => state.company.company);
   return (
-    <div className="flex flex-col   w-screen h-screen p-4">
-        <div className="flex gap-2 items-center">
+    <div className="flex min-h-[100dvh] w-full flex-col p-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
             <AppBarBackButton destination="Menu" />
-            <p>{company?.company_name} &gt; Sales Menu</p>
+            <p className="truncate">{company?.company_name} &gt; Sales Menu</p>
         </div>
-      <div className="flex flex-col  justify-center  items-center w-full h-full gap-4">
-        <h2 className="text-3xl font-bold text-center">
-          Welcome to {company?.company_name} 💼
+      <div className="flex w-full flex-1 flex-col items-center justify-center gap-4 py-8">
+        <h2 className="text-center text-2xl font-bold sm:text-3xl">
+          Welcome to {company?.company_name}
         </h2>
-        <h2 className="text-l italic text-center">
-          Monitor your sales just by one click 🎯
+        <h2 className="text-center text-sm italic sm:text-base">
+          Monitor your sales just by one click
         </h2>
-        <div className="w-full flex justify-center gap-4">
+        <div className="grid w-full max-w-xl grid-cols-2 gap-3 sm:gap-4">
           {carouselItems.map((item, index) => (
             <Card
               onClick={() => navigate(item.href)}
               key={index}
-              className="flex flex-col h-48 w-48 justify-center items-center hover:bg-gray-100 hover:cursor-pointer hover:text-black "
+              className="flex h-28 w-full cursor-pointer flex-col items-center justify-center hover:bg-gray-100 hover:text-black sm:h-48"
             >
-              <CardContent className="flex flex-col justify-center items-center gap-2">
-                <item.icon size={48} />
-                <h3 className="text-xl font-bold">{item.label}</h3>
+              <CardContent className="flex flex-col items-center justify-center gap-2 p-3 sm:p-6">
+                <item.icon className="h-8 w-8 sm:h-12 sm:w-12" />
+                <h3 className="text-center text-sm font-bold sm:text-xl">{item.label}</h3>
               </CardContent>
             </Card>
           ))}

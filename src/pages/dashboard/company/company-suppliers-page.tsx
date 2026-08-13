@@ -2,7 +2,7 @@ import CompanySuppliersAppBar from "@/components/feature-specific/company-suppli
 import CompanySuppliersBody from "@/components/feature-specific/company-suppliers/company-suppliers-body";
 
 export default function () {
-  return <div className="p-4 flex flex-col h-screen gap-4">
+  return <div className="flex min-h-[100dvh] flex-col gap-4 p-4">
     <CompanySuppliersAppBar />
     <CompanySuppliersBody />
   </div>;

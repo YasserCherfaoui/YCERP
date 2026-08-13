@@ -23,6 +23,7 @@ import {
 import { PaginationMeta } from "@/models/responses/company-stats.model";
 import React, { useEffect, useRef } from "react";
 import { Button } from "./button";
+import { DataTableMobileCards } from "./data-table-mobile-cards";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -256,7 +257,13 @@ export function DataTable<TData, TValue>({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="md:hidden">
+        <DataTableMobileCards
+          table={table}
+          selectionEnabled={selectionEnabled}
+        />
+      </div>
+      <div className="hidden rounded-md border md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup, headerGroupIdx) => (

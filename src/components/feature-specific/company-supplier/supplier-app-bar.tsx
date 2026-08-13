@@ -11,28 +11,25 @@ interface Props {
 }
 
 export default function ({ supplier }: Props) {
-  let company = useSelector((state: RootState) => state.company.company);
+  const companyFromStore = useSelector((state: RootState) => state.company.company);
+  const userCompany = useSelector((state: RootState) => state.user.company);
   const { pathname } = useLocation();
   const isModerator = pathname.includes("moderator");
-  if (isModerator) {
-    company = useSelector((state: RootState) => state.user.company);
-  }
+  const company = isModerator ? userCompany : companyFromStore;
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-between">
-        {/* ANCHOR: Leading + Title */}
-        <div className="flex gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
           <AppBarBackButton destination="Suppliers" />
-          <span className="text-2xl">
+          <span className="truncate text-lg sm:text-2xl">
             {company?.company_name} &gt; Suppliers &gt; {supplier.supplier.name}
           </span>
         </div>
-        {/* ANCHOR: ACTION BUTTONS */}
-        <div className={`flex gap-4 ${isModerator ? 'hidden' : ''}`}>
+        <div className={`flex gap-2 sm:gap-4 ${isModerator ? "hidden" : ""}`}>
           <RecordPaymentDialog supplier={supplier} />
         </div>
       </div>
-      <div className={`flex gap-2 ${isModerator ? 'hidden' : ''}`}>
+      <div className={`grid grid-cols-1 gap-2 sm:grid-cols-3 ${isModerator ? "hidden" : ""}`}>
         <Card className="p-4 flex flex-col gap-3">
           <CardTitle className="text-xl">Paid</CardTitle>
           <CardContent className="text-2xl">

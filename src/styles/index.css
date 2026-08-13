@@ -165,3 +165,8 @@
   }
 }
 
+html {
+  touch-action: manipulation;
+}
+
+
