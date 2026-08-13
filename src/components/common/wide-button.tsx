@@ -25,7 +25,7 @@ export default function ({ item }: Props) {
   return (
     <Card
       onClick={handleClick}
-      className="flex flex-col h-48 w-48 justify-center items-center hover:bg-gray-100 hover:cursor-pointer hover:text-black relative"
+      className="relative flex h-28 w-full min-w-0 flex-col items-center justify-center hover:cursor-pointer hover:bg-gray-100 hover:text-black sm:h-48"
     >
       {item.badge !== undefined && item.badge !== null && (
         <Badge
@@ -35,9 +35,9 @@ export default function ({ item }: Props) {
           {item.badge}
         </Badge>
       )}
-      <CardContent className="flex flex-col justify-center items-center gap-2">
-        <item.icon size={48} />
-        <h3 className="text-xl font-bold">{item.label}</h3>
+      <CardContent className="flex flex-col items-center justify-center gap-2 p-3 sm:p-6">
+        <item.icon className="h-8 w-8 sm:h-12 sm:w-12" />
+        <h3 className="text-center text-sm font-bold leading-tight sm:text-xl">{item.label}</h3>
       </CardContent>
     </Card>
   );

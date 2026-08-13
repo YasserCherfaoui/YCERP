@@ -5,22 +5,18 @@ import { useLocation } from "react-router-dom";
 import AddSupplierDialog from "./add-supplier-dialog";
 
 export default function () {
-  let company = useSelector((state: RootState) => state.company.company);
+  const companyFromStore = useSelector((state: RootState) => state.company.company);
+  const userCompany = useSelector((state: RootState) => state.user.company);
   const { pathname } = useLocation();
-  if (pathname.includes("moderator")) {
-    company = useSelector((state: RootState) => state.user.company);
-  }
+  const company = pathname.includes("moderator") ? userCompany : companyFromStore;
   if (!company) return;
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex gap-2 items-center">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
         <AppBarBackButton destination="Menu" />
-        {company.company_name}
-        &gt; Suppliers
+        <span className="truncate">{company.company_name} &gt; Suppliers</span>
       </div>
-      <div>
-        <AddSupplierDialog />
-      </div>
+      <AddSupplierDialog />
     </div>
   );
 }

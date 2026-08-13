@@ -23,6 +23,7 @@ import {
 import { PaginationMeta } from "@/models/responses/company-stats.model";
 import React, { useEffect, useRef } from "react";
 import { Button } from "./button";
+import { DataTableMobileCards } from "./data-table-mobile-cards";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -214,7 +215,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4">
+      <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
         {searchBar && (
           <Input
             placeholder={searchPlaceholder}
@@ -226,12 +227,12 @@ export function DataTable<TData, TValue>({
                 table.getColumn(searchColumn)?.setFilterValue(event.target.value);
               }
             }}
-            className="max-w-sm"
+            className="w-full max-w-sm"
           />
         )}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button variant="outline" className="sm:ml-auto">
               Columns
             </Button>
           </DropdownMenuTrigger>
@@ -256,7 +257,13 @@ export function DataTable<TData, TValue>({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="md:hidden">
+        <DataTableMobileCards
+          table={table}
+          selectionEnabled={selectionEnabled}
+        />
+      </div>
+      <div className="hidden rounded-md border md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup, headerGroupIdx) => (
@@ -345,7 +352,7 @@ export function DataTable<TData, TValue>({
           : null}
       </div>
 
-        <Pagination className="flex space-x-2 py-4 w-[500px]">
+        <Pagination className="flex w-full max-w-full space-x-2 overflow-x-auto py-4">
           <PaginationContent className="pb-5">
             <PaginationItem>
               <PaginationPrevious
@@ -375,7 +382,7 @@ export function DataTable<TData, TValue>({
               />
             </PaginationItem>
             {/* Page numbers */}
-            <div className="flex overflow-x-scroll w-[400px]">
+            <div className="flex max-w-full overflow-x-auto">
               {Array.from({ length: pageCount > 0 ? pageCount : 1 }).map(
                 (_, i) => (
                   <PaginationItem key={i}>

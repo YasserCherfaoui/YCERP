@@ -298,7 +298,7 @@ export default function ({ franchise, preparingExitBills = [], dateRange }: Prop
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="flex-shrink-0">
                 <Key className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Get Token</span>
+                <span>Token</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px] max-w-[95vw]">
@@ -375,7 +375,7 @@ export default function ({ franchise, preparingExitBills = [], dateRange }: Prop
               title="Get link to open franchise dashboard in an incognito window"
             >
               <ExternalLink className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">{isOpenDashboardLoading ? "Loading…" : "Open dashboard"}</span>
+              <span>{isOpenDashboardLoading ? "Loading…" : "Dashboard"}</span>
             </Button>
             <Dialog open={dashboardDialogOpen} onOpenChange={handleDashboardDialogOpenChange}>
               <DialogContent className="sm:max-w-[500px] max-w-[95vw]">
@@ -432,7 +432,7 @@ export default function ({ franchise, preparingExitBills = [], dateRange }: Prop
           className="flex-shrink-0"
         >
           <Inspect className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Consult</span>
+          <span>Consult</span>
         </Button>
       </CardFooter>
       <PreparingExitBillsPicker

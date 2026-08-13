@@ -7,10 +7,10 @@ export default function() {
     const franchise = useSelector((state:RootState)=> state.franchise.franchise);
     if (!franchise) return;
     return (
-        <div className="flex gap-2 justify-between items-center">
-            <div className="flex gap-2 items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <AppBarBackButton destination="Dashboard" />
-                {franchise.name} &gt; Sales
+                <span className="truncate text-sm sm:text-base">{franchise.name} &gt; Sales</span>
             </div>
             <FillItemPricesDialog franchiseId={franchise.ID} />
         </div>

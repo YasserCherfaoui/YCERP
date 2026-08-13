@@ -78,7 +78,8 @@ export default function () {
       <DialogTrigger asChild>
         <Button>
           <Plus />
-          Add Product Variant
+          <span className="sm:hidden">Variant</span>
+          <span className="hidden sm:inline">Add Product Variant</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

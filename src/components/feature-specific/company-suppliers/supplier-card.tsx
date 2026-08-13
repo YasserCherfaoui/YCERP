@@ -20,7 +20,7 @@ interface Props {
 export default function ({ supplier }: Props) {
   const navigate = useNavigate();
   return (
-    <Card className="w-fit">
+    <Card className="flex w-full flex-col">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2">
           <div className="flex gap-2 items-center">
@@ -36,9 +36,9 @@ export default function ({ supplier }: Props) {
         <CardDescription>{supplier.address}</CardDescription>
       </CardHeader>
 
-      <CardFooter className="flex gap-2">
+      <CardFooter className="flex flex-wrap gap-2">
         <SupplierEntryBillDialog supplierID={supplier.ID} />
-        <Button  onClick={()=> navigate(supplier.ID.toString())} >
+        <Button className="flex-1 sm:flex-none" onClick={()=> navigate(supplier.ID.toString())} >
           <Navigation />
           View
         </Button>

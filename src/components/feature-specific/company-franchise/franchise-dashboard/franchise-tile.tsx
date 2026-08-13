@@ -6,12 +6,12 @@ interface Props {
 
 export default function ({ franchise }: Props) {
   return (
-    <div className="flex gap-4">
-      <div className="text-5xl bg-gray-500 w-20 h-20 rounded-3xl  text-center flex justify-center items-center text-white">
+    <div className="flex min-w-0 items-start gap-3 px-2 sm:gap-4">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-gray-500 text-center text-3xl text-white sm:h-20 sm:w-20 sm:text-5xl">
         {franchise.name.charAt(0).toUpperCase()}
       </div>
-      <div className="flex flex-col gap-2">
-        <span className="text-xl">{franchise.name}</span>
+      <div className="flex min-w-0 flex-col gap-2">
+        <span className="text-lg sm:text-xl">{franchise.name}</span>
         <span className="text-sm">
           {franchise.address}, {franchise.city}, {franchise.state}.
         </span>

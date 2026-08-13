@@ -44,7 +44,8 @@ export default function ({disabled} : Props) {
       <DialogTrigger asChild>
         <Button disabled={disabled}>
           <Plus />
-          Add Inventory Item
+          <span className="sm:hidden">Add item</span>
+          <span className="hidden sm:inline">Add Inventory Item</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

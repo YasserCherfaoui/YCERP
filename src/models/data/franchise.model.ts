@@ -81,3 +81,22 @@ export interface FranchiseTotals {
     latest_transaction: FranchiseTransactionLog;
     recent_payments: FranchisePayment[];
 }
+
+/** GET /franchise/sales/totals/:franchise_id */
+export interface FranchiseSalesTotals {
+    total_amount: number;
+    total_franchise_price: number;
+    total_benefit: number;
+    total_exchanges_amount: number;
+    total_returns_amount: number;
+    sales_count?: number;
+    sales_amount?: number;
+    returns_count?: number;
+    returns_amount?: number;
+    exchanges_count?: number;
+    exchanges_amount?: number;
+    refunds_count?: number;
+    refunds_amount?: number;
+    start_date?: string;
+    end_date?: string;
+}

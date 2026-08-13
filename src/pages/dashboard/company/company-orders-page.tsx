@@ -27,6 +27,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useOrdersWithRealtime } from "@/hooks/use-orders-with-realtime";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -69,13 +70,13 @@ import AssignOrdersDialog from "./AssignOrdersDialog";
 import ShuffleOrdersDialog from "./ShuffleOrdersDialog";
 
 export default function CompanyOrdersPage() {
-  let company = useSelector((state: RootState) => state.company.company);
+  const isMobile = useIsMobile();
+  const companyFromStore = useSelector((state: RootState) => state.company.company);
+  const userCompany = useSelector((state: RootState) => state.user.company);
   const { pathname } = useLocation();
   const isModerator = pathname.includes("moderator");
   const isAdministrator = useSelector((state: RootState) => state.auth.isAuthenticated);
-  if (isModerator) {
-    company = useSelector((state: RootState) => state.user.company);
-  }
+  const company = isModerator ? userCompany : companyFromStore;
   // Mock data for demonstration
 
   if (!company) {
@@ -406,25 +407,27 @@ export default function CompanyOrdersPage() {
   );
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center gap-4">
-        <div className="flex gap-2">
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <AppBarBackButton destination="Menu" />
-          <h1 className="text-2xl font-bold">WooCommerce Orders</h1>
+          <h1 className="truncate text-lg font-bold sm:text-2xl">WooCommerce Orders</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button disabled={isModerator} onClick={() => setShuffleOpen(true)}>
-            <ShuffleIcon className="w-4 h-4" />
-            Shuffle Orders
+            <ShuffleIcon className="h-4 w-4" />
+            <span className="sm:hidden">Shuffle</span>
+            <span className="hidden sm:inline">Shuffle Orders</span>
           </Button>
           <Button
             onClick={() => refreshWooCommerceStatusMutation()}
             disabled={refreshWooCommerceStatusLoading}
           >
-            <RefreshCcwIcon className="w-4 h-4" />
-            Refresh Status{" "}
+            <RefreshCcwIcon className="h-4 w-4" />
+            <span className="sm:hidden">Refresh</span>
+            <span className="hidden sm:inline">Refresh Status</span>
             {refreshWooCommerceStatusLoading && (
-              <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+              <Loader2 className="ml-2 h-4 w-4 animate-spin" />
             )}
           </Button>
           {selectedStatus === "dispaching" && (
@@ -433,10 +436,11 @@ export default function CompanyOrdersPage() {
               disabled={syncDispatchingOrdersLoading}
               variant="outline"
             >
-              <RefreshCcwIcon className="w-4 h-4" />
-              Sync with Yalidine{" "}
+              <RefreshCcwIcon className="h-4 w-4" />
+              <span className="sm:hidden">Sync</span>
+              <span className="hidden sm:inline">Sync with Yalidine</span>
               {syncDispatchingOrdersLoading && (
-                <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
               )}
             </Button>
           )}
@@ -444,101 +448,106 @@ export default function CompanyOrdersPage() {
             variant="outline"
             onClick={() => setYalidineReconciliationOpen(true)}
           >
-            Reconcile Yalidine
+            <span className="sm:hidden">Reconcile</span>
+            <span className="hidden sm:inline">Reconcile Yalidine</span>
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
             disabled={isModerator || selectedRows.length === 0}
           >
-            <UserIcon className="w-4 h-4" />
-            Assign Orders
+            <UserIcon className="h-4 w-4" />
+            <span className="sm:hidden">Assign</span>
+            <span className="hidden sm:inline">Assign Orders</span>
           </Button>
           <Button
             onClick={() => setBulkDialogOpen(true)}
             disabled={selectedRows.length === 0}
           >
-            Bulk Operations
+            Bulk
           </Button>
           <Button variant="default" onClick={() => setCreateOrderOpen(true)}>
             + Create Order
           </Button>
-          {/* Add Create Order button here, only if not isModerator */}
           {!isModerator && (
-            <>
-              <Button
-                variant="secondary"
-                onClick={() => setImportCSVOpen(true)}
-              >
-                <Upload className="w-4 h-4 mr-1" />
-                Import CSV
-              </Button>
-            </>
+            <Button
+              variant="secondary"
+              onClick={() => setImportCSVOpen(true)}
+            >
+              <Upload className="mr-1 h-4 w-4" />
+              Import CSV
+            </Button>
           )}
         </div>
       </div>
-      <div>
-        <div className="flex gap-2 items-center mb-4 pt-6">
-          <span>Filter by User:</span>
-          <Select
-            value={selectedUser !== undefined ? String(selectedUser) : "all"}
-            onValueChange={(e) =>
-              setSelectedUser(e === "all" ? undefined : Number(e))
-            }
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="All Users" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Users</SelectItem>
-              {users.map((user: User) => (
-                <SelectItem key={user.ID} value={String(user.ID)}>
-                  {user.full_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span>Filter by Wilaya:</span>
-          <Select
-            value={selectedWilaya || "all"}
-            onValueChange={(e) =>
-              setSelectedWilaya(e === "all" ? undefined : e)
-            }
-          >
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="All Wilayas" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Wilayas</SelectItem>
-              {cities
-                .sort((a, b) => a.label.localeCompare(b.label))
-                .map((city) => (
-                  <SelectItem key={city.key} value={city.key}>
-                    {city.label}
+      <div className="pt-6">
+        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Filter by User</span>
+            <Select
+              value={selectedUser !== undefined ? String(selectedUser) : "all"}
+              onValueChange={(e) =>
+                setSelectedUser(e === "all" ? undefined : Number(e))
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Users" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Users</SelectItem>
+                {users.map((user: User) => (
+                  <SelectItem key={user.ID} value={String(user.ID)}>
+                    {user.full_name}
                   </SelectItem>
                 ))}
-            </SelectContent>
-          </Select>
-          <span>Filter by Yalidine Status:</span>
-          <Select
-            value={selectedYalidineStatus || "all"}
-            onValueChange={(e) =>
-              setSelectedYalidineStatus(e === "all" ? undefined : e)
-            }
-          >
-            <SelectTrigger className="w-[220px]">
-              <SelectValue placeholder="All Yalidine Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Yalidine Statuses</SelectItem>
-              {Object.values(YALIDINE_STATUSES).map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <span>Confirmed Order Item:</span>
-          <div style={{ minWidth: 220 }}>
+              </SelectContent>
+            </Select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Filter by Wilaya</span>
+            <Select
+              value={selectedWilaya || "all"}
+              onValueChange={(e) =>
+                setSelectedWilaya(e === "all" ? undefined : e)
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Wilayas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Wilayas</SelectItem>
+                {cities
+                  .sort((a, b) => a.label.localeCompare(b.label))
+                  .map((city) => (
+                    <SelectItem key={city.key} value={city.key}>
+                      {city.label}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Filter by Yalidine Status</span>
+            <Select
+              value={selectedYalidineStatus || "all"}
+              onValueChange={(e) =>
+                setSelectedYalidineStatus(e === "all" ? undefined : e)
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All Yalidine Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Yalidine Statuses</SelectItem>
+                {Object.values(YALIDINE_STATUSES).map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Confirmed Order Item</span>
             <ProductVariantCombobox
               variants={allVariants}
               value={selectedConfirmedVariant}
@@ -548,47 +557,49 @@ export default function CompanyOrdersPage() {
                 .find((i) => i.product_variant_id === selectedConfirmedVariant)
                 ?.quantity.toString()}
             />
-          </div>
-          <span>Ship-from franchise:</span>
-          <Select
-            value={selectedFranchise ? String(selectedFranchise) : "all"}
-            onValueChange={(value) =>
-              setSelectedFranchise(value === "all" ? undefined : Number(value))
-            }
-          >
-            <SelectTrigger className="w-[220px]">
-              <SelectValue placeholder="All franchises" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All franchises</SelectItem>
-              {franchises.map((franchise) => (
-                <SelectItem key={franchise.ID} value={String(franchise.ID)}>
-                  {franchise.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div id="#secondary-filters">
-          <div className="flex gap-2 items-center mb-4">
-            <span>Filter by Phone Number:</span>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Ship-from franchise</span>
+            <Select
+              value={selectedFranchise ? String(selectedFranchise) : "all"}
+              onValueChange={(value) =>
+                setSelectedFranchise(value === "all" ? undefined : Number(value))
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="All franchises" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All franchises</SelectItem>
+                {franchises.map((franchise) => (
+                  <SelectItem key={franchise.ID} value={String(franchise.ID)}>
+                    {franchise.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Filter by Phone Number</span>
             <Input
-              type="text"
-              className="border rounded px-2 py-1 w-[200px]"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              className="w-full"
               placeholder="Enter phone number"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
             />
-          </div>
-          <div className="flex gap-2 items-center mb-4">
-            <span>Filter by Shipping Provider:</span>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span>Filter by Shipping Provider</span>
             <Select
               value={selectedShippingProvider || "all"}
               onValueChange={(e) =>
                 setSelectedShippingProvider(e === "all" ? undefined : e)
               }
             >
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="All Providers" />
               </SelectTrigger>
               <SelectContent>
@@ -597,21 +608,21 @@ export default function CompanyOrdersPage() {
                 <SelectItem value="yalidine">Yalidine</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </label>
         </div>
       </div>
 
       {/* Order Status Cards - For Administrators and Moderators */}
       {(isAdministrator || isModerator) && (
         <div className="mt-6 space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <h2 className="text-lg font-semibold">Order Status Overview</h2>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "justify-start text-left font-normal",
+                    "w-full justify-start text-left font-normal sm:w-auto",
                     !dateRange && "text-muted-foreground"
                   )}
                 >
@@ -637,7 +648,7 @@ export default function CompanyOrdersPage() {
                   defaultMonth={dateRange?.from}
                   selected={dateRange}
                   onSelect={setDateRange}
-                  numberOfMonths={2}
+                  numberOfMonths={isMobile ? 1 : 2}
                 />
                 <div className="flex justify-end p-2 border-t">
                   <Button size="sm" variant="ghost" onClick={() => setDateRange(undefined)}>

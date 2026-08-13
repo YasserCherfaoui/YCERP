@@ -6,9 +6,9 @@ export default function () {
   const franchise = useSelector((state: RootState) => state.franchise.franchise);
   if (!franchise) return;  
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
       <AppBarBackButton destination="Menu" />
-      <h1 className="text-2xl font-bold">{franchise.name} &gt; Statistics</h1>
+      <h1 className="truncate text-lg font-bold sm:text-2xl">{franchise.name} &gt; Statistics</h1>
     </div>
   );
 }

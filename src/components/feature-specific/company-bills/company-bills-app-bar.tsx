@@ -4,19 +4,16 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 export default function () {
-  let company = useSelector((state: RootState) => state.company.company);
+  const companyFromStore = useSelector((state: RootState) => state.company.company);
+  const userCompany = useSelector((state: RootState) => state.user.company);
   const { pathname } = useLocation();
-  if (pathname.includes("moderator")) {
-    company = useSelector((state: RootState) => state.user.company);
-  }
+  const company = pathname.includes("moderator") ? userCompany : companyFromStore;
   if (!company) return;
 
   return (
-    <div className="flex justify-between">
-      <div className="flex gap-2 items-center text-xl">
-        <AppBarBackButton destination="Menu" />
-        {company.company_name} &gt; Bills
-      </div>
+    <div className="flex min-w-0 flex-wrap items-center gap-2 text-lg sm:text-xl">
+      <AppBarBackButton destination="Menu" />
+      <span className="truncate">{company.company_name} &gt; Bills</span>
     </div>
   );
 }

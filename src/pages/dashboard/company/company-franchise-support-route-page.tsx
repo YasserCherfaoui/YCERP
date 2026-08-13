@@ -9,7 +9,7 @@ export default function CompanyFranchiseSupportRoutePage() {
   const fid = Number.isFinite(id) ? id : NaN;
 
   return (
-    <div className="flex flex-col m-10 gap-8">
+    <div className="mx-4 flex flex-col gap-6 py-6 md:mx-10 md:gap-8 md:py-8">
       <FranchiseAppBar />
       <FranchiseSupportChatMessengerShell
         position="inline"

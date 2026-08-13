@@ -61,16 +61,17 @@ export default function () {
   return (
     <>
       <SendWhatsAppDialog open={whatsappDialogOpen} onOpenChange={setWhatsappDialogOpen} />
-      <div className="flex flex-col h-screen">
-      <div className="flex p-4 justify-between items-center">
+      <div className="flex min-h-[100dvh] flex-col">
+      <div className="flex items-center justify-between p-4">
         <Button onClick={() => navigate(lastLocation)}>
           <ArrowLeft />
-          Back to Companies
+          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">Back to Companies</span>
         </Button>
       </div>
-      <div className="flex flex-col gap-10 p-4 justify-center items-center">
+      <div className="flex flex-col items-center justify-center gap-6 p-4 pb-10 sm:gap-10">
         <CompanyTile company={company} />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid w-full max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {quickMenuWithHandlers.filter((i) => !(i as any).hidden).map((item, index) => (
             <WideButton key={index} item={item} />
           ))}
@@ -82,12 +83,12 @@ export default function () {
             }} 
           />
         </div>
-        <div className="text-sm text-muted-foreground mt-2">
+        <div className="mt-2 text-sm text-muted-foreground">
           View and manage your affiliate network
         </div>
         <Link
           to={`/company/${company.ID}/affiliate-applications`}
-          className="bg-card rounded-lg p-6 hover:bg-accent transition-colors border"
+          className="w-full max-w-xl rounded-lg border bg-card p-4 transition-colors hover:bg-accent sm:p-6"
         >
           <div className="flex items-center space-x-3">
             <div className="bg-yellow-100 p-3 rounded-lg">

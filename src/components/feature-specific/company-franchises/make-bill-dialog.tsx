@@ -172,7 +172,7 @@ export default function ({ franchise }: Props) {
       <DialogTrigger asChild>
         <Button variant={"outline"} size="sm" className="flex-shrink-0">
           <ReceiptText className="h-4 w-4 sm:mr-2" />
-          <span className="hidden sm:inline">Make bill</span>
+          <span>Make bill</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

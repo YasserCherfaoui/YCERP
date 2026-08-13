@@ -115,14 +115,15 @@ export default function CompanyFranchiseVariantDepositsPage() {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="flex gap-2 items-center mb-4">
+      <div className="mb-4 flex min-w-0 flex-wrap items-center gap-2">
         <AppBarBackButton destination="Franchise" />
-        <span>
-          {company.company_name} &gt; Franchises &gt; {franchise.name} &gt; Variant deposits
+        <span className="text-sm sm:text-base">
+          <span className="hidden sm:inline">{company.company_name} &gt; Franchises &gt; </span>
+          {franchise.name} &gt; Variant deposits
         </span>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <Select
           value={statusFilter || "all"}
           onValueChange={(v) => {
@@ -130,7 +131,7 @@ export default function CompanyFranchiseVariantDepositsPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>

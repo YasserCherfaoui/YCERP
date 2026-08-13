@@ -149,7 +149,7 @@ export default function OrderStatusCards({ dateFrom, dateTo, wilaya, shippingPro
 
   return (
     <div className="w-full mb-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-8 md:gap-4">
         {status_counts.map((statusCount) => {
           const percentage = total_orders > 0 
             ? ((statusCount.count / total_orders) * 100).toFixed(1)
@@ -160,7 +160,7 @@ export default function OrderStatusCards({ dateFrom, dateTo, wilaya, shippingPro
           return (
             <Card
               key={statusCount.status}
-              className={`${colors.border} border-2 hover:shadow-lg transition-all duration-200 hover:scale-105 ${colors.bg} min-h-[120px]`}
+              className={`${colors.border} border-2 hover:shadow-md transition-shadow duration-200 ${colors.bg} min-h-[120px]`}
             >
               <CardHeader className={`pb-3 ${colors.bg}`}>
                 <CardTitle className={`text-lg font-bold flex items-center justify-center gap-2 ${colors.text} text-center uppercase tracking-wide`}>

@@ -3,6 +3,7 @@ import TransactionsLogDialog from "@/components/feature-specific/company-warehou
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
 import RecordBrokenItemsDialog from "@/components/feature-specific/broken-items/record-broken-items-dialog";
 import { Button } from "@/components/ui/button";
+import { DataTableMobileCards } from "@/components/ui/data-table-mobile-cards";
 import {
   Card,
   CardContent,
@@ -42,7 +43,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronLeftCircleIcon, ChevronRightCircleIcon } from "lucide-react";
+import { ChevronDown, ChevronLeftCircleIcon, ChevronRightCircleIcon, ChevronUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import Barcode from "react-barcode";
 import { useSelector } from "react-redux";
@@ -182,8 +183,8 @@ export default function () {
   console.log(totalCostData);
   return (
     <div className="flex flex-col gap-2 mt-4">
-      <div className="flex justify-between items-center">
-        <div className="grid grid-cols-2 gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-2">
           <Card className={isModerator ? "hidden" : ""}>
             <CardHeader>
               <CardTitle>Total Cost</CardTitle>
@@ -207,8 +208,12 @@ export default function () {
       <Input
         onChange={(e) => setGlobalFilter(e.target.value)}
         placeholder="Search..."
-        className="w-1/4"
+        className="w-full max-w-sm"
       />
+      <div className="md:hidden">
+        <DataTableMobileCards table={table} />
+      </div>
+      <div className="hidden md:block">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -227,8 +232,8 @@ export default function () {
                       )}
                       {header.column.getIsSorted() &&
                         ({
-                          asc: "⬆️",
-                          desc: "⬇️",
+                          asc: <ChevronUp className="ml-1 inline h-4 w-4" />,
+                          desc: <ChevronDown className="ml-1 inline h-4 w-4" />,
                         }[header.column.getIsSorted() as SortDirection] ??
                           null)}
                     </>
@@ -250,7 +255,8 @@ export default function () {
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between mt-4">
+      </div>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -280,7 +286,7 @@ export default function () {
           value={table.getState().pagination.pageSize.toString()}
           onValueChange={(value) => table.setPageSize(Number(value))}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Items per page" />
           </SelectTrigger>
           <SelectContent>

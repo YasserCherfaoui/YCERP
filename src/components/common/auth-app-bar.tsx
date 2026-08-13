@@ -13,23 +13,21 @@ import { toast } from "sonner";
 import { ModeToggle } from "./mode-toggle";
 
 export default function AuthAppBar() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const authUser = useSelector((state: RootState) => state.auth.user);
+  const moderatorUser = useSelector((state: RootState) => state.user.user);
+  const franchiseUser = useSelector((state: RootState) => state.franchise.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  let fullName = user?.full_name;
   const { pathname } = useLocation();
 
   const isModerator = pathname.includes("moderator");
   const isMyFranchise = pathname.includes("myFranchise");
-  if (isModerator) {
-    const user = useSelector((state: RootState) => state.user.user);
-    fullName = user?.full_name;
-  }
-  if (isMyFranchise) {
-    const user = useSelector((state: RootState) => state.franchise.user);
-    fullName = user?.full_name;
-  }
+  const fullName = isModerator
+    ? moderatorUser?.full_name
+    : isMyFranchise
+      ? franchiseUser?.full_name
+      : authUser?.full_name;
 
   // Migration: Update old default colors to new defaults
   const getUpdatedColor = (key: string, newDefault: string, oldDefault: string) => {
@@ -114,9 +112,34 @@ export default function AuthAppBar() {
     toast.success("Logged out successfully");
   };
 
-  // Hide the entire AuthAppBar on mobile devices
+  const userMenu = (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring">
+        <Avatar className="h-9 w-9">
+          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarFallback>{fullName?.charAt(0)}</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-fit">
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOut />
+          <span>Logout</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   if (isMobile) {
-    return null;
+    if (!fullName) return null;
+    return (
+      <header className="sticky top-0 z-40 flex items-center justify-between gap-2 border-b border-border/40 bg-background/95 px-4 py-2 backdrop-blur">
+        <span className="min-w-0 truncate text-sm">Welcome, {fullName}</span>
+        <div className="flex shrink-0 items-center gap-2">
+          <ModeToggle />
+          {userMenu}
+        </div>
+      </header>
+    );
   }
 
   return fullName ? (
@@ -151,21 +174,7 @@ export default function AuthAppBar() {
           </label>
           <Button size="sm" variant="ghost" onClick={resetColors} className="text-xs px-2">Reset</Button>
         </div>
-        {/* User dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger className="rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src="https://github.com/shadcn.png" />
-              <AvatarFallback>{fullName?.charAt(0)}</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-fit">
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut />
-              <span>Logout</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {userMenu}
       </div>
     </header>
   ) : null;

@@ -40,12 +40,15 @@ function variantLabel(item: {
   product_variant?: {
     qr_code?: string;
     color?: string;
+    size?: number;
     product?: { name?: string };
   };
 }) {
   const pv = item.product_variant;
   if (pv?.product?.name) {
-    return `${pv.product.name} — ${pv.color ?? ""}`;
+    return [pv.product.name, pv.color, pv.size]
+      .filter((part) => part !== undefined && part !== null && part !== "")
+      .join(" — ");
   }
   return pv?.qr_code ?? "Unknown";
 }

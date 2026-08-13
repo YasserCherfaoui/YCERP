@@ -11,17 +11,15 @@ import PrintProductsLabelsDialog from "./print-products-labels-dialog";
 
 export default function () {
   const navigate = useNavigate();
-  let company = useSelector((state: RootState) => state.company.company);
+  const companyFromStore = useSelector((state: RootState) => state.company.company);
+  const userCompany = useSelector((state: RootState) => state.user.company);
   const { pathname } = useLocation();
-  if (pathname.includes("moderator")) {
-    company = useSelector((state: RootState) => state.user.company);
-  }
+  const company = pathname.includes("moderator") ? userCompany : companyFromStore;
   const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
 
   const syncMutation = useMutation({
     mutationFn: syncProductsWithShopify,
     onSuccess: () => {
-      // You can add a toast notification here if needed
       console.log("Products synced successfully with Shopify");
     },
     onError: (error) => {
@@ -31,22 +29,24 @@ export default function () {
 
   if (!company) return;
   return (
-    <div className="flex justify-between items-center">
-      <div className="flex items-center gap-2">
-        <Button onClick={() => navigate(lastLocation)}>
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
+        <Button className="w-fit shrink-0" onClick={() => navigate(lastLocation)}>
           <ArrowLeft />
-          Back to Menu
+          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">Back to Menu</span>
         </Button>
-        <span className="text-2xl">{company.company_name} &gt; Products</span>
+        <span className="truncate text-lg sm:text-2xl">{company.company_name} &gt; Products</span>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           onClick={() => syncMutation.mutate()}
           disabled={syncMutation.isPending}
           variant="outline"
         >
-          <RefreshCw className={`w-4 h-4 mr-2 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
-          {syncMutation.isPending ? 'Syncing...' : 'Sync with Shopify'}
+          <RefreshCw className={`h-4 w-4 sm:mr-2 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+          <span className="sm:hidden">{syncMutation.isPending ? "Syncing" : "Sync"}</span>
+          <span className="hidden sm:inline">{syncMutation.isPending ? "Syncing..." : "Sync with Shopify"}</span>
         </Button>
         <AddProductForm />
         <AddProductVariantForm />

@@ -83,7 +83,8 @@ export default function () {
       <DialogTrigger asChild>
         <Button>
           <Plus />
-          Add Product
+          <span className="sm:hidden">Product</span>
+          <span className="hidden sm:inline">Add Product</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

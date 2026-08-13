@@ -1,7 +1,7 @@
 import { baseUrl, getBaseUrl } from "@/app/constants";
 import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
-import { Franchise, FranchiseTotals } from "@/models/data/franchise.model";
+import { Franchise, FranchiseSalesTotals, FranchiseTotals } from "@/models/data/franchise.model";
 import { FranchiseCommissionsResponse } from "@/models/data/franchise-commission.model";
 import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
@@ -537,7 +537,7 @@ export const getCompanyFranchisePaymentTotals = async (franchiseID: number, para
 }
 
 
-export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_franchise_price: number, total_benefit:number, total_exchanges_amount: number, total_returns_amount: number }>> => {
+export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<FranchiseSalesTotals>> => {
     const response = await fetch(`${baseUrl}/franchise/sales/totals/${franchiseID}?start_date=${from.toISOString()}&end_date=${to.toISOString()}`, {
         method: 'GET',
         headers: {
@@ -551,11 +551,11 @@ export const getFranchiseSalesTotal = async (franchiseID: number, from: Date, to
         throw new Error(errorData.message || "Failed to fetch sales total.");
     }
 
-    const apiResponse: APIResponse<{ total_amount: number, total_franchise_price: number, total_benefit:number, total_exchanges_amount: number, total_returns_amount: number }> = await response.json();
+    const apiResponse: APIResponse<FranchiseSalesTotals> = await response.json();
     return apiResponse;
 }
 
-export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<{ total_amount: number, total_franchise_price: number, total_benefit:number, total_exchanges_amount: number, total_returns_amount: number }>> => {
+export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: Date, to: Date): Promise<APIResponse<FranchiseSalesTotals>> => {
     const response = await fetch(`${baseUrl}/franchise/sales/totals/${franchiseID}?start_date=${from.toISOString()}&end_date=${to.toISOString()}`, {
         method: 'GET',
         headers: {
@@ -569,7 +569,7 @@ export const getCompanyFranchiseSalesTotal = async (franchiseID: number, from: D
         throw new Error(errorData.message || "Failed to fetch sales total.");
     }
 
-    const apiResponse: APIResponse<{ total_amount: number, total_franchise_price:number, total_benefit:number, total_exchanges_amount: number, total_returns_amount: number }> = await response.json();
+    const apiResponse: APIResponse<FranchiseSalesTotals> = await response.json();
     return apiResponse;
 }
 

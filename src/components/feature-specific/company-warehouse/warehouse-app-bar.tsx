@@ -14,13 +14,13 @@ interface Props {
   selectedRow: number | null;
 }
 export default function ({ selectedRow }: Props) {
-  let company = useSelector((state: RootState) => state.company.company);
+  const companyFromStore = useSelector((state: RootState) => state.company.company);
+  const userCompany = useSelector((state: RootState) => state.user.company);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [discrepanciesOpen, setDiscrepanciesOpen] = useState(false);
-  if (pathname.includes("moderator")) {
-    company = useSelector((state: RootState) => state.user.company);
-  }
+  const isModerator = pathname.includes("moderator");
+  const company = isModerator ? userCompany : companyFromStore;
 
   const { data: inventoryData } = useQuery({
     queryKey: ["company-inventory", company?.ID],
@@ -32,22 +32,23 @@ export default function ({ selectedRow }: Props) {
 
   if (!company) return null;
   return (
-    <div className="flex justify-between">
-      <div className="flex gap-4">
-        <Button onClick={() => navigate(lastLocation)}>
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+        <Button className="w-fit shrink-0" onClick={() => navigate(lastLocation)}>
           <ArrowLeft />
-          Back to Menu
+          <span className="sm:hidden">Back</span>
+          <span className="hidden sm:inline">Back to Menu</span>
         </Button>
-        <span className="text-2xl">{company.company_name} &gt; Warehouse</span>
+        <span className="truncate text-lg sm:text-2xl">{company.company_name} &gt; Warehouse</span>
       </div>
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-2 sm:gap-4">
         <Button
           variant="outline"
           size="sm"
           disabled={inventoryId == null}
           onClick={() => setDiscrepanciesOpen(true)}
         >
-          <AlertCircle className="mr-2 h-4 w-4" />
+          <AlertCircle className="h-4 w-4 sm:mr-2" />
           Discrepancies
         </Button>
         <AddInventoryItemForm disabled={selectedRow == null} />
