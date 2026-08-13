@@ -87,10 +87,11 @@ export default function () {
       <DialogTrigger asChild>
         <Button>
           <Plus />
-          Add Franchise
+          <span className="sm:hidden">Franchise</span>
+          <span className="hidden sm:inline">Add Franchise</span>
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Franchise</DialogTitle>
           <DialogDescription>Create a new franchise for your company.</DialogDescription>
@@ -123,7 +124,7 @@ export default function () {
                 </FormItem>
               )}
             />
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <Combobox
                 name="state"
                 label="Wilaya"

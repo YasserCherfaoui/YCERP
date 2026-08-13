@@ -13,6 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 interface DatePickerWithRangeProps {
@@ -30,6 +31,7 @@ export function DatePickerWithRange({
   date,
   onSelect,
 }: DatePickerWithRangeProps) {
+  const isMobile = useIsMobile();
   const [singleDateOnly, setSingleDateOnly] = React.useState(() =>
     isSingleDayRange(date)
   );
@@ -115,7 +117,7 @@ export function DatePickerWithRange({
               defaultMonth={selectedSingle}
               selected={selectedSingle}
               onSelect={handleSelect}
-              numberOfMonths={2}
+              numberOfMonths={isMobile ? 1 : 2}
             />
           ) : (
             <Calendar
@@ -124,7 +126,7 @@ export function DatePickerWithRange({
               defaultMonth={date?.from}
               selected={date}
               onSelect={handleSelect}
-              numberOfMonths={2}
+              numberOfMonths={isMobile ? 1 : 2}
             />
           )}
           <div className="flex justify-end p-2 border-t">

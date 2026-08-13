@@ -9,12 +9,12 @@ export default function () {
   );
   if (!franchise) return;
   return (
-    <div className="flex items-center gap-2 justify-between">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
         <AppBarBackButton destination="Menu" />
-        <h1>{franchise.name}</h1>
-        &gt;
-        <h2>Bills</h2>
+        <span className="truncate text-sm sm:text-base">
+          {franchise.name} &gt; Bills
+        </span>
       </div>
       <div>
         <AddFranchisePayment />

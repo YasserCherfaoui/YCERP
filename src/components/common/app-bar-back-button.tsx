@@ -11,9 +11,10 @@ export default function ({ destination }: Props) {
   const navigate = useNavigate();
   const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
   return (
-    <Button onClick={() => navigate(lastLocation)}>
+    <Button onClick={() => navigate(lastLocation)} className="shrink-0">
       <ArrowLeft />
-      Back to {destination}
+      <span className="sm:hidden">Back</span>
+      <span className="hidden sm:inline">Back to {destination}</span>
     </Button>
   );
 }

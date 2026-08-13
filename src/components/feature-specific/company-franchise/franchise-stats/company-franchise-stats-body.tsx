@@ -9,6 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { getProductSalesByFranchise } from "@/services/product-service";
 import { useQuery } from "@tanstack/react-query";
@@ -19,6 +20,7 @@ import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 
 export default function () {
+  const isMobile = useIsMobile();
   const franchise = useSelector(
     (state: RootState) => state.franchise.franchise
   );
@@ -49,14 +51,14 @@ export default function () {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
           <span>Company Stats</span>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "justify-start text-left font-normal",
+                  "w-full justify-start text-left font-normal sm:w-auto",
                   !date && "text-muted-foreground"
                 )}
               >
@@ -82,7 +84,7 @@ export default function () {
                 defaultMonth={date?.from}
                 selected={date}
                 onSelect={setDate}
-                numberOfMonths={2}
+                numberOfMonths={isMobile ? 1 : 2}
               />
             </PopoverContent>
           </Popover>

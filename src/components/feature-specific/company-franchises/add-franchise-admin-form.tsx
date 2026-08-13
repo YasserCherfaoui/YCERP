@@ -37,7 +37,8 @@ export default function () {
       <DialogTrigger asChild>
         <Button>
           <UserPlus />
-          Add Franchise Administrator
+          <span className="sm:hidden">Admin</span>
+          <span className="hidden sm:inline">Add Franchise Administrator</span>
         </Button>
       </DialogTrigger>
       <DialogContent>

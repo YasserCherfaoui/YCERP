@@ -63,10 +63,11 @@ export default function () {
       <DialogTrigger asChild>
         <Button>
           <Plus />
-          New Company
+          <span className="sm:hidden">Company</span>
+          <span className="hidden sm:inline">New Company</span>
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create new Company</DialogTitle>
           <DialogDescription>

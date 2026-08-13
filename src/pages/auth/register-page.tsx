@@ -72,11 +72,11 @@ export default function () {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex min-h-[100dvh] items-center justify-center px-4 py-8">
       <Helmet>
         <title>Register Page</title>
       </Helmet>
-      <Card className="w-[350px]">
+      <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Create Your Space</CardTitle>
           <CardDescription>
@@ -93,7 +93,7 @@ export default function () {
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input autoComplete="name" placeholder="John Doe" {...field} />
                     </FormControl>
                     <FormDescription>
                       Insert your actual name on Biometric Identity.
@@ -109,7 +109,7 @@ export default function () {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="user@mail.com" {...field} />
+                      <Input type="email" autoComplete="email" placeholder="user@mail.com" {...field} />
                     </FormControl>
                     <FormDescription>
                       Use a valid email address, because you will be asked to
@@ -128,6 +128,7 @@ export default function () {
                     <FormControl>
                       <Input
                         type="password"
+                        autoComplete="new-password"
                         placeholder="********"
                         {...field}
                       />
@@ -142,9 +143,9 @@ export default function () {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button variant="outline">Cancel</Button>
-          <Button disabled={loading} onClick={form.handleSubmit(onSubmit)}>
+        <CardFooter className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+          <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
+          <Button className="w-full sm:w-auto" disabled={loading} onClick={form.handleSubmit(onSubmit)}>
             {loading ? "Creating..." : "Create"}
           </Button>
         </CardFooter>

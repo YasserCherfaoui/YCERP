@@ -9,7 +9,7 @@ export default function () {
   return (
     <>
       <Label>Owner</Label>
-      <Card className="w-fit flex flex-col justify-center items-center pt-4">
+      <Card className="flex w-full flex-col items-center justify-center pt-4 sm:w-fit">
         <CardContent className="flex flex-col justify-center items-center gap-2">
           <UserAvatar />
           <Label>{currentUser?.full_name}</Label>

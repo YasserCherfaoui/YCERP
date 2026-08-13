@@ -18,11 +18,11 @@ export default function DateRangePickerCard({ dateRange, onDateRangeChange }: Da
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
           <DatePickerWithRange
             date={dateRange}
             onSelect={onDateRangeChange}
-            className="w-full"
+            className="w-full md:max-w-sm"
           />
           <div className="text-sm text-muted-foreground">
             <p>• Select a single date or date range</p>

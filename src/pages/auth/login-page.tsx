@@ -67,11 +67,11 @@ export default function () {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex min-h-[100dvh] items-center justify-center px-4 py-8">
       <Helmet>
         <title>Login Page</title>
       </Helmet>
-      <Card className="w-[350px]">
+      <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Portal Login</CardTitle>
           <CardDescription>
@@ -88,7 +88,7 @@ export default function () {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="user@mail.com" {...field} />
+                      <Input type="email" autoComplete="email" placeholder="user@mail.com" {...field} />
                     </FormControl>
                     <FormDescription>
                       Use the email you used to contact us.
@@ -114,6 +114,7 @@ export default function () {
                     <FormControl>
                       <Input
                         type="password"
+                        autoComplete="current-password"
                         placeholder="********"
                         {...field}
                       />

@@ -27,9 +27,9 @@ export default function () {
     return null;
   }
   return (
-    <div className="flex h-screen flex-col gap-10 p-4 justify-center items-center">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-6 p-4 pb-10 sm:gap-10">
       <CompanyTile company={company} />
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid w-full max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
         {quickMenu.map((item, index) => (
           <WideButton key={index} item={item} />
         ))}

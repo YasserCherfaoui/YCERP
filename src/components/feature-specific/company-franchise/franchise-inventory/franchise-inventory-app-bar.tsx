@@ -34,20 +34,21 @@ export default function () {
 
     if (!franchise) return null;
     return (
-        <div className="flex gap-2 items-center justify-between w-full">
-            <div className="flex gap-2 items-center">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <AppBarBackButton destination="Menu" />
-                <span>{franchise.name} &gt; Inventory</span>
+                <span className="truncate text-sm sm:text-base">{franchise.name} &gt; Inventory</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
                 <Button
                     variant="outline"
                     size="sm"
                     disabled={brokenItemCount === 0}
                     onClick={() => setClearBrokenOpen(true)}
                 >
-                    <PackageX className="mr-2 h-4 w-4" />
-                    Clear broken count
+                    <PackageX className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Clear broken count</span>
+                    <span className="sm:hidden">Clear broken</span>
                 </Button>
                 <Button
                     variant="outline"
@@ -55,7 +56,7 @@ export default function () {
                     disabled={inventoryId == null}
                     onClick={() => setDiscrepanciesOpen(true)}
                 >
-                    <AlertCircle className="mr-2 h-4 w-4" />
+                    <AlertCircle className="h-4 w-4 sm:mr-2" />
                     Discrepancies
                 </Button>
             </div>

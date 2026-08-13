@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import {
   FranchiseBillsDateParams,
@@ -23,6 +24,7 @@ import FranchiseBillsSummaryCards from "./franchise-bills-summary-cards";
 import FranchiseBillsTabs from "./franchise-bills-tabs/franchise-bills-tabs";
 
 export default function () {
+  const isMobile = useIsMobile();
   const franchise = useSelector(
     (state: RootState) => state.franchise.franchise
   );
@@ -60,19 +62,19 @@ export default function () {
   });
 
   return (
-    <main className="flex-1 overflow-auto p-4 md:p-6 flex flex-col gap-4">
+    <main className="flex flex-1 flex-col gap-4 overflow-auto py-4 md:p-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           Optional: same range filters bill lists, due/paid totals, and recent
           payment activity.
         </p>
-        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "justify-start text-left font-normal min-w-[220px]",
+                  "w-full min-w-0 justify-start text-left font-normal sm:w-auto sm:min-w-[220px]",
                   !billDateRange?.from && "text-muted-foreground"
                 )}
               >
@@ -98,7 +100,7 @@ export default function () {
                 defaultMonth={billDateRange?.from}
                 selected={billDateRange}
                 onSelect={setBillDateRange}
-                numberOfMonths={2}
+                numberOfMonths={isMobile ? 1 : 2}
               />
             </PopoverContent>
           </Popover>

@@ -66,14 +66,15 @@ export default function CompanyFranchiseShipFromStorePage() {
 
   return (
     <div className="p-4">
-      <div className="flex gap-2 items-center justify-between mb-4">
-        <div className="flex gap-2 items-center">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           <AppBarBackButton destination="Franchise" />
-          <span>
-            {company.company_name} &gt; Franchises &gt; {franchise.name} &gt; Ship from store
+          <span className="text-sm sm:text-base">
+            <span className="hidden sm:inline">{company.company_name} &gt; Franchises &gt; </span>
+            {franchise.name} &gt; Ship from store
           </span>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>
+        <Button className="w-fit" onClick={() => setCreateOpen(true)}>
           <Package className="mr-2 h-4 w-4" />
           Create
         </Button>
