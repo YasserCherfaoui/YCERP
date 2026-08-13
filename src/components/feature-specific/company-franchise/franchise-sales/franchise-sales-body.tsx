@@ -8,6 +8,10 @@ import {
   franchiseReturnsColumns,
   SaleReturnRow,
 } from "@/components/feature-specific/company-franchise/franchise-sales/franchise-returns-columns";
+import FranchiseSalesBreakdownAccordion, {
+  buildSalesBreakdownMetrics,
+  fallbackBreakdownFromSales,
+} from "@/components/feature-specific/franchise-sales/franchise-sales-breakdown-cards";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
@@ -39,8 +43,13 @@ export default function () {
     to: endOfDay(new Date()),
   });
 
+  const [todayBounds] = useState(() => ({
+    from: startOfDay(new Date()),
+    to: endOfDay(new Date()),
+  }));
+
   // Query for today's total
-  const { data: todayTotal } = useQuery({
+  const { data: todayTotal, isLoading: todayTotalLoading } = useQuery({
     queryKey: ["franchise-sales-total-today", franchise.ID],
     queryFn: () =>
       getCompanyFranchiseSalesTotal(
@@ -51,7 +60,7 @@ export default function () {
   });
 
   // Query for custom date range total
-  const { data: rangeTotal } = useQuery({
+  const { data: rangeTotal, isLoading: rangeTotalLoading } = useQuery({
     queryKey: [
       "franchise-sales-total-range",
       franchise.ID,
@@ -138,6 +147,28 @@ export default function () {
     );
   }, [sales, fromTime, toTime]);
 
+  const todayBreakdown = useMemo(
+    () =>
+      buildSalesBreakdownMetrics(
+        todayTotal?.data,
+        fallbackBreakdownFromSales(
+          sales,
+          todayBounds.from.getTime(),
+          todayBounds.to.getTime()
+        )
+      ),
+    [todayTotal?.data, sales, todayBounds]
+  );
+
+  const rangeBreakdown = useMemo(
+    () =>
+      buildSalesBreakdownMetrics(
+        rangeTotal?.data,
+        fallbackBreakdownFromSales(sales, fromTime, toTime)
+      ),
+    [rangeTotal?.data, sales, fromTime, toTime]
+  );
+
   useEffect(() => {
     toast({
       title: "Sales Loaded",
@@ -152,27 +183,31 @@ export default function () {
           <CardHeader>
             <CardTitle>Today's Sales Total</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <p className="text-3xl font-bold">
               {new Intl.NumberFormat("en-DZ", {
                 style: "currency",
                 currency: "DZD",
               }).format(todayTotal?.data?.total_amount || 0)}
             </p>
-            <div className="text-lg text-white flex items-center gap-2">
+            <div className="text-lg text-muted-foreground flex items-center gap-2">
               <p>
-                <span className="font-bold">
+                <span className="font-bold text-foreground">
                   {salesCount?.data?.sales_count}
                 </span>{" "}
                 sales
               </p>
               <p>
-                <span className="font-bold">
+                <span className="font-bold text-foreground">
                   {salesCount?.data?.sale_items_count}
                 </span>{" "}
                 items
               </p>
             </div>
+            <FranchiseSalesBreakdownAccordion
+              metrics={todayBreakdown}
+              isLoading={todayTotalLoading}
+            />
           </CardContent>
         </Card>
         <Card className={`${isModerator ? "hidden" : ""}`}>
@@ -198,7 +233,7 @@ export default function () {
           </CardContent>
         </Card>
 
-        <Card className={`${isModerator ? "hidden" : ""}`}>
+        <Card>
           <CardHeader>
             <CardTitle>Custom Range Sales Total</CardTitle>
           </CardHeader>
@@ -223,20 +258,24 @@ export default function () {
                 currency: "DZD",
               }).format(rangeTotal?.data?.total_amount || 0)}
             </p>
-            <div className="text-lg text-white flex items-center gap-2">
+            <div className="text-lg text-muted-foreground flex items-center gap-2">
               <p>
-                <span className="font-bold">
+                <span className="font-bold text-foreground">
                   {rangeSalesCount?.data?.sales_count}
                 </span>{" "}
                 sales
               </p>
               <p>
-                <span className="font-bold">
+                <span className="font-bold text-foreground">
                   {rangeSalesCount?.data?.sale_items_count}
                 </span>{" "}
                 items
               </p>
             </div>
+            <FranchiseSalesBreakdownAccordion
+              metrics={rangeBreakdown}
+              isLoading={rangeTotalLoading}
+            />
           </CardContent>
         </Card>
         <Card className={`${isModerator ? "hidden" : ""}`}>
