@@ -54,10 +54,15 @@ export function processPrepareBarcode({
     (item) => item.product_variant_id === exitItem.product_variant_id
   );
 
-  const variantName =
-    exitItem.product_variant?.product
-      ? `${exitItem.product_variant.product.name} — ${exitItem.product_variant.color}`
-      : exitItem.product_variant?.qr_code ?? code;
+  const variantName = exitItem.product_variant?.product
+    ? [
+        exitItem.product_variant.product.name,
+        exitItem.product_variant.color,
+        exitItem.product_variant.size,
+      ]
+        .filter((part) => part !== undefined && part !== null && part !== "")
+        .join(" — ")
+    : exitItem.product_variant?.qr_code ?? code;
 
   if (existingIndex !== -1) {
     const updated = [...checkedItems];
