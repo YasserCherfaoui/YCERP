@@ -86,15 +86,10 @@ function FranchiseStatusCell({ order }: { order: WooOrder }) {
   const mutation = useMutation({
     mutationFn: (status: FranchiseOrderStatus) =>
       updateFranchiseOrderStatus(order.id, status),
-    onSuccess: (data, status) => {
-      const restore = data?.data?.inventory_restore;
-      let description = `Order #${order.number || order.id} marked as ${FRANCHISE_ORDER_STATUS_LABELS[status]}.`;
-      if (status === "not_available" && restore) {
-        description += ` Restored ${restore.restored_units}/${restore.expected_units} unit(s).`;
-      }
+    onSuccess: (_data, status) => {
       toast({
         title: "Status updated",
-        description,
+        description: `Order #${order.number || order.id} marked as ${FRANCHISE_ORDER_STATUS_LABELS[status]}.`,
       });
       queryClient.invalidateQueries({ queryKey: ["franchise-woo-orders"] });
       setNotAvailableConfirmOpen(false);
@@ -144,15 +139,15 @@ function FranchiseStatusCell({ order }: { order: WooOrder }) {
         title="Mark order as not available?"
         description={
           <>
-            This restores reserved line quantities back to your franchise
-            inventory and cancels related commissions.
+            This cancels related commissions. Reserved franchise stock is not
+            put back.
             <span className="mt-2 block font-medium text-foreground">
               Order #{order.number || order.id}
             </span>
           </>
         }
         confirmText={
-          mutation.isPending ? "Restoring…" : "Confirm not available"
+          mutation.isPending ? "Updating…" : "Confirm not available"
         }
         cancelText="Cancel"
         onConfirm={() => {

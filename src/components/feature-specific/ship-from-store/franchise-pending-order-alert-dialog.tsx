@@ -72,27 +72,13 @@ export default function FranchisePendingOrderAlertDialog({
       if (!order) throw new Error("No order selected");
       return updateFranchiseOrderStatus(order.id, status);
     },
-    onSuccess: (data, status) => {
+    onSuccess: (_data, status) => {
       if (!order) return;
-      const restore = data?.data?.inventory_restore;
-      let description = `Order #${order.number || order.id} marked as ${
-        status === "packed" ? "Packed" : "Not available"
-      }.`;
-      if (status === "not_available" && restore) {
-        description += ` Restored ${restore.restored_units}/${restore.expected_units} unit(s).`;
-        if (Array.isArray(restore.items)) {
-          const actions = restore.items
-            .map(
-              (i: { inventory_item_id: number; action: string; units_restored: number }) =>
-                `#${i.inventory_item_id}:${i.action}+${i.units_restored}`
-            )
-            .join(", ");
-          if (actions) description += ` [${actions}]`;
-        }
-      }
       toast({
         title: "Status updated",
-        description,
+        description: `Order #${order.number || order.id} marked as ${
+          status === "packed" ? "Packed" : "Not available"
+        }.`,
       });
       queryClient.invalidateQueries({ queryKey: ["franchise-woo-orders"] });
       setNotAvailableConfirmOpen(false);
@@ -374,9 +360,8 @@ export default function FranchisePendingOrderAlertDialog({
         title="Mark order as not available?"
         description={
           <>
-            This restores reserved line quantities back to your franchise
-            inventory and cancels related commissions. This cannot be undone
-            from the franchise portal.
+            This cancels related commissions. Reserved franchise stock is not
+            put back. This cannot be undone from the franchise portal.
             {order ? (
               <span className="mt-2 block font-medium text-foreground">
                 Order #{order.number || order.id}
@@ -387,7 +372,7 @@ export default function FranchisePendingOrderAlertDialog({
             ) : null}
           </>
         }
-        confirmText={mutation.isPending ? "Restoring…" : "Confirm not available"}
+        confirmText={mutation.isPending ? "Updating…" : "Confirm not available"}
         cancelText="Cancel"
         onConfirm={() => {
           if (!mutation.isPending) {
