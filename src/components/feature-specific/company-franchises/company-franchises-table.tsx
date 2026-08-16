@@ -1,6 +1,6 @@
 import { RootState } from "@/app/store";
 import { ExitBill } from "@/models/data/bill.model";
-import { getCompanyExitBills } from "@/services/bill-service";
+import { COMPANY_EXIT_BILLS_MAX_LIMIT, getCompanyExitBills } from "@/services/bill-service";
 import { getMyCompanyFranchises } from "@/services/franchise-service";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
@@ -36,18 +36,23 @@ export default function () {
   const { data: preparingBillsData } = useQuery({
     enabled: !!company,
     queryKey: ["preparing-exit-bills", company?.ID],
-    queryFn: () => getCompanyExitBills(company?.ID ?? 0, { status: "preparing" }),
+    queryFn: () =>
+      getCompanyExitBills(company?.ID ?? 0, {
+        status: "preparing",
+        page: 1,
+        limit: COMPANY_EXIT_BILLS_MAX_LIMIT,
+      }),
   });
 
   const preparingByFranchise = useMemo(() => {
     const map = new Map<number, ExitBill[]>();
-    for (const bill of preparingBillsData?.data ?? []) {
+    for (const bill of preparingBillsData?.data?.bills ?? []) {
       const list = map.get(bill.franchise_id) ?? [];
       list.push(bill);
       map.set(bill.franchise_id, list);
     }
     return map;
-  }, [preparingBillsData?.data]);
+  }, [preparingBillsData?.data?.bills]);
 
   return (
     <div className="space-y-6">

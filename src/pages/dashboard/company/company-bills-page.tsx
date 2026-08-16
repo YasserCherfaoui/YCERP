@@ -3,9 +3,11 @@ import CompanyBillsTable from "@/components/feature-specific/company-bills/compa
 
 export default function () {
   return (
-    <div className="p-4">
+    <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col gap-3 p-4 pb-24">
       <CompanyBillsAppBar />
-      <CompanyBillsTable />
+      <div className="flex min-h-0 flex-1 flex-col">
+        <CompanyBillsTable />
+      </div>
     </div>
   );
 }
