@@ -34,11 +34,38 @@ import { Input } from "./input";
 import {
     Pagination,
     PaginationContent,
+    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
 } from "./pagination";
+
+function visiblePageItems(
+  pageIndex: number,
+  pageCount: number
+): Array<number | "ellipsis"> {
+  const count = Math.max(pageCount, 1);
+  if (count <= 7) {
+    return Array.from({ length: count }, (_, i) => i);
+  }
+
+  const pages = new Set<number>([0, count - 1, pageIndex]);
+  if (pageIndex - 1 > 0) pages.add(pageIndex - 1);
+  if (pageIndex + 1 < count - 1) pages.add(pageIndex + 1);
+
+  const sorted = [...pages].sort((a, b) => a - b);
+  const items: Array<number | "ellipsis"> = [];
+  let previous = -1;
+  for (const page of sorted) {
+    if (previous !== -1 && page - previous > 1) {
+      items.push("ellipsis");
+    }
+    items.push(page);
+    previous = page;
+  }
+  return items;
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -213,8 +240,118 @@ export function DataTable<TData, TValue>({
     ? searchValue ?? ""
     : ((table.getColumn(searchColumn)?.getFilterValue() as string) ?? "");
 
+  const previousDisabled = isManual
+    ? currentPage <= 0
+    : !table.getCanPreviousPage();
+  const nextDisabled = isManual
+    ? currentPage >= pageCount - 1
+    : !table.getCanNextPage();
+  const totalPages = Math.max(pageCount, 1);
+  const filteredRowCount = isManual
+    ? paginationMeta?.total_items ?? data.length
+    : table.getFilteredRowModel().rows.length;
+  const rangeStart = filteredRowCount === 0 ? 0 : pageIndex * pageSize + 1;
+  const rangeEnd = Math.min((pageIndex + 1) * pageSize, filteredRowCount);
+
+  const goToPage = (nextIndex: number) => {
+    if (isManual) {
+      onPageChange?.(nextIndex);
+    } else {
+      table.setPageIndex(nextIndex);
+    }
+  };
+
+  const paginationBar = (
+    <div className="flex shrink-0 flex-col gap-2 border-y bg-background py-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-muted-foreground tabular-nums">
+        {filteredRowCount === 0
+          ? "No rows"
+          : `Showing ${rangeStart}–${rangeEnd} of ${filteredRowCount}`}
+        <span className="sr-only">
+          {`, page ${pageIndex + 1} of ${totalPages}`}
+        </span>
+      </p>
+      <Pagination className="mx-0 w-full justify-start sm:w-auto sm:justify-end">
+        <PaginationContent className="flex-wrap">
+          <PaginationItem>
+            <PaginationPrevious
+              className="min-h-11 cursor-pointer [&>span]:hidden sm:[&>span]:inline"
+              onClick={(event) => {
+                event.preventDefault();
+                if (previousDisabled) return;
+                if (isManual) {
+                  onPageChange?.(currentPage - 1);
+                } else {
+                  table.previousPage();
+                }
+              }}
+              aria-disabled={previousDisabled}
+              tabIndex={previousDisabled ? -1 : 0}
+              style={{
+                pointerEvents: previousDisabled ? "none" : undefined,
+              }}
+            />
+          </PaginationItem>
+          {visiblePageItems(pageIndex, totalPages).map((item, index) =>
+            item === "ellipsis" ? (
+              <PaginationItem
+                key={`ellipsis-${index}`}
+                className="hidden sm:flex"
+              >
+                <PaginationEllipsis />
+              </PaginationItem>
+            ) : (
+              <PaginationItem key={item} className="hidden sm:flex">
+                <PaginationLink
+                  isActive={item === pageIndex}
+                  className="min-h-11 min-w-11 cursor-pointer"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (item !== pageIndex) {
+                      goToPage(item);
+                    }
+                  }}
+                  href="#"
+                  tabIndex={item === pageIndex ? -1 : 0}
+                  aria-disabled={item === pageIndex}
+                  aria-label={`Go to page ${item + 1}`}
+                >
+                  {item + 1}
+                </PaginationLink>
+              </PaginationItem>
+            )
+          )}
+          <PaginationItem className="sm:hidden">
+            <span className="px-2 text-sm font-medium tabular-nums">
+              {pageIndex + 1} / {totalPages}
+            </span>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext
+              className="min-h-11 cursor-pointer [&>span]:hidden sm:[&>span]:inline"
+              onClick={(event) => {
+                event.preventDefault();
+                if (nextDisabled) return;
+                if (isManual) {
+                  onPageChange?.(currentPage + 1);
+                } else {
+                  table.nextPage();
+                }
+              }}
+              aria-disabled={nextDisabled}
+              tabIndex={nextDisabled ? -1 : 0}
+              style={{
+                pointerEvents: nextDisabled ? "none" : undefined,
+              }}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
+  );
+
   return (
-    <div>
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-col gap-2 py-4 sm:flex-row sm:items-center">
         {searchBar && (
           <Input
@@ -257,13 +394,21 @@ export function DataTable<TData, TValue>({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="md:hidden">
+      {paginationBar}
+      <div className="flex-1 text-sm text-muted-foreground">
+        {selectionEnabled
+          ? `${table.getFilteredSelectedRowModel().rows.length} of ${
+              table.getFilteredRowModel().rows.length
+            } row(s) selected.`
+          : null}
+      </div>
+      <div className="min-h-0 flex-1 overflow-auto md:hidden">
         <DataTableMobileCards
           table={table}
           selectionEnabled={selectionEnabled}
         />
       </div>
-      <div className="hidden rounded-md border md:block">
+      <div className="hidden min-h-0 flex-1 overflow-auto rounded-md border md:block">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup, headerGroupIdx) => (
@@ -344,110 +489,6 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex-1 text-sm text-muted-foreground">
-        {selectionEnabled
-          ? `${table.getFilteredSelectedRowModel().rows.length} of ${
-              table.getFilteredRowModel().rows.length
-            } row(s) selected.`
-          : null}
-      </div>
-
-        <Pagination className="flex w-full max-w-full space-x-2 overflow-x-auto py-4">
-          <PaginationContent className="pb-5">
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => {
-                  if (isManual) {
-                    const newPage = currentPage - 1;
-                    onPageChange?.(newPage);
-                  } else {
-                    table.previousPage();
-                  }
-                }}
-                aria-disabled={
-                  isManual ? currentPage <= 0 : !table.getCanPreviousPage()
-                }
-                tabIndex={
-                  (isManual ? currentPage <= 0 : !table.getCanPreviousPage())
-                    ? -1
-                    : 0
-                }
-                style={{
-                  pointerEvents: (
-                    isManual ? currentPage <= 0 : !table.getCanPreviousPage()
-                  )
-                    ? "none"
-                    : undefined,
-                }}
-              />
-            </PaginationItem>
-            {/* Page numbers */}
-            <div className="flex max-w-full overflow-x-auto">
-              {Array.from({ length: pageCount > 0 ? pageCount : 1 }).map(
-                (_, i) => (
-                  <PaginationItem key={i}>
-                    <PaginationLink
-                      isActive={i === pageIndex}
-                      onClick={() => {
-                        if (i !== pageIndex) {
-                          if (isManual) {
-                            onPageChange?.(i);
-                          } else {
-                            table.setPageIndex(i);
-                          }
-                        }
-                      }}
-                      href="#"
-                      tabIndex={i === pageIndex ? -1 : 0}
-                      aria-disabled={i === pageIndex}
-                      style={{
-                        pointerEvents: i === pageIndex ? "none" : undefined,
-                      }}
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              )}
-            </div>
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => {
-                  if (isManual) {
-                    const newPage = currentPage + 1;
-                    onPageChange?.(newPage);
-                  } else {
-                    table.nextPage();
-                  }
-                }}
-                aria-disabled={
-                  isManual
-                    ? currentPage >= pageCount - 1
-                    : !table.getCanNextPage()
-                }
-                tabIndex={
-                  (
-                    isManual
-                      ? currentPage >= pageCount - 1
-                      : !table.getCanNextPage()
-                  )
-                    ? -1
-                    : 0
-                }
-                style={{
-                  pointerEvents: (
-                    isManual
-                      ? currentPage >= pageCount - 1
-                      : !table.getCanNextPage()
-                  )
-                    ? "none"
-                    : undefined,
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-
     </div>
   );
 }
