@@ -1,5 +1,5 @@
 import { baseUrl } from "@/app/constants";
-import { ExitBill, ExitBillStatus } from "@/models/data/bill.model";
+import { CompanyExitBillsList, ExitBill, GetCompanyExitBillsParams } from "@/models/data/bill.model";
 import { FranchisePayment } from "@/models/data/franchise.model";
 import type { APIError } from "@/models/responses/api-response.model";
 import { APIResponse } from "@/models/responses/api-response.model";
@@ -31,17 +31,34 @@ export const createExitBill = async (data: CreateExitBillSchema): Promise<APIRes
 
 }
 
+/** Max page size allowed by the API (`utils.ParseLimit`). */
+export const COMPANY_EXIT_BILLS_MAX_LIMIT = 200;
+
 export const getCompanyExitBills = async (
     companyID: number,
-    options?: { status?: ExitBillStatus | string }
-): Promise<APIResponse<Array<ExitBill>>> => {
+    options?: GetCompanyExitBillsParams
+): Promise<APIResponse<CompanyExitBillsList>> => {
     const params = new URLSearchParams();
     if (options?.status) {
         params.set("status", options.status);
     }
+    if (options?.franchise_id != null) {
+        params.set("franchise_id", String(options.franchise_id));
+    }
+    if (options?.start_date) {
+        params.set("start_date", options.start_date);
+    }
+    if (options?.end_date) {
+        params.set("end_date", options.end_date);
+    }
+    if (options?.search) {
+        params.set("search", options.search);
+    }
+    params.set("page", String(options?.page ?? 1));
+    params.set("limit", String(options?.limit ?? 10));
     const query = params.toString();
     const response = await fetch(
-        `${baseUrl}/bills/exit/company/${companyID}${query ? `?${query}` : ""}`,
+        `${baseUrl}/bills/exit/company/${companyID}?${query}`,
         {
             method: 'GET',
             headers: {
@@ -56,7 +73,7 @@ export const getCompanyExitBills = async (
         throw new Error(errorData.message || "Failed to fetch exit bills.");
     }
 
-    const apiResponse: APIResponse<Array<ExitBill>> = await response.json();
+    const apiResponse: APIResponse<CompanyExitBillsList> = await response.json();
     return apiResponse;
 
 }

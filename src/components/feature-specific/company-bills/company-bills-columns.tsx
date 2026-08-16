@@ -19,6 +19,7 @@ import CompanyBillDialog from "./company-bill-dialog";
 export const companyBillColumns: ColumnDef<ExitBill>[] = [
   {
     id: "bill_number",
+    accessorFn: (row) => `EXB-${row.ID}`,
     header: () => <div>Bill Number</div>,
     cell: ({ row }) => {
       return <div>EXB-{row.original.ID}</div>;

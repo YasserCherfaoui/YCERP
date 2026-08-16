@@ -29,6 +29,28 @@ export type ExitBill = {
     entry_bill?:EntryBill;
 }
 
+export type CompanyExitBillsPagination = {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+};
+
+export type CompanyExitBillsList = {
+    bills: ExitBill[];
+    pagination: CompanyExitBillsPagination;
+};
+
+export type GetCompanyExitBillsParams = {
+    status?: ExitBillStatus | string;
+    franchise_id?: number;
+    start_date?: string;
+    end_date?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+};
+
 export type BillItemModel = {
     /** Prefer lowercase; API often returns GORM `ID`. */
     id?: number;

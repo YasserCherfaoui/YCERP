@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { BillItem, ExitBill } from "@/models/data/bill.model";
-import { getCompanyExitBills, prepareExitBill } from "@/services/bill-service";
+import { COMPANY_EXIT_BILLS_MAX_LIMIT, getCompanyExitBills, prepareExitBill } from "@/services/bill-service";
 import { processPrepareBarcode } from "@/utils/process-prepare-barcode";
 import {
   validateExtraEntryExitBill,
@@ -220,9 +220,13 @@ export default function PrepareExitBillDialog({
     const response = await queryClient.fetchQuery({
       queryKey: ["preparing-exit-bills", localBill.company_id],
       queryFn: () =>
-        getCompanyExitBills(localBill.company_id, { status: "preparing" }),
+        getCompanyExitBills(localBill.company_id, {
+          status: "preparing",
+          page: 1,
+          limit: COMPANY_EXIT_BILLS_MAX_LIMIT,
+        }),
     });
-    const updated = response.data?.find((b) => b.ID === localBill.ID) ?? null;
+    const updated = response.data?.bills?.find((b) => b.ID === localBill.ID) ?? null;
     if (updated) {
       setLocalBill(updated);
     }
