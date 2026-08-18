@@ -94,6 +94,23 @@ export const getMyCompanyFranchises = async (id: number): Promise<APIResponse<Ar
 
 }
 
+export const getFranchisesWithStock = async (companyId: number): Promise<APIResponse<Array<Franchise>>> => {
+    const response = await fetch(`${baseUrl}/franchises/company/${companyId}/with-stock`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchises with stock.");
+    }
+
+    return response.json();
+}
+
 export type FranchiseVariantAvailability = {
   franchise_id: number;
   franchise_name: string;

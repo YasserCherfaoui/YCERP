@@ -220,6 +220,11 @@ const quickMenu: Array<{
     href: "missing-variants",
   },
   {
+    label: "Pickup requests",
+    icon: Truck,
+    href: "pickup-requests",
+  },
+  {
     label: "Stock Alerts",
     icon: AlertTriangle,
     href: "stock-alerts",
