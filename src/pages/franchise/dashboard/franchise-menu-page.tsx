@@ -2,8 +2,8 @@ import FranchiseMenu from "@/components/feature-specific/franchise-dashboard/fra
 
 export default function FranchiseMenuPage() {
   return (
-    <div className="flex h-screen flex-col items-center justify-center">
+    <main className="mx-auto w-full max-w-5xl px-3 pb-[max(6rem,env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pt-8">
       <FranchiseMenu />
-    </div>
+    </main>
   );
 }

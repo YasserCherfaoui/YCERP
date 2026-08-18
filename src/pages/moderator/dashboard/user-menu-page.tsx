@@ -100,6 +100,11 @@ const quickMenu = [
     href: "missing-variants",
   },
   {
+    label: "Pickup requests",
+    icon: Truck,
+    href: "pickup-requests",
+  },
+  {
     label: "Stock Alerts",
     icon: Bell,
     href: "stock-alerts",

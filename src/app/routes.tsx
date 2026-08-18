@@ -47,6 +47,7 @@ import CompanyFranchiseSalesPage from "@/pages/dashboard/company/company-franchi
 import CompanyFranchisesPage from "@/pages/dashboard/company/company-franchises-page";
 import CompanyInventoryAnalyticsPage from "@/pages/dashboard/company/company-inventory-analytics-page";
 import CompanyMissingVariantsPage from "@/pages/dashboard/company/company-missing-variants-page";
+import CompanyPickupRequestsPage from "@/pages/dashboard/company/company-pickup-requests-page";
 import CompanyOrdersPage from "@/pages/dashboard/company/company-orders-page";
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
@@ -99,6 +100,7 @@ import FranchiseExpensesReportsPage from "@/pages/franchise/dashboard/franchise-
 import FranchiseInventoryPage from "@/pages/franchise/dashboard/franchise-inventory-page";
 import FranchiseMenuPage from "@/pages/franchise/dashboard/franchise-menu-page";
 import FranchiseMissingVariantsPage from "@/pages/franchise/dashboard/franchise-missing-variants-page";
+import FranchisePickupRequestsPage from "@/pages/franchise/dashboard/franchise-pickup-requests-page";
 import FranchiseVariantDepositsPage from "@/pages/franchise/dashboard/franchise-variant-deposits-page";
 import FranchiseShipFromStorePage from "@/pages/franchise/dashboard/franchise-ship-from-store-page";
 import FranchiseWooRefundPage from "@/pages/franchise/dashboard/franchise-woo-refund-page";
@@ -147,6 +149,7 @@ export default function AppRouter() {
             <Route path="inventory" element={<FranchiseInventoryPage />} />
             <Route path="products" element={<FranchiseProductsPage />} />
             <Route path="missing-variants" element={<FranchiseMissingVariantsPage />} />
+            <Route path="pickup-requests" element={<FranchisePickupRequestsPage />} />
             <Route path="variant-deposits" element={<FranchiseVariantDepositsPage />} />
             <Route path="ship-from-store" element={<FranchiseShipFromStorePage />} />
             <Route path="woo-refund" element={<FranchiseWooRefundPage />} />
@@ -224,6 +227,7 @@ export default function AppRouter() {
             </Route>
             <Route path="order-tickets" element={<OrderTicketsPage />} />
             <Route path="missing-variants" element={<CompanyMissingVariantsPage />} />
+            <Route path="pickup-requests" element={<CompanyPickupRequestsPage />} />
             <Route path="delivery">
               <Route index element={<DeliveryListPage />} />
               <Route path=":id" element={<DeliveryDashboardPage />} />
@@ -331,6 +335,7 @@ export default function AppRouter() {
               </Route>
               <Route path="order-tickets" element={<OrderTicketsPage />} />
               <Route path="missing-variants" element={<CompanyMissingVariantsPage />} />
+              <Route path="pickup-requests" element={<CompanyPickupRequestsPage />} />
               <Route path="affiliates">
                 <Route index element={<CompanyAffiliatesPage />} />
                 <Route path=":affiliateID" element={<CompanyAffiliateDetailsPage />} />

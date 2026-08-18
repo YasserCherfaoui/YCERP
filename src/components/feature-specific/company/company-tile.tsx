@@ -7,22 +7,33 @@ interface Props {
   company: Company;
 }
 
-export default function ({ company }: Props) {
+export default function CompanyTile({ company }: Props) {
   return (
-    <div className="flex min-w-0 items-start gap-3 sm:gap-4">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-3xl bg-gray-500 text-center text-3xl text-white sm:h-20 sm:w-20 sm:text-5xl">
+    <div className="flex w-full max-w-2xl min-w-0 items-start gap-3 sm:items-center sm:gap-4">
+      <div
+        aria-hidden
+        className="flex size-14 shrink-0 items-center justify-center rounded-2xl border bg-muted text-2xl font-semibold tabular-nums text-muted-foreground sm:size-16 sm:text-3xl"
+      >
         {company.company_name.charAt(0).toUpperCase()}
       </div>
-      <div className="flex min-w-0 flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-1">
-          <span className="text-lg sm:text-xl">{company.company_name}</span>
-          <Button variant="ghost" size="icon" className="shrink-0 h-9 w-9" asChild aria-label="Company settings">
+      <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-1">
+          <h1 className="text-xl font-semibold leading-tight tracking-tight sm:text-2xl">
+            {company.company_name}
+          </h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0"
+            asChild
+            aria-label="Company settings"
+          >
             <Link to={`/company/${company.ID}/settings`}>
               <Settings className="h-5 w-5" />
             </Link>
           </Button>
         </div>
-        <span className="text-sm">{company.address}</span>
+        <p className="break-words text-sm text-muted-foreground">{company.address}</p>
       </div>
     </div>
   );

@@ -1,22 +1,28 @@
 import { RootState } from "@/app/store";
+import AppBarBackButton from "@/components/common/app-bar-back-button";
 import WideButton from "@/components/common/wide-button";
+import { SendWhatsAppDialog } from "@/components/feature-specific/admin/send-whatsapp-dialog";
 import CompanyTile from "@/components/feature-specific/company/company-tile";
 import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
 import OrderTicketsIcon from "@/components/feature-specific/company/order-tickets/order-tickets-icon";
-import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
   Apple,
-  ArrowLeft,
+  Bell,
   ChartNoAxesCombined,
   ChartPie,
+  Contact,
   FileCheck,
   Handshake,
+  List,
+  MapPinned,
   MessageSquare,
   Package,
+  PackageCheck,
   PackageX,
   ReceiptText,
   RotateCcw,
+  Settings2,
   ShoppingCart,
   Store,
   Truck,
@@ -26,241 +32,131 @@ import {
   Warehouse,
   Zap,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { SendWhatsAppDialog } from "@/components/feature-specific/admin/send-whatsapp-dialog";
 
-export default function () {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const lastLocation = pathname.substring(0, pathname.lastIndexOf("/"));
+type MenuItem = {
+  label: string;
+  icon: LucideIcon | ComponentType<{ className?: string }>;
+  href?: string;
+  onClick?: () => void;
+};
+
+type MenuSection = {
+  title: string;
+  items: MenuItem[];
+};
+
+export default function CompanyControlPanelPage() {
   const company = useSelector((state: RootState) => state.company.company);
   const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
-  
+
   if (!company) {
     return null;
   }
 
-  const quickMenuWithHandlers: Array<{ 
-    label: string; 
-    icon: any; 
-    href?: string; 
-    onClick?: () => void;
-    hidden?: boolean;
-  }> = quickMenu.map(item => {
-    if (item.label === "Send WhatsApp") {
-      return {
-        ...item,
-        onClick: () => setWhatsappDialogOpen(true),
-      };
-    }
-    return item;
-  });
-  
+  const menuSections: MenuSection[] = [
+    {
+      title: "Operations",
+      items: [
+        { label: "Sales", icon: ShoppingCart, href: "sales" },
+        { label: "Inventory", icon: Warehouse, href: "warehouse" },
+        { label: "Bills", icon: ReceiptText, href: "bills" },
+        { label: "Products", icon: Apple, href: "products" },
+        { label: "Orders", icon: Package, href: "orders" },
+        { label: "Suppliers", icon: Handshake, href: "suppliers" },
+      ],
+    },
+    {
+      title: "Network",
+      items: [
+        { label: "Franchises", icon: Store, href: "franchises" },
+        { label: "Franchise fulfillment", icon: PackageCheck, href: "franchise-fulfillment" },
+        { label: "Pickup requests", icon: Truck, href: "pickup-requests" },
+        { label: "Affiliates", icon: Users, href: "affiliates" },
+        {
+          label: "Affiliate applications",
+          icon: FileCheck,
+          href: `/company/${company.ID}/affiliate-applications`,
+        },
+        { label: "Customers", icon: Contact, href: "crm/customers" },
+      ],
+    },
+    {
+      title: "Stock",
+      items: [
+        { label: "Missing variants", icon: AlertTriangle, href: "missing-variants" },
+        { label: "Stock alerts", icon: Bell, href: "stock-alerts" },
+        { label: "Unknown returns", icon: Undo2, href: "unknown-returns" },
+        { label: "Broken items transfers", icon: PackageX, href: "broken-items-transfers" },
+        { label: "Declared quantities", icon: RotateCcw, href: "broken-items-declarations" },
+      ],
+    },
+    {
+      title: "Delivery & web",
+      items: [
+        { label: "Delivery", icon: MapPinned, href: "delivery" },
+        { label: "Web order refund", icon: RotateCcw, href: "woo-refund" },
+        { label: "Web order line items", icon: List, href: "woo-line-items" },
+      ],
+    },
+    {
+      title: "Finance",
+      items: [
+        { label: "Expenses", icon: ReceiptText, href: "expenses" },
+        { label: "Statistics", icon: ChartPie, href: "statistics" },
+        { label: "Inventory analytics", icon: ChartNoAxesCombined, href: "inventory-analytics" },
+      ],
+    },
+    {
+      title: "Support & admin",
+      items: [
+        { label: "Issues", icon: IssuesIcon, href: "issues" },
+        { label: "Order tickets", icon: OrderTicketsIcon, href: "order-tickets" },
+        { label: "IAM", icon: UserCog, href: "iam" },
+        { label: "Quick actions", icon: Zap, href: "/quick-actions" },
+        {
+          label: "Send WhatsApp",
+          icon: MessageSquare,
+          onClick: () => setWhatsappDialogOpen(true),
+        },
+        { label: "WhatsApp settings", icon: Settings2, href: "whatsapp-settings" },
+      ],
+    },
+  ];
+
   return (
     <>
       <SendWhatsAppDialog open={whatsappDialogOpen} onOpenChange={setWhatsappDialogOpen} />
-      <div className="flex min-h-[100dvh] flex-col">
-      <div className="flex items-center justify-between p-4">
-        <Button onClick={() => navigate(lastLocation)}>
-          <ArrowLeft />
-          <span className="sm:hidden">Back</span>
-          <span className="hidden sm:inline">Back to Companies</span>
-        </Button>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6 p-4 pb-10 sm:gap-10">
-        <CompanyTile company={company} />
-        <div className="grid w-full max-w-5xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-          {quickMenuWithHandlers.filter((i) => !(i as any).hidden).map((item, index) => (
-            <WideButton key={index} item={item} />
+      <main className="mx-auto w-full max-w-5xl px-3 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4 sm:px-6 sm:pt-6">
+        <div className="mb-6 flex items-start gap-3 sm:mb-8">
+          <AppBarBackButton destination="Companies" />
+        </div>
+
+        <div className="flex flex-col gap-6 sm:gap-8">
+          <header className="flex flex-col items-start gap-2">
+            <CompanyTile company={company} />
+            <p className="max-w-xl text-sm text-muted-foreground">
+              Inventory, franchises, orders, and support for this company.
+            </p>
+          </header>
+
+          {menuSections.map((section) => (
+            <section key={section.title} className="space-y-2 sm:space-y-3">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                {section.title}
+              </h2>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+                {section.items.map((item) => (
+                  <WideButton key={item.label} item={item} />
+                ))}
+              </div>
+            </section>
           ))}
-          <WideButton 
-            item={{
-              label: "Quick Actions",
-              icon: Zap,
-              href: "/quick-actions"
-            }} 
-          />
         </div>
-        <div className="mt-2 text-sm text-muted-foreground">
-          View and manage your affiliate network
-        </div>
-        <Link
-          to={`/company/${company.ID}/affiliate-applications`}
-          className="w-full max-w-xl rounded-lg border bg-card p-4 transition-colors hover:bg-accent sm:p-6"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="bg-yellow-100 p-3 rounded-lg">
-              <FileCheck className="h-6 w-6 text-yellow-600" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">Affiliate Applications</h3>
-              <p className="text-sm text-muted-foreground">
-                Review and approve affiliate applications
-              </p>
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground mt-2">
-            Manage pending affiliate applications
-          </div>
-        </Link>
-      </div>
-    </div>
+      </main>
     </>
   );
 }
-
-const quickMenu: Array<{ 
-  label: string; 
-  icon: any; 
-  href?: string; 
-  onClick?: () => void;
-  hidden?: boolean;
-}> = [
-  {
-    label: "Expenses",
-    icon: ReceiptText,
-    href: "expenses",
-  },
-  {
-    label: "Expense Categories",
-    icon: ReceiptText,
-    href: "expenses?tab=categories",
-    hidden: true,
-  },
-  {
-    label: "Franchises",
-    icon: Store,
-    href: "franchises",
-  },
-  {
-    label: "Products",
-    icon: Apple,
-    href: "products",
-  },
-  {
-    label: "Inventory",
-    icon: Warehouse,
-    href: "warehouse",
-  },
-  {
-    label: "Bills",
-    icon: ReceiptText,
-    href: "bills",
-  },
-  {
-    label: "Sales",
-    icon: ShoppingCart,
-    href: "sales",
-  },
-  {
-    label: "Suppliers",
-    icon: Handshake,
-    href: "suppliers",
-  },
-  {
-    label: "Affiliates",
-    icon: Users,
-    href: "affiliates",
-  },
-  {
-    label: "Unkown Returns",
-    icon: Undo2,
-    href: "unknown-returns",
-  },
-  {
-    label: "Statistics",
-    icon: ChartPie,
-    href: "statistics",
-  },
-  {
-    label: "IAM",
-    icon: UserCog,
-    href: "iam",
-  },
-  {
-    label: "Inventory Analytics",
-    icon: ChartNoAxesCombined,
-    href: "inventory-analytics",
-  },
-  {
-    label: "Orders",
-    icon: Package,
-    href: "orders",
-  },
-  {
-    label: "CRM Customers",
-    icon: Users,
-    href: "crm/customers",
-  },
-  // {
-  //   label: "Daily Deliveries",
-  //   icon: Truck,
-  //   href: "crm/deliveries",
-  // },
-  {
-    label: "Issues",
-    icon: IssuesIcon,
-    href: "issues",
-  },
-  {
-    label: "Order Tickets",
-    icon: OrderTicketsIcon,
-    href: "order-tickets",
-  },
-  {
-    label: "Delivery",
-    icon: Truck,
-    href: "delivery",
-  },
-  {
-    label: "Missing Variants",
-    icon: AlertTriangle,
-    href: "missing-variants",
-  },
-  {
-    label: "Stock Alerts",
-    icon: AlertTriangle,
-    href: "stock-alerts",
-  },
-  {
-    label: "Broken Items Transfers",
-    icon: PackageX,
-    href: "broken-items-transfers",
-  },
-  {
-    label: "Declared Quantities",
-    icon: RotateCcw,
-    href: "broken-items-declarations",
-  },
-  {
-    label: "Franchise fulfillment",
-    icon: Store,
-    href: "franchise-fulfillment",
-  },
-  {
-    label: "Web order refund",
-    icon: ReceiptText,
-    href: "woo-refund",
-  },
-  {
-    label: "Web order line items",
-    icon: Package,
-    href: "woo-line-items",
-  },
-  {
-    label: "Send WhatsApp",
-    icon: MessageSquare,
-  },
-  {
-    label: "WhatsApp Settings",
-    icon: MessageSquare,
-    href: "whatsapp-settings",
-  },
-  // {
-  //   label: "Charges",
-  //   icon: Calculator,
-  //   href: "charges",
-  // },
-];
