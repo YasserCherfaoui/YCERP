@@ -48,19 +48,14 @@ export function fallbackBreakdownFromSales(
     const returned = sale.return;
     if (!returned) continue;
 
-    if (!returned.exchange) {
-      const returnedAt = new Date(returned.CreatedAt).getTime();
-      if (returnedAt >= fromTime && returnedAt <= toTime) {
-        returnsCount += 1;
-        returnsAmount += returned.total ?? 0;
+    const returnedAt = new Date(returned.CreatedAt).getTime();
+    if (returnedAt >= fromTime && returnedAt <= toTime) {
+      returnsCount += 1;
+      returnsAmount += returned.total ?? 0;
+      if (returned.exchange) {
+        exchangesCount += 1;
+        exchangesAmount += returned.exchange.total ?? 0;
       }
-      continue;
-    }
-
-    const exchangedAt = new Date(returned.exchange.CreatedAt).getTime();
-    if (exchangedAt >= fromTime && exchangedAt <= toTime) {
-      exchangesCount += 1;
-      exchangesAmount += returned.exchange.total ?? 0;
     }
   }
 
