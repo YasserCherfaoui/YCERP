@@ -3,6 +3,8 @@ import { FranchiseAdministrator } from "@/models/data/administrator.model";
 import { EntryBill, ExitBill } from "@/models/data/bill.model";
 import { Franchise, FranchiseSalesTotals, FranchiseTotals } from "@/models/data/franchise.model";
 import { FranchiseCommissionsResponse } from "@/models/data/franchise-commission.model";
+import { Exchange } from "@/models/data/exchange.model";
+import { Return } from "@/models/data/return.model";
 import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
@@ -11,6 +13,7 @@ import { LoginFormSchema } from "@/schemas/auth";
 import { CreateEntryBillSchema } from "@/schemas/bill";
 import { CreateFranchiseSchema } from "@/schemas/franchise";
 import { CreateSaleSchema } from "@/schemas/sale";
+import { SalesDateParams } from "@/services/sale-service";
 
 
 export const createFranchise = async (data: CreateFranchiseSchema): Promise<APIResponse<Franchise>> => {
@@ -436,41 +439,140 @@ export const createFranchiseEntryBill = async (data: CreateEntryBillSchema): Pro
 
 }
 
-export const getCompanyFranchiseSales = async (franchiseID: number): Promise<APIResponse<Sale[]>> => {
-    const response = await fetch(`${baseUrl}/franchises/sales/${franchiseID}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-    });
+export const getCompanyFranchiseSales = async (
+    franchiseID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Sale[]>> => {
+    const response = await fetch(
+        `${baseUrl}/franchises/sales/${franchiseID}?start_date=${encodeURIComponent(dates.from.toISOString())}&end_date=${encodeURIComponent(dates.to.toISOString())}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+        }
+    );
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create entry bill.");
+        throw new Error(errorData.message || "Failed to fetch franchise sales.");
     }
 
     const apiResponse: APIResponse<Sale[]> = await response.json();
     return apiResponse;
 
 }
-export const getFranchiseSales = async (franchiseID: number): Promise<APIResponse<Sale[]>> => {
-    const response = await fetch(`${baseUrl}/franchise/sales/${franchiseID}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-    });
+export const getFranchiseSales = async (
+    franchiseID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Sale[]>> => {
+    const response = await fetch(
+        `${baseUrl}/franchise/sales/${franchiseID}?start_date=${encodeURIComponent(dates.from.toISOString())}&end_date=${encodeURIComponent(dates.to.toISOString())}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+        }
+    );
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create entry bill.");
+        throw new Error(errorData.message || "Failed to fetch franchise sales.");
     }
 
     const apiResponse: APIResponse<Sale[]> = await response.json();
     return apiResponse;
 
+}
+
+const franchiseSalesDateQuery = (dates: SalesDateParams) =>
+    `start_date=${encodeURIComponent(dates.from.toISOString())}&end_date=${encodeURIComponent(dates.to.toISOString())}`;
+
+export const getCompanyFranchiseSaleReturns = async (
+    franchiseID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Return[]>> => {
+    const response = await fetch(
+        `${baseUrl}/franchises/sales/${franchiseID}/returns?${franchiseSalesDateQuery(dates)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise returns.");
+    }
+    return await response.json();
+}
+
+export const getFranchiseSaleReturns = async (
+    franchiseID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Return[]>> => {
+    const response = await fetch(
+        `${baseUrl}/franchise/sales/${franchiseID}/returns?${franchiseSalesDateQuery(dates)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise returns.");
+    }
+    return await response.json();
+}
+
+export const getCompanyFranchiseSaleExchanges = async (
+    franchiseID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Exchange[]>> => {
+    const response = await fetch(
+        `${baseUrl}/franchises/sales/${franchiseID}/exchanges?${franchiseSalesDateQuery(dates)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise exchanges.");
+    }
+    return await response.json();
+}
+
+export const getFranchiseSaleExchanges = async (
+    franchiseID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Exchange[]>> => {
+    const response = await fetch(
+        `${baseUrl}/franchise/sales/${franchiseID}/exchanges?${franchiseSalesDateQuery(dates)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch franchise exchanges.");
+    }
+    return await response.json();
 }
 
 export const updateFranchiseSaleCustomer = async (

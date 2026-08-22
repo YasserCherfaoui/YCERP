@@ -1,34 +1,47 @@
 import { RootState } from "@/app/store";
-import {
-  franchiseExchangesColumns,
-  SaleExchangeRow,
-} from "@/components/feature-specific/franchise-sales/franchise-exchanges-columns";
+import { franchiseExchangesColumns } from "@/components/feature-specific/franchise-sales/franchise-exchanges-columns";
+import { franchiseReturnsColumns } from "@/components/feature-specific/franchise-sales/franchise-returns-columns";
 import { franchiseSalesColumns } from "@/components/feature-specific/franchise-sales/franchise-sales-columns";
-import {
-  franchiseReturnsColumns,
-  SaleReturnRow,
-} from "@/components/feature-specific/franchise-sales/franchise-returns-columns";
 import FranchiseSalesBreakdownAccordion, {
   buildSalesBreakdownMetrics,
-  fallbackBreakdownFromSales,
 } from "@/components/feature-specific/franchise-sales/franchise-sales-breakdown-cards";
+import {
+  mapExchangesToRows,
+  mapReturnsToRows,
+} from "@/components/feature-specific/sales/sale-activity-columns";
+import {
+  applySalesDateRange,
+  SalesActivityTabs,
+} from "@/components/feature-specific/sales/sales-activity-tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable } from "@/components/ui/data-table";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { getFranchiseSales, getFranchiseSalesTotal } from "@/services/franchise-service";
+import {
+  getFranchiseSaleExchanges,
+  getFranchiseSaleReturns,
+  getFranchiseSales,
+  getFranchiseSalesTotal,
+} from "@/services/franchise-service";
 import { getSalesCount } from "@/services/sale-service";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
-import { Eye, EyeOff, RefreshCw, ShoppingBag, Undo2 } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+
+const emptyBreakdown = {
+  salesCount: 0,
+  salesAmount: 0,
+  returnsCount: 0,
+  returnsAmount: 0,
+  exchangesCount: 0,
+  exchangesAmount: 0,
+};
 
 
 export default function () {
@@ -46,10 +59,7 @@ export default function () {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const [todayBounds] = useState(() => ({
-    from: startOfDay(new Date()),
-    to: endOfDay(new Date()),
-  }));
+  const datesEnabled = !!dateRange.from && !!dateRange.to;
 
   // Query for today's total
   const { data: todayTotal, isLoading: todayTotalLoading } = useQuery({
@@ -62,13 +72,13 @@ export default function () {
   const { data: rangeTotal, isLoading: rangeTotalLoading } = useQuery({
     queryKey: ["franchise-sales-total-range", franchise.ID, dateRange.from, dateRange.to],
     queryFn: () => getFranchiseSalesTotal(franchise.ID, dateRange.from, dateRange.to),
-    enabled: !!dateRange.from && !!dateRange.to,
+    enabled: datesEnabled,
   });
 
   
   // Query for today's sales count
   const { data: salesCount } = useQuery({
-    queryKey: ["sales-count", franchise.ID, dateRange.from, dateRange.to],
+    queryKey: ["sales-count", franchise.ID],
     queryFn: () =>
       getSalesCount({
         franchise_id: franchise.ID.toString(),
@@ -76,7 +86,6 @@ export default function () {
         end_date: endOfDay(new Date()).toISOString(),
         sale_type: "franchise",
       }),
-    enabled: !!dateRange.from && !!dateRange.to,
   });
 
   // Query for custom date range sales count
@@ -89,80 +98,44 @@ export default function () {
         end_date: endOfDay(dateRange.to).toISOString(),
         sale_type: "franchise",
       }),
-    enabled: !!dateRange.from && !!dateRange.to,
+    enabled: datesEnabled,
   }); 
 
   const { data } = useQuery({
-    queryKey: ["sales", franchise.ID],
-    queryFn: () => getFranchiseSales(franchise.ID),
+    queryKey: ["sales", franchise.ID, dateRange.from, dateRange.to],
+    queryFn: () => getFranchiseSales(franchise.ID, dateRange),
+    enabled: datesEnabled,
+  });
+  const { data: returnsData } = useQuery({
+    queryKey: ["sales", "returns", franchise.ID, dateRange.from, dateRange.to],
+    queryFn: () => getFranchiseSaleReturns(franchise.ID, dateRange),
+    enabled: datesEnabled,
+  });
+  const { data: exchangesData } = useQuery({
+    queryKey: ["sales", "exchanges", franchise.ID, dateRange.from, dateRange.to],
+    queryFn: () => getFranchiseSaleExchanges(franchise.ID, dateRange),
+    enabled: datesEnabled,
   });
   const { toast } = useToast();
 
   const sales = data?.data ?? [];
-  const fromTime = dateRange.from.getTime();
-  const toTime = dateRange.to.getTime();
-
-  const filteredSales = useMemo(
-    () =>
-      sales.filter((s) => {
-        const t = new Date(s.CreatedAt).getTime();
-        return t >= fromTime && t <= toTime;
-      }),
-    [sales, fromTime, toTime]
+  const returnsRows = useMemo(
+    () => mapReturnsToRows(returnsData?.data),
+    [returnsData?.data]
+  );
+  const exchangesRows = useMemo(
+    () => mapExchangesToRows(exchangesData?.data),
+    [exchangesData?.data]
   );
 
-  const returnsRows = useMemo((): SaleReturnRow[] => {
-    const rows: SaleReturnRow[] = [];
-    sales.forEach((sale) => {
-      const r = sale.return;
-      if (!r || r.exchange) return;
-      const t = new Date(r.CreatedAt).getTime();
-      if (t >= fromTime && t <= toTime) rows.push({ sale, return: r });
-    });
-    return rows.sort(
-      (a, b) =>
-        new Date(b.return.CreatedAt).getTime() -
-        new Date(a.return.CreatedAt).getTime()
-    );
-  }, [sales, fromTime, toTime]);
-
-  const exchangesRows = useMemo((): SaleExchangeRow[] => {
-    const rows: SaleExchangeRow[] = [];
-    sales.forEach((sale) => {
-      const r = sale.return;
-      const ex = r?.exchange;
-      if (!ex) return;
-      const t = new Date(ex.CreatedAt).getTime();
-      if (t >= fromTime && t <= toTime && r)
-        rows.push({ sale, return: r, exchange: ex });
-    });
-    return rows.sort(
-      (a, b) =>
-        new Date(b.exchange.CreatedAt).getTime() -
-        new Date(a.exchange.CreatedAt).getTime()
-    );
-  }, [sales, fromTime, toTime]);
-
   const todayBreakdown = useMemo(
-    () =>
-      buildSalesBreakdownMetrics(
-        todayTotal?.data,
-        fallbackBreakdownFromSales(
-          sales,
-          todayBounds.from.getTime(),
-          todayBounds.to.getTime()
-        )
-      ),
-    [todayTotal?.data, sales, todayBounds]
+    () => buildSalesBreakdownMetrics(todayTotal?.data, emptyBreakdown),
+    [todayTotal?.data]
   );
 
   const rangeBreakdown = useMemo(
-    () =>
-      buildSalesBreakdownMetrics(
-        rangeTotal?.data,
-        fallbackBreakdownFromSales(sales, fromTime, toTime)
-      ),
-    [rangeTotal?.data, sales, fromTime, toTime]
+    () => buildSalesBreakdownMetrics(rangeTotal?.data, emptyBreakdown),
+    [rangeTotal?.data]
   );
 
   useEffect(() => {
@@ -170,7 +143,7 @@ export default function () {
       title: "Sales Loaded",
       description: `Loaded ${data?.data?.length} sales`,
     });
-  }, data?.data);
+  }, [data?.data, toast]);
 
   // Handle password verification
   const handlePasswordSubmit = () => {
@@ -325,14 +298,7 @@ export default function () {
                 from: dateRange.from,
                 to: dateRange.to,
               }}
-              onSelect={(range) => {
-                if (range?.from && range?.to) {
-                  setDateRange({
-                    from: startOfDay(range.from),
-                    to: endOfDay(range.to),
-                  });
-                }
-              }}
+              onSelect={(range) => applySalesDateRange(range, setDateRange)}
             />
             <p className="text-3xl font-bold">
               {new Intl.NumberFormat("en-DZ", {
@@ -373,14 +339,7 @@ export default function () {
                   from: dateRange.from,
                   to: dateRange.to,
                 }}
-                onSelect={(range) => {
-                  if (range?.from && range?.to) {
-                    setDateRange({
-                      from: startOfDay(range.from),
-                      to: endOfDay(range.to),
-                    });
-                  }
-                }}
+                onSelect={(range) => applySalesDateRange(range, setDateRange)}
               />
               <p className="text-3xl font-bold">
                 {new Intl.NumberFormat("en-DZ", {
@@ -395,65 +354,16 @@ export default function () {
 
       <Separator className="my-4" />
 
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="text-sm text-muted-foreground">
-            Date range for tables:
-          </span>
-          <DatePickerWithRange
-            date={{ from: dateRange.from, to: dateRange.to }}
-            onSelect={(range) => {
-              if (range?.from && range?.to) {
-                setDateRange({
-                  from: startOfDay(range.from),
-                  to: endOfDay(range.to),
-                });
-              }
-            }}
-          />
-        </div>
-        <Tabs defaultValue="sales" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="sales" className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4" />
-              Sales
-            </TabsTrigger>
-            <TabsTrigger value="returns" className="flex items-center gap-2">
-              <Undo2 className="h-4 w-4" />
-              Returns
-            </TabsTrigger>
-            <TabsTrigger value="exchanges" className="flex items-center gap-2">
-              <RefreshCw className="h-4 w-4" />
-              Exchanges
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="sales" className="mt-4">
-            <DataTable
-              data={filteredSales.sort(
-                (a, b) =>
-                  new Date(b.CreatedAt).getTime() -
-                  new Date(a.CreatedAt).getTime()
-              )}
-              columns={franchiseSalesColumns}
-              searchColumn="sale_id"
-            />
-          </TabsContent>
-          <TabsContent value="returns" className="mt-4">
-            <DataTable
-              data={returnsRows}
-              columns={franchiseReturnsColumns}
-              searchColumn="sale_id"
-            />
-          </TabsContent>
-          <TabsContent value="exchanges" className="mt-4">
-            <DataTable
-              data={exchangesRows}
-              columns={franchiseExchangesColumns}
-              searchColumn="sale_id"
-            />
-          </TabsContent>
-        </Tabs>
-      </div>
+      <SalesActivityTabs
+        sales={sales}
+        returnsRows={returnsRows}
+        exchangesRows={exchangesRows}
+        salesColumns={franchiseSalesColumns}
+        returnsColumns={franchiseReturnsColumns}
+        exchangesColumns={franchiseExchangesColumns}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
+      />
     </div>
   );
 }

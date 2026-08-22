@@ -1,4 +1,6 @@
 import { baseUrl } from "@/app/constants";
+import { Exchange } from "@/models/data/exchange.model";
+import { Return } from "@/models/data/return.model";
 import { Sale } from "@/models/data/sale.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { SalesCountResponse } from "@/models/responses/sales-count.model";
@@ -23,14 +25,28 @@ export const createCompanySale = async (data: CreateSaleSchema): Promise<APIResp
     return createdSale;
 }
 
-export const getCompanySales = async (companyID: number): Promise<APIResponse<Sale[]>> => {
-    const response = await fetch(`${baseUrl}/sales/${companyID}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+export type SalesDateParams = {
+    from: Date;
+    to: Date;
+};
+
+const salesDateQuery = (from: Date, to: Date) =>
+    `start_date=${encodeURIComponent(from.toISOString())}&end_date=${encodeURIComponent(to.toISOString())}`;
+
+export const getCompanySales = async (
+    companyID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Sale[]>> => {
+    const response = await fetch(
+        `${baseUrl}/sales/${companyID}?${salesDateQuery(dates.from, dates.to)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
         }
-    });
+    );
 
     if (!response.ok) {
         const errorData = await response.json();
@@ -42,14 +58,20 @@ export const getCompanySales = async (companyID: number): Promise<APIResponse<Sa
 }
 
 
-export const getCompanyAlgiersSales = async (companyID: number): Promise<APIResponse<Sale[]>> => {
-    const response = await fetch(`${baseUrl}/sales/${companyID}?sale_type=algiers`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+export const getCompanyAlgiersSales = async (
+    companyID: number,
+    dates: SalesDateParams
+): Promise<APIResponse<Sale[]>> => {
+    const response = await fetch(
+        `${baseUrl}/sales/${companyID}?sale_type=algiers&${salesDateQuery(dates.from, dates.to)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
         }
-    });
+    );
 
     if (!response.ok) {
         const errorData = await response.json();
@@ -58,6 +80,54 @@ export const getCompanyAlgiersSales = async (companyID: number): Promise<APIResp
 
     const apiResponse: APIResponse<Sale[]> = await response.json();
     return apiResponse;
+}
+
+export const getCompanySaleReturns = async (
+    companyID: number,
+    dates: SalesDateParams,
+    saleType = "warehouse"
+): Promise<APIResponse<Return[]>> => {
+    const response = await fetch(
+        `${baseUrl}/sales/${companyID}/returns?sale_type=${encodeURIComponent(saleType)}&${salesDateQuery(dates.from, dates.to)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch returns.");
+    }
+
+    return await response.json();
+}
+
+export const getCompanySaleExchanges = async (
+    companyID: number,
+    dates: SalesDateParams,
+    saleType = "warehouse"
+): Promise<APIResponse<Exchange[]>> => {
+    const response = await fetch(
+        `${baseUrl}/sales/${companyID}/exchanges?sale_type=${encodeURIComponent(saleType)}&${salesDateQuery(dates.from, dates.to)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        }
+    );
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch exchanges.");
+    }
+
+    return await response.json();
 }
 
 export const updateSaleCustomer = async (

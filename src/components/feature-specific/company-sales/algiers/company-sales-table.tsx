@@ -1,13 +1,29 @@
 import { RootState } from "@/app/store";
+import CompanySalesActionsDropdown from "@/components/feature-specific/company-sales/algiers/company-sales-actions-dropdown";
+import {
+  createSaleExchangeColumns,
+  createSaleReturnColumns,
+  mapExchangesToRows,
+  mapReturnsToRows,
+} from "@/components/feature-specific/sales/sale-activity-columns";
+import {
+  applySalesDateRange,
+  SalesActivityTabs,
+} from "@/components/feature-specific/sales/sales-activity-tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable } from "@/components/ui/data-table";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { getAlgiersSalesTotal, getCompanyAlgiersSales, getSalesCount } from "@/services/sale-service";
+import {
+  getAlgiersSalesTotal,
+  getCompanyAlgiersSales,
+  getCompanySaleExchanges,
+  getCompanySaleReturns,
+  getSalesCount,
+} from "@/services/sale-service";
 import { useQuery } from "@tanstack/react-query";
 import { endOfDay, startOfDay } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { companySalesColumns } from "./company-sales-columns";
 
@@ -19,57 +35,85 @@ export default function () {
     from: startOfDay(new Date()),
     to: endOfDay(new Date()),
   });
+  const datesEnabled = !!dateRange.from && !!dateRange.to;
 
-  // Query for today's total
   const { data: todayTotal } = useQuery({
-    queryKey: ["sales-total-today", company.ID],
+    queryKey: ["sales-total-today", company.ID, "algiers"],
     queryFn: () =>
-      getAlgiersSalesTotal(company.ID, startOfDay(new Date()), endOfDay(new Date())),
+      getAlgiersSalesTotal(
+        company.ID,
+        startOfDay(new Date()),
+        endOfDay(new Date())
+      ),
   });
 
-  // Query for custom date range total
   const { data: rangeTotal } = useQuery({
-    queryKey: ["sales-total-range", company.ID, dateRange.from, dateRange.to],
+    queryKey: ["sales-total-range", company.ID, "algiers", dateRange.from, dateRange.to],
     queryFn: () => getAlgiersSalesTotal(company.ID, dateRange.from, dateRange.to),
-    enabled: !!dateRange.from && !!dateRange.to,
+    enabled: datesEnabled,
   });
 
-  // Query for today's sales count
   const { data: salesCount } = useQuery({
-    queryKey: ["sales-count", company.ID, dateRange.from, dateRange.to],
-    queryFn: () => getSalesCount({
-      company_id: company.ID.toString(),
-      start_date: startOfDay(new Date()).toISOString(),
-      end_date: endOfDay(new Date()).toISOString(),
-      sale_type: "algiers",
-    }),
-    enabled: !!dateRange.from && !!dateRange.to,
+    queryKey: ["sales-count", company.ID, "algiers"],
+    queryFn: () =>
+      getSalesCount({
+        company_id: company.ID.toString(),
+        start_date: startOfDay(new Date()).toISOString(),
+        end_date: endOfDay(new Date()).toISOString(),
+        sale_type: "algiers",
+      }),
   });
 
-  // Query for custom date range sales count
   const { data: rangeSalesCount } = useQuery({
-    queryKey: ["sales-count-range", company.ID, dateRange.from, dateRange.to],
-    queryFn: () => getSalesCount({
-      company_id: company.ID.toString(),
-      start_date: dateRange.from.toISOString(),
-      end_date: dateRange.to.toISOString(),
-      sale_type: "algiers",
-    }),
-    enabled: !!dateRange.from && !!dateRange.to,
+    queryKey: ["sales-count-range", company.ID, "algiers", dateRange.from, dateRange.to],
+    queryFn: () =>
+      getSalesCount({
+        company_id: company.ID.toString(),
+        start_date: dateRange.from.toISOString(),
+        end_date: dateRange.to.toISOString(),
+        sale_type: "algiers",
+      }),
+    enabled: datesEnabled,
   });
-  
+
   const { data } = useQuery({
-    queryKey: ["sales", "algiers"],
-    queryFn: () => getCompanyAlgiersSales(company.ID),
+    queryKey: ["sales", company.ID, "algiers", dateRange.from, dateRange.to],
+    queryFn: () => getCompanyAlgiersSales(company.ID, dateRange),
+    enabled: datesEnabled,
+  });
+  const { data: returnsData } = useQuery({
+    queryKey: ["sales", "returns", company.ID, "algiers", dateRange.from, dateRange.to],
+    queryFn: () => getCompanySaleReturns(company.ID, dateRange, "algiers"),
+    enabled: datesEnabled,
+  });
+  const { data: exchangesData } = useQuery({
+    queryKey: ["sales", "exchanges", company.ID, "algiers", dateRange.from, dateRange.to],
+    queryFn: () => getCompanySaleExchanges(company.ID, dateRange, "algiers"),
+    enabled: datesEnabled,
   });
   const { toast } = useToast();
+
+  const returnsColumns = useMemo(
+    () =>
+      createSaleReturnColumns((sale) =>
+        sale ? <CompanySalesActionsDropdown sale={sale} /> : null
+      ),
+    []
+  );
+  const exchangesColumns = useMemo(
+    () =>
+      createSaleExchangeColumns((sale) =>
+        sale ? <CompanySalesActionsDropdown sale={sale} /> : null
+      ),
+    []
+  );
 
   useEffect(() => {
     toast({
       title: "Sales Loaded",
       description: `Loaded ${data?.data?.length} sales`,
     });
-  }, data?.data);
+  }, [data?.data, toast]);
 
   return (
     <div className="space-y-4">
@@ -96,10 +140,14 @@ export default function () {
             )}
             <div className="text-lg text-white flex items-center gap-2">
               <p>
-                <span className="font-bold">{salesCount?.data?.sales_count}</span> sales
+                <span className="font-bold">{salesCount?.data?.sales_count}</span>{" "}
+                sales
               </p>
               <p>
-                <span className="font-bold">{salesCount?.data?.sale_items_count}</span> items
+                <span className="font-bold">
+                  {salesCount?.data?.sale_items_count}
+                </span>{" "}
+                items
               </p>
             </div>
           </CardContent>
@@ -115,14 +163,7 @@ export default function () {
                 from: dateRange.from,
                 to: dateRange.to,
               }}
-              onSelect={(range) => {
-                if (range?.from && range?.to) {
-                  setDateRange({
-                    from: startOfDay(range.from),
-                    to: endOfDay(range.to),
-                  });
-                }
-              }}
+              onSelect={(range) => applySalesDateRange(range, setDateRange)}
             />
             <p className="text-3xl font-bold">
               {new Intl.NumberFormat("en-DZ", {
@@ -141,10 +182,16 @@ export default function () {
             )}
             <div className="text-lg text-white flex items-center gap-2">
               <p>
-                <span className="font-bold">{rangeSalesCount?.data?.sales_count}</span> sales
+                <span className="font-bold">
+                  {rangeSalesCount?.data?.sales_count}
+                </span>{" "}
+                sales
               </p>
               <p>
-                <span className="font-bold">{rangeSalesCount?.data?.sale_items_count}</span> items
+                <span className="font-bold">
+                  {rangeSalesCount?.data?.sale_items_count}
+                </span>{" "}
+                items
               </p>
             </div>
           </CardContent>
@@ -153,15 +200,15 @@ export default function () {
 
       <Separator className="my-4" />
 
-      <DataTable
-        data={
-          data?.data?.sort(
-            (a, b) =>
-              new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime()
-          ) ?? []
-        }
-        columns={companySalesColumns}
-        searchColumn="sale_id"
+      <SalesActivityTabs
+        sales={data?.data ?? []}
+        returnsRows={mapReturnsToRows(returnsData?.data)}
+        exchangesRows={mapExchangesToRows(exchangesData?.data)}
+        salesColumns={companySalesColumns}
+        returnsColumns={returnsColumns}
+        exchangesColumns={exchangesColumns}
+        dateRange={dateRange}
+        onDateRangeChange={setDateRange}
       />
     </div>
   );
