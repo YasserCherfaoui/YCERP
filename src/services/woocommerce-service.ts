@@ -166,6 +166,100 @@ export const fixYalidineReconciliation = async (body: {
   return await response.json();
 };
 
+export type DeletedParcelMatchState = "orphaned" | "ok" | "not_applicable";
+
+export interface DeletedParcelReconciliationRow {
+  order_id: number;
+  tracking_number: string;
+  yalidine_tracking: string;
+  my_erp_status: string;
+  latest_yalidine_order_history: string;
+  yalidine_parcel_exists: boolean;
+  yalidine_status: string;
+  is_orphaned: boolean;
+  can_fix: boolean;
+  match_state?: DeletedParcelMatchState;
+}
+
+export interface DeletedParcelReconciliationCompareResponse {
+  rows: DeletedParcelReconciliationRow[];
+  meta?: {
+    total_items: number;
+    total_pages: number;
+    current_page: number;
+    per_page: number;
+  };
+}
+
+export interface DeletedParcelReconciliationFixResponse {
+  checked: number;
+  orphaned: number;
+  fixed: number;
+  tracking_updated: number;
+  status_updated: number;
+  errors: number;
+}
+
+export const compareDeletedParcelReconciliation = async (body: {
+  filters: YalidineReconciliationFilters;
+  page: number;
+  limit: number;
+}): Promise<APIResponse<DeletedParcelReconciliationCompareResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-reconciliation/deleted-parcel/compare`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + currentToken,
+      },
+      body: JSON.stringify({
+        filters: body.filters,
+        page: body.page,
+        limit: body.limit,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to compare deleted Yalidine parcels");
+  }
+
+  return await response.json();
+};
+
+export const fixDeletedParcelReconciliation = async (body: {
+  filters: YalidineReconciliationFilters;
+  page: number;
+  limit: number;
+}): Promise<APIResponse<DeletedParcelReconciliationFixResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-reconciliation/deleted-parcel/fix`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + currentToken,
+      },
+      body: JSON.stringify({
+        filters: body.filters,
+        page: body.page,
+        limit: body.limit,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to fix deleted Yalidine parcel orphans");
+  }
+
+  return await response.json();
+};
+
 export interface MissingLivreRow {
   order_id: number;
   tracking_number: string;
