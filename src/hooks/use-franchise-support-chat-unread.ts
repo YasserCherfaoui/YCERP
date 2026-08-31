@@ -1,21 +1,19 @@
 import { RootState } from "@/app/store";
-import { resolveFranchiseChatViewerFromBranches } from "@/lib/support-chat-viewer";
-import { getFranchiseSupportChatUnreadCount } from "@/services/support-chat-service";
+import {
+  franchiseChatViewerStorageTag,
+  resolveFranchiseChatViewerFromBranches,
+} from "@/lib/support-chat-viewer";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 const MAX_CAP = 100;
-/** Rare fallback when the messages panel is closed (no WebSocket). */
-const UNREAD_IDLE_REFETCH_MS = 120_000;
 
 export const franchiseSupportChatUnreadRootKey = "franchise-support-chat-unread" as const;
 
-export function useFranchiseSupportChatUnread(
-  franchiseId: number | undefined,
-  opts: { pollingEnabled: boolean },
-) {
+/** Cache-only unread count; populated by {@link useSupportChatInbox} push events. */
+export function useFranchiseSupportChatUnread(franchiseId: number | undefined) {
   const { pathname } = useLocation();
   const franchiseUser = useSelector((s: RootState) => s.franchise.user);
   const user = useSelector((s: RootState) => s.user.user);
@@ -29,22 +27,17 @@ export function useFranchiseSupportChatUnread(
       }),
     [pathname, franchiseUser?.ID, user?.ID, administrator?.ID],
   );
-  const viewerTag = viewer ? `${viewer.role}:${viewer.id}` : "";
+  const viewerTag = viewer ? franchiseChatViewerStorageTag(viewer) : "";
 
   const query = useQuery({
     queryKey:
       franchiseId != null && franchiseId > 0 && viewer
         ? [franchiseSupportChatUnreadRootKey, franchiseId, viewerTag]
         : [franchiseSupportChatUnreadRootKey, "off"],
-    queryFn: async () => {
-      const res = await getFranchiseSupportChatUnreadCount(franchiseId!);
-      return res.data?.unread_count ?? 0;
-    },
-    enabled: Boolean(franchiseId && franchiseId > 0 && viewer),
-    staleTime: 60_000,
-    refetchInterval: opts.pollingEnabled ? UNREAD_IDLE_REFETCH_MS : false,
-    refetchOnWindowFocus: true,
-    placeholderData: 0,
+    queryFn: () => 0,
+    enabled: false,
+    staleTime: Number.POSITIVE_INFINITY,
+    initialData: 0,
   });
 
   const raw = query.data ?? 0;
@@ -54,6 +47,7 @@ export function useFranchiseSupportChatUnread(
   };
 }
 
+/** Aggregate unread from push-populated cache (one entry per franchise). */
 export function useAggregateFranchiseSupportChatUnread(franchiseIds: number[]) {
   const { pathname } = useLocation();
   const franchiseUser = useSelector((s: RootState) => s.franchise.user);
@@ -68,7 +62,7 @@ export function useAggregateFranchiseSupportChatUnread(franchiseIds: number[]) {
       }),
     [pathname, franchiseUser?.ID, user?.ID, administrator?.ID],
   );
-  const viewerTag = viewer ? `${viewer.role}:${viewer.id}` : "";
+  const viewerTag = viewer ? franchiseChatViewerStorageTag(viewer) : "";
 
   const uniqueSorted = useMemo(
     () => [...new Set(franchiseIds.filter((id) => id > 0))].sort((a, b) => a - b),
@@ -78,15 +72,10 @@ export function useAggregateFranchiseSupportChatUnread(franchiseIds: number[]) {
   const queries = useQueries({
     queries: uniqueSorted.map((fid) => ({
       queryKey: [franchiseSupportChatUnreadRootKey, fid, viewerTag],
-      queryFn: async () => {
-        const res = await getFranchiseSupportChatUnreadCount(fid);
-        return res.data?.unread_count ?? 0;
-      },
-      enabled: Boolean(viewer && uniqueSorted.length > 0),
-      staleTime: 60_000,
-      refetchInterval: UNREAD_IDLE_REFETCH_MS,
-      refetchOnWindowFocus: true,
-      placeholderData: 0,
+      queryFn: () => 0,
+      enabled: false,
+      staleTime: Number.POSITIVE_INFINITY,
+      initialData: 0,
     })),
   });
 

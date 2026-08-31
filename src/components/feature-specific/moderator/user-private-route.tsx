@@ -1,4 +1,5 @@
 import FranchiseSupportChatMessengerDock from "@/components/feature-specific/support-chat/franchise-support-chat-messenger-dock";
+import SupportChatInboxProvider from "@/components/feature-specific/support-chat/support-chat-inbox-provider";
 import useUser from "@/hooks/use-user";
 import React, { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -38,9 +39,17 @@ const PrivateRoute: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  const companyId =
+    user?.company?.ID ?? (user?.company_id != null ? Number(user.company_id) : undefined);
+
   return isAuthenticated ? (
     <>
       <Outlet />
+      {Number.isFinite(companyId) && companyId! > 0 ? (
+        <SupportChatInboxProvider companyId={companyId} />
+      ) : (
+        <SupportChatInboxProvider />
+      )}
       <FranchiseSupportChatMessengerDock />
     </>
   ) : null;

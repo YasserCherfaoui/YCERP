@@ -43,6 +43,21 @@ export function buildSupportChatWebSocketUrl(
   return `${proto}://${host}/support/chat/ws?franchise_id=${franchiseId}&token=${enc}`;
 }
 
+/** Read-only inbox socket for push unread badges (optional company_id for HQ scope). */
+export function buildSupportChatInboxWebSocketUrl(
+  token: string,
+  companyId?: number,
+): string {
+  const apiUrl = getBaseUrl();
+  const proto = apiUrl.startsWith("https") ? "wss" : "ws";
+  const host = apiUrl.replace(/^https?:\/\//, "");
+  const qs = new URLSearchParams({ token });
+  if (companyId != null && companyId > 0) {
+    qs.set("company_id", String(companyId));
+  }
+  return `${proto}://${host}/support/chat/ws/inbox?${qs.toString()}`;
+}
+
 export async function postFranchiseSupportChatMarkRead(
   franchiseId: number,
   lastReadMessageId: number,

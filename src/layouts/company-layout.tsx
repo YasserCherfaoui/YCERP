@@ -1,4 +1,5 @@
 import FranchiseSupportChatMessengerDock from "@/components/feature-specific/support-chat/franchise-support-chat-messenger-dock";
+import SupportChatInboxProvider from "@/components/feature-specific/support-chat/support-chat-inbox-provider";
 import { baseUrl } from "@/app/constants";
 import { useAppDispatch } from "@/app/hooks";
 import { RootState } from "@/app/store";
@@ -65,7 +66,10 @@ export default function () {
     <>
       <Outlet />
       {Number.isFinite(companyIDNum) && companyIDNum > 0 ? (
-        <FranchiseSupportChatMessengerDock companyId={companyIDNum} />
+        <>
+          <SupportChatInboxProvider companyId={companyIDNum} />
+          <FranchiseSupportChatMessengerDock companyId={companyIDNum} />
+        </>
       ) : null}
     </>
   );
