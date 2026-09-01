@@ -31,6 +31,7 @@ import CustomersPage from "@/pages/crm/customers/customers-page";
 import DailyDeliveriesPage from "@/pages/crm/deliveries/daily-deliveries-page";
 import CreateReviewDialog from "@/pages/crm/reviews/create-review-dialog";
 import AdvertisingPage from "@/pages/dashboard/company/advertising-page";
+import AdsIntelligencePage from "@/pages/dashboard/company/ads-intelligence-page";
 import BoxingPage from "@/pages/dashboard/company/boxing-page";
 import ChargesPage from "@/pages/dashboard/company/charges-page";
 import CompanyAffiliateApplicationsPage from "@/pages/dashboard/company/company-affiliate-applications-page";
@@ -199,6 +200,7 @@ export default function AppRouter() {
               element={<CompanyUnknownReturnsPage />}
             />
             <Route path="advertising" element={<AdvertisingPage />} />
+            <Route path="ads-intelligence" element={<AdsIntelligencePage />} />
             <Route path="charges" element={<ChargesPage />} />
             <Route path="exchange-rates" element={<ExchangeRatesPage />} />
             <Route path="boxing" element={<BoxingPage />} />
@@ -312,6 +314,7 @@ export default function AppRouter() {
               <Route path="charges" element={<ChargesPage />} />
               <Route path="exchange-rates" element={<ExchangeRatesPage />} />
               <Route path="advertising" element={<AdvertisingPage />} />
+              <Route path="ads-intelligence" element={<AdsIntelligencePage />} />
               <Route path="boxing" element={<BoxingPage />} />
               <Route path="rent-utilities" element={<RentUtilitiesPage />} />
               <Route path="returns" element={<ReturnsPage />} />

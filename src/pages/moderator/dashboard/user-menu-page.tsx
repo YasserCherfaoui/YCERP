@@ -12,6 +12,7 @@ import {
   ReceiptText,
   RotateCcw,
   ShoppingCart,
+  Sparkles,
   Store,
   Ticket,
   Truck,
@@ -128,6 +129,11 @@ const quickMenu = [
     label: "Web order refund",
     icon: ReceiptText,
     href: "woo-refund",
+  },
+  {
+    label: "Ads Intelligence",
+    icon: Sparkles,
+    href: "ads-intelligence",
   },
   {
     label: "CRM Customers",
