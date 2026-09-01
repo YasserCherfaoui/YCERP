@@ -6,6 +6,7 @@ import type { AdsTrueEconomicsRow } from "@/models/data/ads-intelligence/chat.mo
 import {
   getAdsTrueEconomics,
   triggerMetaAdsSync,
+  triggerTikTokAdsSync,
 } from "@/services/ads-intelligence-service";
 import { BarChart3, Bot, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -21,7 +22,8 @@ export default function AdsIntelligencePage() {
   const [rows, setRows] = useState<AdsTrueEconomicsRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [syncing, setSyncing] = useState(false);
+  const [syncingMeta, setSyncingMeta] = useState(false);
+  const [syncingTikTok, setSyncingTikTok] = useState(false);
 
   const loadEconomics = useCallback(async () => {
     setLoading(true);
@@ -41,14 +43,26 @@ export default function AdsIntelligencePage() {
   }, [loadEconomics]);
 
   const onSyncMeta = async () => {
-    setSyncing(true);
+    setSyncingMeta(true);
     try {
       await triggerMetaAdsSync();
       await loadEconomics();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Meta sync failed");
     } finally {
-      setSyncing(false);
+      setSyncingMeta(false);
+    }
+  };
+
+  const onSyncTikTok = async () => {
+    setSyncingTikTok(true);
+    try {
+      await triggerTikTokAdsSync();
+      await loadEconomics();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "TikTok sync failed");
+    } finally {
+      setSyncingTikTok(false);
     }
   };
 
@@ -61,10 +75,16 @@ export default function AdsIntelligencePage() {
             True delivered economics and AI analyst chat over live data.
           </p>
         </div>
-        <Button variant="outline" onClick={() => void onSyncMeta()} disabled={syncing}>
-          <RefreshCw className={syncing ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
-          Sync Meta
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => void onSyncMeta()} disabled={syncingMeta}>
+            <RefreshCw className={syncingMeta ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+            Sync Meta
+          </Button>
+          <Button variant="outline" onClick={() => void onSyncTikTok()} disabled={syncingTikTok}>
+            <RefreshCw className={syncingTikTok ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+            Sync TikTok
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>

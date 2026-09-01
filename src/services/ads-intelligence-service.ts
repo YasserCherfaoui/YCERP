@@ -76,3 +76,15 @@ export async function triggerMetaAdsSync(): Promise<APIResponse<unknown>> {
   }
   return data as APIResponse<unknown>;
 }
+
+export async function triggerTikTokAdsSync(): Promise<APIResponse<unknown>> {
+  const res = await fetch(`${getBaseUrl()}/adsintel/sync/tiktok`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message ?? "TikTok sync failed.");
+  }
+  return data as APIResponse<unknown>;
+}
