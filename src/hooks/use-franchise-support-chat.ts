@@ -1,5 +1,4 @@
 import { store } from "@/app/store";
-import { franchiseSupportChatUnreadRootKey } from "@/hooks/use-franchise-support-chat-unread";
 import {
   isFranchiseChatMessageFromViewer,
   resolveFranchiseChatViewerFromBranches,
@@ -226,10 +225,7 @@ export function useFranchiseSupportChat({
               d.reader_actor === viewer.role &&
               d.reader_id === viewer.id;
 
-            const unreadKey = [franchiseSupportChatUnreadRootKey, roomFranchiseId] as const;
-
             if (isSelfReceipt) {
-              void queryClient.invalidateQueries({ queryKey: unreadKey });
               return;
             }
 
@@ -253,7 +249,6 @@ export function useFranchiseSupportChat({
                 });
               });
             }
-            void queryClient.invalidateQueries({ queryKey: unreadKey });
           }
         } catch {
           /* malformed */

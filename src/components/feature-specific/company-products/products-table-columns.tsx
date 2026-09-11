@@ -1,4 +1,5 @@
 import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -62,7 +63,29 @@ export const columns: ColumnDef<Product>[] = [
             combinable={product.combinable}
             pairable={product.pairable}
           />
+          {product.is_active === false && (
+            <Badge variant="secondary">Inactive</Badge>
+          )}
         </div>
+      );
+    },
+  },
+  {
+    id: "category",
+    header: "Category",
+    accessorFn: (row) => row.product_category?.name ?? "",
+    cell: ({ row }) => {
+      const category = row.original.product_category;
+      if (!category) {
+        return <span className="text-muted-foreground">Uncategorized</span>;
+      }
+      return (
+        <span>
+          {category.name}
+          {!category.is_active && (
+            <span className="ml-1 text-xs text-muted-foreground">(inactive)</span>
+          )}
+        </span>
       );
     },
   },

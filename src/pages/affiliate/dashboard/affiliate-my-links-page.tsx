@@ -16,10 +16,54 @@ import {
 import { Input } from "@/components/ui/input";
 import useAffiliate from "@/hooks/use-affiliate";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { AffiliateProp, Product } from "@/models/data/product.model";
 import { getAffiliateProducts } from "@/services/affiliate-service";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Copy, Loader2, Package, Palette } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+const ALL_CATEGORY_KEY = "all";
+const UNCATEGORIZED_KEY = "uncategorized";
+
+type CategoryGroup = {
+  key: string;
+  name: string;
+  sortOrder: number;
+  props: AffiliateProp[];
+};
+
+function groupAffiliateProps(props: AffiliateProp[]): CategoryGroup[] {
+  const groups = new Map<string, CategoryGroup>();
+  for (const prop of props) {
+    const category = prop.product?.product_category;
+    let key = UNCATEGORIZED_KEY;
+    let name = "Uncategorized";
+    let sortOrder = Number.MAX_SAFE_INTEGER;
+    if (category && category.is_active !== false) {
+      key = String(category.ID);
+      name = category.name;
+      sortOrder = category.sort_order;
+    }
+    const existing = groups.get(key);
+    if (existing) {
+      existing.props.push(prop);
+      continue;
+    }
+    groups.set(key, {
+      key,
+      name,
+      sortOrder,
+      props: [prop],
+    });
+  }
+  return Array.from(groups.values()).sort((a, b) => {
+    if (a.sortOrder !== b.sortOrder) {
+      return a.sortOrder - b.sortOrder;
+    }
+    return a.name.localeCompare(b.name);
+  });
+}
 
 export default function AffiliateMyLinksPage() {
   const { affiliate } = useAffiliate();
@@ -35,6 +79,42 @@ export default function AffiliateMyLinksPage() {
     queryFn: getAffiliateProducts,
     enabled: !!affiliate,
   });
+
+  const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORY_KEY);
+
+  const affiliateProps: AffiliateProp[] = useMemo(() => {
+    const props: AffiliateProp[] = [];
+    productsData?.data?.forEach((product: Product) => {
+      if (product.affiliate_props) {
+        product.affiliate_props.forEach((affiliateProp) => {
+          props.push({
+            ...affiliateProp,
+            product: product,
+          });
+        });
+      }
+    });
+    return props;
+  }, [productsData]);
+
+  const categoryGroups = useMemo(
+    () => groupAffiliateProps(affiliateProps),
+    [affiliateProps]
+  );
+
+  useEffect(() => {
+    if (
+      selectedCategory !== ALL_CATEGORY_KEY &&
+      !categoryGroups.some((group) => group.key === selectedCategory)
+    ) {
+      setSelectedCategory(ALL_CATEGORY_KEY);
+    }
+  }, [categoryGroups, selectedCategory]);
+
+  const visibleGroups =
+    selectedCategory === ALL_CATEGORY_KEY
+      ? categoryGroups
+      : categoryGroups.filter((group) => group.key === selectedCategory);
 
   const handleCopyLink = async (affiliateProp: AffiliateProp) => {
     if (!affiliate?.slug) {
@@ -99,20 +179,6 @@ export default function AffiliateMyLinksPage() {
       });
     }
   };
-
-  // Extract all affiliate props from products and ensure product data is attached
-  const affiliateProps: AffiliateProp[] = [];
-  productsData?.data?.forEach((product: Product) => {
-    if (product.affiliate_props) {
-      product.affiliate_props.forEach((affiliateProp) => {
-        // Ensure the product data is attached to each affiliate prop
-        affiliateProps.push({
-          ...affiliateProp,
-          product: product
-        });
-      });
-    }
-  });
 
   // Get company name from affiliate data
   const companyName = affiliate?.company?.company_name || "Our";
@@ -220,16 +286,60 @@ export default function AffiliateMyLinksPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {affiliateProps.map((affiliateProp) => (
-              <ProductCard
-                key={affiliateProp.ID}
-                affiliateProp={affiliateProp}
-                onCopyLink={handleCopyLink}
-                onOpenCreatives={handleOpenCreatives}
-              />
-            ))}
-          </div>
+          <>
+            {categoryGroups.length > 0 && (
+              <div className="sticky top-0 z-10 -mx-4 mb-6 bg-gradient-to-br from-slate-50/95 to-slate-100/95 px-4 py-3 backdrop-blur">
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory(ALL_CATEGORY_KEY)}
+                    className={cn(
+                      "whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+                      selectedCategory === ALL_CATEGORY_KEY
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-white text-gray-700 hover:bg-slate-50"
+                    )}
+                  >
+                    All
+                  </button>
+                  {categoryGroups.map((group) => (
+                    <button
+                      key={group.key}
+                      type="button"
+                      onClick={() => setSelectedCategory(group.key)}
+                      className={cn(
+                        "whitespace-nowrap rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
+                        selectedCategory === group.key
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-white text-gray-700 hover:bg-slate-50"
+                      )}
+                    >
+                      {group.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="space-y-10">
+              {visibleGroups.map((group) => (
+                <section key={group.key}>
+                  <h2 className="mb-4 text-lg font-semibold text-gray-900">
+                    {group.name}
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {group.props.map((affiliateProp) => (
+                      <ProductCard
+                        key={affiliateProp.ID}
+                        affiliateProp={affiliateProp}
+                        onCopyLink={handleCopyLink}
+                        onOpenCreatives={handleOpenCreatives}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

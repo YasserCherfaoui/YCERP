@@ -1,4 +1,3 @@
-import { franchiseSupportChatUnreadRootKey } from "@/hooks/use-franchise-support-chat-unread";
 import { type FranchiseSupportChatUIMessage, useFranchiseSupportChat } from "@/hooks/use-franchise-support-chat";
 import { useSupportChatIsOwnMessage } from "@/hooks/use-support-chat-viewer";
 import { cn } from "@/lib/utils";
@@ -6,7 +5,6 @@ import { postFranchiseSupportChatMarkRead } from "@/services/support-chat-servic
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { useQueryClient } from "@tanstack/react-query";
 import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 
 interface Props {
@@ -17,7 +15,6 @@ interface Props {
 export default function FranchiseSupportChatPanel({ franchiseId, className }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [draft, setDraft] = useState("");
-  const queryClient = useQueryClient();
   const isOwnMessage = useSupportChatIsOwnMessage();
   const { messages, connected, loading, sendBody, loadOlder, refresh } =
     useFranchiseSupportChat({
@@ -33,18 +30,12 @@ export default function FranchiseSupportChatPanel({ franchiseId, className }: Pr
   useEffect(() => {
     if (!franchiseId || franchiseId <= 0 || maxMsgId <= 0) return;
     const t = window.setTimeout(() => {
-      void postFranchiseSupportChatMarkRead(franchiseId, maxMsgId)
-        .then(() => {
-          void queryClient.invalidateQueries({
-            queryKey: [franchiseSupportChatUnreadRootKey, franchiseId],
-          });
-        })
-        .catch(() => {
-          /* offline / auth */
-        });
+      void postFranchiseSupportChatMarkRead(franchiseId, maxMsgId).catch(() => {
+        /* offline / auth */
+      });
     }, 400);
     return () => window.clearTimeout(t);
-  }, [franchiseId, maxMsgId, queryClient]);
+  }, [franchiseId, maxMsgId]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });

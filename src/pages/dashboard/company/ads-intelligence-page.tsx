@@ -1,0 +1,234 @@
+import { RootState } from "@/app/store";
+import AdsCredentialsSettings from "@/components/feature-specific/ads-intelligence/ads-credentials-settings";
+import AiChatPanel from "@/components/feature-specific/ads-intelligence/ai-chat-panel";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { AdsTrueEconomicsRow } from "@/models/data/ads-intelligence/chat.model";
+import {
+  getAdsTrueEconomics,
+  triggerMetaAdsSync,
+  triggerTikTokAdsSync,
+  waitForAdsSync,
+} from "@/services/ads-intelligence-service";
+import { BarChart3, Bot, RefreshCw, Settings2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+
+function formatMoney(value: number) {
+  return new Intl.NumberFormat("fr-DZ", {
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export default function AdsIntelligencePage() {
+  const company = useSelector((state: RootState) => state.company.company);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(
+    tabParam === "settings" || tabParam === "chat" ? tabParam : "dashboard",
+  );
+  const [rows, setRows] = useState<AdsTrueEconomicsRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [syncingMeta, setSyncingMeta] = useState(false);
+  const [syncingTikTok, setSyncingTikTok] = useState(false);
+
+  useEffect(() => {
+    if (tabParam === "settings" || tabParam === "chat" || tabParam === "dashboard") {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
+  const onTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === "dashboard") {
+      setSearchParams({}, { replace: true });
+    } else {
+      setSearchParams({ tab: value }, { replace: true });
+    }
+  };
+
+  const loadEconomics = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await getAdsTrueEconomics();
+      setRows(res.data ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load economics");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadEconomics();
+  }, [loadEconomics]);
+
+  const onSyncMeta = async () => {
+    if (!company) {
+      setError("No company selected");
+      return;
+    }
+    setSyncingMeta(true);
+    setError(null);
+    setSyncStatus("Meta sync started…");
+    try {
+      await triggerMetaAdsSync(company.ID);
+      setSyncStatus("Meta sync running in background…");
+      const snap = await waitForAdsSync(company.ID, "meta");
+      if (snap.last_error) {
+        setError(snap.last_error);
+        setSyncStatus(null);
+      } else {
+        const r = snap.report;
+        setSyncStatus(
+          r
+            ? `Meta sync done — accounts ${r.Accounts}, campaigns ${r.Campaigns}, ads ${r.Ads}, insights ${r.Insights}`
+            : "Meta sync done",
+        );
+        await loadEconomics();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Meta sync failed");
+      setSyncStatus(null);
+    } finally {
+      setSyncingMeta(false);
+    }
+  };
+
+  const onSyncTikTok = async () => {
+    if (!company) {
+      setError("No company selected");
+      return;
+    }
+    setSyncingTikTok(true);
+    setError(null);
+    setSyncStatus("TikTok sync started…");
+    try {
+      await triggerTikTokAdsSync(company.ID);
+      setSyncStatus("TikTok sync running in background…");
+      const snap = await waitForAdsSync(company.ID, "tiktok");
+      if (snap.last_error) {
+        setError(snap.last_error);
+        setSyncStatus(null);
+      } else {
+        const r = snap.report;
+        setSyncStatus(
+          r
+            ? `TikTok sync done — accounts ${r.Accounts}, campaigns ${r.Campaigns}, ads ${r.Ads}, insights ${r.Insights}`
+            : "TikTok sync done",
+        );
+        await loadEconomics();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "TikTok sync failed");
+      setSyncStatus(null);
+    } finally {
+      setSyncingTikTok(false);
+    }
+  };
+
+  if (!company) return null;
+
+  return (
+    <div className="container mx-auto space-y-6 p-4 md:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Ads Intelligence</h1>
+          <p className="text-sm text-muted-foreground">
+            True delivered economics and AI analyst chat over live data.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => void onSyncMeta()} disabled={syncingMeta}>
+            <RefreshCw className={syncingMeta ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+            {syncingMeta ? "Syncing Meta…" : "Sync Meta"}
+          </Button>
+          <Button variant="outline" onClick={() => void onSyncTikTok()} disabled={syncingTikTok}>
+            <RefreshCw className={syncingTikTok ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+            {syncingTikTok ? "Syncing TikTok…" : "Sync TikTok"}
+          </Button>
+        </div>
+      </div>
+
+      {syncStatus && (
+        <p className="text-sm text-muted-foreground">{syncStatus}</p>
+      )}
+
+      <Tabs value={activeTab} onValueChange={onTabChange}>
+        <TabsList>
+          <TabsTrigger value="dashboard" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="chat" className="gap-2">
+            <Bot className="h-4 w-4" />
+            Chat
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2">
+            <Settings2 className="h-4 w-4" />
+            Settings
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>True economics by campaign</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              {!loading && !error && rows.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  No attributed campaigns yet. Add credentials in Settings, run Meta sync, and ensure
+                  orders have UTM content.
+                </p>
+              )}
+              {!loading && rows.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-muted-foreground">
+                        <th className="px-2 py-2">Campaign</th>
+                        <th className="px-2 py-2">Platform</th>
+                        <th className="px-2 py-2">Spend</th>
+                        <th className="px-2 py-2">Delivered</th>
+                        <th className="px-2 py-2">Collected</th>
+                        <th className="px-2 py-2">Net profit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((row) => (
+                        <tr key={`${row.platform}-${row.campaign_id}`} className="border-b">
+                          <td className="px-2 py-2">#{row.campaign_id}</td>
+                          <td className="px-2 py-2">{row.platform}</td>
+                          <td className="px-2 py-2">{formatMoney(row.spend)}</td>
+                          <td className="px-2 py-2">{row.delivered}</td>
+                          <td className="px-2 py-2">{formatMoney(row.collected_cash)}</td>
+                          <td className="px-2 py-2 font-medium">{formatMoney(row.net_profit)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="chat" className="mt-4">
+          <AiChatPanel className="min-h-[70vh]" />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-4">
+          <AdsCredentialsSettings companyId={company.ID} />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}

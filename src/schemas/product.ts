@@ -17,6 +17,7 @@ export const createProductSchema = z.object({
     combinable: z.boolean().optional(),
     is_active: z.boolean().optional(),
     franchise_ship_commission: z.number().min(0).optional(),
+    product_category_id: z.number().nullable().optional(),
 })
 
 
@@ -34,6 +35,7 @@ export const productDefaultValues = {
     pairable: false,
     combinable: false,
     is_active: true,
+    product_category_id: null,
 }
 
 
@@ -81,6 +83,7 @@ export const updateProductSchema = z.object({
     combinable: z.boolean().optional(),
     is_active: z.boolean().optional(),
     franchise_ship_commission: z.coerce.number().min(0).optional(),
+    product_category_id: z.number().nullable().optional(),
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>

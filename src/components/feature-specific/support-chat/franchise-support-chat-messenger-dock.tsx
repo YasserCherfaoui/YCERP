@@ -67,9 +67,7 @@ export function FranchiseSupportChatMessengerDockFranchiseApp() {
   const franchise = useSelector((s: RootState) => s.franchise.franchise);
   const franchiseId = franchise?.ID;
   const [open, setOpen] = React.useState(false);
-  const { unreadCount, showFloodedBadge } = useFranchiseSupportChatUnread(franchiseId, {
-    pollingEnabled: !open,
-  });
+  const { unreadCount, showFloodedBadge } = useFranchiseSupportChatUnread(franchiseId);
 
   if (!franchiseId || franchiseId <= 0) {
     return null;

@@ -1,3 +1,4 @@
+import { ProductCategorySelect } from "@/components/feature-specific/company-products/product-category-select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -50,6 +51,7 @@ function getProductFormValues(product: Product): UpdateProductSchema {
       product.franchise_ship_commission !== undefined
         ? product.franchise_ship_commission
         : 800,
+    product_category_id: product.product_category_id ?? product.product_category?.ID ?? null,
   };
 }
 
@@ -90,6 +92,7 @@ export default function MyForm({ product }: Props) {
   function onSubmit(values: UpdateProductSchema) {
     updateProductMutation({
       ...values,
+      product_category_id: values.product_category_id ?? null,
       franchise_ship_commission:
         values.franchise_ship_commission !== undefined
           ? values.franchise_ship_commission
@@ -286,6 +289,24 @@ export default function MyForm({ product }: Props) {
                   />
                 </FormControl>
 
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="product_category_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <ProductCategorySelect
+                    companyId={product.company_id}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

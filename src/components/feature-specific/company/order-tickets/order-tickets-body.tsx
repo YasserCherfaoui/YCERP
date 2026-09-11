@@ -187,6 +187,7 @@ export default function OrderTicketsBody() {
           returned: "bg-red-500",
           cancelled: "bg-gray-700",
           relaunched: "bg-indigo-500",
+          orphaned: "bg-amber-500",
         };
         const statusColor = statusColors[wooOrder.order_status] || "bg-gray-500";
         return (

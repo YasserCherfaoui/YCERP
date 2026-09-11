@@ -1,6 +1,6 @@
 import { baseUrl } from "@/app/constants";
 import { AffiliateFormValues } from "@/components/feature-specific/company-products/set-affiliate-props-dialog";
-import { Product, ProductVariant } from "@/models/data/product.model";
+import { Product, ProductCategory, ProductVariant } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CompanyStatsResponse, ProductPurchasesResponse } from "@/models/responses/company-stats.model";
 import { CreateProductSchema, CreateProductVariantSchema, GenerateBarcodePDFSchema, SalesQuantityRequestSchema, UpdateProductSchema } from "@/schemas/product";
@@ -324,4 +324,80 @@ export const setAffiliateProps = async (data: AffiliateFormValues): Promise<APIR
 
     const apiResponse: APIResponse<void> = await response.json();
     return apiResponse;
+}
+
+export const listProductCategories = async (companyId: number): Promise<APIResponse<ProductCategory[]>> => {
+    const response = await fetch(`${baseUrl}/company/${companyId}/product-categories`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to list product categories.");
+    }
+
+    return await response.json();
+}
+
+export const createProductCategory = async (
+    companyId: number,
+    payload: { name: string; sort_order?: number; is_active?: boolean }
+): Promise<APIResponse<ProductCategory>> => {
+    const response = await fetch(`${baseUrl}/company/${companyId}/product-categories`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create product category.");
+    }
+
+    return await response.json();
+}
+
+export const updateProductCategory = async (
+    categoryId: number,
+    payload: { name?: string; sort_order?: number; is_active?: boolean }
+): Promise<APIResponse<ProductCategory>> => {
+    const response = await fetch(`${baseUrl}/product-categories/${categoryId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update product category.");
+    }
+
+    return await response.json();
+}
+
+export const deleteProductCategory = async (categoryId: number): Promise<APIResponse<{ id: number }>> => {
+    const response = await fetch(`${baseUrl}/product-categories/${categoryId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete product category.");
+    }
+
+    return await response.json();
 }

@@ -8,6 +8,7 @@ import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-o
 import OrderStatusCards from "@/components/feature-specific/orders/order-status-cards";
 import ManagerStatusCards from "@/components/feature-specific/orders/manager-status-cards";
 import YalidineReconciliationDialog from "@/components/feature-specific/orders/yalidine-reconciliation-dialog";
+import DeletedParcelReconciliationDialog from "@/components/feature-specific/orders/deleted-parcel-reconciliation-dialog";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DataTable } from "@/components/ui/data-table";
@@ -60,7 +61,8 @@ import {
     Undo2Icon,
     Upload,
     UserIcon,
-    XCircleIcon
+    XCircleIcon,
+    AlertTriangleIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -312,6 +314,7 @@ export default function CompanyOrdersPage() {
   // Add state for create order dialog
   const [createOrderOpen, setCreateOrderOpen] = useState(false);
   const [yalidineReconciliationOpen, setYalidineReconciliationOpen] = useState(false);
+  const [deletedParcelReconciliationOpen, setDeletedParcelReconciliationOpen] = useState(false);
 
   // Statuses and icons
   const statusTabs = [
@@ -334,6 +337,11 @@ export default function CompanyOrdersPage() {
       value: "deliviring",
       label: "Deliviring",
       icon: <SendIcon className="w-4 h-4 mr-1" />,
+    },
+    {
+      value: "orphaned",
+      label: "Orphaned",
+      icon: <AlertTriangleIcon className="w-4 h-4 mr-1" />
     },
     {
       value: "delivered",
@@ -450,6 +458,13 @@ export default function CompanyOrdersPage() {
           >
             <span className="sm:hidden">Reconcile</span>
             <span className="hidden sm:inline">Reconcile Yalidine</span>
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setDeletedParcelReconciliationOpen(true)}
+          >
+            <span className="sm:hidden">Deleted parcel</span>
+            <span className="hidden sm:inline">Deleted Yalidine Parcel</span>
           </Button>
           <Button
             onClick={() => setAssignOpen(true)}
@@ -777,6 +792,11 @@ export default function CompanyOrdersPage() {
       <YalidineReconciliationDialog
         open={yalidineReconciliationOpen}
         setOpen={setYalidineReconciliationOpen}
+        filters={yalidineReconciliationFilters}
+      />
+      <DeletedParcelReconciliationDialog
+        open={deletedParcelReconciliationOpen}
+        setOpen={setDeletedParcelReconciliationOpen}
         filters={yalidineReconciliationFilters}
       />
     </div>

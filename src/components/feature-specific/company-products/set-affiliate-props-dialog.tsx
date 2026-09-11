@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/models/data/product.model";
 import { setAffiliateProps } from "@/services/product-service";
@@ -34,6 +35,7 @@ const affiliatePropSchema = z.object({
   shopify_link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   commission: z.coerce.number().int().min(0, "Commission cannot be negative"),
   pro_commission: z.coerce.number().int().min(0, "Pro commission cannot be negative").optional().default(0),
+  is_active: z.boolean().optional().default(true),
 });
 
 const formSchema = z.object({
@@ -71,6 +73,7 @@ export function SetAffiliatePropsDialog({
         commission: existingProp?.commission || 0,
         pro_commission: existingProp?.pro_commission || 0,
         shopify_link: existingProp?.shopify_link || "",
+        is_active: existingProp?.is_active ?? true,
       };
     }),
   };
@@ -220,6 +223,26 @@ export function SetAffiliatePropsDialog({
                           </p>
                         )}
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`affiliate_props.${index}.is_active`}
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-md border px-3 py-2">
+                        <div>
+                          <FormLabel>Active in affiliate catalog</FormLabel>
+                          <p className="text-xs text-muted-foreground">
+                            Inactive variants are hidden from My Links.
+                          </p>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value ?? true}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />

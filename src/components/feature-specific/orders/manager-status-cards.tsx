@@ -113,6 +113,15 @@ const STATUS_COLORS: Record<string, {
     borderDark: "border-indigo-600",
     icon: <RotateCcw className="w-4 h-4" />,
   },
+  orphaned: {
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    text: "text-amber-800 dark:text-amber-200",
+    border: "border-amber-300 dark:border-amber-600",
+    bgDark: "bg-amber-900/30",
+    textDark: "text-amber-200",
+    borderDark: "border-amber-600",
+    icon: <RotateCcw className="w-4 h-4" />,
+  },
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -125,6 +134,7 @@ const STATUS_LABELS: Record<string, string> = {
   returned: "Returned",
   cancelled: "Cancelled",
   relaunched: "Relaunched",
+  orphaned: "Orphaned",
 };
 
 export default function ManagerStatusCards({ 
