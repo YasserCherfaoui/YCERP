@@ -7,6 +7,7 @@ import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import AddProductForm from "./add-product-form";
+import { ManageProductCategoriesDialog } from "./manage-product-categories-dialog";
 import PrintProductsLabelsDialog from "./print-products-labels-dialog";
 
 export default function () {
@@ -39,6 +40,7 @@ export default function () {
         <span className="truncate text-lg sm:text-2xl">{company.company_name} &gt; Products</span>
       </div>
       <div className="flex flex-wrap gap-2">
+        <ManageProductCategoriesDialog companyId={company.ID} />
         <Button
           onClick={() => syncMutation.mutate()}
           disabled={syncMutation.isPending}

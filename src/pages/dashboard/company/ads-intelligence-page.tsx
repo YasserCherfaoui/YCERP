@@ -1,3 +1,5 @@
+import { RootState } from "@/app/store";
+import AdsCredentialsSettings from "@/components/feature-specific/ads-intelligence/ads-credentials-settings";
 import AiChatPanel from "@/components/feature-specific/ads-intelligence/ai-chat-panel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,9 +9,12 @@ import {
   getAdsTrueEconomics,
   triggerMetaAdsSync,
   triggerTikTokAdsSync,
+  waitForAdsSync,
 } from "@/services/ads-intelligence-service";
-import { BarChart3, Bot, RefreshCw } from "lucide-react";
+import { BarChart3, Bot, RefreshCw, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 
 function formatMoney(value: number) {
   return new Intl.NumberFormat("fr-DZ", {
@@ -18,12 +23,33 @@ function formatMoney(value: number) {
 }
 
 export default function AdsIntelligencePage() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const company = useSelector((state: RootState) => state.company.company);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(
+    tabParam === "settings" || tabParam === "chat" ? tabParam : "dashboard",
+  );
   const [rows, setRows] = useState<AdsTrueEconomicsRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [syncingMeta, setSyncingMeta] = useState(false);
   const [syncingTikTok, setSyncingTikTok] = useState(false);
+
+  useEffect(() => {
+    if (tabParam === "settings" || tabParam === "chat" || tabParam === "dashboard") {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
+  const onTabChange = (value: string) => {
+    setActiveTab(value);
+    if (value === "dashboard") {
+      setSearchParams({}, { replace: true });
+    } else {
+      setSearchParams({ tab: value }, { replace: true });
+    }
+  };
 
   const loadEconomics = useCallback(async () => {
     setLoading(true);
@@ -43,28 +69,70 @@ export default function AdsIntelligencePage() {
   }, [loadEconomics]);
 
   const onSyncMeta = async () => {
+    if (!company) {
+      setError("No company selected");
+      return;
+    }
     setSyncingMeta(true);
+    setError(null);
+    setSyncStatus("Meta sync started…");
     try {
-      await triggerMetaAdsSync();
-      await loadEconomics();
+      await triggerMetaAdsSync(company.ID);
+      setSyncStatus("Meta sync running in background…");
+      const snap = await waitForAdsSync(company.ID, "meta");
+      if (snap.last_error) {
+        setError(snap.last_error);
+        setSyncStatus(null);
+      } else {
+        const r = snap.report;
+        setSyncStatus(
+          r
+            ? `Meta sync done — accounts ${r.Accounts}, campaigns ${r.Campaigns}, ads ${r.Ads}, insights ${r.Insights}`
+            : "Meta sync done",
+        );
+        await loadEconomics();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Meta sync failed");
+      setSyncStatus(null);
     } finally {
       setSyncingMeta(false);
     }
   };
 
   const onSyncTikTok = async () => {
+    if (!company) {
+      setError("No company selected");
+      return;
+    }
     setSyncingTikTok(true);
+    setError(null);
+    setSyncStatus("TikTok sync started…");
     try {
-      await triggerTikTokAdsSync();
-      await loadEconomics();
+      await triggerTikTokAdsSync(company.ID);
+      setSyncStatus("TikTok sync running in background…");
+      const snap = await waitForAdsSync(company.ID, "tiktok");
+      if (snap.last_error) {
+        setError(snap.last_error);
+        setSyncStatus(null);
+      } else {
+        const r = snap.report;
+        setSyncStatus(
+          r
+            ? `TikTok sync done — accounts ${r.Accounts}, campaigns ${r.Campaigns}, ads ${r.Ads}, insights ${r.Insights}`
+            : "TikTok sync done",
+        );
+        await loadEconomics();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "TikTok sync failed");
+      setSyncStatus(null);
     } finally {
       setSyncingTikTok(false);
     }
   };
+
+  if (!company) return null;
 
   return (
     <div className="container mx-auto space-y-6 p-4 md:p-6">
@@ -78,16 +146,20 @@ export default function AdsIntelligencePage() {
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => void onSyncMeta()} disabled={syncingMeta}>
             <RefreshCw className={syncingMeta ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
-            Sync Meta
+            {syncingMeta ? "Syncing Meta…" : "Sync Meta"}
           </Button>
           <Button variant="outline" onClick={() => void onSyncTikTok()} disabled={syncingTikTok}>
             <RefreshCw className={syncingTikTok ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
-            Sync TikTok
+            {syncingTikTok ? "Syncing TikTok…" : "Sync TikTok"}
           </Button>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      {syncStatus && (
+        <p className="text-sm text-muted-foreground">{syncStatus}</p>
+      )}
+
+      <Tabs value={activeTab} onValueChange={onTabChange}>
         <TabsList>
           <TabsTrigger value="dashboard" className="gap-2">
             <BarChart3 className="h-4 w-4" />
@@ -96,6 +168,10 @@ export default function AdsIntelligencePage() {
           <TabsTrigger value="chat" className="gap-2">
             <Bot className="h-4 w-4" />
             Chat
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2">
+            <Settings2 className="h-4 w-4" />
+            Settings
           </TabsTrigger>
         </TabsList>
 
@@ -109,7 +185,8 @@ export default function AdsIntelligencePage() {
               {error && <p className="text-sm text-destructive">{error}</p>}
               {!loading && !error && rows.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  No attributed campaigns yet. Run Meta sync and ensure orders have UTM content.
+                  No attributed campaigns yet. Add credentials in Settings, run Meta sync, and ensure
+                  orders have UTM content.
                 </p>
               )}
               {!loading && rows.length > 0 && (
@@ -146,6 +223,10 @@ export default function AdsIntelligencePage() {
 
         <TabsContent value="chat" className="mt-4">
           <AiChatPanel className="min-h-[70vh]" />
+        </TabsContent>
+
+        <TabsContent value="settings" className="mt-4">
+          <AdsCredentialsSettings companyId={company.ID} />
         </TabsContent>
       </Tabs>
     </div>

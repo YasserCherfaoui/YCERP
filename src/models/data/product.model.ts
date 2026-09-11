@@ -20,9 +20,22 @@ export interface Product {
     combinable?: boolean;
     is_active: boolean;
     franchise_ship_commission?: number;
+    product_category_id?: number | null;
+    product_category?: ProductCategory | null;
     product_images: ProductImage[];
     product_variants: ProductVariant[];
     affiliate_props?: AffiliateProp[];
+}
+
+export interface ProductCategory {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt?: string;
+    company_id: number;
+    name: string;
+    sort_order: number;
+    is_active: boolean;
 }
 
 export interface ProductImage {
@@ -61,4 +74,5 @@ export interface AffiliateProp {
     creatives_link: string;
     commission: number;
     pro_commission: number;
+    is_active?: boolean;
 }

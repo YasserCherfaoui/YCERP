@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BellRing, ChevronRight, MessageSquare, ShoppingBag, Users } from "lucide-react";
+import { BellRing, ChevronRight, MessageSquare, Megaphone, ShoppingBag, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const links = [
@@ -15,6 +15,12 @@ const links = [
     title: "WhatsApp",
     description: "Notification templates and phone lists",
     icon: MessageSquare,
+  },
+  {
+    href: (id: number) => `/company/${id}/ads-intelligence?tab=settings`,
+    title: "Ads Intelligence",
+    description: "Meta and TikTok API credentials",
+    icon: Megaphone,
   },
   {
     href: (id: number) => `/company/${id}/stock-alerts`,

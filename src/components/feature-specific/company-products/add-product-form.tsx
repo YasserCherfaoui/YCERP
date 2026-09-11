@@ -20,6 +20,7 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import { ProductCategorySelect } from "@/components/feature-specific/company-products/product-category-select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -195,6 +196,23 @@ export default function () {
               )}
             />
           </div>
+          <FormField
+            name="product_category_id"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <ProductCategorySelect
+                    companyId={company.ID}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             name="description"
             control={form.control}
