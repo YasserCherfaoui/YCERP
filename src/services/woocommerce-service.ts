@@ -1004,3 +1004,192 @@ export const getWooLineItemsSummary = async (params: {
   }
   return response.json();
 };
+
+export type PackingCheckStatus = "in_progress" | "passed" | "failed";
+export type PackingScanOutcome =
+  | "match"
+  | "unexpected"
+  | "over_quantity"
+  | "unknown_qr";
+
+export interface PackingExpectedLine {
+  product_variant_id: number;
+  product_name: string;
+  color: string;
+  size: number;
+  qr_code: string;
+  expected_qty: number;
+  scanned_qty: number;
+  remaining: number;
+}
+
+export interface PackingMismatch {
+  scan_id: number;
+  scanned_code: string;
+  outcome: PackingScanOutcome;
+  product_variant_id?: number;
+}
+
+export interface PackingLastCheck {
+  id: number;
+  status: PackingCheckStatus;
+  user_name: string;
+  completed_at?: string | null;
+  ip_address: string;
+  created_at: string;
+}
+
+export interface PackingOrderSummary {
+  id: number;
+  number: string;
+  order_status: string;
+  tracking_number: string;
+  customer_name: string;
+  customer_phone: string;
+}
+
+export interface ParcelPackingCheckScan {
+  ID: number;
+  scanned_code: string;
+  product_variant_id?: number | null;
+  confirmed_order_item_id?: number | null;
+  outcome: PackingScanOutcome;
+  voided_at?: string | null;
+  voided_by_user_id?: number | null;
+  CreatedAt?: string;
+}
+
+export interface ParcelPackingCheck {
+  ID: number;
+  woo_order_id: number;
+  company_id: number;
+  tracking_number: string;
+  status: PackingCheckStatus;
+  completed_at?: string | null;
+  user_id: number;
+  user_type: string;
+  user_name: string;
+  ip_address: string;
+  user_agent: string;
+  scans?: ParcelPackingCheckScan[];
+  CreatedAt?: string;
+}
+
+export interface PackingLookupResponse {
+  order: PackingOrderSummary;
+  lines: PackingExpectedLine[];
+  last_check: PackingLastCheck | null;
+}
+
+export interface PackingCheckProgress {
+  check: ParcelPackingCheck;
+  order: PackingOrderSummary;
+  lines: PackingExpectedLine[];
+  mismatches: PackingMismatch[];
+  ready_to_pass: boolean;
+  last_check: PackingLastCheck | null;
+  scans: ParcelPackingCheckScan[];
+}
+
+async function packingRequest<T>(
+  path: string,
+  init?: RequestInit
+): Promise<APIResponse<T>> {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(`${baseUrl}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + currentToken,
+    },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(
+      (data as APIResponse<unknown>).message || "Packing check request failed"
+    );
+  }
+  return data as APIResponse<T>;
+}
+
+export const lookupPackingCheck = async (params: {
+  tracking_number: string;
+  company_id: number;
+}): Promise<APIResponse<PackingLookupResponse>> => {
+  const query = new URLSearchParams({
+    tracking_number: params.tracking_number,
+    company_id: String(params.company_id),
+  });
+  return packingRequest<PackingLookupResponse>(
+    `/woocommerce/packing-checks/lookup?${query.toString()}`
+  );
+};
+
+export const startPackingCheck = async (body: {
+  tracking_number: string;
+  company_id: number;
+}): Promise<APIResponse<PackingCheckProgress>> => {
+  return packingRequest<PackingCheckProgress>("/woocommerce/packing-checks", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+};
+
+export const getPackingCheck = async (
+  id: number,
+  company_id: number
+): Promise<APIResponse<PackingCheckProgress>> => {
+  return packingRequest<PackingCheckProgress>(
+    `/woocommerce/packing-checks/${id}?company_id=${company_id}`
+  );
+};
+
+export const scanPackingCheck = async (
+  id: number,
+  company_id: number,
+  qr_code: string
+): Promise<APIResponse<PackingCheckProgress>> => {
+  return packingRequest<PackingCheckProgress>(
+    `/woocommerce/packing-checks/${id}/scans?company_id=${company_id}`,
+    {
+      method: "POST",
+      body: JSON.stringify({ qr_code }),
+    }
+  );
+};
+
+export const voidPackingCheckScan = async (
+  id: number,
+  scan_id: number,
+  company_id: number
+): Promise<APIResponse<PackingCheckProgress>> => {
+  return packingRequest<PackingCheckProgress>(
+    `/woocommerce/packing-checks/${id}/scans/${scan_id}?company_id=${company_id}`,
+    { method: "DELETE" }
+  );
+};
+
+export const adjustPackingCheckQuantity = async (
+  id: number,
+  product_variant_id: number,
+  company_id: number,
+  quantity: number
+): Promise<APIResponse<PackingCheckProgress>> => {
+  return packingRequest<PackingCheckProgress>(
+    `/woocommerce/packing-checks/${id}/variants/${product_variant_id}?company_id=${company_id}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ quantity }),
+    }
+  );
+};
+
+export const completePackingCheck = async (
+  id: number,
+  company_id: number
+): Promise<APIResponse<PackingCheckProgress>> => {
+  return packingRequest<PackingCheckProgress>(
+    `/woocommerce/packing-checks/${id}/complete?company_id=${company_id}`,
+    { method: "POST" }
+  );
+};
