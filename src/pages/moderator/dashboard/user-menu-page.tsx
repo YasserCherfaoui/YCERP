@@ -9,6 +9,7 @@ import {
   Handshake,
   Package,
   PackageX,
+  ScanLine,
   ReceiptText,
   RotateCcw,
   ShoppingCart,
@@ -64,6 +65,11 @@ const quickMenu = [
     label: "Orders",
     icon: Package,
     href: "orders",
+  },
+  {
+    label: "Packing check",
+    icon: ScanLine,
+    href: "packing-check",
   },
   {
     label: "Suppliers",
