@@ -7,6 +7,7 @@ import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
+import { PendingYalidineLabelBatchesResponse } from "@/models/data/yalidine-label-batch.model";
 import { CenterListResponse } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema, ExchangeWooOrderSchema } from "@/schemas/order";
 import { AssignRequest, DeclareEmptyExchangeRequest, ShuffleRequest, UpdateWooCommerceOrderStatusRequest } from "@/schemas/woocommerce";
@@ -1192,4 +1193,83 @@ export const completePackingCheck = async (
     `/woocommerce/packing-checks/${id}/complete?company_id=${company_id}`,
     { method: "POST" }
   );
+};
+
+function authToken(): string {
+  return localStorage.getItem("token") || "";
+}
+
+async function downloadPdfBlob(response: Response, fallbackName: string): Promise<void> {
+  if (!response.ok) {
+    let message = "Failed to download PDF";
+    try {
+      const errorData = await response.json();
+      message = errorData.message || message;
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
+  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  const disposition = response.headers.get("Content-Disposition");
+  const filename =
+    disposition?.split("filename=")[1]?.replace(/"/g, "").trim() || fallbackName;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
+export const getPendingYalidineLabelBatches = async (
+  companyId: number
+): Promise<APIResponse<PendingYalidineLabelBatchesResponse>> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-label-batches/pending?company_id=${companyId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to load pending label batches");
+  }
+  return response.json();
+};
+
+export const downloadYalidineLabelBatch = async (
+  batchId: number,
+  companyId: number
+): Promise<void> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-label-batches/${batchId}/download?company_id=${companyId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  await downloadPdfBlob(response, `yalidine-labels-${batchId}.pdf`);
+};
+
+export const mergeAllYalidineLabelBatches = async (
+  companyId: number
+): Promise<void> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-label-batches/merge-all?company_id=${companyId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  await downloadPdfBlob(response, "yalidine-labels-merged.pdf");
 };

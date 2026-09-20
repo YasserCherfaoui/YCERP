@@ -9,6 +9,7 @@ import OrderStatusCards from "@/components/feature-specific/orders/order-status-
 import ManagerStatusCards from "@/components/feature-specific/orders/manager-status-cards";
 import YalidineReconciliationDialog from "@/components/feature-specific/orders/yalidine-reconciliation-dialog";
 import DeletedParcelReconciliationDialog from "@/components/feature-specific/orders/deleted-parcel-reconciliation-dialog";
+import YalidineLabelsDrawer from "@/components/feature-specific/orders/yalidine-labels-drawer";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DataTable } from "@/components/ui/data-table";
@@ -243,6 +244,9 @@ export default function CompanyOrdersPage() {
     mutationFn: exportWooCommerceOrders,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({
+        queryKey: ["yalidine-label-batches-pending"],
+      });
       toast({
         title: "Orders exported successfully",
         description: "Orders have been exported successfully",
@@ -459,6 +463,7 @@ export default function CompanyOrdersPage() {
             <span className="sm:hidden">Reconcile</span>
             <span className="hidden sm:inline">Reconcile Yalidine</span>
           </Button>
+          <YalidineLabelsDrawer companyId={company.ID} />
           <Button
             variant="outline"
             onClick={() => setDeletedParcelReconciliationOpen(true)}
