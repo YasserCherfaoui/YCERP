@@ -7,6 +7,11 @@ import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
+import {
+  DownloadedYalidineParcelLabelsResponse,
+  MergeYalidineParcelLabelsRequest,
+  PendingYalidineParcelLabelsResponse,
+} from "@/models/data/yalidine-label-batch.model";
 import { CenterListResponse } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema, ExchangeWooOrderSchema } from "@/schemas/order";
 import { AssignRequest, DeclareEmptyExchangeRequest, ShuffleRequest, UpdateWooCommerceOrderStatusRequest } from "@/schemas/woocommerce";
@@ -1192,4 +1197,105 @@ export const completePackingCheck = async (
     `/woocommerce/packing-checks/${id}/complete?company_id=${company_id}`,
     { method: "POST" }
   );
+};
+
+function authToken(): string {
+  return localStorage.getItem("token") || "";
+}
+
+async function downloadPdfBlob(response: Response, fallbackName: string): Promise<void> {
+  if (!response.ok) {
+    let message = "Failed to download PDF";
+    try {
+      const errorData = await response.json();
+      message = errorData.message || message;
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
+  }
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  const disposition = response.headers.get("Content-Disposition");
+  const filename =
+    disposition?.split("filename=")[1]?.replace(/"/g, "").trim() || fallbackName;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
+export const getPendingYalidineParcelLabels = async (
+  companyId: number
+): Promise<APIResponse<PendingYalidineParcelLabelsResponse>> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/pending?company_id=${companyId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to load pending labels");
+  }
+  return response.json();
+};
+
+export const getDownloadedYalidineParcelLabels = async (
+  companyId: number
+): Promise<APIResponse<DownloadedYalidineParcelLabelsResponse>> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/downloaded?company_id=${companyId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to load downloaded labels");
+  }
+  return response.json();
+};
+
+export const downloadYalidineParcelLabel = async (
+  labelId: number,
+  companyId: number
+): Promise<void> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/${labelId}/download?company_id=${companyId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  await downloadPdfBlob(response, `yalidine-label-${labelId}.pdf`);
+};
+
+export const mergeYalidineParcelLabels = async (
+  companyId: number,
+  body: MergeYalidineParcelLabelsRequest
+): Promise<void> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/merge?company_id=${companyId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
+  await downloadPdfBlob(response, "yalidine-labels-merged.pdf");
 };

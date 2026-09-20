@@ -53,10 +53,39 @@ import { getMyCompanyFranchises } from "@/services/franchise-service";
 import { algerCities, cities } from "@/utils/algeria-cities";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Dices } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+
+const DEV_PREFILL_NAMES = [
+  "Ahmed Benali",
+  "Sara Meziane",
+  "Karim Bouzid",
+  "Nadia Cherif",
+  "Yacine Hamidi",
+];
+
+const DEV_PREFILL_PHONES = [
+  "0550123456",
+  "0661234567",
+  "0770084275",
+  "0541987654",
+  "0790123789",
+];
+
+const DEV_PREFILL_STREETS = [
+  "Rue Didouche Mourad",
+  "Cité 1000 Logements",
+  "Hai El Badr",
+  "Boulevard Mohamed V",
+  "Rue Larbi Ben M'hidi",
+];
+
+function pickRandom<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
+}
 
 function CreateOrderFromScratchDialog({
   open,
@@ -286,6 +315,7 @@ function CreateOrderFromScratchDialog({
 
   // Add a ref to track if the user has edited second_delivery_cost
   const userEditedSecondDelivery = useRef(false);
+  const pendingDevPrefillCommune = useRef(false);
 
   useEffect(() => {
     setValue("first_delivery_cost", deliveryFee);
@@ -295,6 +325,56 @@ function CreateOrderFromScratchDialog({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deliveryFee, setValue]);
+
+  // After DEV prefill sets wilaya, wait for communes then pick one
+  useEffect(() => {
+    if (!pendingDevPrefillCommune.current) return;
+    const deliverable = (yalidineCommunes || []).filter((c) => c.is_deliverable);
+    if (deliverable.length === 0) return;
+    const commune = pickRandom(deliverable);
+    setValue("selected_commune", String(commune.id));
+    setValue("shipping.commune", commune.name);
+    pendingDevPrefillCommune.current = false;
+  }, [yalidineCommunes, shipping.state, setValue]);
+
+  const prefillWithRandomData = () => {
+    const wilaya = pickRandom(cities);
+    const name = pickRandom(DEV_PREFILL_NAMES);
+    const phone = pickRandom(DEV_PREFILL_PHONES);
+    const street = pickRandom(DEV_PREFILL_STREETS);
+
+    setValue("shipping_provider", "yalidine");
+    setValue("delivery_type", "home");
+    setValue("shipping.full_name", name);
+    setValue("shipping.phone_number", phone);
+    setValue("shipping.phone_number_2", "");
+    setValue("shipping.address", `${street} n°${Math.floor(Math.random() * 200) + 1}`);
+    setValue("shipping.state", wilaya.key);
+    setValue("shipping.wilaya", wilaya.label);
+    setValue("shipping.city", wilaya.label);
+    setValue("shipping.comments", "DEV prefill — test order");
+    setValue("selected_commune", "");
+    setValue("selected_center", "");
+    setValue("discount", 0);
+    setValue("ship_from_franchise", false);
+    setValue("franchise_id", undefined);
+
+    if (allVariants.length > 0) {
+      const variant = pickRandom(allVariants);
+      setValue("order_items", [
+        {
+          product_id: variant.product_id,
+          product_variant_id: variant.ID,
+          quantity: Math.floor(Math.random() * 3) + 1,
+          discount: 0,
+        },
+      ]);
+    } else {
+      setValue("order_items", []);
+    }
+
+    pendingDevPrefillCommune.current = true;
+  };
 
   // Update form when dialog opens with initial values or when props change
   useEffect(() => {
@@ -312,6 +392,7 @@ function CreateOrderFromScratchDialog({
       // Reset form when dialog closes
       form.reset();
       userEditedSecondDelivery.current = false;
+      pendingDevPrefillCommune.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialCustomerName, initialCustomerPhone, orderTicketId]);
@@ -353,10 +434,25 @@ function CreateOrderFromScratchDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-[100rem] w-full overflow-y-auto max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Create New Order</DialogTitle>
-          <DialogDescription>
-            Fill the details below to create a new Order from scratch.
-          </DialogDescription>
+          <div className="flex items-start justify-between gap-2 pr-6">
+            <div className="space-y-1.5">
+              <DialogTitle>Create New Order</DialogTitle>
+              <DialogDescription>
+                Fill the details below to create a new Order from scratch.
+              </DialogDescription>
+            </div>
+            {import.meta.env.DEV && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={prefillWithRandomData}
+              >
+                <Dices className="h-4 w-4" />
+                Prefill random
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         <Form {...form}>

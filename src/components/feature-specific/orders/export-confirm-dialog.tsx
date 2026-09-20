@@ -35,6 +35,12 @@ export default function ExportConfirmDialog({ open, setOpen, order, ordersQueryK
             } else {
               queryClient.invalidateQueries({ queryKey: ["orders"] });
             }
+            queryClient.invalidateQueries({
+              queryKey: ["yalidine-parcel-labels-pending"],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["yalidine-parcel-labels-downloaded"],
+            });
         },
         onError: (err: any) => {
             toast({
