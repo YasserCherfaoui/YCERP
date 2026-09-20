@@ -7,7 +7,11 @@ import { OrderHistory, WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { WooOrdersResponse } from "@/models/responses/woo_orders.model";
 import { CreateOrdersFromCSVResponse } from "@/models/responses/woocommerce.model";
-import { PendingYalidineLabelBatchesResponse } from "@/models/data/yalidine-label-batch.model";
+import {
+  DownloadedYalidineParcelLabelsResponse,
+  MergeYalidineParcelLabelsRequest,
+  PendingYalidineParcelLabelsResponse,
+} from "@/models/data/yalidine-label-batch.model";
 import { CenterListResponse } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema, ExchangeWooOrderSchema } from "@/schemas/order";
 import { AssignRequest, DeclareEmptyExchangeRequest, ShuffleRequest, UpdateWooCommerceOrderStatusRequest } from "@/schemas/woocommerce";
@@ -1224,11 +1228,11 @@ async function downloadPdfBlob(response: Response, fallbackName: string): Promis
   window.URL.revokeObjectURL(url);
 }
 
-export const getPendingYalidineLabelBatches = async (
+export const getPendingYalidineParcelLabels = async (
   companyId: number
-): Promise<APIResponse<PendingYalidineLabelBatchesResponse>> => {
+): Promise<APIResponse<PendingYalidineParcelLabelsResponse>> => {
   const response = await fetch(
-    `${baseUrl}/woocommerce/yalidine-label-batches/pending?company_id=${companyId}`,
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/pending?company_id=${companyId}`,
     {
       method: "GET",
       headers: {
@@ -1238,17 +1242,16 @@ export const getPendingYalidineLabelBatches = async (
   );
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.message || "Failed to load pending label batches");
+    throw new Error(errorData.message || "Failed to load pending labels");
   }
   return response.json();
 };
 
-export const downloadYalidineLabelBatch = async (
-  batchId: number,
+export const getDownloadedYalidineParcelLabels = async (
   companyId: number
-): Promise<void> => {
+): Promise<APIResponse<DownloadedYalidineParcelLabelsResponse>> => {
   const response = await fetch(
-    `${baseUrl}/woocommerce/yalidine-label-batches/${batchId}/download?company_id=${companyId}`,
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/downloaded?company_id=${companyId}`,
     {
       method: "GET",
       headers: {
@@ -1256,19 +1259,42 @@ export const downloadYalidineLabelBatch = async (
       },
     }
   );
-  await downloadPdfBlob(response, `yalidine-labels-${batchId}.pdf`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to load downloaded labels");
+  }
+  return response.json();
 };
 
-export const mergeAllYalidineLabelBatches = async (
+export const downloadYalidineParcelLabel = async (
+  labelId: number,
   companyId: number
 ): Promise<void> => {
   const response = await fetch(
-    `${baseUrl}/woocommerce/yalidine-label-batches/merge-all?company_id=${companyId}`,
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/${labelId}/download?company_id=${companyId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  await downloadPdfBlob(response, `yalidine-label-${labelId}.pdf`);
+};
+
+export const mergeYalidineParcelLabels = async (
+  companyId: number,
+  body: MergeYalidineParcelLabelsRequest
+): Promise<void> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/merge?company_id=${companyId}`,
     {
       method: "POST",
       headers: {
         Authorization: "Bearer " + authToken(),
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(body),
     }
   );
   await downloadPdfBlob(response, "yalidine-labels-merged.pdf");

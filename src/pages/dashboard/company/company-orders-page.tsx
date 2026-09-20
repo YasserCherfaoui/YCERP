@@ -4,6 +4,7 @@ import { ProductVariantCombobox } from "@/components/feature-specific/company-pr
 import BulkOperationsDialog from "@/components/feature-specific/orders/bulk-operations-dialog";
 import { companyOrdersColumns } from "@/components/feature-specific/orders/company-orders-columns";
 import CreateOrderFromScratchDialog from "@/components/feature-specific/orders/create-order-from-scratch-dialog.tsx";
+import CreateRandomOrdersDevButton from "@/components/feature-specific/orders/create-random-orders-dev-dialog";
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
 import OrderStatusCards from "@/components/feature-specific/orders/order-status-cards";
 import ManagerStatusCards from "@/components/feature-specific/orders/manager-status-cards";
@@ -245,7 +246,10 @@ export default function CompanyOrdersPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({
-        queryKey: ["yalidine-label-batches-pending"],
+        queryKey: ["yalidine-parcel-labels-pending"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["yalidine-parcel-labels-downloaded"],
       });
       toast({
         title: "Orders exported successfully",
@@ -488,6 +492,7 @@ export default function CompanyOrdersPage() {
           <Button variant="default" onClick={() => setCreateOrderOpen(true)}>
             + Create Order
           </Button>
+          <CreateRandomOrdersDevButton companyId={company.ID} />
           {!isModerator && (
             <Button
               variant="secondary"
