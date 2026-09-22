@@ -201,7 +201,6 @@ export default function ({ sale }: Props) {
                       <TableHeader>
                         <TableHead>Product</TableHead>
                         <TableHead>Qty</TableHead>
-                        <TableHead>Discount</TableHead>
                       </TableHeader>
                       <TableBody>
                         {form.watch("exchange_items").map((_, i) => (
@@ -233,28 +232,6 @@ export default function ({ sale }: Props) {
                             <TableCell>
                               <FormField
                                 name={`exchange_items.${i}.quantity`}
-                                control={form.control}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        {...field}
-                                        type="number"
-                                        onChange={(e) => {
-                                          field.onChange(
-                                            parseInt(e.target.value) ?? 0
-                                          );
-                                        }}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <FormField
-                                name={`exchange_items.${i}.discount`}
                                 control={form.control}
                                 render={({ field }) => (
                                   <FormItem>

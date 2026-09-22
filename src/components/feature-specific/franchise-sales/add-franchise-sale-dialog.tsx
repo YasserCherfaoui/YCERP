@@ -239,20 +239,6 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
       form.clearErrors(`sale_items.${index}.price`);
     }
   }
-  function handleDiscountChange(event: ChangeEvent<HTMLInputElement>): void {
-    const { name, value } = event.target;
-    const index = parseInt(name.split(".")[1]);
-    const updatedSaleItems = [...saleItems];
-    updatedSaleItems[index].discount = Number.isNaN(parseInt(value))
-      ? 0
-      : parseInt(value);
-    setSaleItems(updatedSaleItems);
-
-    form.setValue(
-      `sale_items.${index}.discount`,
-      Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
-    );
-  }
 
   function removeSaleItem(index: number) {
     setSaleItems((prev) => prev.filter((_, i) => i !== index));
@@ -430,7 +416,6 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                     <TableHead>Product</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>Quantity</TableHead>
-                    <TableHead>Discount</TableHead>
                     <TableHead className="w-[52px]">
                       <span className="sr-only">Remove line</span>
                     </TableHead>
@@ -567,27 +552,6 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                                   className="w-20"
                                   {...field}
                                   onChange={handleQuantityChange}
-                                  value={
-                                    Number.isNaN(field.value) ? 0 : field.value
-                                  }
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <FormField
-                          name={`sale_items.${idx}.discount`}
-                          control={form.control}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  className="w-20"
-                                  {...field}
-                                  onChange={handleDiscountChange}
                                   value={
                                     Number.isNaN(field.value) ? 0 : field.value
                                   }
