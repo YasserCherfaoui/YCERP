@@ -42,7 +42,6 @@ export default function ({ sale }: Props) {
               <TableHeader>
                 <TableHead>Product</TableHead>
                 <TableHead>Qty</TableHead>
-                <TableHead>Discount</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Total</TableHead>
               </TableHeader>
@@ -51,13 +50,6 @@ export default function ({ sale }: Props) {
                   <TableRow>
                     <TableCell>{s.product_variant.qr_code}</TableCell>
                     <TableCell>{s.quantity}</TableCell>
-                    <TableCell>
-                      {" "}
-                      {new Intl.NumberFormat("en-DZ", {
-                        style: "currency",
-                        currency: "DZD",
-                      }).format(s.discount)}
-                    </TableCell>
                     <TableCell>
                       {new Intl.NumberFormat("en-DZ", {
                         style: "currency",
