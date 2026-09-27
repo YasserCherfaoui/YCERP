@@ -1,26 +1,22 @@
 import { RootState } from "@/app/store";
 import AdsCredentialsSettings from "@/components/feature-specific/ads-intelligence/ads-credentials-settings";
 import AiChatPanel from "@/components/feature-specific/ads-intelligence/ai-chat-panel";
+import TrueEconomicsDashboard from "@/components/feature-specific/ads-intelligence/true-economics-dashboard";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { AdsTrueEconomicsRow } from "@/models/data/ads-intelligence/chat.model";
+import type { AdsModelFunnelRow, AdsTrueEconomicsRow } from "@/models/data/ads-intelligence/chat.model";
 import {
+  getAdsModelFunnel,
   getAdsTrueEconomics,
   triggerMetaAdsSync,
   triggerTikTokAdsSync,
   waitForAdsSync,
 } from "@/services/ads-intelligence-service";
+import { cn } from "@/lib/utils";
 import { BarChart3, Bot, RefreshCw, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
-
-function formatMoney(value: number) {
-  return new Intl.NumberFormat("fr-DZ", {
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 export default function AdsIntelligencePage() {
   const company = useSelector((state: RootState) => state.company.company);
@@ -30,6 +26,7 @@ export default function AdsIntelligencePage() {
     tabParam === "settings" || tabParam === "chat" ? tabParam : "dashboard",
   );
   const [rows, setRows] = useState<AdsTrueEconomicsRow[]>([]);
+  const [funnel, setFunnel] = useState<AdsModelFunnelRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
@@ -55,8 +52,12 @@ export default function AdsIntelligencePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await getAdsTrueEconomics();
-      setRows(res.data ?? []);
+      const [economics, models] = await Promise.all([
+        getAdsTrueEconomics(),
+        getAdsModelFunnel(),
+      ]);
+      setRows(economics.data ?? []);
+      setFunnel(models.data ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load economics");
     } finally {
@@ -134,33 +135,45 @@ export default function AdsIntelligencePage() {
 
   if (!company) return null;
 
+  const syncing = syncingMeta || syncingTikTok;
+
   return (
-    <div className="container mx-auto space-y-6 p-4 md:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Ads Intelligence</h1>
-          <p className="text-sm text-muted-foreground">
-            True delivered economics and AI analyst chat over live data.
+    <div className="mx-auto flex h-[calc(100dvh-2.75rem)] w-full max-w-screen-2xl flex-col gap-3 overflow-hidden px-3 py-3 md:px-5">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-lg font-semibold tracking-tight">Ads Intelligence</h1>
+          <p className="truncate text-xs text-muted-foreground">
+            Campaign spend compared with confirmed, delivered, and returned orders.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => void onSyncMeta()} disabled={syncingMeta}>
-            <RefreshCw className={syncingMeta ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+          <Button variant="outline" size="sm" onClick={() => void onSyncMeta()} disabled={syncingMeta}>
+            <RefreshCw className={cn("h-4 w-4", syncingMeta && "animate-spin")} />
             {syncingMeta ? "Syncing Meta…" : "Sync Meta"}
           </Button>
-          <Button variant="outline" onClick={() => void onSyncTikTok()} disabled={syncingTikTok}>
-            <RefreshCw className={syncingTikTok ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+          <Button variant="outline" size="sm" onClick={() => void onSyncTikTok()} disabled={syncingTikTok}>
+            <RefreshCw className={cn("h-4 w-4", syncingTikTok && "animate-spin")} />
             {syncingTikTok ? "Syncing TikTok…" : "Sync TikTok"}
           </Button>
         </div>
       </div>
 
       {syncStatus && (
-        <p className="text-sm text-muted-foreground">{syncStatus}</p>
+        <p className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+          <span
+            className={cn("h-2 w-2 rounded-full bg-primary", syncing && "motion-safe:animate-pulse")}
+            aria-hidden
+          />
+          {syncStatus}
+        </p>
       )}
 
-      <Tabs value={activeTab} onValueChange={onTabChange}>
-        <TabsList>
+      <Tabs
+        value={activeTab}
+        onValueChange={onTabChange}
+        className="flex min-h-0 flex-1 flex-col"
+      >
+        <TabsList className="w-fit shrink-0">
           <TabsTrigger value="dashboard" className="gap-2">
             <BarChart3 className="h-4 w-4" />
             Dashboard
@@ -175,58 +188,34 @@ export default function AdsIntelligencePage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>True economics by campaign</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading && <p className="text-sm text-muted-foreground">Loading…</p>}
-              {error && <p className="text-sm text-destructive">{error}</p>}
-              {!loading && !error && rows.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  No attributed campaigns yet. Add credentials in Settings, run Meta sync, and ensure
-                  orders have UTM content.
-                </p>
-              )}
-              {!loading && rows.length > 0 && (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead>
-                      <tr className="border-b text-left text-muted-foreground">
-                        <th className="px-2 py-2">Campaign</th>
-                        <th className="px-2 py-2">Platform</th>
-                        <th className="px-2 py-2">Spend</th>
-                        <th className="px-2 py-2">Delivered</th>
-                        <th className="px-2 py-2">Collected</th>
-                        <th className="px-2 py-2">Net profit</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows.map((row) => (
-                        <tr key={`${row.platform}-${row.campaign_id}`} className="border-b">
-                          <td className="px-2 py-2">#{row.campaign_id}</td>
-                          <td className="px-2 py-2">{row.platform}</td>
-                          <td className="px-2 py-2">{formatMoney(row.spend)}</td>
-                          <td className="px-2 py-2">{row.delivered}</td>
-                          <td className="px-2 py-2">{formatMoney(row.collected_cash)}</td>
-                          <td className="px-2 py-2 font-medium">{formatMoney(row.net_profit)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        <TabsContent
+          value="dashboard"
+          className="mt-3 min-h-0 flex-1 overflow-hidden focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
+          <div className="h-full overflow-y-auto rounded-xl border bg-card shadow-sm">
+            <TrueEconomicsDashboard
+              rows={rows}
+              funnel={funnel}
+              loading={loading}
+              error={error}
+            />
+          </div>
         </TabsContent>
 
-        <TabsContent value="chat" className="mt-4">
-          <AiChatPanel className="min-h-[70vh]" />
+        <TabsContent
+          value="chat"
+          className="mt-3 min-h-0 flex-1 overflow-hidden focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
+          <AiChatPanel className="h-full" />
         </TabsContent>
 
-        <TabsContent value="settings" className="mt-4">
-          <AdsCredentialsSettings companyId={company.ID} />
+        <TabsContent
+          value="settings"
+          className="mt-3 min-h-0 flex-1 overflow-hidden focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
+          <div className="h-full overflow-y-auto rounded-xl border bg-card shadow-sm">
+            <AdsCredentialsSettings companyId={company.ID} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

@@ -32,6 +32,9 @@ export interface AdsChatUIMessage {
 
 export interface AdsTrueEconomicsRow {
   campaign_id: number;
+  campaign_name?: string;
+  /** Ad-account currency for spend. Order cash and costs are DZD. */
+  currency?: string;
   platform: string;
   spend: number;
   orders_received: number;
@@ -46,4 +49,16 @@ export interface AdsTrueEconomicsRow {
   delivery_rate: number;
   return_rate: number;
   real_cost_per_delivered: number;
+}
+
+export interface AdsModelFunnelRow {
+  campaign_id: number;
+  product_id: number;
+  model_name: string;
+  qty_confirmed: number;
+  qty_delivered: number;
+  delivered_revenue: number;
+  delivered_cogs: number;
+  gross_margin: number;
+  confirm_to_deliver_rate: number;
 }

@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import type {
   AdsPlatform,
   AdsPlatformCredential,
@@ -13,7 +14,7 @@ import {
   listAdsPlatformCredentials,
   updateAdsPlatformCredential,
 } from "@/services/ads-intelligence-service";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { KeyRound, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 type FormState = {
@@ -150,67 +151,83 @@ export default function AdsCredentialsSettings({ companyId }: { companyId: numbe
   };
 
   const renderList = (title: string, platform: AdsPlatform, list: AdsPlatformCredential[]) => (
-    <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0">
-        <div>
-          <CardTitle className="text-base">{title}</CardTitle>
-          <CardDescription>
-            Multiple connections supported. Leave account IDs empty to sync all accounts visible to the token.
-          </CardDescription>
+    <section className="space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <KeyRound className="h-4 w-4" aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold tracking-tight">{title}</h2>
+            <p className="text-xs text-muted-foreground">
+              Several connections are fine. Leave account IDs empty to sync every account the token can see.
+            </p>
+          </div>
         </div>
-        <Button size="sm" variant="outline" onClick={() => startCreate(platform)}>
-          <Plus className="mr-1 h-4 w-4" />
+        <Button size="sm" variant="outline" className="bg-background" onClick={() => startCreate(platform)}>
+          <Plus className="h-4 w-4" />
           Add
         </Button>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {list.length === 0 && (
-          <p className="text-sm text-muted-foreground">No {platform} credentials yet.</p>
-        )}
-        {list.map((row) => (
-          <div
-            key={row.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
-          >
-            <div className="min-w-0 space-y-0.5">
-              <p className="truncate font-medium">
-                {row.label || `${row.platform} #${row.id}`}
-                {!row.is_active && (
-                  <span className="ml-2 text-xs font-normal text-muted-foreground">(inactive)</span>
-                )}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">
-                Token: {row.access_token_masked || "—"}
-                {row.account_ids?.length
-                  ? ` · Accounts: ${row.account_ids.join(", ")}`
-                  : " · All accounts"}
-              </p>
+      </div>
+      {list.length === 0 && (
+        <p className="rounded-lg border border-dashed px-3 py-6 text-sm leading-6 text-muted-foreground">
+          No {platform} credentials yet.
+        </p>
+      )}
+      {list.length > 0 && (
+        <div className="overflow-hidden rounded-lg border bg-background">
+          {list.map((row) => (
+            <div
+              key={row.id}
+              className="flex items-center justify-between gap-3 border-b px-3 py-2.5 last:border-b-0"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{row.label || `${row.platform} #${row.id}`}</p>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span
+                    className={cn(
+                      "h-2 w-2 shrink-0 rounded-full",
+                      row.is_active ? "bg-emerald-500" : "bg-muted-foreground/50",
+                    )}
+                    aria-hidden
+                  />
+                  {row.is_active ? "Active" : "Inactive"}
+                  <span aria-hidden>·</span>
+                  <span className="truncate">Token {row.access_token_masked || "—"}</span>
+                  <span aria-hidden>·</span>
+                  <span className="truncate">
+                    {row.account_ids?.length ? row.account_ids.join(", ") : "All accounts"}
+                  </span>
+                </p>
+              </div>
+              <div className="flex shrink-0 gap-1">
+                <Button size="icon" variant="ghost" onClick={() => startEdit(row)} aria-label={`Edit ${row.label || title}`}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => void onDelete(row.id)}
+                  aria-label={`Delete ${row.label || title}`}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-1">
-              <Button size="icon" variant="ghost" onClick={() => startEdit(row)} aria-label="Edit">
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => void onDelete(row.id)}
-                aria-label="Delete"
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+      )}
+    </section>
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8 px-4 py-5 sm:px-6">
       {loading && (
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading credentials…
-        </p>
+        <div className="space-y-3" aria-label="Loading credentials">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-16 rounded-lg" />
+          <Skeleton className="h-16 rounded-lg" />
+        </div>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}
 
@@ -222,18 +239,18 @@ export default function AdsCredentialsSettings({ companyId }: { companyId: numbe
       )}
 
       {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {editingId == null ? "Add credential" : "Edit credential"} ({form.platform})
-            </CardTitle>
-            <CardDescription>
+        <section className="rounded-xl border bg-background shadow-sm">
+          <div className="border-b px-4 py-3">
+            <h2 className="text-sm font-semibold tracking-tight">
+              {editingId == null ? "Add credential" : "Edit credential"} · {form.platform}
+            </h2>
+            <p className="text-xs text-muted-foreground">
               {editingId != null
                 ? "Leave token fields blank to keep the stored secrets."
                 : "Paste the platform access token for this connection."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </p>
+          </div>
+          <div className="space-y-4 px-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="cred-label">Label</Label>
               <Input
@@ -319,24 +336,25 @@ export default function AdsCredentialsSettings({ companyId }: { companyId: numbe
               />
               <Label htmlFor="cred-active">Active</Label>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={() => void onSave()} disabled={saving}>
-                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingId(null);
-                }}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2 border-t px-4 py-3">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setShowForm(false);
+                setEditingId(null);
+              }}
+              disabled={saving}
+            >
+              Cancel
+            </Button>
+            <Button type="button" onClick={() => void onSave()} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              Save
+            </Button>
+          </div>
+        </section>
       )}
     </div>
   );
