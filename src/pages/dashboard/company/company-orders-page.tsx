@@ -9,6 +9,7 @@ import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-o
 import OrderStatusCards from "@/components/feature-specific/orders/order-status-cards";
 import ManagerStatusCards from "@/components/feature-specific/orders/manager-status-cards";
 import YalidineReconciliationDialog from "@/components/feature-specific/orders/yalidine-reconciliation-dialog";
+import YalidineDuplicateParcelsDialog from "@/components/feature-specific/orders/yalidine-duplicate-parcels-dialog";
 import DeletedParcelReconciliationDialog from "@/components/feature-specific/orders/deleted-parcel-reconciliation-dialog";
 import YalidineLabelsDrawer from "@/components/feature-specific/orders/yalidine-labels-drawer";
 import { Button } from "@/components/ui/button";
@@ -322,6 +323,7 @@ export default function CompanyOrdersPage() {
   // Add state for create order dialog
   const [createOrderOpen, setCreateOrderOpen] = useState(false);
   const [yalidineReconciliationOpen, setYalidineReconciliationOpen] = useState(false);
+  const [duplicateParcelsOpen, setDuplicateParcelsOpen] = useState(false);
   const [deletedParcelReconciliationOpen, setDeletedParcelReconciliationOpen] = useState(false);
 
   // Statuses and icons
@@ -466,6 +468,14 @@ export default function CompanyOrdersPage() {
           >
             <span className="sm:hidden">Reconcile</span>
             <span className="hidden sm:inline">Reconcile Yalidine</span>
+          </Button>
+          <Button
+            variant="outline"
+            disabled={selectedRows.length === 0}
+            onClick={() => setDuplicateParcelsOpen(true)}
+          >
+            <span className="sm:hidden">Duplicates</span>
+            <span className="hidden sm:inline">Duplicate parcels</span>
           </Button>
           <YalidineLabelsDrawer companyId={company.ID} />
           <Button
@@ -803,6 +813,11 @@ export default function CompanyOrdersPage() {
         open={yalidineReconciliationOpen}
         setOpen={setYalidineReconciliationOpen}
         filters={yalidineReconciliationFilters}
+      />
+      <YalidineDuplicateParcelsDialog
+        open={duplicateParcelsOpen}
+        setOpen={setDuplicateParcelsOpen}
+        orderIds={selectedRows.map(Number)}
       />
       <DeletedParcelReconciliationDialog
         open={deletedParcelReconciliationOpen}

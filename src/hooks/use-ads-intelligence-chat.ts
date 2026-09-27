@@ -1,10 +1,12 @@
 import type {
+  AdsChatSessionRecord,
   AdsChatUIMessage,
   AdsSQLEvidence,
 } from "@/models/data/ads-intelligence/chat.model";
 import {
   buildAdsChatWebSocketUrl,
   getAdsChatMessages,
+  getAdsChatSessions,
 } from "@/services/ads-intelligence-service";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -32,9 +34,30 @@ export function useAdsIntelligenceChat(sessionId: string | null) {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [thinking, setThinking] = useState(false);
+  const [activity, setActivity] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<AdsChatSessionRecord[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
+  const refreshSessionsRef = useRef<() => void>(() => {});
   const streamIdRef = useRef<string | null>(null);
   const evidenceRef = useRef<AdsSQLEvidence[]>([]);
+  const streamingRef = useRef(false);
+
+  const refreshSessions = useCallback(() => {
+    setSessionsLoading(true);
+    void getAdsChatSessions()
+      .then((res) => setSessions(res.data ?? []))
+      .catch(() => setSessions([]))
+      .finally(() => setSessionsLoading(false));
+  }, []);
+
+  useEffect(() => {
+    refreshSessionsRef.current = refreshSessions;
+  }, [refreshSessions]);
+
+  useEffect(() => {
+    refreshSessions();
+  }, [refreshSessions]);
 
   useEffect(() => {
     setActiveSessionId(sessionId);
@@ -42,9 +65,10 @@ export function useAdsIntelligenceChat(sessionId: string | null) {
 
   useEffect(() => {
     if (!activeSessionId) {
-      setMessages([]);
+      if (!streamingRef.current) setMessages([]);
       return;
     }
+    if (streamingRef.current) return;
     let cancelled = false;
     setLoading(true);
     void getAdsChatMessages(activeSessionId)
@@ -84,13 +108,20 @@ export function useAdsIntelligenceChat(sessionId: string | null) {
         if (frame.event === "session") {
           const sid = (frame.data as { session_id?: string })?.session_id;
           if (sid) setActiveSessionId(sid);
+          refreshSessionsRef.current();
+          return;
+        }
+
+        if (frame.event === "status") {
+          setActivity(frameText(frame.data) || "Working…");
           return;
         }
 
         if (frame.event === "token") {
-          const chunk = String(frame.data ?? "");
+          const chunk = frameText(frame.data);
           const streamId = streamIdRef.current;
-          if (!streamId) return;
+          if (!streamId || !chunk) return;
+          setActivity("Writing the answer…");
           setMessages((prev) =>
             prev.map((m) =>
               m.id === streamId ? { ...m, content: m.content + chunk } : m,
@@ -100,6 +131,7 @@ export function useAdsIntelligenceChat(sessionId: string | null) {
         }
 
         if (frame.event === "sql_evidence") {
+          setActivity("Reading the query results…");
           evidenceRef.current = [...evidenceRef.current, frame.data as AdsSQLEvidence];
           const streamId = streamIdRef.current;
           if (!streamId) return;
@@ -138,13 +170,28 @@ export function useAdsIntelligenceChat(sessionId: string | null) {
           }
           streamIdRef.current = null;
           evidenceRef.current = [];
+          streamingRef.current = false;
+          setActivity(null);
           setThinking(false);
           return;
         }
 
         if (frame.event === "error") {
+          const streamId = streamIdRef.current;
+          const detail = frameText(frame.data) || frame.code || "The analyst could not answer.";
+          if (streamId) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === streamId
+                  ? { ...m, content: m.content || detail, streaming: false }
+                  : m,
+              ),
+            );
+          }
           streamIdRef.current = null;
           evidenceRef.current = [];
+          streamingRef.current = false;
+          setActivity(null);
           setThinking(false);
         }
       } catch {
@@ -169,6 +216,8 @@ export function useAdsIntelligenceChat(sessionId: string | null) {
       const assistantId = `local-assistant-${Date.now()}`;
       streamIdRef.current = assistantId;
       evidenceRef.current = [];
+      streamingRef.current = true;
+      setActivity("Sending your question…");
 
       setMessages((prev) => [
         ...prev,
@@ -195,18 +244,42 @@ export function useAdsIntelligenceChat(sessionId: string | null) {
   );
 
   const startNewSession = useCallback(() => {
+    streamingRef.current = false;
+    setActivity(null);
+    setThinking(false);
     setActiveSessionId(null);
     setMessages([]);
   }, []);
 
+  const selectSession = useCallback((id: string) => {
+    if (streamingRef.current) return;
+    setActivity(null);
+    setThinking(false);
+    setActiveSessionId(id);
+  }, []);
+
   return {
     messages,
+    sessions,
+    sessionsLoading,
     connected,
     loading,
     thinking,
+    activity,
     activeSessionId,
     sendMessage,
     startNewSession,
+    selectSession,
+    refreshSessions,
     setActiveSessionId,
   };
+}
+
+function frameText(data: unknown): string {
+  if (typeof data === "string") return data;
+  if (data && typeof data === "object" && "message" in data) {
+    const message = (data as { message?: unknown }).message;
+    if (typeof message === "string") return message;
+  }
+  return "";
 }

@@ -115,6 +115,72 @@ export interface YalidineReconciliationFixResponse {
   errors: number;
 }
 
+export interface DuplicateYalidineParcel {
+  tracking: string;
+  order_key: string;
+  last_status: string;
+  date_creation: string;
+  keeper: boolean;
+  deletable: boolean;
+}
+
+export interface DuplicateYalidineOrder {
+  woo_order_id: number;
+  order_number: string;
+  tracking_number: string;
+  tracking_attached: boolean;
+  parcels: DuplicateYalidineParcel[];
+}
+
+export interface DuplicateYalidineCompareResponse {
+  orders: DuplicateYalidineOrder[];
+}
+
+export interface DuplicateYalidineFixResponse {
+  deleted: string[];
+  failed: string[];
+  kept: string[];
+  attached_order_ids: number[];
+}
+
+export const compareDuplicateYalidineParcels = async (
+  orderIds: number[]
+): Promise<APIResponse<DuplicateYalidineCompareResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(`${baseUrl}/woocommerce/yalidine-duplicate-parcels/compare`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + currentToken,
+    },
+    body: JSON.stringify({ order_ids: orderIds }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to compare duplicate Yalidine parcels");
+  }
+  return await response.json();
+};
+
+export const fixDuplicateYalidineParcels = async (
+  orderIds: number[]
+): Promise<APIResponse<DuplicateYalidineFixResponse>> => {
+  const currentToken = localStorage.getItem("token");
+  const response = await fetch(`${baseUrl}/woocommerce/yalidine-duplicate-parcels/fix`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + currentToken,
+    },
+    body: JSON.stringify({ order_ids: orderIds }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to delete duplicate Yalidine parcels");
+  }
+  return await response.json();
+};
+
 export const compareYalidineReconciliation = async (body: {
   filters: YalidineReconciliationFilters;
   /** 0-based page of batches (independent from orders table page size) */

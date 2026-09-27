@@ -2,6 +2,7 @@ import { getBaseUrl } from "@/app/constants";
 import type {
   AdsChatMessageRecord,
   AdsChatSessionRecord,
+  AdsModelFunnelRow,
   AdsTrueEconomicsRow,
 } from "@/models/data/ads-intelligence/chat.model";
 import type {
@@ -68,6 +69,22 @@ export async function getAdsTrueEconomics(
     throw new Error(data.message ?? "Failed to load true economics.");
   }
   return data as APIResponse<AdsTrueEconomicsRow[]>;
+}
+
+export async function getAdsModelFunnel(
+  campaignId?: number,
+): Promise<APIResponse<AdsModelFunnelRow[]>> {
+  const qs =
+    campaignId != null ? `?campaign_id=${encodeURIComponent(String(campaignId))}` : "";
+  const res = await fetch(`${getBaseUrl()}/adsintel/economics/models${qs}`, {
+    method: "GET",
+    headers: authHeaders(),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message ?? "Failed to load model funnel.");
+  }
+  return data as APIResponse<AdsModelFunnelRow[]>;
 }
 
 export async function triggerMetaAdsSync(

@@ -1,0 +1,567 @@
+hash,author,email,date,message,Meaningful
+5797e93db9271059089a3be0e43168ab8d55aa05,,yasser.cherfaoui@gmail.com,2026-09-22 22:26:27 +0100,refactor(sales): remove discount fields from various sales dialogs,Yes
+aca0283ae16e2647abb4f23149b33195c275d454,,yasser.cherfaoui@gmail.com,2026-09-20 11:36:59 +0100,feat(random-orders): add CreateRandomOrdersDialog for generating random orders in development,Yes
+1e4894eafa8f64aaa30587acd28350bf32f5be09,,yasser.cherfaoui@gmail.com,2026-09-20 11:36:48 +0100,feat(yalidine-labels): add Yalidine labels management and prefill functionality,Yes
+b30ffe8a4dec0fdb7d03cd323111645f5fb28378,,yasser.cherfaoui@gmail.com,2026-09-14 09:20:11 +0100,feat(dependencies): add html5-qrcode package and clean up yarn.lock,Yes
+bed668a96991dd704885c184b457747bad629b43,,yasser.cherfaoui@gmail.com,2026-09-14 09:06:59 +0100,feat(packing-check): implement packing check feature with barcode scanning,Yes
+0a99c9f30bf115a8d8d245db44c60b91423084de,,yasser.cherfaoui@gmail.com,2026-09-11 16:37:42 +0100,feat(ads-intelligence): implement Ads Credentials Settings component,Yes
+e23b9061828704c6a9e4e8ff3a8a86eee42f820e,,yasser.cherfaoui@gmail.com,2026-09-01 01:41:06 +0100,feat(ads-intelligence): add TikTok ads sync functionality,Yes
+f000cd0ff8cda4ca52f54aa82c4b87ba6da51e6f,,yasser.cherfaoui@gmail.com,2026-09-01 01:30:42 +0100,feat(ads-intelligence): implement Ads Intelligence feature with chat and SQL evidence,Yes
+b3031c33d91fba7b8504854b0fb8d0ea17eca143,,yasser.cherfaoui@gmail.com,2026-09-01 00:45:33 +0100,feat(order-management): add orphaned order handling and reconciliation dialog,Yes
+215289e20eefd335cd7f4725a587c861e276a513,,yasser.cherfaoui@gmail.com,2026-09-01 00:12:00 +0100,feat(support-chat): integrate SupportChatInboxProvider for enhanced chat functionality,Yes
+2ab545a776bb538cc4bef57fb62f9797a5c1facc,,yasser.cherfaoui@gmail.com,2026-08-22 23:02:58 +0100,refactor(franchise-sales): streamline sales columns and enhance data handling,Yes
+ca64e6f6d36fb2bab1e05a4e884bce748fb5a5cd,,yasser.cherfaoui@gmail.com,2026-08-18 23:38:28 +0100,feat(franchise-dashboard): restructure franchise menu and enhance UI components,Yes
+fe171932a5f3ae4eb98de49abb239b91e63fcb7f,,yasser.cherfaoui@gmail.com,2026-08-18 23:25:02 +0100,feat(franchise-pickup): implement pickup requests feature with UI components,Yes
+e35758a4cdd617c1fdeda4f13ad4e3614a682952,,yasser.cherfaoui@gmail.com,2026-08-16 13:26:06 +0100,feat(company-bills): enhance exit bill status handling and filtering options,Yes
+7687eae614994430cb172d801d0dc00afccf64bc,,yasser.cherfaoui@gmail.com,2026-08-16 13:08:14 +0100,feat(company-bills): enhance company bills table with loading state and pagination improvements,Yes
+0b30ea168658155e011134d62aaad8b224128709,,yasser.cherfaoui@gmail.com,2026-08-14 00:48:14 +0100,refactor(franchise-order-status): simplify success message handling and update dialog descriptions,Yes
+a086ee17de18846d5962c335550425d828afe8ee,,yasser.cherfaoui@gmail.com,2026-08-13 23:14:31 +0100,feat(variant-display): enhance product variant label formatting in dialogs,Yes
+075d5a8326f148fc332ad47b566caa4dc7133b5d,,yasser.cherfaoui@gmail.com,2026-08-13 22:59:56 +0100,feat(franchise-sales): integrate sales breakdown metrics and enhance UI components,Yes
+b1528652c4dfb96ae47234842cca4fe5e74e7dc4,,yasser.cherfaoui@gmail.com,2026-08-13 22:34:41 +0100,feat(ui-improvements): enhance component responsiveness and accessibility,Yes
+b20269184af0cc4a52c51fe2a6d00aec4b24acc2,,yasser.cherfaoui@gmail.com,2026-08-13 22:02:52 +0100,feat(ui-improvements): enhance responsiveness and accessibility across components,Yes
+90089be31f0b0845f8007bdab861bd4dd71e84df,,yasser.cherfaoui@gmail.com,2026-08-10 12:28:32 +0100,feat(franchise-fulfillment): implement caching for shipping label status updates,Yes
+c22ffadbb38f4ee6d435ad59de9bee00806c7577,,yasser.cherfaoui@gmail.com,2026-08-06 13:35:29 +0100,feat(franchise-pending-order-alert): display order creation date in alert dialog,Yes
+9d6544ca3243180633fc77f2cef2ba490941abaa,,yasser.cherfaoui@gmail.com,2026-08-06 11:24:13 +0100,feat(company-missing-variants): integrate franchise inventory details into missing variants columns and dialogs,Yes
+118bdc0f584266961f30cac6e54c07bfc65e7489,,yasser.cherfaoui@gmail.com,2026-08-04 15:15:34 +0100,feat(franchise-alerts): add snooze functionality for pending order alerts,Yes
+0ebe9c0bab402d4bbd9fc5653049c5c078dea598,,yasser.cherfaoui@gmail.com,2026-08-03 00:29:24 +0100,fix(company-bills): update bill item handling in UpdateBillActionDialog,Yes
+4f0811867e748d755e90d15cc0005f84717a1b5b,,yasser.cherfaoui@gmail.com,2026-08-03 00:29:16 +0100,feat(company-bills): enhance UpdateBillActionDialog and integrate with PrepareExitBillDialog,Yes
+df8e64d16d27465b489772a69b788c5763cd63ba,,yasser.cherfaoui@gmail.com,2026-08-01 16:59:32 +0100,feat(woo-line-items): add summary page and columns for WooCommerce line items,Yes
+750e77f533be6918c555e3f342e7410bde12e7a4,,yasser.cherfaoui@gmail.com,2026-08-01 16:07:00 +0100,feat(prepare-exit-bill-dialog): enhance remaining and checking items display,Yes
+dc7bd698ac4bba92bf5fb591269552f1a4c0fdf4,,yasser.cherfaoui@gmail.com,2026-07-31 20:37:32 +0100,feat(expenses): add DeliveryEmployeePaymentsDialog for employee payment tracking,Yes
+59ce3d7d2018bc4b41616a38a508ee9252f35208,,yasser.cherfaoui@gmail.com,2026-07-31 20:35:59 +0100,feat(delivery): add employee payment management features,Yes
+9f8692471b460e49c13ca7625430e542bd94f3dc,,yasser.cherfaoui@gmail.com,2026-07-31 18:11:53 +0100,feat(franchise-orders): enhance order status update notifications,Yes
+38e7cf9910d2ed40681d0c257dbc72268f7f81aa,,yasser.cherfaoui@gmail.com,2026-07-31 02:43:34 +0100,feat(franchise-orders): add confirmation dialog for marking orders as not available,Yes
+0c802e8dbb5a6245aadcb914b860741ca0b71062,,yasser.cherfaoui@gmail.com,2026-07-31 02:16:13 +0100,feat(franchise-alerts): implement pending order alerts for franchises,Yes
+27e5040749365aec537a885208ffec04c3d471aa,,yasser.cherfaoui@gmail.com,2026-07-31 00:52:17 +0100,feat(prepare-exit-bill-dialog): add print functionality for remaining items,Yes
+21f400c0c95a2ad5cba294083950ec6ee3adbed9,,yasser.cherfaoui@gmail.com,2026-07-31 00:49:17 +0100,feat(exit-bills): add ExitBillStatusBadge component and integrate into company and franchise tables,Yes
+bdb3c368ed595396757699c49438e8909eca22f1,,yasser.cherfaoui@gmail.com,2026-07-28 01:09:11 +0100,feat(company-stats): implement sortable headers and search functionality for product sales and purchases,Yes
+64d25143dd13fff7e5743d8c117524e81483420e,,yasser.cherfaoui@gmail.com,2026-07-28 01:03:28 +0100,refactor(expenses-page): update terminology for returned parcels,Yes
+61757c357b09638cf2e9060d6125f5790038b062,,yasser.cherfaoui@gmail.com,2026-07-28 00:24:23 +0100,refactor(delivered-products-sold-dialog): update description for clarity and context,Yes
+e7162b2a2cd82e260a37bffa7306bbd8eb7b4864,,yasser.cherfaoui@gmail.com,2026-07-27 23:24:57 +0100,feat(expenses-page): add DeliveredProductsSoldDialog for viewing sold products,Yes
+4aa1cf5240ad6d6748d891dc13b7fe9650d35eb9,,yasser.cherfaoui@gmail.com,2026-07-26 16:50:42 +0100,feat(expenses-page): add delivery fee correction dialog and functionality,Yes
+58607d92d42fb31132d19a44636e371ac4de04e7,,yasser.cherfaoui@gmail.com,2026-07-26 15:56:12 +0100,feat(franchise-inventory): add ClearBrokenCountDialog for managing broken inventory counts,Yes
+24aee5d350cbf4cae4d66a329ef45178d6e1538d,,yasser.cherfaoui@gmail.com,2026-07-26 15:52:11 +0100,feat(expenses-page): add missing Livré reconciliation dialog and functionality,Yes
+ed58e97e7798dab1fae44ce88ac6109cb6fd8405,,yasser.cherfaoui@gmail.com,2026-07-26 00:55:32 +0100,feat(expenses-page): integrate returned orders count and add product CSV export functionality,Yes
+60df796dc00539538293cfba132c52f436824645,,yasser.cherfaoui@gmail.com,2026-07-26 00:00:16 +0100,feat(expenses-page): add CSV export functionality for delivered orders,Yes
+6bcfd491b138f51b414cd5d83bf22e6eabea6d9b,,yasser.cherfaoui@gmail.com,2026-07-25 22:56:30 +0100,feat(date-range-picker): enhance date range selection and display logic,Yes
+a6a391da4bb83b33f5499534bbc07bc057213ae2,,yasser.cherfaoui@gmail.com,2026-07-08 02:52:57 +0800,feat(broken-items): add declarations and transfers management for franchises and moderators,Yes
+c6bc51f174c4276ff6df84056544c33f4c160e81,,yasser.cherfaoui@gmail.com,2026-06-22 15:53:58 +0100,fix(product-update-form): improve handling of franchise ship commission defaults,Yes
+6d05de82918dd932dd6fee62766f7339191da454,,yasser.cherfaoui@gmail.com,2026-06-22 15:26:06 +0100,feat(product-update-form): refactor product form initialization and submission logic,Yes
+cc0778835d08b27d8fc0b9cfba7636475cb2b860,,yasser.cherfaoui@gmail.com,2026-06-20 11:29:38 +0100,feat(inventory-update): enhance inventory item update process with additional query invalidations,Yes
+1fde249455c6fd1b71cb86d725bd5491b8ba1fdb,,yasser.cherfaoui@gmail.com,2026-06-15 14:31:06 +0100,feat(inventory-logs): refactor transaction log handling in inventory components,Yes
+2268746bf6fbc8fc0b49bf98b5b23624b09a67c5,,yasser.cherfaoui@gmail.com,2026-06-15 14:22:53 +0100,feat(franchise-fulfillment-orders): enhance search functionality and column visibility in fulfillment orders table,Yes
+d3ba2645d2df70a4f74b88b10c5b3255cb887898,,yasser.cherfaoui@gmail.com,2026-06-15 14:17:52 +0100,feat(shipping-labels): enhance shipping label management in franchise fulfillment,Yes
+30fd0b04dbb097de2b7f3e731d7ebaa779c7e02a,,yasser.cherfaoui@gmail.com,2026-06-14 14:38:33 +0100,feat(inventory-discrepancies): align inventory discrepancies and update data model,Yes
+a0c514c0e58a155d0a87b250c12fc75486496312,,yasser.cherfaoui@gmail.com,2026-06-03 16:37:22 +0100,feat(franchise-commissions): implement company franchise commissions table and enhance commission status handling,Yes
+703c02141be40ed37c30774794b4daddac03fe06,,yasser.cherfaoui@gmail.com,2026-05-31 15:21:50 +0100,refactor(order-dialogs): update line item handling in order dialogs for improved data structure,Yes
+43fcc70d4a7e3149989c9e09e8c05e157b23ea1c,,yasser.cherfaoui@gmail.com,2026-05-25 14:23:30 +0100,feat(company-franchise-fulfillment): add order status summary cards to enhance order tracking,Yes
+53dbce7fec3bdc9c54e9a7ac9176d915334fb2c0,,yasser.cherfaoui@gmail.com,2026-05-21 12:23:13 +0100,fix(support-chat): ensure proper key handling and connection management in franchise support chat,Yes
+f77f56307d90b06e12c9cc5ba93156f5a8f615e0,,yasser.cherfaoui@gmail.com,2026-05-20 11:57:20 +0100,feat(franchise-orders): add 'not_available' status to franchise order management,Yes
+51365d509a163d3b516af21a4c35804345d135c2,,yasser.cherfaoui@gmail.com,2026-05-18 13:27:00 +0100,feat(woo-refund): implement web order refund functionality and enhance related components,Yes
+76024b5500f2f586f9c21608b73d396e4b108849,,yasser.cherfaoui@gmail.com,2026-05-16 19:59:54 +0100,feat(customer-model): add CustomerAffiliation interface and update Customer model to include affiliations,Yes
+344086be3d77fdfb8b8b563603a27299743d0c2c,,yasser.cherfaoui@gmail.com,2026-05-16 19:43:45 +0100,feat(customer-management): add phone number and rating functionality to sales,Yes
+afd9cd6cba8a6c513a5dee06c15919247de2f944,,yasser.cherfaoui@gmail.com,2026-05-16 19:26:34 +0100,feat(franchise-fulfillment): introduce franchise fulfillment management and enhance routing,Yes
+671be6f9b55107952dbc37553e594213ed5c88c0,,yasser.cherfaoui@gmail.com,2026-05-16 18:23:24 +0100,feat(franchise-bills): enhance summary cards with total amounts for exit and entry bills,Yes
+8ee9ffac340cc47a22502a6ffb6c7ea18c988e8d,,yasser.cherfaoui@gmail.com,2026-05-13 23:21:20 +0100,feat(franchise-orders): enhance order management with franchise status updates,Yes
+4b848cc035e3fdd35edc20ff3bf08b30d2997db7,,yasser.cherfaoui@gmail.com,2026-05-13 16:57:49 +0100,feat(franchise-bills): add date range filtering for franchise bills,Yes
+021b2732ce368d0551c9d92bc40210e1d097e596,,yasser.cherfaoui@gmail.com,2026-05-13 14:03:27 +0100,feat(ship-from-store): enhance ship-from-store functionality and introduce commissions management,Yes
+64857b61001d7f61d469fdd43d89796063f622ae,,yasser.cherfaoui@gmail.com,2026-05-13 11:42:57 +0100,feat(franchise-orders): add ship-from orders functionality and enhance order management,Yes
+c9e998190040dcda220444f4e1eff47a9427ba92,,yasser.cherfaoui@gmail.com,2026-05-11 10:54:28 +0100,feat(support-chat): improve franchise support chat synchronization and read receipt handling,Yes
+8212eb7cca492e640f017951b153f5ec1fed5fd5,,yasser.cherfaoui@gmail.com,2026-05-10 11:49:04 +0100,feat(support-chat): enhance franchise support chat functionality with read receipts and unread count tracking,Yes
+4847c00b5ddad9d7b06d207cd2c786e52ca17d3e,,yasser.cherfaoui@gmail.com,2026-05-10 11:37:59 +0100,feat(notifications): enhance stock alert notifications functionality,Yes
+1e5f9f8dfb0bb56a06fcfe8ea4de93d92bb88ba8,,yasser.cherfaoui@gmail.com,2026-05-10 10:14:33 +0100,refactor(franchise-app-bar): enhance layout and navigation for franchise app bar,Yes
+73359b41d208e921c66e8da864275dccf4090aae,,yasser.cherfaoui@gmail.com,2026-05-10 10:07:26 +0100,feat(support-chat): refactor and enhance franchise support chat functionality,Yes
+7835f26369583bb38eead67bc397233116cfb935,,yasser.cherfaoui@gmail.com,2026-05-10 09:55:18 +0100,feat(support-chat): implement franchise support chat feature,Yes
+7e97125e817cb425ce9555114ceb7a95a275f832,,yasser.cherfaoui@gmail.com,2026-05-09 20:54:25 +0100,feat(company-settings): add company settings page and related components,Yes
+5a99cfaa02e48e53e84d5f7235a36deb64395a56,,yasser.cherfaoui@gmail.com,2026-04-05 09:43:24 +0100,feat(products): integrate PairableCombinableProductIcons in sales dialogs and product tables,Yes
+8dfa444578814a17ce11762ff41a77d81b5e7cc7,,yasser.cherfaoui@gmail.com,2026-04-04 08:08:23 +0100,refactor(franchise-sales): clean up imports in add franchise sale dialog,Yes
+4bd027388a854d22e1ef5d04a64fb18b1082fbaa,,yasser.cherfaoui@gmail.com,2026-04-04 08:01:07 +0100,feat(products): add combinable product feature and update related components,Yes
+456b5ba78355a2c6690ee43781c305f3815442c3,,yasser.cherfaoui@gmail.com,2026-04-03 12:21:44 +0100,feat(products): add pairable product feature and update forms,Yes
+9eee00bb10ef755edc793fe7dc78cb4219776d62,,yasser.cherfaoui@gmail.com,2026-04-01 15:48:42 +0100,feat(orders): enhance order status display with reasons in company orders and history dialogs,Yes
+210ed284ab1023c3f826cca325ab86b9550c9dc3,,yasser.cherfaoui@gmail.com,2026-04-01 13:10:26 +0100,feat(inventory): implement insufficient inventory handling in exit bill dialogs,Yes
+748caa33a5e9227bf492f891186cbbf686dccf0f,,yasser.cherfaoui@gmail.com,2026-03-14 05:22:13 +0100,feat(franchise-sales): enhance add franchise sale dialog and fulfill deposit functionality,Yes
+bd7da5f5a656021008eb4c44c80bd77e34de0272,,yasser.cherfaoui@gmail.com,2026-03-11 17:17:10 +0100,feat(ship-from-store): implement ship-from-store functionality for company and franchise management,Yes
+8505b99acebe5662a4bbadd1eed0d95e05e6a2f5,,yasser.cherfaoui@gmail.com,2026-03-11 16:15:08 +0100,feat(variant-deposits): implement variant deposits feature for franchise management,Yes
+5ae2e1c4d974aa2989a86b472ff78377533c3848,,yasser.cherfaoui@gmail.com,2026-02-28 14:39:54 +0100,feat(deliveries): add referral code badge to delivery and company orders columns,Yes
+49836698c0437760fa8a8a2f32a51006ca6181a2,,yasser.cherfaoui@gmail.com,2026-02-17 22:42:45 +0100,feat(franchise-sales): implement returns and exchanges tables in franchise sales body,Yes
+6968d842c96ea9a3ee9d25ff6c9a5963e2d8d805,,yasser.cherfaoui@gmail.com,2026-02-17 22:30:09 +0100,feat(franchise-sales): add FillItemPricesDialog component for updating item prices,Yes
+99d4e0badf450f7050bb73ed8b37b58acf1336d5,,yasser.cherfaoui@gmail.com,2026-02-17 12:57:28 +0100,feat(deliveries): enhance company context handling in daily deliveries page,Yes
+83f64d5a3241b727c81a0e243d72f834b38ca3da,,yasser.cherfaoui@gmail.com,2026-02-15 10:18:12 +0100,fix(franchise-sales): enhance BOGO calculation logic in sales dialog,Yes
+6234fd145af4f8f428d198419d613ec33d6172eb,,yasser.cherfaoui@gmail.com,2026-02-14 16:06:14 +0100,feat(products): add BOGO functionality to product forms and sales processing,Yes
+f6c1ccda77443cf9c2fd5d62f3fe69bbd7717b34,,yasser.cherfaoui@gmail.com,2026-02-14 14:18:31 +0100,feat(inventory): add inventory discrepancies dialog and related functionality,Yes
+49d8fbc0f2ea1dac84c8c72c608854ab209fed37,,yasser.cherfaoui@gmail.com,2026-02-04 18:40:41 +0100,feat(deliveries): replace calendar popovers with date input fields for follow-up call and customer birthday,Yes
+74335bcaeaa648029d4ea5aba1d14c1463d3b341,,yasser.cherfaoui@gmail.com,2026-02-04 18:12:52 +0100,feat(deliveries): update daily deliveries page layout and enhance filter functionality,Yes
+f1db0a1c81eb99ebc7e7e618fc6c734121aaceba,,yasser.cherfaoui@gmail.com,2026-02-04 17:59:01 +0100,feat(deliveries): add phone number search functionality to daily deliveries page,Yes
+21fe7255c7a841641109c6f58d4d1627ec80be26,,yasser.cherfaoui@gmail.com,2026-01-31 03:14:28 +0100,feat: Add message type selection and recipient phone number management to WhatsApp settings.,Yes
+df05330fae5bc388b44eb18f51e310d3ce30ef25,,yasser.cherfaoui@gmail.com,2026-01-31 02:29:38 +0100,feat: Replace date input fields with calendar popovers for follow-up call date and customer birthday.,Yes
+e039e0559248ae6adb6a71a5b0188cf1ab665dc0,,yasser.cherfaoui@gmail.com,2026-01-31 02:27:18 +0100,"feat: Persist customer and daily delivery page filters, pagination, and active tabs in URL search parameters.",Yes
+215d1271d01fa1c45d9d238d8bc6537df888c0c9,,yasser.cherfaoui@gmail.com,2026-01-31 02:09:53 +0100,feat: Add contact status filtering and order delivery status update functionality to the daily deliveries page.,Yes
+9e5908653fbab468da0b0a8413adda98a04d9e33,,yasser.cherfaoui@gmail.com,2026-01-28 02:01:59 +0100,feat(whatsapp): implement WhatsApp messaging features and settings,Yes
+2c9c72c80929e97417a6ee2e1914836a28f2d499,,yasser.cherfaoui@gmail.com,2026-01-19 04:12:28 +0100,feat(routes): add CRM routes for customers and deliveries,Yes
+7b99a51dc5cd25cd2029f932b920c17396877300,,yasser.cherfaoui@gmail.com,2026-01-16 21:31:33 +0100,feat(deliveries): enhance daily deliveries page with shipping provider and wilaya filters,Yes
+f6aa4cb7e175d14833da872d3b76e35954df5cb3,,yasser.cherfaoui@gmail.com,2026-01-16 20:57:42 +0100,feat(deliveries): add customer order history drawer and enhance order review dialog,Yes
+6671af0f8871f2c9ae07bbce6c8051b3cc4e52cd,,yasser.cherfaoui@gmail.com,2026-01-16 00:07:48 +0100,feat(broken-items): implement broken items transfer management,Yes
+689e26ecb9e13eaa1a4e7f374bf46ebe2d9ac51a,,yasser.cherfaoui@gmail.com,2026-01-14 04:10:22 +0100,feat(company-variants): enhance exit bill creation with mutation state handling,Yes
+83d180a19b9ccc9c10fd98bd6b235527eb4edbaa,,yasser.cherfaoui@gmail.com,2026-01-07 12:37:48 +0100,feat(models): add optional franchise and exchange prices to item models,Yes
+a88e6281c4c7bac48066c5146e9d786d35cf5257,,yasser.cherfaoui@gmail.com,2026-01-02 15:25:28 +0100,feat(franchise-sales): implement price validation for sale items,Yes
+fe06dc0de8fe6ed6247062001d74b697a9dd6a50,,yasser.cherfaoui@gmail.com,2026-01-02 15:17:04 +0100,fix(franchise-sales): update default price calculation for sale items,Yes
+d02c93cc39f64b1135284894e7bcc3a8e9b2a4dc,,yasser.cherfaoui@gmail.com,2026-01-02 14:28:26 +0100,refactor(franchise-sales): simplify total amount calculations in franchise sales body,Yes
+33c092871e8be8cfa21b242dd9956b9690191a16,,yasser.cherfaoui@gmail.com,2026-01-02 02:13:14 +0100,feat(sales-dialogs): add price handling to sale items in various dialogs,Yes
+ad573fbe527443f141450c4d61ff7ba6d6db01d9,,yasser.cherfaoui@gmail.com,2026-01-02 01:28:15 +0100,feat(product-forms): add optional promo price field to product forms and schemas,Yes
+e944a7c6882dc83363319cc7a2af1321719fd061,,yasser.cherfaoui@gmail.com,2026-01-02 00:50:17 +0100,feat(sales-dialogs): enhance sale item display with promotional badges,Yes
+ae83b2de3035703a92e09fc1702d876b4658e2ef,,yasser.cherfaoui@gmail.com,2026-01-02 00:16:22 +0100,feat(crm): enhance customer detail and franchise sales statistics,Yes
+e9b6e0d6b0854da6fc849007774bbf30f712886c,,yasser.cherfaoui@gmail.com,2026-01-01 23:53:56 +0100,feat(crm): enhance franchise customer management and detail features,Yes
+87415b960de81ff46e9ec632ac855b324c0a627f,,yasser.cherfaoui@gmail.com,2025-12-31 19:02:46 +0100,feat(franchise-management): add franchise administrator token retrieval functionality,Yes
+d277c3098a157afc9259c1a0adfdb19256f66dc6,,yasser.cherfaoui@gmail.com,2025-12-27 16:41:30 +0100,refactor(company-orders-columns): improve code readability and structure,Yes
+2834fcd97d21672b94727552940961ade8c6b8dc,,yasser.cherfaoui@gmail.com,2025-12-27 16:30:51 +0100,feat(deliveries): implement order review dialog and enhance delivery management,Yes
+b7dfefd191420ad17e008320d38fcd45711e66bd,,yasser.cherfaoui@gmail.com,2025-12-25 18:46:14 +0100,feat(crm): enhance customer columns and delivery management features,Yes
+027213c114f854b15461c0d61df0a98f015d281b,,yasser.cherfaoui@gmail.com,2025-12-25 15:30:53 +0100,feat(crm): refactor CRM routes and enhance customer management features,Yes
+2b68d569b5253f06d2eec20818f7b33567d4149b,,yasser.cherfaoui@gmail.com,2025-12-24 12:05:40 +0100,feat(customers-page): enhance customer synchronization and pagination handling,Yes
+d635c037d739b6a332a5a26032570b0ecd9f0e7f,,yasser.cherfaoui@gmail.com,2025-12-24 10:59:15 +0100,feat(customer-model): add delivery statistics fields to Customer model and update CustomersPage search options,Yes
+bbbb401b33ceab528d30d8e38739c0be6c94d8b9,,yasser.cherfaoui@gmail.com,2025-12-23 13:25:01 +0100,refactor(crm-routing): reorganize CRM routes for improved structure,Yes
+c3e69840ea4095bb009aece6a1fce2c9420f8152,,yasser.cherfaoui@gmail.com,2025-12-23 13:15:16 +0100,feat(customers-table): implement customer table with delivery rate and actions,Yes
+519039d1a9a185afe1be2c6fc3b758bc58223bbc,,yasser.cherfaoui@gmail.com,2025-12-23 12:42:20 +0100,feat(customer-management): enhance customer details and synchronization features,Yes
+5c7a3e99191877d4f264e61e780966f1f7b460a6,,yasser.cherfaoui@gmail.com,2025-12-23 10:54:36 +0100,feat(crm-routing): add CRM routes and integrate customer and delivery management,Yes
+3cafe2d98d69a9dd8f9464483ed1646ff46ea3c0,,yasser.cherfaoui@gmail.com,2025-12-23 10:47:55 +0100,fix(vercel.json): add newline at end of file for consistency,Yes
+200b84983360ea4a9db20ed367e2fc70e9515d17,,yasser.cherfaoui@gmail.com,2025-12-23 10:14:51 +0100,feat(customer-management): add customer and review management features,Yes
+9cb393c9485061e86b04cc8031bc45669dc0d731,,yasser.cherfaoui@gmail.com,2025-12-22 00:36:58 +0100,feat(order-management): add clone order functionality to OrderActions component,Yes
+038e0a4faa391dff9c47f88c227365149968c883,,yasser.cherfaoui@gmail.com,2025-12-03 03:33:57 +0100,feat(api-environment-switcher): implement API environment switching feature,Yes
+d45275dd9ab7dfcf32ca6e2c15ffaba92d3256e1,,yasser.cherfaoui@gmail.com,2025-12-01 17:08:55 +0100,feat(company-orders): refactor Manager Statistics section into an Accordion component,Yes
+0eceeec3c30265c6590c8de1362fa90f2c359ce8,,yasser.cherfaoui@gmail.com,2025-11-30 23:15:51 +0100,feat(token-management): add Generate Token dialog for user authentication,Yes
+7e522a0b4e75d1b7dfb827053bcb4b89305a2a50,,yasser.cherfaoui@gmail.com,2025-11-30 17:15:35 +0100,feat(company-affiliate-details): implement pagination for affiliate commissions,Yes
+0e1e2c606e6f2550e3f3fbea45110d695f486c91,,yasser.cherfaoui@gmail.com,2025-11-30 00:51:48 +0100,feat(company-orders): add Manager Status Cards to display manager statistics,Yes
+f639f21bc2b51f4729f5e050b4cc3c82092abaff,,yasser.cherfaoui@gmail.com,2025-11-25 19:23:49 +0100,feat(franchise-sales): enhance sales total calculations to include exchanges and returns,Yes
+9ed620982086816cf95d4ae23df03f538c8f1eed,,yasser.cherfaoui@gmail.com,2025-11-25 18:26:32 +0100,feat(franchise-sales): update sales total calculations to include exchanges and returns,Yes
+d76e29b3e94eb1712057191f3cf9bd2175d3b4d8,,yasser.cherfaoui@gmail.com,2025-11-23 23:35:25 +0100,feat(expenses): add franchise expenses management and reporting features,Yes
+91c7fd96d29a230a4832cd03a9e3f6bf138d2e34,,yasser.cherfaoui@gmail.com,2025-11-21 18:45:50 +0100,feat(user-management): add role selection for user creation and enhance route access control,Yes
+bce5f39b0f2d743899b3bab0e717f2a0ea3094e5,,yasser.cherfaoui@gmail.com,2025-11-20 10:37:23 +0100,refactor(client-status-dialog): rename orderID prop to wooOrderID and update form handling,Yes
+fc1ae8f60c19ceda8f026528fcc874e93e60deec,,yasser.cherfaoui@gmail.com,2025-11-20 00:27:05 +0100,feat(order-tickets): enhance order ticket management with filtering and client status features,Yes
+b68fe7da0c72943baee42d9a9345f196bc0357f7,,yasser.cherfaoui@gmail.com,2025-11-17 14:58:58 +0100,fix(order-tickets-body): support company data retrieval from both company and user states,Yes
+af03eccab152051c3ec90c51a74fcc93b089101e,,yasser.cherfaoui@gmail.com,2025-11-02 16:27:35 +0100,feat(affiliate): introduce Pro affiliate features and enhance commission management,Yes
+fbd21266086270690c797922109ccfecd9cbcaea,,yasser.cherfaoui@gmail.com,2025-10-29 16:10:00 +0100,refactor(affiliate-orders-page): streamline order filters and remove phone input,Yes
+64bf3564a629798501f5ccdf12ff7c2a7988e861,,yasser.cherfaoui@gmail.com,2025-10-28 14:48:20 +0100,feat(affiliate-orders): add orders management page and CSV import functionality,Yes
+632f59f3a5b2ca55c988abbab7177cd03aa95dc9,,yasser.cherfaoui@gmail.com,2025-10-28 12:03:59 +0100,fix(index.html): move Meta Pixel noscript fallback to body for improved tracking functionality,Yes
+c957925c97119d1a02e11f0fa6c265c3236728d2,,yasser.cherfaoui@gmail.com,2025-10-28 11:57:30 +0100,feat(affiliate-my-links-page): add product price display to enhance user experience,Yes
+2bc0e7f821ff6d2b4638e9ed28e1e07c3ef8ef48,,yasser.cherfaoui@gmail.com,2025-10-26 23:56:05 +0100,feat(meta-pixel): integrate Meta Pixel for tracking events and enhance registration tracking,Yes
+38ee127f88771fb4d334ede707a7ddbeddc70a7d,,yasser.cherfaoui@gmail.com,2025-10-26 23:05:51 +0100,fix(affiliate-my-links-page): remove hidden class from referral link card for improved visibility,Yes
+21d42b879e8fcceba4d93e31aaa9e54b00ffe807,,yasser.cherfaoui@gmail.com,2025-10-18 13:36:27 +0100,feat(product-variants): enhance product variant display with inventory information,Yes
+868bed1dde7fc3af1345b4bbcdda9cad4a1336e6,,yasser.cherfaoui@gmail.com,2025-10-18 13:10:32 +0100,fix(company-orders-page): update order status cards visibility for administrators and moderators,Yes
+1b27bb2baec374dd09eafebc771f75a552a1f101,,yasser.cherfaoui@gmail.com,2025-10-18 12:57:07 +0100,feat(routes): streamline issues route and enhance IssuesBody component,Yes
+bfb4141ee4b096314f710c3a89f3176f7b316123,,yasser.cherfaoui@gmail.com,2025-10-17 17:33:15 +0100,feat(company-data): update issue and order ticket components to utilize company ID in API requests,Yes
+b5e1b4c0ba7083a10a3ede9236130703a587fb8b,,yasser.cherfaoui@gmail.com,2025-10-17 15:20:31 +0100,feat(company-data): enhance components to support company ID in queries,Yes
+5f1048cd4a594f4be6a85eb8a41a55704fdb3203,,yasser.cherfaoui@gmail.com,2025-10-17 14:10:56 +0100,feat(order-status): add shipping provider filter to order status cards and related components,Yes
+72e84d9cdc26eb33e24655551c664750a04346f0,,yasser.cherfaoui@gmail.com,2025-10-17 12:29:17 +0100,feat(stock-alerts): add back navigation button to stock alerts pages,Yes
+feb14374a9ca36a1275614bcc1a388a72f65a002,,yasser.cherfaoui@gmail.com,2025-10-16 18:42:40 +0100,feat(order-status): add OrderStatusCards component and related API service,Yes
+66a57b9cac1f295d62fc6408753643bd14b2d2c4,,yasser.cherfaoui@gmail.com,2025-10-16 16:55:05 +0100,feat(commission-management): add commission statistics and table components,Yes
+5c8b65498b6ebe322771bb197e704bc877f8a712,,yasser.cherfaoui@gmail.com,2025-10-16 11:32:49 +0100,feat(affiliate-auth): add forgot password functionality for affiliates,Yes
+3e1d70a82407d0bd2a75c61256b64625d803549a,,yasser.cherfaoui@gmail.com,2025-10-15 14:50:16 +0100,feat(stock-alerts): implement stock alerts feature across company and franchise dashboards,Yes
+30c7559880ebda701c88c2af3e5662c5cda30592,,yasser.cherfaoui@gmail.com,2025-10-14 17:10:49 +0100,feat(affiliate-dashboard): enhance mobile menu and layout adjustments,Yes
+f132af02601069d638ce76c5a51a03dab60013d2,,yasser.cherfaoui@gmail.com,2025-10-14 16:36:55 +0100,fix(woocommerce-service): update export order API call to use request body,Yes
+2301a36b9debd0e50645acdbe9944983c65d94d6,,yasser.cherfaoui@gmail.com,2025-10-14 10:56:13 +0100,feat(affiliate-layout): reposition Telegram group link in affiliate dashboard layout,Yes
+7f5136e7b5c1b1234301546221054a7956472c43,,yasser.cherfaoui@gmail.com,2025-10-14 10:48:38 +0100,feat(affiliate-layout): add Telegram group link to affiliate dashboard layout,Yes
+f9f747e9ce79391cb5b5476b7b3e467bb2340653,,yasser.cherfaoui@gmail.com,2025-10-14 03:54:43 +0100,feat(app-sidebar): add Telegram group link to sidebar footer,Yes
+31e8d3278add84f0ee7c412622aaaf8ed997f511,,yasser.cherfaoui@gmail.com,2025-10-13 22:39:32 +0100,refactor(affiliate-register): hide Company ID field in registration form,Yes
+54dbac0af1cc4222805592a260256dabc9a99540,,yasser.cherfaoui@gmail.com,2025-10-13 22:38:17 +0100,refactor(affiliate-register): update default values and improve form layout,Yes
+11bb1967d44728ef528773bc30e1f797d6cf59ec,,yasser.cherfaoui@gmail.com,2025-10-13 21:47:49 +0100,fix(affiliate-register): set default value for Company ID input field,Yes
+df2bf725b7790159a367ab0dff7da1535f212a33,,yasser.cherfaoui@gmail.com,2025-10-03 14:31:56 +0100,feat(franchise-products): differentiate franchise pricing for normal and VIP types,Yes
+ad17f2801c58ec84f32876093887e4cc2baffae6,,yasser.cherfaoui@gmail.com,2025-09-22 00:38:50 +0100,Merge branch 'dev' of github.com:YasserCherfaoui/YCERP into dev,No
+40ba4dfd7469efde31a5ca02d8072249bbf39fea,,yasser.cherfaoui@gmail.com,2025-09-22 00:37:52 +0100,feat(franchise-management): update franchise pricing and UI components,Yes
+786d27ddd9ee865dbf192064e42ce750a10e66f6,,yasser.cherfaoui@gmail.com,2025-09-18 12:40:23 +0100,Merge branch 'main' into dev,No
+99058439bf84fa93090fea4be784eb3a90d964d5,,yasser.cherfaoui@gmail.com,2025-09-18 12:39:28 +0100,fix(README): add additional spacing for improved readability,Yes
+11780aefadc1b9af8bbd7c71e19ce1345819c537,,yasser.cherfaoui@gmail.com,2025-09-18 11:54:17 +0100,Merge pull request #129 from YasserCherfaoui/dev,No
+067aeb5ae9f531cd66b271a799978409601b43f2,,yasser.cherfaoui@gmail.com,2025-09-18 11:53:43 +0100,feat(company-missing-variants): enhance filtering and selection logic in missing variants component,Yes
+594b28245286358f907efa1f0f8de6dea6915735,,yasser.cherfaoui@gmail.com,2025-09-17 16:41:13 +0100,Merge pull request #128 from YasserCherfaoui/dev,No
+f3910c685edc012771e66a017758abd25c14bece,,yasser.cherfaoui@gmail.com,2025-09-17 16:40:24 +0100,feat(company-missing-variants): enhance exit bill creation with additional items support,Yes
+9616f3c8f427422f4a18c6760a10e4d88466005d,,yasser.cherfaoui@gmail.com,2025-09-17 15:31:18 +0100,Merge pull request #127 from YasserCherfaoui/dev,No
+0d8d028b0c3979791845aa17776ccc2b582e82f1,,yasser.cherfaoui@gmail.com,2025-09-17 15:29:19 +0100,feat(quick-actions): implement quick actions page and related components,Yes
+ae0b1f1c2a305ce8d6a943ea12d4ea170e60c249,,yasser.cherfaoui@gmail.com,2025-09-11 20:54:01 +0100,Merge pull request #126 from YasserCherfaoui/dev,No
+d14c18616a0badf61ada1feea667ad73c57182d1,,yasser.cherfaoui@gmail.com,2025-09-11 20:51:25 +0100,feat(missing-variants): enhance missing variants management with pagination and cancellation,Yes
+1dc3e45e0aab8584d114a543863d91ff27f77894,,yasser.cherfaoui@gmail.com,2025-09-10 05:55:28 +0100,Merge pull request #125 from YasserCherfaoui/dev,No
+4c80e4ba51504a1a7928bc1992658e93925f1142,,yasser.cherfaoui@gmail.com,2025-09-10 05:52:53 +0100,feat(company-franchises): add date range selection and insights for franchises,Yes
+9b61aee3cee68f7d42a784514788fae3ea1ae549,,yasser.cherfaoui@gmail.com,2025-09-10 05:22:54 +0100,Merge pull request #124 from YasserCherfaoui/dev,No
+0547c3714750f987ce3265bcb9c6f692958a3f70,,yasser.cherfaoui@gmail.com,2025-09-10 05:21:42 +0100,feat(missing-variants): implement missing variants management for companies and franchises,Yes
+ca13347d8b5b3ed8ef7424a3b4dc4d9bc58c855d,,yasser.cherfaoui@gmail.com,2025-09-04 15:09:02 +0100,Merge pull request #123 from YasserCherfaoui/dev,No
+7714b7e3555272308389f27431dd7c5312f7fa68,,yasser.cherfaoui@gmail.com,2025-09-04 15:08:28 +0100,refactor(franchise-entry-bills-form): improve layout with scrollable area,Yes
+13474a59c0a894af8256b5bee6068e0bede700b4,,yasser.cherfaoui@gmail.com,2025-09-04 14:24:00 +0100,Merge pull request #122 from YasserCherfaoui/dev,No
+a9b99f5e49ba79b33e08414b97012f48f1b68828,,yasser.cherfaoui@gmail.com,2025-09-04 14:22:37 +0100,refactor(delivery-fulfillment-dialog): enhance table layout and improve UI responsiveness,Yes
+4d9410239b5fa952e39e7598d81b0329eaaacd41,,yasser.cherfaoui@gmail.com,2025-08-31 14:25:14 +0100,Merge pull request #121 from YasserCherfaoui/dev,No
+dbb48e6df75945bdb26df80457682469d4a1dc37,,yasser.cherfaoui@gmail.com,2025-08-31 14:24:49 +0100,feat(company-products-app-bar): add sync functionality with Shopify,Yes
+2eeb1df11203da5d2890a5be1d46e0198fb50940,,yasser.cherfaoui@gmail.com,2025-08-31 14:07:35 +0100,Merge pull request #120 from YasserCherfaoui/dev,No
+e0001b556b5db6c9dd2a1ae3cb425bf6da2f3e4f,,yasser.cherfaoui@gmail.com,2025-08-31 14:07:11 +0100,feat(import-orders-csv-dialog): add instructions for CSV upload and required columns,Yes
+19986b4b6195744512c5122e7ad9b0515e314a3b,,yasser.cherfaoui@gmail.com,2025-08-31 13:01:42 +0100,refactor(affiliate-commissions-page): improve code formatting and readability,Yes
+c1abacbde57f389ba1b154625b419b117d312011,,yasser.cherfaoui@gmail.com,2025-08-27 15:35:23 +0100,Merge pull request #119 from YasserCherfaoui/dev,No
+bdce00976bd69f2e14ed9045208ca03628ea4b22,,yasser.cherfaoui@gmail.com,2025-08-27 15:33:54 +0100,feat(affiliate-props): add shopify_link to affiliate properties and update related components,Yes
+1db1534aed9b652ead2b11bdf36cbe804e49c9f3,,yasser.cherfaoui@gmail.com,2025-08-25 11:56:50 +0100,Merge pull request #118 from YasserCherfaoui/dev,No
+275858526713ce66bf52c9cb8c35135ab055b787,,yasser.cherfaoui@gmail.com,2025-08-25 11:55:33 +0100,feat(order-details): enhance order details dialog with improved UI and additional information,Yes
+9b1037e17d4f80efdd9c0ba66815d341f83b3d6d,,yasser.cherfaoui@gmail.com,2025-08-23 11:39:14 +0100,Update README.md,Yes
+db86f3f2d1387626896d876e246e5bc7f6bbd487,,yasser.cherfaoui@gmail.com,2025-08-23 11:33:18 +0100,Merge pull request #117 from YasserCherfaoui/dev,No
+80d4437f4eafd91141883122c70f2df1c01db328,ladjben,161597393+ladjben@users.noreply.github.com,2025-08-23 10:43:41 +0100,Update README.md,Yes
+a4510746d7232aa807fdfe3cde8d4954e797840c,,yasser.cherfaoui@gmail.com,2025-08-18 14:41:53 +0100,feat(statistics): add statistics page route and update import formatting,Yes
+40de75a74e19dc535f82490107b0bd5c3ff93b1c,,yasser.cherfaoui@gmail.com,2025-08-13 12:24:51 +0100,refactor(delivery-dashboard): enhance date handling and API parameter naming,Yes
+75da145d9d6500fcaec7989dcff56efeb2b33dbb,,yasser.cherfaoui@gmail.com,2025-08-12 15:22:17 +0100,Merge pull request #116 from YasserCherfaoui/dev,No
+ab5787da67abe317fba66d161416f6be88f8c06a,,yasser.cherfaoui@gmail.com,2025-08-12 15:21:08 +0100,feat(expenses): add analytics tab and delivered aggregates functionality,Yes
+87384ec22c3615f8280e2ffb22ed0aa64caa4549,,yasser.cherfaoui@gmail.com,2025-08-11 16:04:40 +0100,Merge pull request #115 from YasserCherfaoui/dev,No
+c2fcc78f51f8504ff4bd80509f1c69ea73d54bf3,,yasser.cherfaoui@gmail.com,2025-08-11 16:03:12 +0100,feat(expenses): implement recurring expenses and reports functionality,Yes
+bf89e47d38a634c89378d01f74501646ce2f9cc0,,yasser.cherfaoui@gmail.com,2025-07-27 11:45:19 +0100,refactor(create-order-dialog): improve code readability and formatting,Yes
+d914ae1c50b3bdb45b1c9af3c0c7aea607f8745e,,yasser.cherfaoui@gmail.com,2025-07-27 11:33:52 +0100,Merge pull request #114 from YasserCherfaoui/dev,No
+67e1ccb16943e2f14a2783535686f2681c65d7cd,,yasser.cherfaoui@gmail.com,2025-07-27 11:32:17 +0100,feat(company-stats): add delivery metrics for Yalidine and My Companies,Yes
+b57489ae754908f368b92b1873f392a7d68586c2,,yasser.cherfaoui@gmail.com,2025-07-24 11:40:35 +0100,fix(company-orders-columns): update latest status retrieval logic to use date comparison,Yes
+f0286503b2ca2e24099a2afaff895f67e754041d,,yasser.cherfaoui@gmail.com,2025-07-23 15:44:47 +0100,Merge pull request #113 from YasserCherfaoui/dev,No
+65e0408aff817da20e99ee7a7c6b768f66e6da80,,yasser.cherfaoui@gmail.com,2025-07-23 15:43:17 +0100,feat(product-management): add is_active field to product model and forms,Yes
+ff0240a43b97b1de84ec6fad7a80a4a0a37eec7f,,yasser.cherfaoui@gmail.com,2025-07-21 15:11:46 +0100,refactor(add-company-unknown-return-dialog): replace setTimeout with onKeyDown handler for barcode input,Yes
+3e50445695ff7f19e9973180d58e3eb272f9a04d,,yasser.cherfaoui@gmail.com,2025-07-21 15:01:32 +0100,fix(add-company-unknown-return-dialog): reduce timeout duration for input reset from 1800ms to 1000ms,Yes
+44381d4c294a40fe2d7370650e87c892185f6628,,yasser.cherfaoui@gmail.com,2025-07-19 12:03:48 +0100,feat(routes): add statistics page route and simplify franchise menu rendering,Yes
+a5d19136b5f4623fb229cbb9e76a51cc763b9cc0,,yasser.cherfaoui@gmail.com,2025-07-17 12:49:34 +0100,"feat(documentation): add product overview, project structure, and technology stack",Yes
+ca5c6092ef8ac348ea635def7b8a83dfe9e763a8,,yasser.cherfaoui@gmail.com,2025-07-15 12:51:26 +0100,fix(algeria-cities): correct daira and wilaya names for El M'Ghair,Yes
+53d343de1ce7d12ce7d384cd6655abbd9d5c8534,,yasser.cherfaoui@gmail.com,2025-07-14 14:46:20 +0100,Merge pull request #112 from YasserCherfaoui/dev,No
+f802b3954ecea07eae33458b9359e9ee8f27b34b,,yasser.cherfaoui@gmail.com,2025-07-14 14:44:54 +0100,feat(orders): add company_id parameter to order retrieval and real-time updates,Yes
+1efd8bbb4f938c3f1a9842805b610a2d44af6f12,,yasser.cherfaoui@gmail.com,2025-07-14 14:43:25 +0100,feat(import-orders): enhance CSV import functionality with company-specific handling,Yes
+58643ec4526f02a9fd6752db2e1a21351caef87c,,yasser.cherfaoui@gmail.com,2025-07-14 13:05:18 +0100,Merge pull request #111 from YasserCherfaoui/dev,No
+d58d15cb53913bfdba118bb5cb8df645817f83ab,,yasser.cherfaoui@gmail.com,2025-07-14 12:43:44 +0100,fix(affiliate-my-links-page): correct variable name for clipboard copy functionality,Yes
+1061c603b74a5bfc63cb2c6e559498376ca29312,,yasser.cherfaoui@gmail.com,2025-07-01 15:48:43 +0100,feat(auth-app-bar): migrate default color settings to new values,Yes
+3143c0d4ddb295b9a2346944066e0ce4cf229120,,yasser.cherfaoui@gmail.com,2025-07-01 15:32:37 +0100,feat(private-route): enhance authentication flow with session storage for redirect paths,Yes
+e74460da6c55bc6d6f7cabaa5c470a40386f8984,,yasser.cherfaoui@gmail.com,2025-07-01 15:15:33 +0100,feat(auth-app-bar): enhance mobile responsiveness and color customization,Yes
+bf665430e6cb2bf2715e1499bc0ea614ee946bb0,,yasser.cherfaoui@gmail.com,2025-07-01 15:00:52 +0100,feat(moderator-mobile): add mobile scanner page and inventory management,Yes
+33b371a22e6e7c9f51193bea20cba7a0c6e21903,,yasser.cherfaoui@gmail.com,2025-07-01 13:07:03 +0100,feat(franchise-sales): add barcode input handling for franchise sale dialog,Yes
+8bd655a0f02c1d8f75d73443b8139bcaf9070076,,yasser.cherfaoui@gmail.com,2025-07-01 12:55:46 +0100,feat(franchise-sales): implement benefits visibility toggle with password protection,Yes
+2644bc602386a9a083e9cf0312890c1314db2e59,,yasser.cherfaoui@gmail.com,2025-06-29 15:34:55 +0100,feat(affiliate-commissions-page): add approved earnings summary card and enhance layout,Yes
+c2e9bd39cf5dbb8f23067c21ee50221a7f617985,,yasser.cherfaoui@gmail.com,2025-06-29 10:56:46 +0100,refactor(company-affiliates-page): standardize import statements and clean up code,Yes
+c1070d5abf315d5883596345765db506be63a2d6,,yasser.cherfaoui@gmail.com,2025-06-29 10:55:21 +0100,feat(affiliate-management): add affiliate applications and details management,Yes
+e76aafe4b147b508d8c632ccae46bc069f7637ea,,yasser.cherfaoui@gmail.com,2025-06-29 10:55:13 +0100,feat(order-actions): add Set Unconfirmed Status dialog for order management,Yes
+d1a5c109758f63ae37e0c6a5ee8ed83b53f26467,,yasser.cherfaoui@gmail.com,2025-06-25 16:34:57 +0100,feat(affiliate-dashboard): expand affiliate dashboard with commissions and payments management,Yes
+c564215fb1be90a7d1b32574d433c0c085d1dd2f,,yasser.cherfaoui@gmail.com,2025-06-25 14:47:32 +0100,Merge pull request #110 from YasserCherfaoui/dev,No
+2f2d15daa4b11d7de473de9ae065a50224a8be6b,,yasser.cherfaoui@gmail.com,2025-06-25 14:45:16 +0100,feat(affiliate-management): implement affiliate authentication and dashboard features,Yes
+9b51833bb6bba721bf2cc72edb992f450b7524ae,,yasser.cherfaoui@gmail.com,2025-06-24 13:38:10 +0100,fix(delivery-employee-dashboard): correct order status condition for styling,Yes
+70dd01e4229a0991ba77c378cdf060c5fb1102a7,,yasser.cherfaoui@gmail.com,2025-06-24 12:34:13 +0100,fix(set-affiliate-props-dialog): allow empty string for creatives link in affiliate properties schema,Yes
+1331d7b70910fab4c4012bd326e100ed593f8db5,,yasser.cherfaoui@gmail.com,2025-06-24 12:24:02 +0100,fix(set-affiliate-props-dialog): make creatives link optional in affiliate properties schema,Yes
+bab11b7bf75fa2b13d1228aa33e2ffeb211306f1,,yasser.cherfaoui@gmail.com,2025-06-24 12:07:39 +0100,feat(set-affiliate-props-dialog): enhance affiliate properties management with mutation and state handling,Yes
+0b887d910f259b1e25f1116c7144023ae6033742,,yasser.cherfaoui@gmail.com,2025-06-23 15:07:10 +0100,feat(franchise-sales-columns): enhance franchise sales table with improved cell rendering and filtering,Yes
+21a80505deeec191ee1a51acd31142777af957eb,,yasser.cherfaoui@gmail.com,2025-06-23 12:49:57 +0100,feat(set-affiliate-props-dialog): implement dialog for configuring affiliate properties,Yes
+60a7114a485acde7db06c3338fcc89f3ae3264b4,,yasser.cherfaoui@gmail.com,2025-06-23 12:48:15 +0100,feat(products-table): add Set Affiliate Props dialog to product actions,Yes
+6bdc4ebdf10a82ff798ae09d4b94b21306b8cf59,,yasser.cherfaoui@gmail.com,2025-06-21 18:32:24 +0100,feat(franchise-return): implement update functionality and enhance return dialog,Yes
+c2bd2745c26695b9bb3e73c946b3ac723f88ce65,,yasser.cherfaoui@gmail.com,2025-06-19 15:21:26 +0100,feat(order-columns): enhance ID display with conditional styling for exchanges,Yes
+77accb415ddddc8b43aae453989387e5bf3f9fbf,,yasser.cherfaoui@gmail.com,2025-06-19 15:07:12 +0100,feat(delivery-employee-dashboard): add declare empty exchange functionality,Yes
+bb99c7796449cece8e6fde0e13eb9db8e2171732,,yasser.cherfaoui@gmail.com,2025-06-19 12:11:52 +0100,feat(order-status-management): add dialogs for setting order status to packing and cancelled,Yes
+437d68ab3a49a7ae8bed569cfe0d5a7702809abd,,yasser.cherfaoui@gmail.com,2025-06-18 14:50:56 +0100,feat(delivery-employee-dashboard): display customer name in order details,Yes
+02392e9b44acb58614a009e494834a89085fa9c0,,yasser.cherfaoui@gmail.com,2025-06-18 13:02:37 +0100,Merge pull request #109 from YasserCherfaoui/dev,No
+a854214a6dc39ce6062b3e95b77e31c8d85e98e6,,yasser.cherfaoui@gmail.com,2025-06-18 12:59:05 +0100,feat(readme): update project overview and technical details for COSMOS ERP Frontend,Yes
+b2fc62617ba054ed30e6bf80f448b16abbb0f163,,yasser.cherfaoui@gmail.com,2025-06-18 12:38:09 +0100,feat(create-order-dialog): add secondary phone number field to order creation form,Yes
+00533618696dce5d2b018d36d97a701d6a5b9374,,yasser.cherfaoui@gmail.com,2025-06-18 12:34:14 +0100,feat(order-management): add support for secondary phone number in order forms and displays,Yes
+7074cc06549ce793d4d695e391b7cbf3ad382200,,yasser.cherfaoui@gmail.com,2025-06-17 16:01:33 +0100,fix(delivery-employee-dashboard): correct order status display logic,Yes
+f34d8452e73b8b867314bb1e2ae1be009cec6de1,,yasser.cherfaoui@gmail.com,2025-06-17 15:54:04 +0100,"feat(manifest, delivery-employee-dashboard): update app branding and enhance order status display",Yes
+51c755bb8bf66111375044e9fef8fffb7108e1fa,,yasser.cherfaoui@gmail.com,2025-06-17 15:45:51 +0100,"feat(index, manifest): enhance web app capabilities with meta tags and manifest file",Yes
+c055dc9498f14f555b8122b9a780cbc990de0ec2,,yasser.cherfaoui@gmail.com,2025-06-17 15:38:26 +0100,feat(delivery-employee-dashboard): implement logout functionality,Yes
+abe0f143a3783f0f1f8ab6860fb26e3ceea15b70,,yasser.cherfaoui@gmail.com,2025-06-17 15:36:16 +0100,"feat(index, delivery-employee-dashboard): update branding and document title",Yes
+9159ed98e83e9cbdca9c414155f1bb0ad184a964,,yasser.cherfaoui@gmail.com,2025-06-17 15:27:09 +0100,feat(delivery-employee-dashboard): enhance order status management with rescheduling reasons,Yes
+d30bf57433a4847cd99a90e0276432d29fc3aec8,,yasser.cherfaoui@gmail.com,2025-06-17 13:59:19 +0100,"feat(delivery-routes, delivery-store, delivery-service): implement delivery employee routes and authentication",Yes
+e75794034ddd272d19c3f2cb750e9d4000b92154,,yasser.cherfaoui@gmail.com,2025-06-17 11:55:42 +0100,"feat(declare-exchange-dialog, order.schema): improve order exchange handling and validation",Yes
+6f78b0e70a1bcf29c570c8b1f519bf2237464a60,,yasser.cherfaoui@gmail.com,2025-06-16 15:52:16 +0100,feat(declare-exchange-dialog): enhance order details display with additional shipping information,Yes
+9146227375a76d15f55167200c32587dc962e12d,,yasser.cherfaoui@gmail.com,2025-06-16 12:57:08 +0100,"feat(company-orders-columns, declare-exchange-dialog, order.schema): enhance order display and error handling",Yes
+ccb89d0261577b9487bbca247fe36797de4528be,,yasser.cherfaoui@gmail.com,2025-06-16 12:39:12 +0100,feat(declare-exchange-dialog): implement order exchange functionality with user feedback,Yes
+787810b23f363cce0692f89cc42e5a95cf624d3e,,yasser.cherfaoui@gmail.com,2025-06-16 12:16:27 +0100,feat(declare-exchange-dialog): update company selection logic based on user role,Yes
+c33e231a8de02da3e65c17dde9ef035a5498a255,,yasser.cherfaoui@gmail.com,2025-06-16 10:54:14 +0100,"feat(company-orders-columns, order-details-dialog, order-history-dialog, woo-order.model, order.schema): enhance order management features",Yes
+018e80a7073c7d4d50257219b2847c72d57419ee,,yasser.cherfaoui@gmail.com,2025-06-12 12:30:29 +0100,refactor(company-orders-page): improve code readability and enhance button functionality,Yes
+0e8618f9dd74768bbae85ccd6d5affe75a81095a,,yasser.cherfaoui@gmail.com,2025-06-12 12:26:37 +0100,feat(company-orders-page): add create order functionality and enhance order confirmation service,Yes
+c3b4d20a97df2647164cfad2c6a69fa14ca2d029,,yasser.cherfaoui@gmail.com,2025-06-11 15:58:55 +0100,feat(order-history-dialog): enhance order history display with additional details,Yes
+a864d8fce37597f510140b5746caa4cf8ab24af4,,yasser.cherfaoui@gmail.com,2025-06-11 15:31:08 +0100,feat(company-orders-columns): enhance customer phone display with count indicator,Yes
+3ded3e810e0d30f93bbd1686cf217043125263d3,,yasser.cherfaoui@gmail.com,2025-06-11 13:39:47 +0100,feat(company-orders-columns): add updated_at column for order tracking,Yes
+ccbf3f714951cb1ee6d05b7d50bb1e5e1c8ecfc3,,yasser.cherfaoui@gmail.com,2025-06-11 13:32:29 +0100,fix(add-inventory-item-form): rename variants to product_variants for consistency,Yes
+ac7a493e7038b8b1a4201566c7297bdcd98ea7dc,,yasser.cherfaoui@gmail.com,2025-06-11 13:31:01 +0100,"fix(use-orders-with-realtime, product.model, company-orders-page, woocommerce-service): enhance order management with additional parameters",Yes
+d6b69e92e5de6b853247f9e80dc30b0be2c0a5ca,,yasser.cherfaoui@gmail.com,2025-06-11 12:52:29 +0100,fix(PrintDeliveryEmployeeTableDialog): update date formatting to use English (US) locale,Yes
+2010bcf818a66a207292e4c6de8e6f01bebb3c83,,yasser.cherfaoui@gmail.com,2025-06-11 11:49:49 +0100,fix(order-dialogs): enhance order management with dynamic query key support,Yes
+1103834e6b18e9e8fff7314b3f4d5ecb752d0610,,yasser.cherfaoui@gmail.com,2025-06-11 11:35:01 +0100,"fix(delivery-orders-columns, delivery-dashboard): refactor query key handling for order management",Yes
+da780e9ca38508b0c78b1f95ba4816fe7e51a7fe,,yasser.cherfaoui@gmail.com,2025-06-10 16:11:22 +0100,fix(order-details-dialog): enhance query enabling condition for Yalidine center fetching,Yes
+7ddf2288d76b30c50fccd1eb7d389bd27ae2c45d,,yasser.cherfaoui@gmail.com,2025-06-09 13:18:47 +0100,"fix(delivery-orders-columns, delivery-dashboard): standardize query key for order management",Yes
+660c3803ca52187a0784c9d679892699c307d2ce,,yasser.cherfaoui@gmail.com,2025-06-09 12:54:12 +0100,fix(delivery-dashboard): enhance query key for order fetching,Yes
+bc73f8690a8fcb2d8f2ee4cc4f9cafeb9eb9f15d,,yasser.cherfaoui@gmail.com,2025-06-09 12:49:07 +0100,fix(delivery-orders-columns): update query key for order invalidation,Yes
+71aa35030f40cde18869efce9ffc71004b1a837c,,yasser.cherfaoui@gmail.com,2025-06-09 12:42:22 +0100,feat(update-order-dialog): add client status dialog and button,Yes
+cd3c5a7fffe78124f2a18344a1da8a08521098b1,,yasser.cherfaoui@gmail.com,2025-06-09 12:03:36 +0100,fix(delivery-orders-columns): update date format to use English (US) locale,Yes
+3e4a3320fed1365e07c307e654bb9f81a2d14f9c,,yasser.cherfaoui@gmail.com,2025-06-09 11:33:24 +0100,feat(delivery-orders-actions): add update order dialog and button,Yes
+5a3db2d028dde2b53e2e9eaf25c2388fe91cec76,,yasser.cherfaoui@gmail.com,2025-06-09 11:18:39 +0100,feat(delivery-orders-columns): add full name column to delivery orders table,Yes
+7ec75bd606f14483508d8d2e0dcd223dfec4396d,,yasser.cherfaoui@gmail.com,2025-06-09 11:08:52 +0100,feat(delivery-dashboard): add employee filter and update order fetching logic,Yes
+426b51173b4de44ef69f6e66841447c0ad44dd35,,yasser.cherfaoui@gmail.com,2025-06-05 11:56:39 +0100,fix(delivery-orders-columns): update date format to use French (Algeria) locale,Yes
+de50bb29168a080aaf856b2929e9ec20a165fc6f,,yasser.cherfaoui@gmail.com,2025-06-05 10:47:21 +0100,fix(woocommerce-service): update endpoint for fetching Yalidine center data,Yes
+dfca5d6c02cc82862e02951037fc79b5b5a0119a,,yasser.cherfaoui@gmail.com,2025-06-05 10:35:02 +0100,feat(order-details-dialog): integrate Yalidine center data retrieval,Yes
+a3ed88767cc4cef0cb9d814f453594c80cde38c9,,yasser.cherfaoui@gmail.com,2025-06-05 09:33:51 +0100,fix(company-orders): handle empty wilaya name by displaying shipping address,Yes
+5c80d74cc68d199f36a7a49d4743c2b69af6c4b4,,yasser.cherfaoui@gmail.com,2025-06-04 17:11:15 +0100,feat(franchise-sales): enhance franchise sales table with improved column definitions and formatting,Yes
+4d501d30b407dc09a4568100580ed3bdd5693eaa,,yasser.cherfaoui@gmail.com,2025-06-04 16:40:37 +0100,fix(delivery-orders): update comments handling in delivery orders,Yes
+1422207af371c05b6b664a2586511fb21d20a923,,yasser.cherfaoui@gmail.com,2025-06-04 16:33:56 +0100,feat(delivery-orders): add comments column for delivery orders with editable functionality,Yes
+6ec2cd36e723f1eb8d8cec8223782af2debdfb3b,,yasser.cherfaoui@gmail.com,2025-06-04 16:08:58 +0100,Merge pull request #107 from YasserCherfaoui/dev,No
+2836f3d62c9d39615644f5ec26d31964ad1259d1,,yasser.cherfaoui@gmail.com,2025-06-04 16:07:45 +0100,fix(delivery-orders): update expected delivery date format and add date validation,Yes
+953441805cc3ae2852ac5daaddb8f320b921672d,,yasser.cherfaoui@gmail.com,2025-06-04 14:07:53 +0100,Merge pull request #106 from YasserCherfaoui/dev,No
+f577615ee5eb43e28a6b4af731a8542174c06817,,yasser.cherfaoui@gmail.com,2025-06-04 14:06:33 +0100,feat(delivery-dashboard): add print delivery employee table functionality,Yes
+e376ababcb9cb3100ae06b9c804d5ff0d15cf423,,yasser.cherfaoui@gmail.com,2025-06-04 13:23:02 +0100,feat(delivery-orders): add delivery employee and expected delivery date columns,Yes
+076f65811d927c081ea22aea39b3c4d8edfcb13c,,yasser.cherfaoui@gmail.com,2025-06-04 12:55:21 +0100,feat(delivery-orders): add price column to delivery orders and improve formatting,Yes
+0ef52e427033aee3877da0e7c9721eb2201c001b,,yasser.cherfaoui@gmail.com,2025-06-04 12:24:20 +0100,refactor(update-order-dialog): enhance code structure and readability,Yes
+23188563a414c003184130c571d0402d14c550cc,,yasser.cherfaoui@gmail.com,2025-06-04 12:18:43 +0100,feat(order-actions): add update order functionality and dialog,Yes
+41ac05d25c6d22405a320b0838fb591f510662e7,,yasser.cherfaoui@gmail.com,2025-06-04 12:14:00 +0100,feat(delivery-dashboard): add phone number filter and debounce functionality,Yes
+6836cdb181dbffe10fd277cc22ab55f35ac18d40,,yasser.cherfaoui@gmail.com,2025-06-04 12:07:57 +0100,feat(routes): add delivery routes and update user menu,Yes
+14da275209a5de80ecb9acba197d35b9d0822f9d,,yasser.cherfaoui@gmail.com,2025-06-03 15:37:48 +0100,feat(create-order-dialog): calculate and store total order cost,Yes
+25178a368e7fe5ebc6f8c7b76dcfbaa98702cbaf,,yasser.cherfaoui@gmail.com,2025-06-03 14:40:48 +0100,fix(order-actions): update condition for creating orders to include 'relaunched' status,Yes
+be142e4d9a85047b481eb8a42851b692fa19b42e,,yasser.cherfaoui@gmail.com,2025-06-03 11:57:12 +0100,feat(company-orders-page): add CSV import functionality and update order statuses,Yes
+a2a4eaf1e487d8313361a52d9c7f33fc54014b93,,yasser.cherfaoui@gmail.com,2025-06-03 10:45:40 +0100,feat(order-details-dialog): add additional shipping information fields,Yes
+ebf8a55688ae4b354a084a8ae8a2f32d786b9b67,,yasser.cherfaoui@gmail.com,2025-06-02 13:29:04 +0100,Merge pull request #105 from YasserCherfaoui/dev,No
+1f05bc4f589f73437c2189f6a8d9ad78d5aa04db,,yasser.cherfaoui@gmail.com,2025-06-02 13:28:02 +0100,feat(orders): add Yalidine status filtering and update order query parameters,Yes
+f6feb82b8eff98ea445eb6cc1b805c2324c823a8,,yasser.cherfaoui@gmail.com,2025-06-02 12:47:15 +0100,refactor(create-order-dialog): improve external order update logic and comments,Yes
+20e305a1a10874f89d22733e68c4ccb6cd0d198a,,yasser.cherfaoui@gmail.com,2025-06-02 12:30:13 +0100,fix(create-order-dialog): refine external order update handling,Yes
+2ae9c7f5957c70e3bf7117e0fed19bc5e0771005,,yasser.cherfaoui@gmail.com,2025-06-02 12:21:59 +0100,feat(company-orders-columns): add Latest Status column to display order status and history,Yes
+ee36fc4f1dbbf6bf92d85da13c298f1bff222344,,yasser.cherfaoui@gmail.com,2025-06-02 11:35:40 +0100,feat(delivery): implement delivery orders actions and export functionality,Yes
+d4fcf3bc69724dd8ccb32cc66810ff532ec8e9d4,,yasser.cherfaoui@gmail.com,2025-06-01 14:16:38 +0100,feat(company-orders-page): add loading state to refresh WooCommerce status button,Yes
+dac125aeaedc31a79c99c922a1311560dd3100c4,,yasser.cherfaoui@gmail.com,2025-06-01 13:38:09 +0100,Merge pull request #104 from YasserCherfaoui/dev,No
+8ef091fef4b53178930f3f09fd7196f1daa16e6e,,yasser.cherfaoui@gmail.com,2025-06-01 13:36:41 +0100,feat(order-history): implement order history management dialog,Yes
+46ac56bf31456358d599c7826130173a1cad7cd1,,yasser.cherfaoui@gmail.com,2025-06-01 12:55:00 +0100,feat(auth-app-bar): add customizable background and text color options,Yes
+daf12236a02e7766f4aac16f137c43f0e1efdc28,,yasser.cherfaoui@gmail.com,2025-06-01 11:17:52 +0100,fix(company-orders-page): reset selected rows after export and dispatch operations,Yes
+4cdd1f04377f000c7f209d69449d1efe2cc62dfa,,yasser.cherfaoui@gmail.com,2025-05-31 14:46:30 +0100,feat(bulk-operations-dialog): add loading states for dispatch and export buttons,Yes
+3ed953f51f7b8fc4396592ca5dc0b0e912704433,,yasser.cherfaoui@gmail.com,2025-05-31 14:29:48 +0100,fix(franchise-sales): adjust date handling in sales request,Yes
+d2c60d7f2151cc0087d84a1824601b6c012e7d20,,yasser.cherfaoui@gmail.com,2025-05-31 13:30:42 +0100,feat(franchise-sales): add sale_type to franchise sales request,Yes
+fa8f00203255872bac23048c8c0d3c7d18fe3204,,yasser.cherfaoui@gmail.com,2025-05-31 12:37:52 +0100,feat(company-bills): implement update bill functionality and schema,Yes
+a59f140c252034d235f0929629d93d25df1579df,,yasser.cherfaoui@gmail.com,2025-05-31 12:36:08 +0100,feat(company-bills): add bill number column and update action dialog,Yes
+aff33a033903a851dc6b151aa4bcdcdabd8b46c7,,yasser.cherfaoui@gmail.com,2025-05-31 12:18:24 +0100,feat(company-orders): add refresh functionality for WooCommerce status,Yes
+c87003767fa2bb638ea2634d8062580f588d1b79,,yasser.cherfaoui@gmail.com,2025-05-30 22:21:35 +0100,feat(sale-dialogs): reposition phone number field in sale dialogs,Yes
+e99e696f10b6d8256a05208c53820582a621267e,,yasser.cherfaoui@gmail.com,2025-05-30 21:56:21 +0100,Merge pull request #103 from YasserCherfaoui/dev,No
+4d8ae21bc03b357459772529ceb77699aea7a562,,yasser.cherfaoui@gmail.com,2025-05-30 21:53:17 +0100,feat(sale-dialogs): add phone number field to sale dialogs and schema,Yes
+ddfc9b37df1e9bfec043f79363a6b3349f15f292,,yasser.cherfaoui@gmail.com,2025-05-29 15:11:48 +0100,fix(company-orders): optimize status handling in company orders columns,Yes
+b34c34e55b7f6b7db5414b05ed7b1f1d53b2f519,,yasser.cherfaoui@gmail.com,2025-05-29 11:50:51 +0100,fix(create-order-dialog): sort deliverable communes in order creation dialog,Yes
+d148895d0e3ca5bec6ca72995647645499f7565a,,yasser.cherfaoui@gmail.com,2025-05-29 11:48:58 +0100,fix(create-order-dialog): ensure numeric input is correctly handled in order creation,Yes
+76703bd3bb04f998e8f8fa940b2e4aa6e6a12256,,yasser.cherfaoui@gmail.com,2025-05-28 10:35:30 +0100,Merge pull request #102 from YasserCherfaoui/dev,No
+b168be02caa1167bb30c771ff0069829d53cf4c1,,yasser.cherfaoui@gmail.com,2025-05-28 10:33:38 +0100,fix(supplier-schema): make user_id nullable in supplier schema and add-supplier-dialog,Yes
+e78e381772bf2759f4ef87725f3eb920f3314a89,,yasser.cherfaoui@gmail.com,2025-05-27 16:04:32 +0100,fix(supplier-schema): update supplier_id to be nullable in createSupplierPayment schema,Yes
+d9f34c20603bb8fd907f48178c2f0ef410c15ee0,,yasser.cherfaoui@gmail.com,2025-05-27 15:52:39 +0100,Merge pull request #101 from YasserCherfaoui/dev,No
+333479f1ba6a61bdb03e05be7041da98811e9ecf,,yasser.cherfaoui@gmail.com,2025-05-27 15:52:00 +0100,feat(routes): add FeaturesPage route to application,Yes
+df638fabd157a691d4e1782ce04480f03274e634,,yasser.cherfaoui@gmail.com,2025-05-27 15:23:56 +0100,Merge pull request #100 from YasserCherfaoui/dev,No
+475bfbffba42c2b864f4bef75fd3210f117a499e,,yasser.cherfaoui@gmail.com,2025-05-27 15:19:47 +0100,refactor(create-order-dialog): simplify total calculation by using second delivery cost,Yes
+ead948f9424538d1bb11aa2323a6442b328156cc,,yasser.cherfaoui@gmail.com,2025-05-27 14:36:38 +0100,Merge pull request #99 from YasserCherfaoui/dev,No
+fbd9ff7ba33f0869b14eef56d05cd23b141652a9,,yasser.cherfaoui@gmail.com,2025-05-27 14:35:56 +0100,feat(data-table): integrate ScrollArea for improved pagination layout and update comment validation in client status schema,Yes
+ab7bc133e15a4077cf7c792666286687a7ebf0b2,,yasser.cherfaoui@gmail.com,2025-05-27 14:25:29 +0100,Merge pull request #98 from YasserCherfaoui/dev,No
+69771c7550115dd471642b6939e69a08024cec34,,yasser.cherfaoui@gmail.com,2025-05-27 14:24:35 +0100,feat(company-orders): integrate bulk operations for WooCommerce orders,Yes
+fa2631e29b5ad071c5f9478f1b13dc8d64e6fde9,,yasser.cherfaoui@gmail.com,2025-05-27 12:55:58 +0100,Merge pull request #97 from YasserCherfaoui/dev,No
+6656b2cf45cef078b440a9996e050347e81b905a,,yasser.cherfaoui@gmail.com,2025-05-27 12:51:16 +0100,feat(company-orders): enhance filtering options and order retrieval in CompanyOrdersPage,Yes
+b07287ddf66e495e84862c603c3ee8d140187f85,,yasser.cherfaoui@gmail.com,2025-05-27 12:06:45 +0100,Merge pull request #96 from YasserCherfaoui/dev,No
+5f3a1685c74bd8821c66dfe7b854ea817bf288fc,,yasser.cherfaoui@gmail.com,2025-05-27 12:03:53 +0100,fix(franchise-sales): correct query parameter from company_id to franchise_id,Yes
+8e498323dcd82656134d9b886040ea4fb40e4f5c,,yasser.cherfaoui@gmail.com,2025-05-27 11:50:30 +0100,Merge pull request #95 from YasserCherfaoui/dev,No
+b09cb7d713dbfd9782c4d9fb3a56dfb546ce7dd6,,yasser.cherfaoui@gmail.com,2025-05-27 11:48:44 +0100,feat(sales): add sales count queries for franchise and company sales,Yes
+c7f7a8738d875b73eee6363ac1f6dfae80743fba,,yasser.cherfaoui@gmail.com,2025-05-27 10:51:51 +0100,Merge pull request #94 from YasserCherfaoui/dev,No
+58559a1e9d6353648f8f78dd5f025951ce4c0794,,yasser.cherfaoui@gmail.com,2025-05-27 10:51:09 +0100,feat(order-management): add orders page and enhance user role handling,Yes
+1e8648972365dbbb2a8c806d39e1a7a7283808b6,,yasser.cherfaoui@gmail.com,2025-05-26 15:40:28 +0100,Merge pull request #93 from YasserCherfaoui/dev,No
+9c8f6014f4343381e545c1328fcf7ca5ed8224cf,,yasser.cherfaoui@gmail.com,2025-05-26 15:39:44 +0100,feat(home-page): implement landing page with features and dashboard options,Yes
+cdcfb677a84e45bd10fd10316dd9379f6f245b3c,,yasser.cherfaoui@gmail.com,2025-05-26 15:19:31 +0100,Merge pull request #92 from YasserCherfaoui/dev,No
+d17d73d3cfd7144a04e61fa30eab4d3f27111a14,,yasser.cherfaoui@gmail.com,2025-05-26 15:18:37 +0100,feat(order-management): enhance order retrieval and pagination handling,Yes
+d8d74acd485102b318d2fdb0dc20f35c6d6ecf59,,yasser.cherfaoui@gmail.com,2025-05-26 14:07:23 +0100,Merge pull request #91 from YasserCherfaoui/dev,No
+e914967cbd5671e62bb193316c1a6acfcd787e3c,,yasser.cherfaoui@gmail.com,2025-05-26 14:05:00 +0100,fix(use-orders-with-realtime): update WebSocket URL scheme for secure connections,Yes
+ef3cfa1bfd568383fd98e29066401c2941db285f,,yasser.cherfaoui@gmail.com,2025-05-26 13:52:39 +0100,Merge pull request #90 from YasserCherfaoui/dev,No
+ea19217730f2fb2a4fd44297c7fff510de061089,,yasser.cherfaoui@gmail.com,2025-05-26 13:51:27 +0100,feat(order-management): enhance order details and actions,Yes
+494a4ddd81f928d87f2771cc736131305923604e,,yasser.cherfaoui@gmail.com,2025-05-25 16:06:51 +0100,Merge pull request #89 from YasserCherfaoui/dev,No
+5700562d562ae95d7c720fffb1855f532bbbc048,,yasser.cherfaoui@gmail.com,2025-05-25 16:04:54 +0100,fix(order-details-dialog): update order status display to use order key,Yes
+bf29f7e975f736749aac175fdbd420765b475d55,,yasser.cherfaoui@gmail.com,2025-05-25 16:02:50 +0100,feat(order-management): enhance order creation and status handling,Yes
+473c49aed10ec5ca7374641649d885086fa908d6,,yasser.cherfaoui@gmail.com,2025-05-22 15:51:08 +0100,feat(create-order-dialog): enhance delivery cost calculation and form integration,Yes
+8ac001b4dc098c5192c26bc5a8ad35a1d265063e,,yasser.cherfaoui@gmail.com,2025-05-22 15:17:52 +0100,feat(create-order-dialog): integrate inventory data for order item mapping,Yes
+c9e87aa82170ef38e52bba6f5810419aa2a3b31c,,yasser.cherfaoui@gmail.com,2025-05-22 15:04:45 +0100,Merge pull request #88 from YasserCherfaoui/dev,No
+3129f8c9d81f934f3fdb52aefc9ee32291583966,,yasser.cherfaoui@gmail.com,2025-05-22 15:04:10 +0100,feat(create-order-dialog): integrate form handling and validation for order creation,Yes
+7f65d53cfb57fd1008fbb2800acd1b7bf3c5eda0,,yasser.cherfaoui@gmail.com,2025-05-22 13:13:16 +0100,Merge pull request #87 from YasserCherfaoui/dev,No
+c748d7e50bcdb2b51c6fd2bb710d566404e14664,,yasser.cherfaoui@gmail.com,2025-05-22 13:12:06 +0100,feat(create-order-dialog): enhance order creation with delivery options and pricing,Yes
+cc16184b5d3cc201513ba8c69f20a2c2041d856c,,yasser.cherfaoui@gmail.com,2025-05-22 12:21:35 +0100,Merge pull request #86 from YasserCherfaoui/dev,No
+c203e5b23d92802ae758351aaf0d6aff7f02bd6d,,yasser.cherfaoui@gmail.com,2025-05-22 12:17:28 +0100,"feat(routes): update delivery and order ticket routes, enhance issue reply dialog",Yes
+71974eb4493a9962f649762a952b53915173210f,,yasser.cherfaoui@gmail.com,2025-05-21 15:55:56 +0100,Merge pull request #85 from YasserCherfaoui/dev,No
+0928e2d43521f4bf638cca5693d263d6ea02a3ed,,yasser.cherfaoui@gmail.com,2025-05-21 15:53:58 +0100,feat(create-order-dialog): enhance shipping options and commune selection,Yes
+6eca93ad95c7a5a1ff40b2325624b620f98791b0,,yasser.cherfaoui@gmail.com,2025-05-21 14:26:12 +0100,Merge pull request #84 from YasserCherfaoui/dev,No
+8bbea0fa032b99927955f743a4b2b2941af2e137,,yasser.cherfaoui@gmail.com,2025-05-21 14:24:53 +0100,fix(order-tickets): handle null values in reply ticket submission,Yes
+d8fcdc8f6571f64508fa01cb7d0a8db5123c062b,,yasser.cherfaoui@gmail.com,2025-05-21 14:20:38 +0100,feat(delivery): add delivery routes and enhance issues reply dialog,Yes
+28bcdd13acc6abf8d9460ede0b8735c64b2c6132,,yasser.cherfaoui@gmail.com,2025-05-20 15:58:43 +0100,Merge pull request #83 from YasserCherfaoui/dev,No
+c449a238cab2fa37ec84d18b9fab422842cde26a,,yasser.cherfaoui@gmail.com,2025-05-20 15:57:43 +0100,feat(order-tickets): integrate order tickets functionality and update UI,Yes
+95b0c589c124958509fa51b9ec262f776f14e7db,,yasser.cherfaoui@gmail.com,2025-05-20 14:25:54 +0100,Merge pull request #82 from YasserCherfaoui/dev,No
+7ad38c3312b1452fd7c5b898cc59fbd5b3a06d46,,yasser.cherfaoui@gmail.com,2025-05-20 14:23:46 +0100,feat(routes): add issues route and update quick menu,Yes
+6cb181a788bfc79017b01c88a3d162045637a61d,,yasser.cherfaoui@gmail.com,2025-05-20 14:19:41 +0100,Merge pull request #81 from YasserCherfaoui/dev,No
+628fdc28e4fb220a949fd70a13a0db1cdd4fa7b1,,yasser.cherfaoui@gmail.com,2025-05-20 14:18:32 +0100,feat(issues): add support replies and integrate react-icons,Yes
+7c801c2b9c2177a6b1a309a04911a569cbdfa158,,yasser.cherfaoui@gmail.com,2025-05-20 12:58:47 +0100,Merge pull request #80 from YasserCherfaoui/dev,No
+5be1bc54679377f2e0dbedb642a7f1d4305fac6d,,yasser.cherfaoui@gmail.com,2025-05-20 12:58:08 +0100,feat(routes): add issues page route and update control panel quick menu,Yes
+698048b234e03447fe8ee9da6d1ff0bd36b387b0,,yasser.cherfaoui@gmail.com,2025-05-19 14:24:03 +0100,Merge pull request #79 from YasserCherfaoui/dev,No
+ecaf523683bd09fa62dfc891e53f67dd5966b4d3,,yasser.cherfaoui@gmail.com,2025-05-19 14:23:38 +0100,fix(company-sales): update badge variant logic and enhance client status dialog,Yes
+9d9f4bfff423a5cc042b5327c433bb4426a98c22,,yasser.cherfaoui@gmail.com,2025-05-19 13:05:43 +0100,Merge pull request #78 from YasserCherfaoui/dev,No
+bb9b80b98584e454b422997ad4bc6023d6b96c26,,yasser.cherfaoui@gmail.com,2025-05-19 13:04:33 +0100,feat(client-status): integrate client status details dialog and enhance order item display,Yes
+c1a753948c9ef768909e8d6090edf1af1a04609e,,yasser.cherfaoui@gmail.com,2025-05-19 12:26:56 +0100,Merge pull request #77 from YasserCherfaoui/dev,No
+4b06546e0646cd8552a150b5c15506d3f5e2750c,,yasser.cherfaoui@gmail.com,2025-05-19 12:26:13 +0100,fix(order-details-dialog): correct order ID casing for consistency,Yes
+7e74bac1c70ba8d7a461a76b0bedd624adee112a,,yasser.cherfaoui@gmail.com,2025-05-19 12:23:10 +0100,Merge pull request #76 from YasserCherfaoui/dev,No
+e371a7c20cd76d4b2ff566bb00865b5a7e49b6ec,,yasser.cherfaoui@gmail.com,2025-05-19 12:21:45 +0100,feat(create-order-dialog): enhance order creation with client status and cost calculations,Yes
+91346e488bc9770b838f93c21a5499d13593c751,,yasser.cherfaoui@gmail.com,2025-05-15 16:01:09 +0100,Merge pull request #75 from YasserCherfaoui/dev,No
+f3377554d785abbc4ce988e45f848f20d2f6e667,,yasser.cherfaoui@gmail.com,2025-05-15 15:55:50 +0100,feat(company-orders): add orders route and update control panel,Yes
+1a8e9b98c4178a3881f1cd9b422d1aa22e25a034,,yasser.cherfaoui@gmail.com,2025-05-12 11:18:17 +0100,Merge pull request #74 from YasserCherfaoui/dev,No
+df1e4520bd79e0f6da65bab52ea0d0f9b6181377,,yasser.cherfaoui@gmail.com,2025-05-12 11:16:20 +0100,feat(company-inventory): integrate Combobox for inventory item selection,Yes
+4a883b83b6202dd23da22205161a5c9db4bca330,,yasser.cherfaoui@gmail.com,2025-05-12 10:47:51 +0100,Merge pull request #73 from YasserCherfaoui/dev,No
+a5c91608d095bfef3f4e3b10654312255948f487,,yasser.cherfaoui@gmail.com,2025-05-12 10:46:29 +0100,feat(company-inventory): add inventory analytics page and update control panel,Yes
+da9402c984b9f58883a70cfd28612d7c415e70e7,,yasser.cherfaoui@gmail.com,2025-05-11 15:32:58 +0100,Merge pull request #72 from YasserCherfaoui/dev,No
+1e429b836e9f190eeb5b8c378b9768ef87ada682,,yasser.cherfaoui@gmail.com,2025-05-11 15:31:22 +0100,feat(company-stats): add purchases tab and integrate product purchases data,Yes
+48a3321819a9a97a6abc4172552f1ad6efaefa7b,,yasser.cherfaoui@gmail.com,2025-05-11 14:57:37 +0100,"fix(payment-dialogs, schemas): allow nullable administrator IDs",Yes
+a07808c51a01cbffd249b754e244173bd07be0cf,,yasser.cherfaoui@gmail.com,2025-05-11 14:08:54 +0100,Merge pull request #71 from YasserCherfaoui/dev,No
+98533f5941b2204f63eeda2ee1232dfce0e65906,,yasser.cherfaoui@gmail.com,2025-05-11 14:06:14 +0100,feat(franchise-dashboard): add statistics page and update menu,Yes
+1726236b53139dc5ef4c43f68d322401015922e4,,yasser.cherfaoui@gmail.com,2025-05-11 11:27:55 +0100,Merge pull request #70 from YasserCherfaoui/dev,No
+b61dc25710a12862c68e44a7f74e5ff21c09650b,,yasser.cherfaoui@gmail.com,2025-05-11 11:27:09 +0100,feat(company-stats): add new columns for total sold warehouse and total sold Algiers,Yes
+3fc7df267e03d1184585eab2a49698082caa5d2b,,yasser.cherfaoui@gmail.com,2025-05-11 11:21:27 +0100,Merge pull request #69 from YasserCherfaoui/dev,No
+65d59f37d73d24052909675c4dc6d42218e2731d,,yasser.cherfaoui@gmail.com,2025-05-11 11:19:56 +0100,feat(company-stats): add sold warehouse and sold Algiers columns to company stats,Yes
+165b4adfec1828c93b67077644c06eca1b77265d,,yasser.cherfaoui@gmail.com,2025-05-07 16:31:16 +0100,Merge pull request #68 from YasserCherfaoui/dev,No
+052e711bf11c5b92202e5612c8b969d8aa63dd9c,,yasser.cherfaoui@gmail.com,2025-05-07 16:30:46 +0100,feat(franchise-inventory): enhance inventory display with cost details,Yes
+f5066d7b98576ffc7bd1f2d30163a55297177880,,yasser.cherfaoui@gmail.com,2025-05-07 14:45:48 +0100,Merge pull request #67 from YasserCherfaoui/dev,No
+b9b1289a00dcd1ff49511fe708de0f7841d744cc,,yasser.cherfaoui@gmail.com,2025-05-07 14:45:01 +0100,"fix(supplier-entry-bill-dialog, supplier-schema): allow nullable user and administrator IDs",Yes
+f2fd455671b102fa482684e6cd76c4cf91de5386,,yasser.cherfaoui@gmail.com,2025-05-07 14:35:59 +0100,Merge pull request #66 from YasserCherfaoui/dev,No
+0f23168bddb89d0c22994b55d9f90ee888f735ec,,yasser.cherfaoui@gmail.com,2025-05-07 14:35:25 +0100,feat(layout): integrate AuthAppBar into main layout,Yes
+813f4959f1af51dc1257363269f97bba96c73d8b,,yasser.cherfaoui@gmail.com,2025-05-07 13:05:46 +0100,Merge pull request #65 from YasserCherfaoui/dev,No
+fe732573b72e6049658c21c998ac627b5e423d99,,yasser.cherfaoui@gmail.com,2025-05-07 13:04:16 +0100,feat(franchise-inventory): integrate transaction logs into inventory actions,Yes
+6ec8188fc788c8972797699a4746abaad7b2e476,,yasser.cherfaoui@gmail.com,2025-05-07 12:20:27 +0100,Merge pull request #64 from YasserCherfaoui/dev,No
+338c7f2f0aaa2bec8ad6452e82d4b461829ef9b0,,yasser.cherfaoui@gmail.com,2025-05-07 12:19:58 +0100,fix(company-products): refine column filtering logic for moderator role,Yes
+d0d33dd4b25f8f62a91309648bff5e71f3b6ab74,,yasser.cherfaoui@gmail.com,2025-05-07 12:15:01 +0100,Merge pull request #63 from YasserCherfaoui/dev,No
+5ae10e53f86a11e5b3acbbecdede94920a4f7bda,,yasser.cherfaoui@gmail.com,2025-05-07 12:14:16 +0100,feat(company-franchises): update company selection logic for moderator role,Yes
+fa315127c7190470bd9f134bba930caeb8dfb9ba,,yasser.cherfaoui@gmail.com,2025-05-07 12:06:00 +0100,Merge pull request #62 from YasserCherfaoui/dev,No
+841254c5fd5cf4d0e43c725cee8165eb75cbfcd9,,yasser.cherfaoui@gmail.com,2025-05-06 16:05:30 +0100,fix(company-products): update column filtering logic for moderator role,Yes
+7de3d3cb995e6cd5937dfa0508ee8a929e8a0c9a,,yasser.cherfaoui@gmail.com,2025-05-06 16:04:41 +0100,feat(company-products): add product management features and enhance routing,Yes
+751bf7f4e4d60d762c9f177dd598735b5159e1d8,,yasser.cherfaoui@gmail.com,2025-05-06 12:27:42 +0100,Merge pull request #61 from YasserCherfaoui/dev,No
+6db1a0f7803e8e172e670373e34d046fe4815886,,yasser.cherfaoui@gmail.com,2025-05-06 12:26:59 +0100,"refactor(routes, components): clean up user data handling in private routes",Yes
+02d01004c66a7312b1db2f0524ca510d01d79b92,,yasser.cherfaoui@gmail.com,2025-05-06 10:55:55 +0100,Merge pull request #60 from YasserCherfaoui/dev,No
+b6b47a556f1ac24c3e6e6bd27a600cd0e207d470,,yasser.cherfaoui@gmail.com,2025-05-06 10:53:56 +0100,feat(date-range-picker): enhance date selection with single date toggle and reset functionality,Yes
+1a57c8a54f5db7bff655f69d9cb6ee32d1622261,,yasser.cherfaoui@gmail.com,2025-05-06 10:33:10 +0100,Merge pull request #59 from YasserCherfaoui/dev,No
+f9f1671c072ab47d4cbfa239566c10abaa84ab9c,,yasser.cherfaoui@gmail.com,2025-05-06 10:31:44 +0100,feat(company-bills): add PDF download functionality for exit bills,Yes
+65e1246abeafe6b958e7db3546659bcf3898cd5d,,yasser.cherfaoui@gmail.com,2025-05-05 15:14:02 +0100,Merge pull request #58 from YasserCherfaoui/dev,No
+71c426c571a1caf2b7713fc714ae947f3b6085d4,,yasser.cherfaoui@gmail.com,2025-05-05 15:13:11 +0100,feat(franchise): enhance franchise routing and conditional rendering,Yes
+42bc0cb3429321026c4884af407d9e04b440320a,,yasser.cherfaoui@gmail.com,2025-05-05 14:33:16 +0100,Merge pull request #57 from YasserCherfaoui/dev,No
+bf68ffd0c332306a095f33ba81c90941cac19a6e,,yasser.cherfaoui@gmail.com,2025-05-05 14:32:51 +0100,"feat(routes, components): enhance franchise management and pagination",Yes
+a8f719550e2ff9c24f44c1aa9c1669ae580c8704,,yasser.cherfaoui@gmail.com,2025-05-05 12:59:28 +0100,feat(routes): expand sales routes and add new components for company management,Yes
+ed012e5a8ee698a6abe033d4a447f765c05daa60,,yasser.cherfaoui@gmail.com,2025-05-05 10:38:26 +0100,feat(moderator): add user algiers sales page and update sales routes,Yes
+deaf3e3dfc3d32334ec59d7ed2195ad9f2fd39a9,,yasser.cherfaoui@gmail.com,2025-05-04 15:56:50 +0100,Merge pull request #56 from YasserCherfaoui/dev,No
+65949d0a9e59131ef8541d5d6c5b230b4b53c80f,,yasser.cherfaoui@gmail.com,2025-05-04 15:53:57 +0100,"feat(moderator): add user login, sales, and inventory management",Yes
+6c0b815c98504fc808097ac935a943ea738a28b8,,yasser.cherfaoui@gmail.com,2025-05-04 14:37:29 +0100,feat(iam): add identity and access management feature,Yes
+56b912ee477670dac2a861d4af2450fadfca4341,,yasser.cherfaoui@gmail.com,2025-05-04 11:45:58 +0100,Merge pull request #55 from YasserCherfaoui/dev,No
+a794e0b2b9b4002aabd9e0288a55cc829fdb1c50,,yasser.cherfaoui@gmail.com,2025-05-04 11:45:34 +0100,fix(product-service): set default limit to 10 in sales API call,Yes
+5cb102476bc118fd7afb317a6e7db4c61e56b96e,,yasser.cherfaoui@gmail.com,2025-05-04 11:40:12 +0100,Merge pull request #54 from YasserCherfaoui/dev,No
+225d64d4dccd071c7798b8faa19933a9926a0dba,,yasser.cherfaoui@gmail.com,2025-05-04 11:38:41 +0100,feat(company-stats): add pagination support for product sales data,Yes
+b485ccfb4dee1d9707e70686fb8cee7c71e750e7,,yasser.cherfaoui@gmail.com,2025-05-04 11:02:09 +0100,Merge pull request #53 from YasserCherfaoui/dev,No
+48a3370636b2dba628348fdce341df4eaf0c3fad,,yasser.cherfaoui@gmail.com,2025-05-04 10:52:27 +0100,fix(company-stats): enable query when company ID and dates are present,Yes
+a90453dd07367ae38bbba99e4248d0c46397f643,,yasser.cherfaoui@gmail.com,2025-05-04 10:41:58 +0100,Merge pull request #52 from YasserCherfaoui/dev,No
+03012f5de6334e7f563d1d9eb61027109c609217,,yasser.cherfaoui@gmail.com,2025-05-04 10:41:25 +0100,feat(company-stats): add company stats page with product sales data,Yes
+d438b8ca8afd3c116b4b22b4426fa65f610b39cf,,yasser.cherfaoui@gmail.com,2025-05-01 14:24:06 +0100,Merge pull request #51 from YasserCherfaoui/dev,No
+1e8be1001fcd34b3c1ec31078eecc765ca66c051,,yasser.cherfaoui@gmail.com,2025-05-01 14:21:59 +0100,feat(routes): Add CompanyStatsPage route and update inventory query keys,Yes
+715593235ae2d6e352d4f5d0563acdbd3f111016,,yasser.cherfaoui@gmail.com,2025-04-23 23:04:42 +0100,Merge pull request #50 from YasserCherfaoui/dev,No
+9fdf8216168b3bcfd0c66fbac9ea6ba2d8e8782b,,yasser.cherfaoui@gmail.com,2025-04-23 23:04:13 +0100,fix(franchise-sales): Correct import path for FranchiseSalesActionsDropdown,Yes
+9792478ca8d01636383931dc63f1294d36d2c353,,yasser.cherfaoui@gmail.com,2025-04-18 22:53:38 +0100,Merge pull request #49 from YasserCherfaoui/dev,No
+1e7c2b90a3746a705ab4ea4e8160ab236cac9920,,yasser.cherfaoui@gmail.com,2025-04-18 22:52:10 +0100,feat(sales): Enhance sales columns with return and exchange item details,Yes
+ec125b0972804ba382fe31e7fb6d68dbe166d01b,,yasser.cherfaoui@gmail.com,2025-04-10 14:37:24 +0100,Merge pull request #48 from YasserCherfaoui/dev,No
+b347b81aaf9880408259605ff31ed74ff07e97bc,,yasser.cherfaoui@gmail.com,2025-04-10 14:36:27 +0100,fix(main-layout): Change default theme from system to dark in ThemeProvider,Yes
+abe206ecc5870197108feeae7fdfa636ca4ff835,,yasser.cherfaoui@gmail.com,2025-04-10 14:03:38 +0100,Merge pull request #47 from YasserCherfaoui/dev,No
+872fa8f0addcb003aa9cd5929009a0a4c0fac500,,yasser.cherfaoui@gmail.com,2025-04-10 14:01:14 +0100,feat(franchise-sales): Add default sale type for franchise sales,Yes
+33297fce1d30325639e33c0f1e09c55066c0780a,,yasser.cherfaoui@gmail.com,2025-04-09 17:44:17 +0100,Merge pull request #46 from YasserCherfaoui/dev,No
+495055f006ac55e1fb77e604c47e85143eccb677,,yasser.cherfaoui@gmail.com,2025-04-09 17:42:20 +0100,fix(main-layout): Change default theme from dark to system in ThemeProvider,Yes
+44dbecca2e896d48a1f4aa750b9503da4f63cf7a,,yasser.cherfaoui@gmail.com,2025-04-09 17:32:03 +0100,Merge pull request #45 from YasserCherfaoui/dev,No
+908ab86ba57c0aaf43116c4a3f2d3a2ac39ca82e,,yasser.cherfaoui@gmail.com,2025-04-09 17:30:46 +0100,feat(company-sales): Enhance sales routing and add Algiers sales functionality,Yes
+0deae24611f760fac30e8756e02ba633c7be9777,,yasser.cherfaoui@gmail.com,2025-04-08 14:56:24 +0100,Merge pull request #44 from YasserCherfaoui/dev,No
+5b8b91a95a3807bac16c3870f5033e44d5ddc9b6,,yasser.cherfaoui@gmail.com,2025-04-08 14:55:42 +0100,refactor(company-sales): Remove PDF download functionality from sale creation process,Yes
+54c6f9cca59c0fb3eb611124531b63339278be08,,yasser.cherfaoui@gmail.com,2025-04-08 13:06:06 +0100,Merge pull request #43 from YasserCherfaoui/dev,No
+79cffaf11eaf529f56bba6657586ec829057be32,,yasser.cherfaoui@gmail.com,2025-04-08 13:04:45 +0100,feat(sales): Add total benefit display to sales components,Yes
+cf8cc563a403851abfb1c2ce143c654cf50b75b0,,yasser.cherfaoui@gmail.com,2025-04-07 13:30:58 +0100,Merge pull request #42 from YasserCherfaoui/dev,No
+9ef9c7493e3beb319ea7a93191d0a54a1d4ee82d,,yasser.cherfaoui@gmail.com,2025-04-07 13:29:18 +0100,feat(warehouse-table): Integrate transaction logs into inventory management,Yes
+cf8a0de5c0f0b84889f6c68704c08a00ea468515,,yasser.cherfaoui@gmail.com,2025-04-02 16:37:14 +0100,Merge pull request #41 from YasserCherfaoui/dev,No
+0b9fffca4fbda41d954de3da8494a84334358f60,,yasser.cherfaoui@gmail.com,2025-04-02 16:35:58 +0100,feat(print-products): Add thermal barcode generation functionality,Yes
+2c03f84dfb37355984b6ccd8a4917555d5b62626,,yasser.cherfaoui@gmail.com,2025-03-30 07:09:12 +0100,Merge pull request #40 from YasserCherfaoui/dev,No
+a1c26abf5253c6e8bad578dfa6d44af9f2a2e354,,yasser.cherfaoui@gmail.com,2025-03-30 07:07:50 +0100,feat(sales): Add PDF download and print functionality for sales receipts,Yes
+ac75833a2546d54f737d6334afbc765d0233d495,,yasser.cherfaoui@gmail.com,2025-03-27 05:18:53 +0100,Merge pull request #39 from YasserCherfaoui/dev,No
+938671d250d86b98fb9ecea3ba5f0216494d4e63,,yasser.cherfaoui@gmail.com,2025-03-27 05:17:10 +0100,feat(franchise-bills): Update exit bill status display with badges,Yes
+81fe2484a76a32bed64736e43b634e083b4da335,,yasser.cherfaoui@gmail.com,2025-03-27 05:06:50 +0100,Merge pull request #38 from YasserCherfaoui/dev,No
+aabb2917e392c4bd25342cfe3f26596a785b71f1,,yasser.cherfaoui@gmail.com,2025-03-27 05:03:14 +0100,feat(franchise-sales): Enhance franchise sales component with additional benefits display,Yes
+dbbda813ed101587bc7e2fe0c1e6da2fc4d67f4c,,yasser.cherfaoui@gmail.com,2025-03-24 19:36:32 +0100,Merge pull request #37 from YasserCherfaoui/dev,No
+256679374c1716f60cc6648b6d6e2ba979101046,,yasser.cherfaoui@gmail.com,2025-03-24 19:35:55 +0100,refactor(warehouse-table): Simplify state management and remove unused variables,Yes
+b6072d33b9f289c3ffa0db125cc96c67f92080a2,,yasser.cherfaoui@gmail.com,2025-03-24 19:34:20 +0100,Merge pull request #36 from YasserCherfaoui/dev,No
+2265333a62bd34b3d5017d9eaccc0e29f6841de6,,yasser.cherfaoui@gmail.com,2025-03-24 19:32:48 +0100,feat(inventory): Enhance inventory management with update functionality and improved data fetching,Yes
+16a9cce4f975e7403efc7e69de47e68575702e7d,,yasser.cherfaoui@gmail.com,2025-03-24 00:18:33 +0100,Merge pull request #35 from YasserCherfaoui/dev,No
+cc8dd55e8056b1a70dcf66829c5358a5edc35859,,yasser.cherfaoui@gmail.com,2025-03-24 00:13:15 +0100,feat(franchise-sales): Update franchise sales components for improved functionality,Yes
+064e9048932270885f97967166ebf42b34a2e582,,yasser.cherfaoui@gmail.com,2025-03-24 00:03:24 +0100,Merge pull request #34 from YasserCherfaoui/dev,No
+fcfae7dbe2dd875d2a8b54a237949b1e20f88f60,,yasser.cherfaoui@gmail.com,2025-03-24 00:02:03 +0100,feat(franchise-sales): Update franchise sales component and add removal functionality,Yes
+07cb8fb8b29880c052cba3dd010da1eade1e94b6,,yasser.cherfaoui@gmail.com,2025-03-23 04:56:34 +0100,Merge pull request #33 from YasserCherfaoui/dev,No
+85c6016d4d5c0ef7c171f9c36a3780917bec7a40,,yasser.cherfaoui@gmail.com,2025-03-23 04:54:48 +0100,feat(sales): Add total sales calculations for company and franchise with date range selection,Yes
+e6bf500f35d75a0fd1938cfa3f493c7689550b34,,yasser.cherfaoui@gmail.com,2025-03-23 03:02:57 +0100,Merge pull request #32 from YasserCherfaoui/dev,No
+d1b5fc1fbb63547cf073955b1225dd4b65456e33,,yasser.cherfaoui@gmail.com,2025-03-23 03:02:14 +0100,fix(company-unknown-returns): Remove unused variable in barcode scanning logic,Yes
+ab5c94f27d821a3f95ac6b0fc1be60e15db598db,,yasser.cherfaoui@gmail.com,2025-03-23 02:55:01 +0100,Merge pull request #31 from YasserCherfaoui/dev,No
+bbd64b0e4e8f4200af7d20bf7d62f530a93471d3,,yasser.cherfaoui@gmail.com,2025-03-23 02:53:27 +0100,feat(company-sales): Add accordion for displaying sale items in company sales table,Yes
+938babf476d031771d63e7642b66fc25c36b18b5,,yasser.cherfaoui@gmail.com,2025-03-23 02:45:44 +0100,feat(company-unknown-returns): Enhance barcode scanning functionality in return dialog,Yes
+98b94b29d01b45d78503410f4b3e98eacfae0b45,,yasser.cherfaoui@gmail.com,2025-03-22 04:38:09 +0100,Merge pull request #30 from YasserCherfaoui/dev,No
+1d6b4333be304fb5758c5a1bac844755b0829011,,yasser.cherfaoui@gmail.com,2025-03-22 04:25:47 +0100,feat(sale-schema): Validate quantity in sale item schema,Yes
+1ac2283a2e3c22825ef0e53a9349af89fa3b21f7,,yasser.cherfaoui@gmail.com,2025-03-22 04:18:51 +0100,Merge pull request #29 from YasserCherfaoui/dev,No
+25e88d10059d65011c409dbe33cd08af4a226e65,,yasser.cherfaoui@gmail.com,2025-03-22 04:18:32 +0100,feat(franchise-sales): Refactor franchise sales API integration,Yes
+df7639f7e60a778c56ef27b97615d5373be1db9d,,yasser.cherfaoui@gmail.com,2025-03-21 08:29:21 +0100,Merge pull request #28 from YasserCherfaoui/dev,No
+7f3f0bdfba04ae54004bd1699044bd4e4d71693c,,yasser.cherfaoui@gmail.com,2025-03-21 08:10:51 +0100,feat(franchise-bills): Enhance franchise bills management and add product routing,Yes
+177f0ac741e181b61348b2c27e8a5aba2ee68449,,yasser.cherfaoui@gmail.com,2025-03-20 06:58:32 +0100,Merge pull request #27 from YasserCherfaoui/dev,No
+4b65aa37f01ddcfe8761ee0aa9679508090bfa9a,,yasser.cherfaoui@gmail.com,2025-03-20 06:57:53 +0100,feat(supplier-bill-dialog): Implement scrollable table for supplier bill items,Yes
+0de6de365179440163e800ffeba9fa0323e880f8,,yasser.cherfaoui@gmail.com,2025-03-20 06:51:13 +0100,Merge pull request #26 from YasserCherfaoui/dev,No
+d1170b28dfef32fd71b3395c3ad6d03df5720f01,,yasser.cherfaoui@gmail.com,2025-03-20 06:48:54 +0100,feat(unknown-returns): Add functionality for managing unknown returns,Yes
+81f43fab938b8608a7b969e2d192b3ef93dc9a8a,,yasser.cherfaoui@gmail.com,2025-03-18 01:15:24 +0100,Merge pull request #25 from YasserCherfaoui/dev,No
+a9a98f606ed3e3cd6667730143fea8ff6ed3e4b2,,yasser.cherfaoui@gmail.com,2025-03-18 01:14:36 +0100,feat(franchise-sales): Enhance franchise sales components and API integration,Yes
+cfc15831bdafce4c571770babf2e83475859797c,,yasser.cherfaoui@gmail.com,2025-03-17 04:58:07 +0100,Merge pull request #24 from YasserCherfaoui/dev,No
+704e74f6b23b8a3bb079c42ea8c1f9e7f3d2ac6d,,yasser.cherfaoui@gmail.com,2025-03-17 04:57:35 +0100,feat: Implement scrollable areas in bill dialogs for better usability,Yes
+61c3d8e6d30360e835a753efa0687e621c5f3301,,yasser.cherfaoui@gmail.com,2025-03-17 02:20:44 +0100,Merge pull request #23 from YasserCherfaoui/dev,No
+bcb016867eb8aead00ff7fad5b5fcb98d37e603c,,yasser.cherfaoui@gmail.com,2025-03-17 02:19:16 +0100,feat: Add loading state to mutation buttons across various dialogs,Yes
+704d9c38f085693541cedc4cb636c20fac6ef2aa,,yasser.cherfaoui@gmail.com,2025-03-16 06:32:25 +0100,Merge pull request #22 from YasserCherfaoui/dev,No
+823ea87b30d83b3a37d1075d79eebd054ee003eb,,yasser.cherfaoui@gmail.com,2025-03-16 06:30:58 +0100,feat(franchise): Enhance franchise routing and add new functionalities,Yes
+7f19ef2eb7ff130f572ad8979bb13c85648f2525,,yasser.cherfaoui@gmail.com,2025-03-15 00:11:45 +0100,Merge pull request #21 from YasserCherfaoui/dev,No
+b635c1158979fc7bfa1aea7ad001db520637d97a,,yasser.cherfaoui@gmail.com,2025-03-15 00:11:01 +0100,feat(company-bills): Integrate remove bill functionality,Yes
+38da986689885c1bc8df3a3950be58aab100a1c1,,yasser.cherfaoui@gmail.com,2025-03-14 23:43:56 +0100,Merge pull request #20 from YasserCherfaoui/dev,No
+40837875205ff6f1b65d391144841fbb133b9b48,,yasser.cherfaoui@gmail.com,2025-03-14 23:43:11 +0100,feat(supplier): Add supplier payment functionality,Yes
+3b63980d94b8f20c5e533f6395b8cdef3169f57c,,yasser.cherfaoui@gmail.com,2025-03-13 08:01:35 +0100,Merge pull request #19 from YasserCherfaoui/dev,No
+44e30749d1a41dc9bc40569a37a47794a6f59093,,yasser.cherfaoui@gmail.com,2025-03-13 08:00:55 +0100,Return Costs field added,Yes
+61e0b7a9a071b179a1de6c53f019234ffe75379b,,yasser.cherfaoui@gmail.com,2025-03-13 07:52:11 +0100,Merge pull request #18 from YasserCherfaoui/dev,No
+b9c147b63bab0c07c3b6dc853f1143501bd847f8,,yasser.cherfaoui@gmail.com,2025-03-13 07:51:10 +0100,feat(sales): implement sales return functionality,Yes
+593fa6c109a0abc12f49151e288ce21817d170a5,,yasser.cherfaoui@gmail.com,2025-03-12 18:44:20 +0100,Merge pull request #17 from YasserCherfaoui/dev,No
+e322f162e547e9f34c1067f74b58519c6cea911e,,yasser.cherfaoui@gmail.com,2025-03-12 18:43:54 +0100,remove unused variables,Yes
+d1090d12dae9cabe6960ea31255eb1afbead7af2,,yasser.cherfaoui@gmail.com,2025-03-12 18:41:56 +0100,Merge pull request #16 from YasserCherfaoui/dev,No
+dacc22e2b44582ad3080bcbbb47f6bace0f042a5,,yasser.cherfaoui@gmail.com,2025-03-12 18:41:05 +0100,feat: Enhance sales and products management,Yes
+b1c22dd0c1d3de6746f79d52c832285659a24e8a,,yasser.cherfaoui@gmail.com,2025-03-12 05:55:19 +0100,Merge pull request #15 from YasserCherfaoui/dev,No
+6466981f55ddb97efb3bd7c22fcfe32019d13575,,yasser.cherfaoui@gmail.com,2025-03-12 05:54:54 +0100,SALES: Sales Table added.,Yes
+a7e6973100a50ea5a41377ff88f3a70f5d7dbea2,,yasser.cherfaoui@gmail.com,2025-03-12 03:43:16 +0100,Merge pull request #14 from YasserCherfaoui/dev,No
+8819875f5f3a5d15860545457e9f54bb0ee9952b,,yasser.cherfaoui@gmail.com,2025-03-12 03:42:40 +0100,IMPROVEMENTS,Yes
+a48539766e05ec16ddbdc3307bbb6cac930cdebc,,yasser.cherfaoui@gmail.com,2025-03-12 03:35:49 +0100,Merge pull request #13 from YasserCherfaoui/dev,No
+a23a29e39c18be4249c6d3fd7bbb39571d05652e,,yasser.cherfaoui@gmail.com,2025-03-12 03:34:49 +0100,feat(suppliers): Add detailed supplier view and enhance supplier management,Yes
+fe35fc344dd9f696022689809c00bd268bba8793,,yasser.cherfaoui@gmail.com,2025-03-12 01:18:02 +0100,Merge pull request #12 from YasserCherfaoui/dev,No
+496abde7b865465ce2c31a8e3d7027b8a2ba481c,,yasser.cherfaoui@gmail.com,2025-03-12 01:14:46 +0100,feat: Refactor add-product-form to use react-query and remove redux dependency,Yes
+41843701184a5521cabbed20bb3430d307175db9,,yasser.cherfaoui@gmail.com,2025-03-10 05:39:54 +0100,Merge pull request #11 from YasserCherfaoui/dev,No
+c462ac2416684c29e6f3c04ca82fedac1e0e7edb,,yasser.cherfaoui@gmail.com,2025-03-10 05:34:54 +0100,README ADDED.,Yes
+8f88c12e41f1eca0638f1332f3a783ca2d39f346,,yasser.cherfaoui@gmail.com,2025-03-10 05:26:54 +0100,Merge pull request #10 from YasserCherfaoui/dev,No
+b681db2a0238c3f081b7aebea179352f0b6c3270,,yasser.cherfaoui@gmail.com,2025-03-10 05:23:22 +0100,feat: Add supplier bill creation and product update features,Yes
+9cf24de1db1fa2b8de97de05fd12e1f91bca1c26,,yasser.cherfaoui@gmail.com,2025-03-06 05:38:35 +0100,Merge pull request #9 from YasserCherfaoui/dev,No
+0f4ae0017871a17472f6b77f7af0e85e615b14ab,,yasser.cherfaoui@gmail.com,2025-03-06 05:37:36 +0100,modifying the baseUrl constants to submit to the standards of vite envs,Yes
+d2d11ad1b281c0031b537e1990dfb6eaf86e102f,,yasser.cherfaoui@gmail.com,2025-03-06 05:23:56 +0100,Merge pull request #8 from YasserCherfaoui/dev,No
+01fd2bce02319819de2d2940811a1fec7e483c15,,yasser.cherfaoui@gmail.com,2025-03-06 05:17:54 +0100,fix: Correct typo in sale item schema and add input validation,Yes
+ed3a88d37bf04c2df4311ab65b4252332e9aa34d,,yasser.cherfaoui@gmail.com,2025-03-06 03:40:12 +0100,Merge pull request #7 from YasserCherfaoui/dev,No
+dd39d4626b8775c5cd658457823c863ead735fc5,,yasser.cherfaoui@gmail.com,2025-03-06 03:27:06 +0100,redirecting to prod backend.,Yes
+15cbd0d583a1328ba5c6796076e5a845a07abc2c,,yasser.cherfaoui@gmail.com,2025-03-06 03:25:45 +0100,feat: Add sales page to company dashboard,Yes
+d54f20c497f1be97957dc4c3c2e947abcd3b18bb,,yasser.cherfaoui@gmail.com,2025-03-04 17:47:54 +0100,Merge pull request #6 from YasserCherfaoui/dev,No
+73e59ce8da0200faad066eb1b45713980c8e79ee,,yasser.cherfaoui@gmail.com,2025-03-04 17:42:50 +0100,feat: Add barcode generation to company products,Yes
+c460072ba8fd90c3e6fbfc28891316f22e7220e4,,yasser.cherfaoui@gmail.com,2025-03-04 08:36:52 +0100,Merge pull request #5 from YasserCherfaoui/dev,No
+65f25002d12c82f5360a2e5a486cb490f57c966f,,yasser.cherfaoui@gmail.com,2025-03-04 07:44:34 +0100,feat: Add supplier management to company dashboard,Yes
+d18b9fc7d9a900138f19814887bce6fe6d492556,,yasser.cherfaoui@gmail.com,2025-03-04 04:12:45 +0100,feat: Implement entry bill creation in  MyFranchise,Yes
+dd3391cf3fca7b9f1ca138e764406d8470bc94c3,,yasser.cherfaoui@gmail.com,2025-03-03 02:32:38 +0100,Merge pull request #4 from YasserCherfaoui/dev,No
+7149d607e9de09465dfa98e59a226530d1ddcf58,,yasser.cherfaoui@gmail.com,2025-03-03 02:31:46 +0100,Routing issue: fixing attempt #1,Yes
+cf31b7dcc666bc6f0a5d813fe79e6cc2ddb0013d,,yasser.cherfaoui@gmail.com,2025-03-03 02:22:08 +0100,Merge pull request #3 from YasserCherfaoui/dev,No
+1b86447f1a1f9af8bc1e7a987d377e832e51fbe9,,yasser.cherfaoui@gmail.com,2025-03-03 02:21:10 +0100,Fix the issues of the previous merge,Yes
+ef703ca2fc37dae4b2ee88b27ad5926958090b25,,yasser.cherfaoui@gmail.com,2025-03-03 02:18:23 +0100,Merge pull request #2 from YasserCherfaoui/dev,No
+ca968aa4ba8587804bf47cddf6d2cc77e2de6415,,yasser.cherfaoui@gmail.com,2025-03-03 02:16:44 +0100,"feat: Implement entry bill creation with missing, broken, and extra items",Yes
+67b17a812ea368fd1360e155649586f3f9c671ca,,yasser.cherfaoui@gmail.com,2025-03-02 16:10:37 +0100,Merge pull request #1 from YasserCherfaoui/dev,No
+02c0e1fe5eb71181c29db0b901b7dfc56e55aa8f,,yasser.cherfaoui@gmail.com,2025-03-02 15:25:19 +0100,feat: Franchise dashboard,Yes
+08ad363b185bb4440dd277b81de622920f7941b8,GitButler,gitbutler@gitbutler.com,2025-03-02 04:30:41 +0100,GitButler Workspace Commit,Yes
+e37850f8393dc981c3de697dcb3781a6548c26d8,,yasser.cherfaoui@gmail.com,2025-02-27 13:44:40 +0100,adding the franchise sales page.,Yes
+daf5f8c42e6866fa5aaa57fe7bb81440b52f0004,,yasser.cherfaoui@gmail.com,2025-02-27 13:44:29 +0100,using AppBarBackButton in company-bills-app-bar.,Yes
+a650ff30e7b8e17a0937ed459d8f513a4e58f967,,yasser.cherfaoui@gmail.com,2025-02-27 13:44:04 +0100,adding the company_id and company attribute in Franchise model. adding the getMyAdminFranchise in franchise-services so we can extract the franchise admin profile as we open the dashboard.,Yes
+d62ee131da9cec41e9a3f6f2d10a6ee6371b45f9,,yasser.cherfaoui@gmail.com,2025-02-27 13:43:00 +0100,Franchise Main Activity added.,Yes
+d8956f3ff4ce9d236bb390fa6db6a6f114c6ca7b,,yasser.cherfaoui@gmail.com,2025-02-27 13:42:26 +0100,public routes are now redirecting to /menu,Yes
+310f5401de16bff4fe8f8f957fdc057ed4c9c374,,yasser.cherfaoui@gmail.com,2025-02-27 13:41:55 +0100,Franchise Auth tweaked to be stored in user storage.,Yes
+5cd6d743517d78589696462341ee4f88120cc317,,yasser.cherfaoui@gmail.com,2025-02-27 13:40:34 +0100,"AppBarBackButton generic component added, eslint changes and algeria cities added.",Yes
+e832d29c1da61c096109ecb68a73f7b82c1585fe,,yasser.cherfaoui@gmail.com,2025-02-27 13:39:59 +0100,Franchise sales added.,Yes
+32a9840c6893d0bf789f8034a28a8baa7b884a2a,,yasser.cherfaoui@gmail.com,2025-02-26 15:16:03 +0100,My Franchise Auth Implemented,Yes
+797843a556756b588c9b35177a9a34a9f9fc371c,,yasser.cherfaoui@gmail.com,2025-02-26 10:26:53 +0100,"Company Products location fixed in the app bar, issue fixed in the add product form, query is implemented in the products page.",Yes
+26e92eeb358746dc4522e184145b231aa8c83d7a,,yasser.cherfaoui@gmail.com,2025-02-26 10:21:34 +0100,React Query Added.,Yes
+46dcd35fe192c1bffefc822fd1bde0ae794989b8,,yasser.cherfaoui@gmail.com,2025-02-26 10:03:58 +0100,Company Control Page: Bills widget is added.,Yes
+c95e3ba7735ea4940c4614efeaf6693873e74f1e,,yasser.cherfaoui@gmail.com,2025-02-26 10:01:00 +0100,"Company's Franchises Feature implemented, user now can create franchises with their according admin.",Yes
+54796c45a5c11306ef773953c636fae7ab192163,,yasser.cherfaoui@gmail.com,2025-02-26 09:56:28 +0100,Barcodes added to the Warehouse Datatable and navigation is fixed in the app-bar.,Yes
+4ec0fe9076e588b3e595eecb805a96252b310f21,,yasser.cherfaoui@gmail.com,2025-02-26 09:52:04 +0100,"UI: Combobox, Command & Popover added. DataTable updated.",Yes
+5bd10d4d015e63b1e652c3a4184339825c02499c,,yasser.cherfaoui@gmail.com,2025-02-26 09:49:13 +0100,Exit Bills on Franchise is Implemented.,Yes
+39386645e3d16d4590b03a520505294ef5fd3957,,yasser.cherfaoui@gmail.com,2025-02-21 17:36:26 +0100,"when authenticated, user should be directed to /menu.",Yes
+a472c5ccd78d7c2b2ee18b4401a5b788de08f0de,,yasser.cherfaoui@gmail.com,2025-02-16 16:59:50 +0100,fixing issues #2,Yes
+7952682b5f030307b7758ae9a33b0f4e63898905,,yasser.cherfaoui@gmail.com,2025-02-16 16:57:46 +0100,Fixing the issues #1,Yes
+1da3fa2af68d98f3c835a63ddc7997212bb6fec6,,yasser.cherfaoui@gmail.com,2025-02-16 16:02:34 +0100,deploying without linting or testing,Yes
+98fb2a96edf9aafc8daaeafcd32821f12560b6cf,,yasser.cherfaoui@gmail.com,2025-02-16 16:00:01 +0100,Version conflict: adjusting the versions and the deploy.yml.,Yes
+2d98da6d08c4b61ba588802458c3299288f9de5a,,yasser.cherfaoui@gmail.com,2025-02-16 15:55:47 +0100,new CI/CD,No
+c4a09468e63564796a32e2c56bdb92a719122012,,yasser.cherfaoui@gmail.com,2025-02-16 15:52:03 +0100,CI/CD: setup,Yes
+871a08b38940ed3548816e1aa64b780b09cf6bc0,,yasser.cherfaoui@gmail.com,2025-02-16 15:47:42 +0100,INITIALIZE,No

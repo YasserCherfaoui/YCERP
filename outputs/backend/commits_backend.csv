@@ -1,0 +1,600 @@
+hash,author,email,date,message,Meaningful
+3646a35690b25ddde3f3c796c21a10c5dfecd5b4,,yasser.cherfaoui@gmail.com,2026-09-22 22:26:28 +0100,feat(products): enhance barcode and QR code generation with product pricing,Yes
+81542bd87ee39fee5e82b95edddcf7a8b45f86bf,,yasser.cherfaoui@gmail.com,2026-09-21 00:03:06 +0100,chore(deps): update Go version and add new dependencies for PDF handling,Yes
+24b32efba3729289f10407aec6f664e1aa5d40a9,,yasser.cherfaoui@gmail.com,2026-09-20 11:50:21 +0100,refactor(woocommerce): implement asynchronous parcel label enqueueing,Yes
+75529a636fbcc79cb5bc1afb70803d3b290ba48e,,yasser.cherfaoui@gmail.com,2026-09-20 11:36:56 +0100,feat(woocommerce): integrate Yalidine parcel label management,Yes
+27d38c0d988b9139a579df802839715629c73511,,yasser.cherfaoui@gmail.com,2026-09-14 09:20:13 +0100,chore(config): update excluded directories in .air.toml,Yes
+fac4a3dd1ca95bc87d81f07d4ed869bf741bc671,,yasser.cherfaoui@gmail.com,2026-09-14 09:06:57 +0100,feat(woocommerce): implement parcel packing check functionality,Yes
+ac9dd20240834e4446b656138b5f16d8a7f61d41,,yasser.cherfaoui@gmail.com,2026-09-11 16:37:20 +0100,feat(adsintel): enhance ads intelligence module with competitor tracking and credential management,Yes
+428c137e05ee97dd69831ef4f00ebc8c61d37e0a,,yasser.cherfaoui@gmail.com,2026-09-01 01:40:50 +0100,feat(adsintel): integrate TikTok ad sync functionality into ads intelligence module,Yes
+e5027dc3b12b1ba530e9343949a68bb76321dc6e,,yasser.cherfaoui@gmail.com,2026-09-01 01:30:40 +0100,feat(adsintel): implement chat functionality with WebSocket and REST API,Yes
+053b011ed4af003e4985e66f5b297308dd7b3336,,yasser.cherfaoui@gmail.com,2026-09-01 01:08:39 +0100,feat(adsintel): add economics and returns services with HTTP handlers,Yes
+4060712f593efa6253dde690725987edd0bd88d2,,yasser.cherfaoui@gmail.com,2026-09-01 00:53:57 +0100,feat(adsintel): enhance ads intelligence module with Meta sync capabilities,Yes
+16d369e9251beb77810fb003e7a7d8b098f0feea,,yasser.cherfaoui@gmail.com,2026-09-01 00:45:29 +0100,feat(adsintel): implement ads intelligence module with database migrations and UTM parsing,Yes
+2e2226ae91988dd6d704aadbf7b2db8eb5879158,,yasser.cherfaoui@gmail.com,2026-09-01 00:12:12 +0100,feat(franchisechat): add InboxHub and notify unread messages functionality,Yes
+bd1ef701db843ac3cf440a1924f8c4c705745489,,yasser.cherfaoui@gmail.com,2026-08-22 23:02:56 +0100,refactor(franchises): optimize franchise sales totals calculations and date filtering,Yes
+a956135e0db586c9a11309fb9bf0df662c3475d4,,yasser.cherfaoui@gmail.com,2026-08-22 22:04:17 +0100,feat(franchises): add sales returns and exchanges endpoints with date filtering,Yes
+1463f79ce5c27c5b5b4c8d5e339e225e84486a13,,yasser.cherfaoui@gmail.com,2026-08-18 23:24:54 +0100,feat(franchise_pickup): implement franchise pickup request handling,Yes
+0a9996efb52968b4fa81407f7c185228723a45d5,,yasser.cherfaoui@gmail.com,2026-08-16 13:26:07 +0100,feat(bills): add tests and enhance GetCompanyExitBills handler,Yes
+f2f7a81278e6180b9e50744101c453f8c173ce00,,yasser.cherfaoui@gmail.com,2026-08-14 00:48:12 +0100,refactor(franchises): streamline inventory restoration logic for not_available orders,Yes
+b443df4cc07072db30cf4fc1c188fa64e95a3bb4,,yasser.cherfaoui@gmail.com,2026-08-13 22:59:55 +0100,"feat(franchises): add sales, returns, exchanges, and refunds KPIs to franchise sales totals",Yes
+d64f420d0b2bbc102d52b8e39bd5d16a4686d30c,,yasser.cherfaoui@gmail.com,2026-08-10 12:28:30 +0100,fix(list-orders): refine order sorting to include ID for consistent results,Yes
+f9f40b9d3b4dcc5ac2d35e240f941bb6380f3482,,yasser.cherfaoui@gmail.com,2026-08-06 11:24:10 +0100,feat(missing-variants): refactor request response handling and add inventory stock loading,Yes
+cd4aecdcfd24e0b80aab888de7140134a4a3574b,,yasser.cherfaoui@gmail.com,2026-08-03 01:15:29 +0100,feat(bills): improve idempotency key generation in CreateExitBillFromMissingVariants,Yes
+54fa0098d94145db806b1ff2224bd5b2a580a185,,yasser.cherfaoui@gmail.com,2026-08-03 01:15:23 +0100,feat(bills): enhance idempotency key generation in UpdateExitBill handler,Yes
+33d6897ff480f1775ddfa96c64fb4294035ed058,,yasser.cherfaoui@gmail.com,2026-08-03 00:29:12 +0100,feat(inventories): implement inventory reference retrieval and transaction log enhancements,Yes
+475577c054a28cbc4ff10e857674a88fd6332012,,yasser.cherfaoui@gmail.com,2026-08-01 16:59:29 +0100,feat(woocommerce): add line items summary endpoint,Yes
+f5dc43a9ec76d406c3448af93b599e9612b4dd42,,yasser.cherfaoui@gmail.com,2026-07-31 20:37:31 +0100,feat(delivery): add endpoint for employee payments by employee,Yes
+2a233c887c5ad24ba7b74404e5d2bbbfe84415c8,,yasser.cherfaoui@gmail.com,2026-07-31 20:35:58 +0100,feat(delivery): implement employee payment handling and database schema,Yes
+07e3c2030738a90bb325b41df0c3b052cf4d3ea6,,yasser.cherfaoui@gmail.com,2026-07-31 19:12:32 +0100,feat(woocommerce): enhance inventory export logic and error handling,Yes
+1f6468c22111c798285797ed2c020a5463cbedc8,,yasser.cherfaoui@gmail.com,2026-07-31 18:11:46 +0100,feat(franchises): enhance inventory restoration reporting for not available orders,Yes
+8b555b96860ace9b14dc5bd960c288aba74e3ddf,,yasser.cherfaoui@gmail.com,2026-07-31 02:43:33 +0100,feat(franchises): implement inventory restoration for not available orders,Yes
+041d6edf73eea32563f85b00ccdbc9a0136ef570,,yasser.cherfaoui@gmail.com,2026-07-31 02:16:08 +0100,feat(franchise-orders): implement WebSocket support for pending order alerts,Yes
+d7f79175c74c41bcc5d118733d292f4b0087c4f9,,yasser.cherfaoui@gmail.com,2026-07-31 01:35:17 +0100,feat(broken-items): enhance broken item handling with cumulative quantity tracking,Yes
+4d6c95f52e9b03e53998b68366a13284f0e31bda,,yasser.cherfaoui@gmail.com,2026-07-31 00:49:22 +0100,feat(exit-bills): enhance exit bill handling with status management and preparation logic,Yes
+4e429fdd855e4118702c11d4b9a2dc07609a5193,,yasser.cherfaoui@gmail.com,2026-07-28 01:09:08 +0100,feat(products): enhance product sales and supplier bill handling with sorting and search functionality,Yes
+a20902f4b560a0066724ff2dc631a697b78b86a3,,yasser.cherfaoui@gmail.com,2026-07-28 01:03:31 +0100,feat(expenses): integrate Yalidine service for return parcel tracking,Yes
+f34a8257be74b38be4d3d1ada782ab0e76a524ed,,yasser.cherfaoui@gmail.com,2026-07-28 00:24:26 +0100,refactor(reports): streamline GetDeliveredProductsSold logic and enhance query efficiency,Yes
+82b7cb5bd570338dba5c4fc0e120a768464bb9ac,,yasser.cherfaoui@gmail.com,2026-07-27 23:24:55 +0100,feat(reports): add GetDeliveredProductsSold endpoint for analytics,Yes
+f5e2932b5bc0d4aae952beedc0ca833e810e201b,,yasser.cherfaoui@gmail.com,2026-07-26 16:50:40 +0100,feat(woocommerce): add delivery fee correction endpoints and logic,Yes
+05b390805dfea16501b333719ec176337d73f830,,yasser.cherfaoui@gmail.com,2026-07-26 15:56:08 +0100,feat(inventories): implement ClearBrokenCount endpoint and service logic,Yes
+250a28ca4d78a1c1a6d50ea7fab880fe0e5f58a4,,yasser.cherfaoui@gmail.com,2026-07-26 15:52:09 +0100,feat(woocommerce): add missing Livré reconciliation endpoints,Yes
+edb45d0b82e9665d213f20bd122a607b453f2d22,,yasser.cherfaoui@gmail.com,2026-07-26 15:37:58 +0100,fix(woocommerce): enhance order status update logic to backfill missing Yalidine history,Yes
+0191c9acdb8d6e5553ca21ddabc82414ddd6bd13,,yasser.cherfaoui@gmail.com,2026-07-26 14:31:55 +0100,fix(reports): refine benefit calculations in delivery reports,Yes
+f870ef25882c8703a031dc1e9d42da5be00eecf2,,yasser.cherfaoui@gmail.com,2026-07-26 00:55:23 +0100,feat(reports): add CSV export for delivered products,Yes
+59605f5d442083196b7d8284fe4e57722c4801d5,,yasser.cherfaoui@gmail.com,2026-07-26 00:55:13 +0100,fix(reports): correct status filtering in SQL queries for delivered orders,Yes
+801094a57e961493264127bbfe8e2a9bd425d966,,yasser.cherfaoui@gmail.com,2026-07-26 00:00:15 +0100,feat(reports): add CSV export functionality for delivered orders,Yes
+0180b5dc1193647d2ebad496fcf3faf7a4f834fd,,yasser.cherfaoui@gmail.com,2026-07-25 22:56:36 +0100,feat(reports): enhance GetDeliveredAggregates to include order counts and clarify date parsing,Yes
+5cd11e5f3813388b454ceaeb63a33e7dc4ace276,,yasser.cherfaoui@gmail.com,2026-07-19 19:07:07 +0100,fix(pair_promo): update pricing logic in tests and functions to align with BOGO semantics,Yes
+15f52abe0fb9e443be56647ad8b315403d9261a2,,yasser.cherfaoui@gmail.com,2026-07-08 02:53:00 +0800,feat(broken_items): implement tests for broken items handler and enhance listing functionality,Yes
+6504609aecad4cc991395e1337992a49e0bcd527,,yasser.cherfaoui@gmail.com,2026-07-08 00:57:25 +0800,feat(broken_items): enhance ListTransfers handler with pagination and status counts,Yes
+d8fa6202290ddcad06c485a4f0d738a37ea6fc4e,,yasser.cherfaoui@gmail.com,2026-06-22 15:54:02 +0100,refactor(products): update franchise ship commission handling and add tests,Yes
+320c8622217adb910dc33fa2e56f4965eef0dff1,,yasser.cherfaoui@gmail.com,2026-06-22 15:26:12 +0100,feat(products): add tests and migration for franchise ship commission,Yes
+01a888006a11bc29731fdbaf3827eac128b0ca0a,,yasser.cherfaoui@gmail.com,2026-06-21 12:50:51 +0100,feat(woocommerce): implement inventory deduction for exported orders,Yes
+93b1f953f9b8948d2436e0c3b82d951c50a27d27,,yasser.cherfaoui@gmail.com,2026-06-21 12:22:07 +0100,feat(inventory): add reconciliation scoped key functionality and related tests,Yes
+bce3c7171035d9f24281f302d13d6b7b38d5dd7d,,yasser.cherfaoui@gmail.com,2026-06-15 14:31:04 +0100,fix(inventory): update parameter name for transaction log handler and add route,Yes
+71e7adfecf2402fdeacd3693b5e5ef4a92c83761,,yasser.cherfaoui@gmail.com,2026-06-15 14:17:49 +0100,feat(franchise_fulfillment): implement shipping label upload and retrieval functionality,Yes
+4f29767e260aadd78682935abb40ddd72e8c93e4,,yasser.cherfaoui@gmail.com,2026-06-14 15:28:43 +0100,feat(woocommerce): add tests for bulk dispatch transaction and order update behavior,Yes
+51dad1c9c6cf68d84e128beeaebbea2c065e3561,,yasser.cherfaoui@gmail.com,2026-06-14 15:05:57 +0100,fix(franchises): prevent duplicate sale items insertion during franchise sale updates,Yes
+0b4678495e52ff1967b4f0c8c7f29d3164e4cc07,,yasser.cherfaoui@gmail.com,2026-06-14 14:38:18 +0100,feat(inventory): enhance broken item handling with ledger integration,Yes
+2bcc09d2cf509dcab1785214a98114003fd75f1b,,yasser.cherfaoui@gmail.com,2026-06-14 14:31:55 +0100,feat(inventory): implement daily inventory snapshot functionality,Yes
+d37aecfd035ef0c8638de6b39eff877e5754dfd3,,yasser.cherfaoui@gmail.com,2026-06-14 14:14:34 +0100,feat(inventory): introduce inventory reconciliation CLI and enhance ledger alignment,Yes
+8282863259c290dac9e0e1b3cf54aaef2bcd20df,,yasser.cherfaoui@gmail.com,2026-06-12 14:46:01 +0100,feat(inventory): enhance inventory adjustment and reversal functionality,Yes
+abc27935d905043b0c5f3bbe7a1c426e9d52be4e,,yasser.cherfaoui@gmail.com,2026-06-12 14:27:41 +0100,feat(inventory): implement phase 1 of inventory ledger with baseline functionality,Yes
+bf4bf111accaa356aa9c1ef875ef54d1cc4ec452,,yasser.cherfaoui@gmail.com,2026-06-11 21:49:43 +0100,feat(inventory): implement phase 0 of inventory ledger with schema expansion and backfill,Yes
+7099fd92b21d79421d0e14fd54db6d9594ca62f4,,yasser.cherfaoui@gmail.com,2026-06-03 16:37:18 +0100,feat(franchise_fulfillment): add bulk update commission status handler,Yes
+d0b0adc05fe2246e390c469b3b8197bdcd4c887b,,yasser.cherfaoui@gmail.com,2026-05-31 18:15:37 +0100,feat(woocommerce): enhance parcel product list generation with franchise ID resolution,Yes
+7deb61c897c36d4e39d4a4b73afc1b1dcf676121,,yasser.cherfaoui@gmail.com,2026-05-31 15:08:37 +0100,refactor(woocommerce): streamline product list generation for exports,Yes
+6628521587bbc50170458f7c1e4df11165b561c7,,yasser.cherfaoui@gmail.com,2026-05-25 14:09:31 +0100,feat(franchise_orders): enhance franchise order handling and commission synchronization,Yes
+eaef560d985669b225e96a3b2b48ae2318a68133,,yasser.cherfaoui@gmail.com,2026-05-20 11:57:22 +0100,feat(franchises): extend franchise order status to include 'not_available',Yes
+d9a1347022bc183d574b6246f01cfa3dc786c5f4,,yasser.cherfaoui@gmail.com,2026-05-18 13:27:03 +0100,feat(franchise_woo_refund): implement franchise Woo refund handling and related models,Yes
+1f465eef5100e65159351ec9352aa218e17f3c22,,yasser.cherfaoui@gmail.com,2026-05-16 19:59:52 +0100,refactor(customers): implement customer affiliation model and enhance data handling,Yes
+081e8280407cb836819e6462e0809030ba5c4c6e,,yasser.cherfaoui@gmail.com,2026-05-16 19:43:46 +0100,feat(sales): implement update sale customer functionality and enhance phone number handling,Yes
+24abc27a2fc1a593ed22b664c554f2086d977fb9,,yasser.cherfaoui@gmail.com,2026-05-16 19:26:37 +0100,feat(franchise_fulfillment): implement franchise fulfillment handlers and routes,Yes
+3bd513f5db97bb249ba97de8929c50f2cc93c6eb,,yasser.cherfaoui@gmail.com,2026-05-16 18:23:22 +0100,refactor(bills): streamline exit bill calculations and enhance pricing logic,Yes
+24f3c0acad645d0560ed8e362b34b1743b4e228b,,yasser.cherfaoui@gmail.com,2026-05-13 23:21:27 +0100,feat(franchises): implement order status update for franchise administrators,Yes
+0305f9d471cebe3ac74c0d5b7573f3c81975b2f1,,yasser.cherfaoui@gmail.com,2026-05-13 16:57:42 +0100,feat(franchises): enhance bill retrieval with optional date range filtering,Yes
+d4b955b71a6f09bbe8d417dc795be9052a54127f,,yasser.cherfaoui@gmail.com,2026-05-13 14:03:26 +0100,feat(franchises): add ListFranchiseCommissions handler and route,Yes
+56d9a7935b863e3a1c45c60f63c39801bbb252de,,yasser.cherfaoui@gmail.com,2026-05-13 11:42:47 +0100,feat(database): update database migration logic and add new models,Yes
+6bbba228b4eb3f7f2948bdd85e4d286da0fe1a7a,,yasser.cherfaoui@gmail.com,2026-05-11 10:54:24 +0100,feat(franchisechat): enhance read receipt functionality in PostMarkRead handler,Yes
+8d6a8b4e98538d6ff30dee9fbc0c8b0b90314ffa,,yasser.cherfaoui@gmail.com,2026-05-10 11:48:57 +0100,feat(franchisechat): implement read state and unread count functionality,Yes
+352f80aafca72c5ab6b2ccf8a8cad41d55348efd,,yasser.cherfaoui@gmail.com,2026-05-10 11:37:57 +0100,feat(stock_alerts): enhance notification access control and retrieval logic,Yes
+ae71105d74cfef19e97a9b4522c6814441b96c38,,yasser.cherfaoui@gmail.com,2026-05-10 09:55:16 +0100,feat(franchisechat): implement franchise support chat functionality,Yes
+68540522599b1c370a8c90860f58d5f96c546998,,yasser.cherfaoui@gmail.com,2026-05-09 20:54:48 +0100,feat(companies): add VIP offer flags and enhance franchise sale logic,Yes
+3693de21a6cff3e785d8144ad382813b323722b5,,yasser.cherfaoui@gmail.com,2026-05-08 15:39:24 +0100,feat(woocommerce): add CreateUnconfirmedOrder handler and route,Yes
+9d5a737e57f0e9d8198b94f4f0c8c66e23f8681e,,yasser.cherfaoui@gmail.com,2026-04-04 08:01:15 +0100,feat(products): add combinable product feature and enhance franchise sale logic,Yes
+0c48c728a4434e9bd08250c2bd2d7d1251668862,,yasser.cherfaoui@gmail.com,2026-04-03 15:28:19 +0100,feat(woocommerce): implement inventory export validation and locking mechanism,Yes
+f02b9b497406eab5bbf649850926f298b98d1265,,yasser.cherfaoui@gmail.com,2026-04-03 12:20:08 +0100,feat(products): add pairable product feature and enhance franchise sale logic,Yes
+a89a6921a4b93fe16b6fc2e16e6159fc1d35f8f1,,yasser.cherfaoui@gmail.com,2026-04-03 08:56:59 +0100,refactor(woocommerce): replace Yalidine service with ParcelCreator for parcel creation,Yes
+7a8cc625560b64a8203a16c8d5770cc1aad65d64,,yasser.cherfaoui@gmail.com,2026-04-01 13:09:52 +0100,feat(inventory): enhance exit bill creation with shortfall validation and inventory checks,Yes
+80a38debca57783d0eaf7d91270cd751e2fb8269,,yasser.cherfaoui@gmail.com,2026-03-14 05:22:06 +0100,feat(variant-deposit): enhance fulfillVariantDeposit with optional JSON request,Yes
+ca420ae08b352ef18d9d6b2b46847083ea2f582d,,yasser.cherfaoui@gmail.com,2026-03-11 17:16:54 +0100,feat(ship-from-store): implement ship-from-store functionality for franchise and admin users,Yes
+512e945761a5040b175f620d8e7f18108f9515f9,,yasser.cherfaoui@gmail.com,2026-03-11 16:14:57 +0100,feat(variant-deposits): implement variant deposit management for franchises,Yes
+5a883438f0a1288f30c7a2ab2b9c63bb6ad699c1,,yasser.cherfaoui@gmail.com,2026-02-28 14:39:44 +0100,feat(orders): preload OrderMetas in order retrieval handlers,Yes
+d7ddc273f67fd1438642789c7b1641526caa8f6f,,yasser.cherfaoui@gmail.com,2026-02-17 22:45:06 +0100,refactor(sales): implement soft-delete functionality for sales and related records,Yes
+b57633be199364289ebf9ed671f615c15018d921,,yasser.cherfaoui@gmail.com,2026-02-17 22:30:11 +0100,feat(franchises): add FillReturnExchangeItemPrices handler and enhance sales totals queries,Yes
+12ac7e091fc1f9ca3003ba24da0a95e70946c434,,yasser.cherfaoui@gmail.com,2026-02-16 15:01:56 +0100,feat(audit): add inventory change handlers audit report,Yes
+3d72189dd757b9b4f4e6e8a3c522847d7d4f7eb9,,yasser.cherfaoui@gmail.com,2026-02-15 10:18:05 +0100,feat(franchises): implement total quantity calculation for BOGO pricing in franchise sales,Yes
+531ab5b7e7c455b55858178d88707580169f0ce1,,yasser.cherfaoui@gmail.com,2026-02-14 16:42:49 +0100,fix(receipts): update item total calculation to use sale item price,Yes
+d2f27593e77cc4ba6723ce143e8f471cc3ce6cd5,,yasser.cherfaoui@gmail.com,2026-02-14 16:20:20 +0100,feat(returns): enhance franchise return handling with franchise price retrieval,Yes
+54d78dccb1e8888c9d1c07c21ab231e5cffb3007,,yasser.cherfaoui@gmail.com,2026-02-14 16:06:16 +0100,feat(products): implement BOGO pricing logic and update product schema,Yes
+8befef50d4cd136e8287121626bfaf1e2498f24e,,yasser.cherfaoui@gmail.com,2026-02-14 14:17:45 +0100,feat(inventories): implement discrepancies retrieval for inventory items,Yes
+8b8a1f33437c4458af0427ea6010eda0d75d9ff3,,yasser.cherfaoui@gmail.com,2026-02-04 18:02:39 +0100,feat(franchises): add debug logging for sales totals calculation,Yes
+a0c3c6c5c47583467fbdfa8b92c836950d0c66f7,,yasser.cherfaoui@gmail.com,2026-02-04 17:58:58 +0100,fix(database): update AutoMigrate condition for database migration logic,Yes
+34a6d5a556961ef3ffeaab3edb442e0455eaeab6,,yasser.cherfaoui@gmail.com,2026-01-31 03:14:38 +0100,"feat: Add WhatsApp settings for message type and recipient phone numbers, and update supplier bill notifications to utilize these new configurations.",Yes
+56fd0f12951b9106226a37c795ec89f3be8e0e81,,yasser.cherfaoui@gmail.com,2026-01-31 02:09:46 +0100,"feat: Introduce delivery contact status for WooCommerce orders, including API endpoint for updates and filtering in daily deliveries.",Yes
+c7e480726acbb2197f642a08f9a9d7eaebce5b62,,yasser.cherfaoui@gmail.com,2026-01-28 02:01:56 +0100,feat(whatsapp): integrate WhatsApp Business API for notifications,Yes
+0e9cabdc5e07ee8cb994c8815e3948877a682910,,yasser.cherfaoui@gmail.com,2026-01-16 21:31:11 +0100,feat(deliveries): enhance daily deliveries retrieval with shipping provider and wilaya filters,Yes
+77c2b807ec6e672fcc19745dd13c05f54dd99fac,,yasser.cherfaoui@gmail.com,2026-01-16 20:57:44 +0100,feat(reviews): add satisfaction status to review model and creation handler,Yes
+fdf4c666490eba7ccbedf9825f11e59e23f4f1d2,,yasser.cherfaoui@gmail.com,2026-01-16 00:07:55 +0100,feat(broken_items): implement transfer request functionality for broken items,Yes
+fe5ce6da942eea66b33d31c4919f9844fcbebba5,,yasser.cherfaoui@gmail.com,2026-01-15 21:36:42 +0100,fix(database): correct AutoMigrate condition for database migration,Yes
+7ae43b1735e1d936cac5ae340b57d6303ac50fa3,,yasser.cherfaoui@gmail.com,2026-01-07 12:18:29 +0100,"feat(pricing): implement franchise pricing for sales, returns, and exchanges",Yes
+5d4c98cf36ccdbd798862ccfd614aeba5c13ed9f,,yasser.cherfaoui@gmail.com,2026-01-03 11:06:21 +0100,fix(inventory): correct SQL query for VIP franchise pricing calculation,Yes
+47bb6ed977a0864f2b8ae5243a288ee898ea6f1c,,yasser.cherfaoui@gmail.com,2026-01-02 02:13:11 +0100,feat(sales): add price field to SaleItem and update sale calculations,Yes
+09e5af54b110d7606831d09d044fd6e319446ee1,,yasser.cherfaoui@gmail.com,2026-01-02 01:28:17 +0100,fix(database): adjust AutoMigrate condition for Product model,Yes
+8558b415bfe5d153703c9672760b281be1b518c9,,yasser.cherfaoui@gmail.com,2026-01-02 00:50:53 +0100,feat(products): add PromoPrice field to product model and update handlers,Yes
+8102772e5ced19eaa38b93909ac0cad72498f05a,,yasser.cherfaoui@gmail.com,2026-01-02 00:16:21 +0100,feat(customers): enhance GetCustomers and GetCustomerStats for franchise sales support,Yes
+9e446fcc22619704f59a274837ff9a699ad3186d,,yasser.cherfaoui@gmail.com,2026-01-01 23:53:44 +0100,feat(customers): enhance customer handling with franchise support,Yes
+004e0900a7fcb113b525c8d86ead9ab24d5b8528,,yasser.cherfaoui@gmail.com,2026-01-01 14:53:16 +0100,fix(woocommerce): correct French authorization note in export outputs,Yes
+2f54aba2e45401b8e361908564056555c21cde17,,yasser.cherfaoui@gmail.com,2025-12-31 19:00:22 +0100,feat(woocommerce): add authorization note to export and custom export outputs,Yes
+822bf10a05ebb95abe8c07116a3fc45cd7cb0744,,yasser.cherfaoui@gmail.com,2025-12-27 21:38:45 +0100,enhance(shopify): refine UpdateWebhook to conditionally log and update order fields,Yes
+9aff64147cb54839ac29cb2d0c3e9f14ccfb51bc,,yasser.cherfaoui@gmail.com,2025-12-27 21:19:14 +0100,enhance(shopify): update UpdateWebhook to conditionally modify order fields,Yes
+390a9d456e47ccb1ea0a55bd4bde63a344b70bb6,,yasser.cherfaoui@gmail.com,2025-12-27 18:43:36 +0100,feat(shopify): implement GetOrder method in ShopifyClient for order retrieval,Yes
+2cb518d37e36ad22fb9821de5e8d2331285924c3,,yasser.cherfaoui@gmail.com,2025-12-27 18:28:18 +0100,refactor(shopify): update UpdateWebhook to use WooOrder model,Yes
+34fc9e035ad8ebced34eab7aaca38527ecfc1477,,yasser.cherfaoui@gmail.com,2025-12-27 18:11:39 +0100,feat(shopify): add support for order_edit webhook in UpdateWebhook,Yes
+5c8ca8a3cd2c3ee05015b81416541137a569e7e4,,yasser.cherfaoui@gmail.com,2025-12-27 18:00:38 +0100,feat(shopify): add orders_updated.json for Shopify order updates,Yes
+a72e4e4acda0bede43d7d0645f94e7b7781d812d,,yasser.cherfaoui@gmail.com,2025-12-27 17:18:43 +0100,enhance(shopify): improve logging in UpdateWebhook for order updates,Yes
+8667349df172b42f39516819ea63e6ec5230e5f4,,yasser.cherfaoui@gmail.com,2025-12-27 16:59:24 +0100,refactor(shopify): update webhook route for order updates,Yes
+7699e73088762b164ce9e3b5ecde67dd22243886,,yasser.cherfaoui@gmail.com,2025-12-27 16:56:52 +0100,feat(shopify): add webhook update handler for Shopify orders,Yes
+09596d09a530043a4c7439f527f184bd37dea549,,yasser.cherfaoui@gmail.com,2025-12-27 16:30:48 +0100,fix(database): correct database migration logic and enhance order model,Yes
+37b0a542b36e4f47d5a84744a64f3dff9fa62b28,,yasser.cherfaoui@gmail.com,2025-12-25 18:45:40 +0100,refactor(customers): normalize phone number handling in SQL queries,Yes
+acf1a27a6c37cbcc75cb7f119a35b939c7454fd2,,yasser.cherfaoui@gmail.com,2025-12-25 18:19:40 +0100,feat(customers): enhance daily deliveries handler with pagination and detailed order information,Yes
+6d4fe1f1e7687a2efca5a7b5c76500fc50a842a4,,yasser.cherfaoui@gmail.com,2025-12-25 18:19:03 +0100,feat(customers): implement customer synchronization on order status changes,Yes
+11e539176533aadf3afa3dbe9de03238577d616b,,yasser.cherfaoui@gmail.com,2025-12-25 15:30:32 +0100,feat(customers): implement company-based filtering for customer operations,Yes
+3f108e2f13dfcf540d67cadd3f4a9bc1711ed2ae,,yasser.cherfaoui@gmail.com,2025-12-24 12:05:28 +0100,feat(woocommerce): implement sync dispatching orders handler,Yes
+b9161813bff185535c72f352d937944eaeaa17d5,,yasser.cherfaoui@gmail.com,2025-12-24 10:58:28 +0100,feat(customers): optimize customer retrieval and delivery rate calculations,Yes
+762d1e606cbd6bb0dcf370d5bc7377e50f81f9dd,,yasser.cherfaoui@gmail.com,2025-12-24 10:48:07 +0100,feat(woocommerce): enhance order export process with inventory validation,Yes
+9d294dd79318e4599a666a74988c106686a4baf4,,yasser.cherfaoui@gmail.com,2025-12-23 13:25:08 +0100,fix(orders): standardize customer phone field naming in SQL queries,Yes
+c57b65dee0c3988fb9c42e3d55a7f6bd66704600,,yasser.cherfaoui@gmail.com,2025-12-23 13:15:01 +0100,feat(customers): enhance delivery rate filtering in GetCustomers handler,Yes
+b82eaa1cc4500bb939796a37f698c86c268e3e70,,yasser.cherfaoui@gmail.com,2025-12-23 12:42:07 +0100,feat(customers): add customer synchronization feature and enhance customer model,Yes
+31721c5f9147f7cf459d499ec6c3879a0090b04f,,yasser.cherfaoui@gmail.com,2025-12-23 10:14:39 +0100,feat(customers): implement customer and review management features,Yes
+cd218cf4b31156347b17c87e7aae18c59ce6df3f,,yasser.cherfaoui@gmail.com,2025-12-22 00:36:33 +0100,refactor(inventory): integrate inventory service into handlers and repositories,Yes
+dd79019c7aa9e476009d689cbe80c58996d17f64,,yasser.cherfaoui@gmail.com,2025-12-03 03:14:53 +0100,fix(returns): correct inventory update logic in UpdateReturn handler,Yes
+1a003cbd8b513751f0972a3c120604a4d330f3e3,,yasser.cherfaoui@gmail.com,2025-12-02 20:40:10 +0100,chore(docker): add DNS configuration to docker-compose.yml,Yes
+b9b54a259e615948ad821893d48a57b514a6ba2c,,yasser.cherfaoui@gmail.com,2025-12-02 19:02:59 +0100,Merge branch 'dev' of github.com:YasserCherfaoui/MyERP into dev,No
+1bb18f1432c75f44cc5690555cf2e1a0a3b593cf,,yasser.cherfaoui@gmail.com,2025-12-02 19:02:56 +0100,chore(apprunner): update configuration to use Docker runtime,Yes
+5697865a871d85105c3c8317fad35036239b6858,Ubuntu,ubuntu@ip-172-31-46-172.eu-west-3.compute.internal,2025-12-01 15:49:24 +0000,fix merge conflicts,No
+5edcf4b36d7db61fb995c18934ac16c1bd11b6f9,Ubuntu,ubuntu@ip-172-31-46-172.eu-west-3.compute.internal,2025-12-01 15:45:27 +0000,update docker compose,Yes
+6b9039731120848f8120e2ba31950ff6d62b121f,,yasser.cherfaoui@gmail.com,2025-12-01 16:02:36 +0100,feat(yalidine): refactor webhook event handling to support multiple events,Yes
+95eeb993da8f90f72e89061634f936db629609ee,,yasser.cherfaoui@gmail.com,2025-12-01 15:55:33 +0100,feat(yalidine): enhance webhook logging and error handling,Yes
+2e6215cc5418efa553d5f26e79a28c84f830227d,,yasser.cherfaoui@gmail.com,2025-12-01 15:41:00 +0100,feat(yalidine): implement webhook handling and configuration,Yes
+5d9a4288d69381fe6e43415065404c832f4b3a74,,yasser.cherfaoui@gmail.com,2025-12-01 14:01:40 +0100,feat(deployment): add AWS App Runner deployment guide and configuration files,Yes
+5e47274868e34f9ffc5218fe72a2ca218ada6513,,yasser.cherfaoui@gmail.com,2025-12-01 14:01:03 +0100,fix(generate_token): add missing newline at the end of the file for consistency,Yes
+59bd161cb10acf42af61bf722d7e922b182faed5,,yasser.cherfaoui@gmail.com,2025-12-01 11:12:38 +0100,feat(rate-limiter): enhance rate limiting with retry logic and exponential backoff,Yes
+795dceda8e51f05df6bcf1aaadff78fea8d08185,,yasser.cherfaoui@gmail.com,2025-11-30 23:16:04 +0100,feat(routes): add endpoint to retrieve affiliate's financial totals,Yes
+beb9cf2f93404eee935594ff8b7ab102bae4321e,,yasser.cherfaoui@gmail.com,2025-11-30 19:26:06 +0100,feat(users): add GenerateToken endpoint for user authentication,Yes
+771170a05fa3e251067b6e5fa053b8e0fa89afbd,Ubuntu,ubuntu@ip-172-31-46-172.eu-west-3.compute.internal,2025-11-30 16:39:04 +0000,Merge branch 'dev' of github.com:YasserCherfaoui/MyERP into dev,No
+7f55ef9c3431deb5d61b697cf869d94802bcec7c,Ubuntu,ubuntu@ip-172-31-46-172.eu-west-3.compute.internal,2025-11-30 16:38:41 +0000,update docker compose,Yes
+0722f48d268ed6a385658cbaffafee2b13a1fba4,,yasser.cherfaoui@gmail.com,2025-11-30 17:15:47 +0100,refactor(main): remove Gin mode setting logic from main function,Yes
+afeffee0afddfe7beb0e514f29f02d609e1671a7,,yasser.cherfaoui@gmail.com,2025-11-30 00:51:33 +0100,feat(orders): add manager order status count endpoint and update docker-compose for HTTPS,Yes
+d39d043f5783a8aed358894f70bee4756b2de99b,,yasser.cherfaoui@gmail.com,2025-11-27 11:30:47 +0100,feat(main): set Gin mode based on GIN_MODE environment variable,Yes
+8e5d326e0d0df068322c497c9f73bd19bee8c025,,yasser.cherfaoui@gmail.com,2025-11-27 01:59:03 +0100,feat(docker): update example docker-compose with new environment variables and credentials,Yes
+ae872e0e8e77dcbf93d8b2dfa511e6922f174488,,yasser.cherfaoui@gmail.com,2025-11-27 01:20:06 +0100,feat(docker): add Dockerfile and example docker-compose for local testing,Yes
+958c2f0527ca0ea3312d8a78852d1a7010011c47,,yasser.cherfaoui@gmail.com,2025-11-25 18:28:22 +0100,feat(orders): enhance order status count retrieval with exchange orders,Yes
+c2bd59fb12a298ad08f96f75705ce810a6c1bf18,,yasser.cherfaoui@gmail.com,2025-11-25 12:05:34 +0100,feat(woocommerce): update product list generation in export handlers,Yes
+df4bf1141f6606e0f2cf6035458f8750311ae61d,,yasser.cherfaoui@gmail.com,2025-11-23 23:34:06 +0100,feat(expenses): add franchise support to expense handling,Yes
+e1db925dc81c5cf3471670a04a40a5abf87b0cde,,yasser.cherfaoui@gmail.com,2025-11-22 10:08:47 +0100,feat(orders): implement user role filtering for order retrieval,Yes
+c8679491c152591097eef64ec8eb41179d2037a7,,yasser.cherfaoui@gmail.com,2025-11-21 18:45:36 +0100,feat(orders): enhance order management with OrdersManager role,Yes
+433fbcdbbec1fa2821bfbfccbdeff3a0b2bdceb1,,yasser.cherfaoui@gmail.com,2025-11-21 16:53:49 +0100,feat(rate_limiting): implement rate limiting for Yalidine API calls,Yes
+74f111ebeff40f57b3b5c59083553325cb478083,,yasser.cherfaoui@gmail.com,2025-11-20 10:37:21 +0100,feat(client_status): improve validation for client status creation,Yes
+6dbfcb098a60a35eec254f19da9dd67c4fdd5557,,yasser.cherfaoui@gmail.com,2025-11-20 00:26:45 +0100,feat(client_status): enhance client status handling and order ticket integration,Yes
+cc64b8f32e85b8c1773561180f0a67f264c43845,,yasser.cherfaoui@gmail.com,2025-11-18 17:33:58 +0100,chore(docker): update .dockerignore and fix documentation formatting,Yes
+b1e536ee1c292aea0eedc4c48a4d0a52d3846481,,yasser.cherfaoui@gmail.com,2025-11-18 14:47:41 +0100,feat(service_account): add Google Cloud service account configuration,Yes
+7f334bbc924220ed84ffbe297e98ee2eeb8f6a42,,yasser.cherfaoui@gmail.com,2025-11-18 14:40:23 +0100,chore(docker): remove Dockerfile as part of project restructuring,Yes
+9b8076c8fb10c571b0f802f91833ebec0817eadd,,yasser.cherfaoui@gmail.com,2025-11-18 14:33:44 +0100,chore(docker): update Go version in Dockerfile and set GOTOOLCHAIN environment variable,Yes
+539b7a359245811f4de6066df0715e391518411a,,yasser.cherfaoui@gmail.com,2025-11-18 14:19:30 +0100,feat(deployment): add AWS Lightsail deployment scripts and documentation,Yes
+3f52eda5a69f4af58cf9fb75a75bfbe2d515260a,,yasser.cherfaoui@gmail.com,2025-11-02 16:27:48 +0100,feat(affiliate): introduce Affiliate Pro feature with enhanced commission structure,Yes
+ad1d277712f9855ad7dbca90b162ef8b80b4d3f2,,yasser.cherfaoui@gmail.com,2025-10-30 14:38:00 +0100,feat(affiliate_orders): add Amount and FinalPrice fields to order model in CSV import,Yes
+cdc528d2448971019cd34835357887dd4ccaf91f,,yasser.cherfaoui@gmail.com,2025-10-28 14:48:12 +0100,feat(affiliate_orders): add API documentation and handlers for affiliate order management,Yes
+ffd8e6d7a067ec0562ac6b1da404ac10c1e3efdd,,yasser.cherfaoui@gmail.com,2025-10-27 14:50:33 +0100,feat(performance): optimize WooCommerce orders retrieval and enhance database indexing,Yes
+844ea7b4af94cf68dcdd56aef669a0a611e86560,,yasser.cherfaoui@gmail.com,2025-10-27 00:16:10 +0100,feat(docker): add Docker and Cloud Build configuration for deployment,Yes
+772f96482a8c2c85dff06d5bba5893b87080bcb2,,yasser.cherfaoui@gmail.com,2025-10-18 13:36:22 +0100,feat(issues): implement company ID query parameter for issues and orders endpoints,Yes
+20081c8a713f1e39ad075188a3aeb0b513ece592,,yasser.cherfaoui@gmail.com,2025-10-17 17:33:40 +0100,feat(authentication): enhance issues and orders routes with authentication middleware,Yes
+2c1a7761057b4279a2ce6086b452e1dcdf489df9,,yasser.cherfaoui@gmail.com,2025-10-17 15:21:47 +0100,feat(order_status_count): enhance order status count API with multi-company support,Yes
+60f8df8a65df103a036b5b85eb2b7e50929322fb,,yasser.cherfaoui@gmail.com,2025-10-17 14:50:45 +0100,feat(company_id_filter): implement company ID filtering for issue and order tickets,Yes
+d37088a957431700cb9c26f30c12f5ebde6cbe29,,yasser.cherfaoui@gmail.com,2025-10-17 14:12:00 +0100,feat(order_status_count): add shipping provider filtering to order status count endpoint,Yes
+19d23eac048e39f90e49cb5a9eadded5c0e74974,,yasser.cherfaoui@gmail.com,2025-10-17 12:24:18 +0100,fix(order_status_count): correct table reference in wilaya filtering query,Yes
+aaabd6e81047773ed6373037a1a43b44bec3f2b8,,yasser.cherfaoui@gmail.com,2025-10-16 18:42:34 +0100,fix(order_status_count): update query to use correct table and field names for wilaya filtering,Yes
+58553720b0aab11ef179dd2ba84056d6d86b5fd7,,yasser.cherfaoui@gmail.com,2025-10-16 18:38:27 +0100,feat(order_status_count): implement order status count endpoint with wilaya filtering,Yes
+496ac69e9e28a9e95ae2583097a5646ef28d595b,,yasser.cherfaoui@gmail.com,2025-10-16 16:53:48 +0100,feat(commissions): implement comprehensive commissions management system,Yes
+f12cebc01d628b5bbdc6fbf05b52f9a4b57063a7,,yasser.cherfaoui@gmail.com,2025-10-16 11:33:06 +0100,feat(affiliate): implement password reset functionality and email service integration,Yes
+92f982e2c42e6bcd244bfc1ce043a96e636a6181,,yasser.cherfaoui@gmail.com,2025-10-15 14:50:03 +0100,fix(database): correct database connection mode check for release environment,Yes
+912880a25cc9088e2b62718650ac7804a52d6dba,,yasser.cherfaoui@gmail.com,2025-10-15 14:49:45 +0100,feat(stock_alerts): implement periodic stock alerts and inventory check on updates,Yes
+af0c205b4c2ae985e5650eb3bddd221dbfa315dd,,yasser.cherfaoui@gmail.com,2025-10-14 17:11:06 +0100,feat(affiliate): update affiliate model to enforce unique constraints and default values,Yes
+a5992f89d1ca44bb9019810e49626b21593daeb3,,yasser.cherfaoui@gmail.com,2025-10-11 23:48:37 +0100,feat(automation): implement variant needs automation for franchises,Yes
+362c44dfc81b722a18926bc704b5032ba5082b68,,yasser.cherfaoui@gmail.com,2025-10-06 10:14:37 +0100,feat(bills): add PDF generation for entry bills,Yes
+2c4171d288b1a88c66199138a91fb97fef3eeb5e,,yasser.cherfaoui@gmail.com,2025-10-06 00:51:41 +0100,feat(delivery): implement inventory update and transaction logging for delivered items,Yes
+2a55c31e85ec98187d5f4236c162ee3ed1b88d56,,yasser.cherfaoui@gmail.com,2025-10-03 14:20:44 +0100,fix(franchise_billing): update total calculation to use dynamic franchise pricing,Yes
+584e15b7e1bde63ec6685ede5b13147b948886bb,,yasser.cherfaoui@gmail.com,2025-10-02 11:01:08 +0100,feat(delivery): refactor date parsing and improve query logic for delivered aggregates,Yes
+343d17a507712c6074978c4446a9162a4c11368e,,yasser.cherfaoui@gmail.com,2025-09-26 23:56:44 +0100,feat(transaction_logs): enhance transaction logging across various handlers,Yes
+0ff4d1270fa295b36c10dab14a6dc0ad01d55730,,yasser.cherfaoui@gmail.com,2025-09-22 00:39:43 +0100,feat(franchise_pricing): implement dynamic pricing for franchises,Yes
+04a55de49cd3145b263c5c7ff2256055eb511e56,,yasser.cherfaoui@gmail.com,2025-09-18 11:56:23 +0100,feat(missing_variants): update CancelMissingVariantRequest to include regular users,Yes
+d45c1e3b9d9d5d4c9902b4f3e4d1d23bfcd420e9,,yasser.cherfaoui@gmail.com,2025-09-17 16:40:13 +0100,feat(missing_variants): enhance exit bill creation to support additional items,Yes
+bd0f3d0c981a31abf15f0d4625af81979b060f6d,,yasser.cherfaoui@gmail.com,2025-09-17 15:30:02 +0100,feat(queries): add individual query routes and handlers for sales and inventory data,Yes
+b7c2cd4124e2726a218d8de96a7cc45a1856d096,,yasser.cherfaoui@gmail.com,2025-09-15 11:05:27 +0100,chore: update .gitignore to include binary files and remove main and MyERP,Yes
+34175569ea9798f7ab17b8d14cd1bf14f6e035e5,,yasser.cherfaoui@gmail.com,2025-09-15 11:03:44 +0100,fix(database): correct database connection mode check for AutoMigrate,Yes
+3ab0ddfd81970e97a3f19784d80e66255603d8f7,,yasser.cherfaoui@gmail.com,2025-09-10 05:18:23 +0100,Merge branch 'dev' of github.com:YasserCherfaoui/MyERP into dev,Yes
+be960213ea8c677e8f214005dae3eee2f8402723,,yasser.cherfaoui@gmail.com,2025-09-10 05:18:02 +0100,Merge branch 'dev' of github.com:YasserCherfaoui/MyERP into dev,No
+1e27270e5b73d812b1698ad4704529d71d488dbf,,yasser.cherfaoui@gmail.com,2025-09-10 05:16:54 +0100,feat(missing_variants): implement missing variant request management system,Yes
+00f97a05efd5d8c26380a109c492121692b2b26b,,yasser.cherfaoui@gmail.com,2025-09-06 11:19:15 +0100,Merge branch 'main' into dev,No
+425f090ebde55d830e5049fc18e7801ea24e927b,,yasser.cherfaoui@gmail.com,2025-09-06 11:16:07 +0100,Update README.md,Yes
+772b0fe8374d547050d2e4dbb44c7c92a66ce2d4,,yasser.cherfaoui@gmail.com,2025-08-27 15:34:56 +0100,Merge pull request #172 from YasserCherfaoui/dev,No
+d0cc3caa16016d76d9e8e3394e33d81b5baed196,,yasser.cherfaoui@gmail.com,2025-08-27 15:32:59 +0100,feat(shopify): implement Shopify affiliate product integration,Yes
+2322a2bfe4935b3caa14abe53c08a89bcf6e10bb,,yasser.cherfaoui@gmail.com,2025-08-27 14:17:15 +0100,feat(products): add ShopifyLink to AffiliateProp and update handling in UpdateAffiliateProps,Yes
+4d262b0ce029b552bbe621305ed23fa7a4c3e4c9,,yasser.cherfaoui@gmail.com,2025-08-27 12:07:18 +0100,feat(shopify): enhance CreateWooOrderFromShopify to handle referral codes,Yes
+42a0d9faf7a63eac9560864eb2ab5322f52f0c72,,yasser.cherfaoui@gmail.com,2025-08-25 13:54:29 +0100,Merge pull request #171 from YasserCherfaoui/dev,No
+c2e3a594a8e52a97aa53dc996d32e2d212bde744,,yasser.cherfaoui@gmail.com,2025-08-25 13:53:53 +0100,feat(shopify): update order details and customer information in res_shopify.json,Yes
+42be9f1642c2d25e4e0f8794029b969905303761,,yasser.cherfaoui@gmail.com,2025-08-24 12:50:36 +0100,Merge pull request #170 from YasserCherfaoui/dev,No
+ecb0cf26f5e6fac15c4946662cda70af32807305,,yasser.cherfaoui@gmail.com,2025-08-24 12:46:54 +0100,"fix(shopify, woocommerce): update order status and enhance shipping city handling",Yes
+f71b1b662f23845186f66e47b0b47f6586823977,,yasser.cherfaoui@gmail.com,2025-08-23 12:00:24 +0100,Merge pull request #169 from YasserCherfaoui/dev,No
+f2901a079321c7b2141caa7eb3f0e3cf8486593b,,yasser.cherfaoui@gmail.com,2025-08-23 11:59:58 +0100,feat(woocommerce): update GetOrders method to filter by expected delivery date,Yes
+d84c08e0b70378b625d9d0ceba6cd6d005b61cc5,ladjben,161597393+ladjben@users.noreply.github.com,2025-08-23 10:41:21 +0100,Update README.md,Yes
+f1a42a02de87c6895076f9ba4738a209b671c29f,,yasser.cherfaoui@gmail.com,2025-08-19 14:23:59 +0100,Merge pull request #168 from YasserCherfaoui/dev,No
+016f0ef53972cdbee24abaf0e6d457062f84e9c6,,yasser.cherfaoui@gmail.com,2025-08-19 14:23:31 +0100,feat(woocommerce): enhance GetOrder method with preloading of related data,Yes
+64d1440841f6ef2d46358a5dc54522b96ff38e12,,yasser.cherfaoui@gmail.com,2025-08-13 12:25:21 +0100,Merge pull request #167 from YasserCherfaoui/dev,No
+d70fa86660a833e36cb2cf359f39f58565acbbcd,,yasser.cherfaoui@gmail.com,2025-08-13 12:24:59 +0100,feat(reports): enhance date range handling in delivery reports,Yes
+522c917352e140ea15e25364370873aedc7a24dc,,yasser.cherfaoui@gmail.com,2025-08-12 15:22:05 +0100,Merge pull request #166 from YasserCherfaoui/dev,No
+496c33ce2a38148fd5cd1616f0e527ca9975e680,,yasser.cherfaoui@gmail.com,2025-08-12 15:20:18 +0100,feat(reports): add GetDeliveredAggregates endpoint for order and benefit aggregation,Yes
+19e2048e377e0e402a5cff9da7f59d860ac526f8,,yasser.cherfaoui@gmail.com,2025-08-11 16:03:59 +0100,Merge pull request #165 from YasserCherfaoui/dev,No
+f5e3d2e6f5cae1829255aee4fc6c9d544d919521,,yasser.cherfaoui@gmail.com,2025-08-11 16:03:28 +0100,feat(docs): add comprehensive specifications and guides for MyERP system,Yes
+1e6bfe9fed2bae3c1ebec00a0f667917f842af37,,yasser.cherfaoui@gmail.com,2025-07-27 11:32:09 +0100,Merge pull request #164 from YasserCherfaoui/dev,No
+2e1dff27819f43f20c690f47ab35e020abca9a7b,,yasser.cherfaoui@gmail.com,2025-07-27 11:31:25 +0100,feat(products): enhance ProductSalesResponse with WooCommerce order counts,Yes
+39228b83808e87dd209c441ec53f017e04c3c94a,,yasser.cherfaoui@gmail.com,2025-07-23 15:59:35 +0100,Merge pull request #163 from YasserCherfaoui/dev,No
+e604325ac61850bd779982932f8f039db46ba0de,,yasser.cherfaoui@gmail.com,2025-07-23 15:53:52 +0100,feat(shopify): update DiscountCodes type in ShopifyOrderRequest and add ShopifyDiscountCode model,Yes
+6def457aad972832fb7fa69f0dffad1cb9c28b80,,yasser.cherfaoui@gmail.com,2025-07-23 15:45:23 +0100,Merge pull request #162 from YasserCherfaoui/dev,No
+a8e7b285907b3e6c52493c8a280c3aa40f6230b3,,yasser.cherfaoui@gmail.com,2025-07-23 14:41:55 +0100,feat(products): add IsActive field to product creation and update schemas,Yes
+a779def0fdbff13f20737b8f3d4903b3800e421f,,yasser.cherfaoui@gmail.com,2025-07-15 11:38:06 +0100,Merge pull request #161 from YasserCherfaoui/dev,No
+5eb909d8b7e82badd22e9f9fa9e8a1a92c41157f,,yasser.cherfaoui@gmail.com,2025-07-15 11:37:11 +0100,fix(external): update order fetching to include today's updates,Yes
+330d04994efd90a98f1a44d8cafce09b0fdd7fc8,,yasser.cherfaoui@gmail.com,2025-07-14 16:17:30 +0100,Merge pull request #160 from YasserCherfaoui/dev,No
+cfebdf4e3b6d4fe59496c678af401ed05ce688df,,yasser.cherfaoui@gmail.com,2025-07-14 16:16:47 +0100,feat(external): add external routes for contact creation and PDF generation,Yes
+2f3aa1263bb7e069887c9d909b963b734b3843cf,,yasser.cherfaoui@gmail.com,2025-07-14 14:45:34 +0100,Merge pull request #159 from YasserCherfaoui/dev,No
+367bd33421610154fc205ada521449a3efbdd47c,,yasser.cherfaoui@gmail.com,2025-07-14 14:43:05 +0100,feat(woocommerce): add company ID support to CreateFromCSV endpoint,Yes
+75958739c861ad595da58b3e9e76fc17e1ed1b54,,yasser.cherfaoui@gmail.com,2025-07-14 14:30:51 +0100,Merge pull request #158 from YasserCherfaoui/dev,No
+5fb510bda1e8d89daa36d5fe2f269119c2459ac5,,yasser.cherfaoui@gmail.com,2025-07-14 14:30:02 +0100,feat(woocommerce): enhance order handling with company ID support,Yes
+8c93f0f26e9aa05d56dd93225e325a67b45113fb,,yasser.cherfaoui@gmail.com,2025-07-14 14:01:17 +0100,Merge pull request #157 from YasserCherfaoui/dev,No
+e544df4114b649bb42c4a319b468352b7ff3f04c,,yasser.cherfaoui@gmail.com,2025-07-14 14:00:32 +0100,fix(woocommerce): add customer_email field to CreateFromCSV for order creation,Yes
+1f4037645cdffd7df0a3567df712260793362aca,,yasser.cherfaoui@gmail.com,2025-07-14 12:41:42 +0100,Merge pull request #156 from YasserCherfaoui/dev,No
+1efa80b0929d03f3f08043d7c41410be349b99df,,yasser.cherfaoui@gmail.com,2025-07-14 12:35:10 +0100,refactor(products): modify GetProductsSalesQuantities to fetch all products without pagination,Yes
+a0a5a13737938883118a937431920ec0b256e8b6,,yasser.cherfaoui@gmail.com,2025-07-06 12:41:29 +0100,Merge pull request #155 from YasserCherfaoui/dev,No
+c862248ef6f9383302a6709052503c3f39fd494c,,yasser.cherfaoui@gmail.com,2025-07-06 12:40:08 +0100,fix(shopify): correct ShippingAddress field in CreateWooOrderFromShopify,Yes
+82077ae013b3bb03d3c75e0a3c570508056d0603,,yasser.cherfaoui@gmail.com,2025-07-06 12:29:42 +0100,Merge pull request #154 from YasserCherfaoui/dev,No
+8300e39a4a56b7029a4b99eb2f5cc3a81e5d7147,,yasser.cherfaoui@gmail.com,2025-07-06 12:29:12 +0100,fix(shopify): improve price conversion in CreateWooOrderFromShopify,Yes
+882befc9e5f3af22ee9091464f8325fade4b1320,,yasser.cherfaoui@gmail.com,2025-07-06 12:20:21 +0100,Merge pull request #153 from YasserCherfaoui/dev,No
+c41d3c838eff26b470acd248713690d34ea46c24,,yasser.cherfaoui@gmail.com,2025-07-06 12:19:35 +0100,feat(shopify): introduce ShopifyOrder and ShopifyOrderItem models,Yes
+e439d315564dc7f2e11e5e570b3d226c6665df13,,yasser.cherfaoui@gmail.com,2025-07-06 11:57:58 +0100,Merge pull request #152 from YasserCherfaoui/dev,No
+5cdbe029332574f31a7e86945b0d297df5de347b,,yasser.cherfaoui@gmail.com,2025-07-06 11:57:28 +0100,feat(shopify): add request logging in CreateWooOrderFromShopify,Yes
+cfc0b43585355ed1dc04055ad02fd5c4b400330f,,yasser.cherfaoui@gmail.com,2025-07-06 11:49:00 +0100,Merge pull request #151 from YasserCherfaoui/dev,No
+ec898076501d1196522bff293974088a5d3ea190,,yasser.cherfaoui@gmail.com,2025-07-06 11:47:55 +0100,fix(shopify): update ShopifyOrder creation to use ShippingAddress fields,Yes
+7549dfbad5e07c911e0f5a8dfcd48887ca8a131a,,yasser.cherfaoui@gmail.com,2025-07-06 11:43:41 +0100,refactor(shopify): simplify WooOrderItem creation in CreateWooOrderFromShopify,Yes
+52d029cc9d59e06ddbd5642a1339fac3face60ab,,yasser.cherfaoui@gmail.com,2025-07-06 11:21:58 +0100,Merge pull request #150 from YasserCherfaoui/dev,No
+311b4a583bb764bb711902e5364f304cba10df8c,,yasser.cherfaoui@gmail.com,2025-07-06 11:20:35 +0100,fix(shopify): update CreateWooOrderFromShopify to use BillingAddress for customer phone,Yes
+06d042db6394e1d30bfa5c30eef5b1bbcc5132bd,,yasser.cherfaoui@gmail.com,2025-07-06 11:14:12 +0100,Merge pull request #149 from YasserCherfaoui/dev,No
+33eb0356b55f2253d1cc71e0831a39a023742d95,,yasser.cherfaoui@gmail.com,2025-07-06 10:38:50 +0100,feat(shopify): add logging for order creation process in CreateWooOrderFromShopify,Yes
+b14a1ebbec77310dfe4ed77ba3266812811c6f08,,yasser.cherfaoui@gmail.com,2025-07-01 15:00:19 +0100,Merge pull request #148 from YasserCherfaoui/dev,No
+bca1ce8ac96ddc68e5db0ea1814c224a888b75b5,,yasser.cherfaoui@gmail.com,2025-07-01 14:59:39 +0100,feat(inventory): add GetInventoryItemsByVariant endpoint to retrieve inventory items by product variant ID,Yes
+26318a716223af68b7b88eb2bf8733d5fb7f7f01,,yasser.cherfaoui@gmail.com,2025-07-01 12:30:26 +0100,Merge pull request #147 from YasserCherfaoui/dev,No
+97181c74bc1a5cc2c4b168444289e89c034a2886,,yasser.cherfaoui@gmail.com,2025-07-01 12:29:17 +0100,feat(logs): add logging browser UI and API endpoints,Yes
+b434f5de7e8f23ddd19cfaef80746c4b3fe6bb3f,,yasser.cherfaoui@gmail.com,2025-07-01 12:07:20 +0100,Merge pull request #146 from YasserCherfaoui/dev,No
+3be3aaa028bd5b4cae8717356438d75b13d60e99,,yasser.cherfaoui@gmail.com,2025-07-01 12:06:33 +0100,feat(logging): implement custom file logger with Gin integration,Yes
+a71da125808ece8917fc58a39ac2473d70514158,,yasser.cherfaoui@gmail.com,2025-06-30 16:02:02 +0100,Merge pull request #145 from YasserCherfaoui/dev,No
+13db639221c6e396ab0f0eddcfb9f470c16e806a,,yasser.cherfaoui@gmail.com,2025-06-30 16:00:05 +0100,fix(shopify): update CreateWooOrderFromShopify to use CurrentTotalPrice and improve price conversion error handling,Yes
+f38a6adea631ac53a09eb33e39670c7338f3350a,,yasser.cherfaoui@gmail.com,2025-06-30 15:35:50 +0100,Merge pull request #144 from YasserCherfaoui/dev,No
+ea7fc027ad9e04a88762628f72f6f369aa3383e7,,yasser.cherfaoui@gmail.com,2025-06-30 15:34:55 +0100,feat(shopify): add CreateWooOrderFromShopify endpoint for WooCommerce order creation,Yes
+bd5ea89b9bd1a96559d4ea893fd0a3eb42ab3fcd,,yasser.cherfaoui@gmail.com,2025-06-29 11:49:00 +0100,Merge pull request #143 from YasserCherfaoui/dev,No
+0785048cd3e13f2280043376729bc9a2c8230847,,yasser.cherfaoui@gmail.com,2025-06-29 11:47:20 +0100,feat(affiliates): enhance affiliate application and commission management,Yes
+6dca7eaefab45c526c4cc7ba2bfc276956f8210e,,yasser.cherfaoui@gmail.com,2025-06-25 16:34:14 +0100,Merge pull request #142 from YasserCherfaoui/dev,No
+a0d2e68e71f89ecaf10d1b4b84dcc22b4d9c9b11,,yasser.cherfaoui@gmail.com,2025-06-25 16:32:47 +0100,feat(affiliates): add commission and payment retrieval endpoints,Yes
+4879095d591575e8e071d9cf1c4797cf578488c5,,yasser.cherfaoui@gmail.com,2025-06-25 14:47:15 +0100,Merge pull request #141 from YasserCherfaoui/dev,No
+3c35356daa3fc37d1cebaa4302d846c0c9a0e200,,yasser.cherfaoui@gmail.com,2025-06-25 14:46:34 +0100,feat(database): add WooCompany model and enhance affiliate functionality,Yes
+025f16d5519d2e21cf8b9f2b436b50505c121c67,,yasser.cherfaoui@gmail.com,2025-06-24 12:11:49 +0100,Merge pull request #140 from YasserCherfaoui/dev,No
+78f6a1ff1747ba796c6145d215e3c107f25b6ed8,,yasser.cherfaoui@gmail.com,2025-06-24 12:09:36 +0100,feat(affiliate-props): enhance affiliate properties management,Yes
+ff146f97cf1153f39e89afeb61e3304238e34dcf,,yasser.cherfaoui@gmail.com,2025-06-23 15:44:33 +0100,Merge pull request #139 from YasserCherfaoui/dev,No
+a7b21fefc6b5f6101940f145f2fd91a87205f7b7,,yasser.cherfaoui@gmail.com,2025-06-23 15:22:48 +0100,feat(affiliates): implement affiliate management features,Yes
+8344fbd283a3b2d3f560d2ee577c004389d14bff,,yasser.cherfaoui@gmail.com,2025-06-23 12:57:21 +0100,Merge pull request #138 from YasserCherfaoui/dev,No
+24ce30d53493c6ddf5db68b5736993c3d0fa74bf,,yasser.cherfaoui@gmail.com,2025-06-22 12:52:31 +0100,feat(qrcode): add QR code generation functionality for product variants,Yes
+d1e88949a7ffad4f58239e851bfc85d206763853,,yasser.cherfaoui@gmail.com,2025-06-21 18:34:43 +0100,Merge pull request #137 from YasserCherfaoui/dev,No
+4139420c335c34703fff4cc2d26c9fd8975448e2,,yasser.cherfaoui@gmail.com,2025-06-21 18:33:09 +0100,feat(returns): implement UpdateReturn endpoint for modifying existing returns,Yes
+1dc741257f5b547b4fc06c33b7c3b49227cb2f4e,,yasser.cherfaoui@gmail.com,2025-06-19 15:08:11 +0100,Merge pull request #136 from YasserCherfaoui/dev,No
+63638093d50977198e6e614f2850554b6863dd90,,yasser.cherfaoui@gmail.com,2025-06-19 15:06:48 +0100,feat(woocommerce): enhance DeclareEmptyExchange to include confirmed order items and comments,Yes
+355012ae88159c2d34880a1215f231d6f109270f,,yasser.cherfaoui@gmail.com,2025-06-19 14:52:43 +0100,Merge pull request #135 from YasserCherfaoui/dev,No
+cbe08e835c2a849fa1af60d3e766b3d8625df45f,,yasser.cherfaoui@gmail.com,2025-06-19 14:51:53 +0100,feat(woocommerce): add declare empty exchange endpoint,Yes
+889ec00088b01319496b539d7d9ba8cb80f92051,,yasser.cherfaoui@gmail.com,2025-06-19 12:27:26 +0100,Merge pull request #134 from YasserCherfaoui/dev,No
+e470ca504d180c59653537aa4c32539d2f030496,,yasser.cherfaoui@gmail.com,2025-06-19 12:24:58 +0100,fix(response): improve error handling in GenerateResponse function,Yes
+3b2c4c565c592974606403fe6883f15ee2aa5f95,,yasser.cherfaoui@gmail.com,2025-06-19 12:12:28 +0100,Merge pull request #133 from YasserCherfaoui/dev,No
+a11faec4e85ed81f9911ef1bd68adc703ed10d7e,,yasser.cherfaoui@gmail.com,2025-06-19 11:31:23 +0100,feat(woocommerce): implement update order status endpoint,Yes
+10b8631a1b59119e75d718d565106b60c82f7371,,yasser.cherfaoui@gmail.com,2025-06-18 13:01:24 +0100,Merge pull request #132 from YasserCherfaoui/dev,No
+3b1109a12d089c9638ff7b27a21abd9c0b719acf,,yasser.cherfaoui@gmail.com,2025-06-18 13:00:38 +0100,feat(readme): update README to reflect new features and integrations,Yes
+9d75ccf6d15dd3f8a9204d2271d4e80a8302fb12,,yasser.cherfaoui@gmail.com,2025-06-18 12:38:33 +0100,Merge pull request #131 from YasserCherfaoui/dev,No
+d949d66a99c365cd63a72369ef043cbbcb1db07d,,yasser.cherfaoui@gmail.com,2025-06-18 12:34:37 +0100,feat(woocommerce): add support for additional customer phone number fields,Yes
+f1223c21ffd8fb99c54a0e6c60e516f6f29af24c,,yasser.cherfaoui@gmail.com,2025-06-17 15:27:59 +0100,Merge pull request #130 from YasserCherfaoui/dev,No
+291615c99b7f759eab0a51889f43088c4d04cf83,,yasser.cherfaoui@gmail.com,2025-06-17 15:26:45 +0100,fix(delivery): handle order status update errors in SubmitStatus,Yes
+82eecb4b49e0c6685c1bdea3b23f5c74368696cc,,yasser.cherfaoui@gmail.com,2025-06-17 15:20:46 +0100,Merge pull request #129 from YasserCherfaoui/dev,No
+ac1d19f92153d2138bad3f39d8c98d016b5aca17,,yasser.cherfaoui@gmail.com,2025-06-17 15:20:19 +0100,feat(delivery): add comments field to SubmitStatus and update order status handling,Yes
+637e7edcd90874a69cb6bf2c09f5a30d248b42cc,,yasser.cherfaoui@gmail.com,2025-06-17 15:05:02 +0100,fix(delivery): adjust expected delivery date range and correct order status,Yes
+276865dc938214bae3a634bfe900e1988b8e4616,,yasser.cherfaoui@gmail.com,2025-06-17 14:53:24 +0100,Merge pull request #128 from YasserCherfaoui/dev,No
+182b194c235ea8947fe6f4f02f0a7effa34f79b0,,yasser.cherfaoui@gmail.com,2025-06-17 14:52:59 +0100,refactor(woocommerce): streamline inventory handling in export process,Yes
+33bc7a607e60f62f0e83d569ecd526b85450c7a1,,yasser.cherfaoui@gmail.com,2025-06-17 14:01:57 +0100,Merge pull request #127 from YasserCherfaoui/dev,No
+542635938f756f2df97b359b9e212f3fc89ec6dc,,yasser.cherfaoui@gmail.com,2025-06-17 14:01:19 +0100,fix(delivery): update order status filter in GetEmployeeOrders,Yes
+867fb64a3978638ea4aef58a4630498c220fed26,,yasser.cherfaoui@gmail.com,2025-06-17 13:59:03 +0100,feat(delivery): enhance employee order retrieval and add delivery-only middleware,Yes
+e57e40037f3c6b5b6ee92890170d69256d766107,,yasser.cherfaoui@gmail.com,2025-06-17 11:57:14 +0100,Merge pull request #126 from YasserCherfaoui/dev,No
+352656d53757b17240f01924ddb4910d1d50f3e3,,yasser.cherfaoui@gmail.com,2025-06-17 11:55:50 +0100,fix(woocommerce): update data types for order handling,Yes
+b9b28fabb4652ed452b6d247a7fd5fcac254b5ed,,yasser.cherfaoui@gmail.com,2025-06-16 15:53:37 +0100,Merge pull request #125 from YasserCherfaoui/dev,No
+1a4954a1b0aae4b73290d6e647e7b57c4f045f3a,,yasser.cherfaoui@gmail.com,2025-06-16 15:53:05 +0100,feat(woocommerce): enhance export process with logging and stopdesk ID handling,Yes
+430329b8a42d64a7bae7ddff78dd3f173e1f081c,,yasser.cherfaoui@gmail.com,2025-06-16 13:19:36 +0100,Merge pull request #124 from YasserCherfaoui/dev,No
+36de6364e600c1280824ac59be52a176444af673,,yasser.cherfaoui@gmail.com,2025-06-16 13:18:46 +0100,feat(woocommerce): add FinalPrice field to new order creation,Yes
+802d9bee2170f350e5a067975c57d076370f3929,,yasser.cherfaoui@gmail.com,2025-06-16 12:58:11 +0100,Merge pull request #123 from YasserCherfaoui/dev,No
+5a4dc9b92ca0586526b6d467eb29403af83b1baf,,yasser.cherfaoui@gmail.com,2025-06-16 12:56:45 +0100,feat(woocommerce): include is_exchange field in GetOrders response,Yes
+9e88396a7768220ed7f957c7aa79b3ac7c17147b,,yasser.cherfaoui@gmail.com,2025-06-16 12:39:33 +0100,Merge pull request #122 from YasserCherfaoui/dev,No
+7b0bdd134c57231211c7cdd73b6807c33682451e,,yasser.cherfaoui@gmail.com,2025-06-16 12:29:31 +0100,feat(delivery): implement employee login and order management endpoints,Yes
+30a08158a8ec763dc1986f5374317c72f17639cc,,yasser.cherfaoui@gmail.com,2025-06-16 11:15:06 +0100,Merge pull request #121 from YasserCherfaoui/dev,No
+9ab9fe2d02c1f6170faf2a5ee7e5d089274f902b,,yasser.cherfaoui@gmail.com,2025-06-16 11:14:43 +0100,feat(woocommerce): implement exchange order handling in export process,Yes
+fa7104ce5bacf2fae643ee97e7affd3a2accdfa8,,yasser.cherfaoui@gmail.com,2025-06-12 12:26:55 +0100,Merge pull request #120 from YasserCherfaoui/dev,No
+b4c39a375f8c3638e1c16b2d8cfe45ae4d968bde,,yasser.cherfaoui@gmail.com,2025-06-12 12:26:05 +0100,feat(woocommerce): add endpoint for confirming orders from scratch,Yes
+2873c6c9a1d39369af6f9965830df83c36b22556,,yasser.cherfaoui@gmail.com,2025-06-11 15:59:22 +0100,Merge pull request #119 from YasserCherfaoui/dev,No
+3f24c26295e310b3a1fbcd717179aa6a5080b4df,,yasser.cherfaoui@gmail.com,2025-06-11 15:51:23 +0100,feat(woocommerce): enrich YalidineOrderHistory with additional fields,Yes
+8eff46a37ee228e60af3904110f022eabebf6833,,yasser.cherfaoui@gmail.com,2025-06-11 15:31:43 +0100,Merge pull request #118 from YasserCherfaoui/dev,No
+9e8c7b119c3de061b385062df76a5a96bbd173ce,,yasser.cherfaoui@gmail.com,2025-06-11 15:30:52 +0100,feat(woocommerce): enhance GetOrders method to include customer phone count,Yes
+378d272c04e10e497432063d7d2d2be820a8313c,,yasser.cherfaoui@gmail.com,2025-06-11 13:30:37 +0100,Merge pull request #117 from YasserCherfaoui/dev,No
+128100267fbc3c90a3b2d393777aef17e8430081,,yasser.cherfaoui@gmail.com,2025-06-11 13:30:04 +0100,feat(woocommerce): add date fields to order creation and enhance order retrieval with product variant filter,Yes
+6002bd07b30400f7647eebfc6d5064f5175bf39b,,yasser.cherfaoui@gmail.com,2025-06-10 16:12:34 +0100,Merge pull request #116 from YasserCherfaoui/dev,No
+ec5fa3ce77800742faa45a7d44606aca10a47a90,,yasser.cherfaoui@gmail.com,2025-06-10 16:11:39 +0100,refactor(woocommerce): optimize order export process with transaction handling,Yes
+a003fda0f379beb3c641b6c10cb321a6841d2766,,yasser.cherfaoui@gmail.com,2025-06-10 15:37:47 +0100,Merge pull request #115 from YasserCherfaoui/dev,No
+57c89555955480a08ad18ab1803fedf1c9ba9360,,yasser.cherfaoui@gmail.com,2025-06-10 15:37:13 +0100,feat(woocommerce): enhance delivery employee table with aggregation and Arabic text shaping,Yes
+9040b553e120d3210ab70d153e86a4dfba5765f9,,yasser.cherfaoui@gmail.com,2025-06-09 11:10:14 +0100,Merge pull request #114 from YasserCherfaoui/dev,No
+ddf21ec6a5a87a06507abec0f158617aab7d056d,,yasser.cherfaoui@gmail.com,2025-06-09 11:09:19 +0100,feat(woocommerce): add employee ID filter to GetOrders endpoint,Yes
+3d90a107bb73b0f96bde513ea500a1257a3cae79,,yasser.cherfaoui@gmail.com,2025-06-05 10:46:50 +0100,Merge pull request #113 from YasserCherfaoui/dev,No
+9daf050a5237c74b77e8592a853a2e208cb887aa,,yasser.cherfaoui@gmail.com,2025-06-05 10:46:21 +0100,fix(woocommerce): update endpoint for retrieving center details,Yes
+65a10ff02b29f61b9193c9a5f6fb9527e9283c08,,yasser.cherfaoui@gmail.com,2025-06-05 10:23:54 +0100,Merge pull request #112 from YasserCherfaoui/dev,No
+07b0c281187b489c1eb5b49e5653fe5c376bd463,,yasser.cherfaoui@gmail.com,2025-06-05 10:22:43 +0100,feat(woocommerce): add endpoint to retrieve center details by ID,Yes
+9fcb790dc600a32a146a90a4e864c478dc992e2a,,yasser.cherfaoui@gmail.com,2025-06-04 16:08:26 +0100,Merge pull request #111 from YasserCherfaoui/dev,No
+fbd5e9d5e863edcc436b25fb13208ca1f69f4fed,,yasser.cherfaoui@gmail.com,2025-06-04 16:07:30 +0100,refactor(woocommerce): replace FlexibleDate implementation with utility package,Yes
+fb1d3cddeaf73ca7d8db545b82f7216b9af913ff,,yasser.cherfaoui@gmail.com,2025-06-04 14:07:43 +0100,Merge pull request #110 from YasserCherfaoui/dev,No
+da45b836259404da38e8587892aef39fa74c479c,,yasser.cherfaoui@gmail.com,2025-06-04 14:06:21 +0100,feat(woocommerce): enhance CSV order creation with price handling,Yes
+6a4d46f342b52df5d5370a9b28c63587b9fe56d7,,yasser.cherfaoui@gmail.com,2025-06-04 13:02:11 +0100,Merge pull request #109 from YasserCherfaoui/dev,No
+399aac8a8b297beb4c74ab7b84439f88014421ec,,yasser.cherfaoui@gmail.com,2025-06-04 13:01:22 +0100,feat(woocommerce): implement order update functionality with discount and shipping details,Yes
+cd5f59eec0daff280c952c32a33c4c1b9c4f9b98,,yasser.cherfaoui@gmail.com,2025-06-03 14:27:14 +0100,Merge pull request #108 from YasserCherfaoui/dev,No
+0bbe752fedf6754c57a870c13dafe7b72049fb9c,,yasser.cherfaoui@gmail.com,2025-06-03 14:25:59 +0100,fix(barcode): adjust barcode sticker dimensions for improved layout,Yes
+19e24ce2571681a4537d6bb6a2eab7417b3e3c4c,,yasser.cherfaoui@gmail.com,2025-06-03 13:39:35 +0100,Merge pull request #107 from YasserCherfaoui/dev,No
+b8d7ddf397e2c1bc7903181ef5030008c6fc34f9,,yasser.cherfaoui@gmail.com,2025-06-03 13:38:06 +0100,feat(shopify): enhance webhook processing with logging and product name,Yes
+92cdd451d4e78a1575a4909c56494e337c619166,,yasser.cherfaoui@gmail.com,2025-06-03 13:26:58 +0100,Merge pull request #106 from YasserCherfaoui/dev,No
+456f47119d5c78d9db8d1b8bb3baa86773382da5,,yasser.cherfaoui@gmail.com,2025-06-03 13:26:29 +0100,feat(database): add Shopify order models to database connection,Yes
+7fdf7f4d359dbff8699b85db8612213910dd6cf3,,yasser.cherfaoui@gmail.com,2025-06-03 13:22:16 +0100,Merge pull request #105 from YasserCherfaoui/dev,No
+c5f3904272b78d6df84365e9acef01c1d7064e50,,yasser.cherfaoui@gmail.com,2025-06-03 13:21:42 +0100,feat(shopify): add handling for Shopify order items in webhook processing,Yes
+d8e13eba47fc84a09b89bba822458a0952c23476,,yasser.cherfaoui@gmail.com,2025-06-03 13:17:10 +0100,Merge pull request #104 from YasserCherfaoui/dev,No
+0f42a5ba088be757badd3497c6cb412d0245f1bf,,yasser.cherfaoui@gmail.com,2025-06-03 13:16:19 +0100,refactor(shopify): restructure Shopify order handling and models,Yes
+b930bd9ccd56e56eb2f294dbf3bc9daa66ad9a9e,,yasser.cherfaoui@gmail.com,2025-06-03 12:47:43 +0100,Merge pull request #103 from YasserCherfaoui/dev,No
+7c363d6645d069799dd3c273c918981e6cd1602f,,yasser.cherfaoui@gmail.com,2025-06-03 12:46:44 +0100,feat(config): add Shopify integration and update configuration structure,Yes
+836490b38dfc57d3d8f5987f8d3179048ad5c014,,yasser.cherfaoui@gmail.com,2025-06-03 11:58:00 +0100,Merge pull request #102 from YasserCherfaoui/dev,No
+70ef58d832ee40c3743faad2f83ef26955aa0f14,,yasser.cherfaoui@gmail.com,2025-06-03 11:57:29 +0100,feat(woocommerce): add 'relaunched' status to WooOrder model and new CSV creation route,Yes
+784b92be3630fc62614595738ca2f5c61af81fc5,,yasser.cherfaoui@gmail.com,2025-06-02 14:19:26 +0100,Merge pull request #101 from YasserCherfaoui/dev,No
+c9448c822cad28f538f55311e4c1e6c4b7d22e80,,yasser.cherfaoui@gmail.com,2025-06-02 14:18:18 +0100,refactor(woocommerce): optimize yalidine status filtering in GetOrders handler,Yes
+f03e2c61bc2cea1609c3ac8becad29467dc1a897,,yasser.cherfaoui@gmail.com,2025-06-02 13:28:30 +0100,Merge pull request #100 from YasserCherfaoui/dev,No
+ef62e4a8c01bff366f2597db42bf5ec4da1b1469,,yasser.cherfaoui@gmail.com,2025-06-02 13:27:54 +0100,feat(woocommerce): add yalidine status filter to GetOrders handler,Yes
+c1a4587446bbebbb1998112f2be065089f297f3b,,yasser.cherfaoui@gmail.com,2025-06-02 12:07:17 +0100,feat(woocommerce): enhance ExportOrders handler to improve inventory checks and logging,Yes
+892c772f9b4f4123e7a9a776844a11dfe723aaa8,,yasser.cherfaoui@gmail.com,2025-06-02 11:43:06 +0100,Merge pull request #99 from YasserCherfaoui/dev,No
+dae1273764d86b1d05fe18d135fd444485e74f06,,yasser.cherfaoui@gmail.com,2025-06-02 11:42:23 +0100,feat(woocommerce): add ExportAlgiers handler and enhance CreateOrderHistory with FlexibleTime,Yes
+0c8eb6e6521d987f8c598cf51fe052b56ebf5b52,,yasser.cherfaoui@gmail.com,2025-06-01 14:14:50 +0100,Merge pull request #98 from YasserCherfaoui/dev,No
+708b25f37e6a73f04317986a8b70e4f3012a565a,,yasser.cherfaoui@gmail.com,2025-06-01 14:13:16 +0100,feat(woocommerce): add delay before fetching next page of Yalidine histories,Yes
+9e022336356bbcc347c69a10826fb406da2eac77,,yasser.cherfaoui@gmail.com,2025-06-01 13:37:38 +0100,Merge pull request #97 from YasserCherfaoui/dev,No
+737f398ed3f3ad19d588013b6cc6b8a4809b2810,,yasser.cherfaoui@gmail.com,2025-06-01 13:37:11 +0100,feat(woocommerce): add CreateOrderHistory and DeleteDeliveringOrders handlers,Yes
+e1252fe2d2b19d15adbe76c725a70d7f6e5751cb,,yasser.cherfaoui@gmail.com,2025-05-31 13:23:54 +0100,Merge pull request #96 from YasserCherfaoui/dev,No
+78d7babb3dcbb78d180b4e73fa7b7597ea3f892b,,yasser.cherfaoui@gmail.com,2025-05-31 13:22:16 +0100,feat(woocommerce): enhance UpdateWooOrderStatusesHandler with logging and error handling,Yes
+3b78f5ed543fe220076e449b3eb40321b282c565,,yasser.cherfaoui@gmail.com,2025-05-31 12:59:16 +0100,Merge pull request #95 from YasserCherfaoui/dev,No
+e3d6e66341b516f0e5dcfa5a0cc1381d4e0b9da2,,yasser.cherfaoui@gmail.com,2025-05-31 12:58:26 +0100,feat(clientstatus): implement transaction handling for client status creation,Yes
+713a6fbf90fa6ccc688e666e1794785207a54ba0,,yasser.cherfaoui@gmail.com,2025-05-31 12:56:42 +0100,Merge pull request #94 from YasserCherfaoui/dev,No
+6250c8c9c80f56d6ab02b9f5d23aae37f1ca2751,,yasser.cherfaoui@gmail.com,2025-05-31 12:53:17 +0100,feat(bills): implement UpdateExitBill handler for modifying exit bills,Yes
+8560366256658a6b443eecf97fd57b4370c9f072,,yasser.cherfaoui@gmail.com,2025-05-31 12:14:48 +0100,Merge pull request #93 from YasserCherfaoui/dev,No
+0c6650f73314e2944176c314cd76b8ea0f19ab2c,,yasser.cherfaoui@gmail.com,2025-05-31 12:14:15 +0100,feat(woocommerce): implement order status update handler and related models,Yes
+d3fe84548082d0841a9bd9d448c6c101cb4e9099,,yasser.cherfaoui@gmail.com,2025-05-30 21:55:24 +0100,Merge pull request #92 from YasserCherfaoui/dev,No
+bb82bcdfc0f5b94da548b37893fc2113e790cf5e,,yasser.cherfaoui@gmail.com,2025-05-30 21:45:29 +0100,feat(sales): add PhoneNumber field to sale models and schemas,Yes
+11ee2c8f5a263cd9201b6e683c265e3841e51f6f,,yasser.cherfaoui@gmail.com,2025-05-30 16:12:15 +0100,Merge pull request #91 from YasserCherfaoui/dev,No
+a06365c13ae6567f3298b4a9408037101f80379b,,yasser.cherfaoui@gmail.com,2025-05-30 16:06:22 +0100,feat(yalidine): add Yalidine event handling and model integration,Yes
+a3f0f13f22e21ce725058b86dea37bafc02c3037,,yasser.cherfaoui@gmail.com,2025-05-29 15:17:41 +0100,Merge pull request #90 from YasserCherfaoui/dev,No
+6485d286b34eafc2808e3d01d642bd263968c523,,yasser.cherfaoui@gmail.com,2025-05-29 15:16:12 +0100,fix(woocommerce): update insurance option in ExportOrders handler,Yes
+0ddbe4a65501adc49719c0e847540c7bc379c18f,,yasser.cherfaoui@gmail.com,2025-05-28 14:07:52 +0100,Merge pull request #89 from YasserCherfaoui/dev,No
+16aaa3a41403c8fa1c73f31ee21a7d71da2f1361,,yasser.cherfaoui@gmail.com,2025-05-28 13:35:28 +0100,refactor(franchises): streamline GetFranchiseSalesTotals handler for improved performance,Yes
+b3842ea0ec5318ff4f56f70e64be74d1461f0801,,yasser.cherfaoui@gmail.com,2025-05-28 10:35:07 +0100,Merge pull request #88 from YasserCherfaoui/dev,No
+ef5bf454c4ef471041e44253eec565d9ad93e2f4,,yasser.cherfaoui@gmail.com,2025-05-28 10:33:21 +0100,refactor(sales): optimize GetSalesTotals handler for improved calculations,Yes
+63bd28e98b218cf062552e98649e72e2f6a92396,,yasser.cherfaoui@gmail.com,2025-05-27 15:22:31 +0100,Merge pull request #87 from YasserCherfaoui/dev,No
+c2e9f167c897719617bf21416f4f5fb159fd7680,,yasser.cherfaoui@gmail.com,2025-05-27 15:18:58 +0100,fix(woocommerce): preload product data in ConfirmOrder handler,Yes
+dc0af09fa5e07ac7dfb38eb2570c6d7dbe1ea186,,yasser.cherfaoui@gmail.com,2025-05-27 14:25:37 +0100,Merge pull request #86 from YasserCherfaoui/dev,No
+5cab7db9bcbe779c6a87cf5fb5d50a5b9fb36d04,,yasser.cherfaoui@gmail.com,2025-05-27 14:24:44 +0100,feat(woocommerce): implement bulk dispatch and export functionality for orders,Yes
+6479546603d2bd7175c640dc3eb638cdd668ed88,,yasser.cherfaoui@gmail.com,2025-05-27 12:56:02 +0100,Merge pull request #85 from YasserCherfaoui/dev,No
+ce3ca4795bdb613d13508e7cb048654b9b844975,,yasser.cherfaoui@gmail.com,2025-05-27 12:55:03 +0100,feat(woocommerce): enhance GetOrders handler with additional filtering options,Yes
+4a3f93a3547325062f09574f2a1264d5afb1e164,,yasser.cherfaoui@gmail.com,2025-05-27 12:05:31 +0100,Merge pull request #84 from YasserCherfaoui/dev,No
+70f7984a554e3bc2dc4fc8f434642020e26f97e5,,yasser.cherfaoui@gmail.com,2025-05-27 12:00:28 +0100,feat(sales): add sale type filtering to sales count query,Yes
+ed92625645c64c13e02f6a29491125d06989dd3f,,yasser.cherfaoui@gmail.com,2025-05-27 11:50:56 +0100,Merge pull request #83 from YasserCherfaoui/dev,No
+22b0d8350e6088bc239dc7d9862f76b18633ba71,,yasser.cherfaoui@gmail.com,2025-05-27 11:48:55 +0100,feat(routes): add new endpoint for sales count retrieval,Yes
+88b81dcab5828e543c04c1c843e83a62561fe291,,yasser.cherfaoui@gmail.com,2025-05-26 15:20:15 +0100,Merge pull request #82 from YasserCherfaoui/dev,No
+6c43986560a5c414306b1fa43588cea5e85c55ff,,yasser.cherfaoui@gmail.com,2025-05-26 15:18:55 +0100,feat(woocommerce): implement pagination and status filtering in GetOrders handler,Yes
+5567a5733d8e31fba4c30a5ff716c79e90f591b4,,yasser.cherfaoui@gmail.com,2025-05-26 13:52:18 +0100,Merge pull request #81 from YasserCherfaoui/dev,No
+5292db30858ed8a28630d3bc37498adfb2cce83f,,yasser.cherfaoui@gmail.com,2025-05-26 13:51:38 +0100,feat(woocommerce): integrate websocket broadcasting for order updates,Yes
+e159d7abdc34a96c38c1d23a0921d98fdba5def2,,yasser.cherfaoui@gmail.com,2025-05-26 12:06:12 +0100,Merge pull request #80 from YasserCherfaoui/dev,No
+c3d6a89f0d6eda56d0cc7c420fab4b5f7514a440,,yasser.cherfaoui@gmail.com,2025-05-26 12:05:18 +0100,refactor(receipt): change font from Courier to Helvetica in thermal receipt generation,Yes
+33e9c8f9584c6a5886972466bde226be78e62e42,,yasser.cherfaoui@gmail.com,2025-05-25 16:04:04 +0100,Merge pull request #79 from YasserCherfaoui/dev,No
+e944176d8674c549329d40439df95941744f3f68,,yasser.cherfaoui@gmail.com,2025-05-25 16:03:01 +0100,"feat(database, models, routes, yalidine): enhance order management and API functionality",Yes
+ee023f9cad20648db4b85900e81dbcad50c1690b,,yasser.cherfaoui@gmail.com,2025-05-22 16:00:24 +0100,Merge pull request #78 from YasserCherfaoui/dev,No
+3ef6e14c1956131b0ce16c46208e1a5147fcc5af,,yasser.cherfaoui@gmail.com,2025-05-22 15:59:38 +0100,feat(models): add WooShipping and ConfirmedOrderItems models to enhance order management,Yes
+9003ba861a1736f597c7f04ed1e2ec9430a342b3,,yasser.cherfaoui@gmail.com,2025-05-22 13:13:30 +0100,Merge pull request #77 from YasserCherfaoui/dev,No
+bb9d4be117d65e54b11da0bd8c20ef022d129314,,yasser.cherfaoui@gmail.com,2025-05-22 13:12:25 +0100,feat(woocommerce): add GetFees handler and route for fetching fees between wilayas,Yes
+a28cabb63ad34491444ca3332a76158adcf45c8c,,yasser.cherfaoui@gmail.com,2025-05-22 12:21:12 +0100,Merge pull request #76 from YasserCherfaoui/dev,No
+b54ff988b0a30721295bdaa935336429c4c00f1e,,yasser.cherfaoui@gmail.com,2025-05-22 12:20:12 +0100,feat(woocommerce): add GetCenters handler and route for fetching centers by wilaya ID,Yes
+e7cb08abf316975f82c286b04fa1805a2b05e519,,yasser.cherfaoui@gmail.com,2025-05-21 15:55:17 +0100,Merge pull request #75 from YasserCherfaoui/dev,No
+fd27db3a79e0d388b50d1b33921eb8ecf2dabcd1,,yasser.cherfaoui@gmail.com,2025-05-21 15:53:29 +0100,feat(woocommerce): add GetCommunes handler and route for fetching communes by wilaya ID,Yes
+fd52f378d1d679d9c408411cfefb4a50739feb50,,yasser.cherfaoui@gmail.com,2025-05-21 14:25:22 +0100,Merge pull request #74 from YasserCherfaoui/dev,No
+903559df9bcca0dfb5b6adc97c820ad8cb5aafcc,,yasser.cherfaoui@gmail.com,2025-05-21 14:20:54 +0100,feat(integration): add Yalidine service and enhance delivery models,Yes
+25bbcd2baef24f2526de4cd1ff1e2b4285bfd212,,yasser.cherfaoui@gmail.com,2025-05-20 15:32:20 +0100,Merge pull request #73 from YasserCherfaoui/dev,No
+548e6773f908a55aa6064a254ba9af49bbd2d782,,yasser.cherfaoui@gmail.com,2025-05-20 15:29:24 +0100,feat(handlers): enhance order ticket creation and retrieval,Yes
+2d00a87f8798432debf7fe9ab69d79eeadd13ba9,,yasser.cherfaoui@gmail.com,2025-05-20 14:19:18 +0100,Merge pull request #72 from YasserCherfaoui/dev,No
+a3a7cf274bd94fb54ad8c96366735e6fb8e4596c,,yasser.cherfaoui@gmail.com,2025-05-20 14:18:46 +0100,"feat(models, handlers, routes): add support replies to issue handling",Yes
+c7f8fa91d678914bddd1474b4267a9220ba3b127,,yasser.cherfaoui@gmail.com,2025-05-20 12:31:55 +0100,Merge pull request #71 from YasserCherfaoui/dev,No
+9b77f90512c9b260a26e3d6a591f1862fe2b16db,,yasser.cherfaoui@gmail.com,2025-05-20 12:30:29 +0100,"feat(gcs, handlers, routes): enhance GCS service with signing capabilities and update issue handling",Yes
+3129cf7f7c68175f7093597b045fab437c2b89d2,,yasser.cherfaoui@gmail.com,2025-05-20 11:46:25 +0100,Merge pull request #70 from YasserCherfaoui/dev,No
+6bb870fcebe8b33f56e8545f2d523080a15e987d,,yasser.cherfaoui@gmail.com,2025-05-20 11:33:22 +0100,"feat(dependencies, gcs): update Go module dependencies and integrate GCS service",Yes
+89b601186525a2d0be1fc59e67b80828fa9da6e7,,yasser.cherfaoui@gmail.com,2025-05-19 12:22:33 +0100,Merge pull request #69 from YasserCherfaoui/dev,No
+9df5beaeed250bb9668dfcd901df12cb642f9730,,yasser.cherfaoui@gmail.com,2025-05-19 12:22:04 +0100,"feat(clientstatus, routes): enhance client status management and qualifications retrieval",Yes
+41531024664adb4fc6335d25a4e0d8086378d7cf,,yasser.cherfaoui@gmail.com,2025-05-18 14:38:53 +0100,Merge pull request #68 from YasserCherfaoui/dev,No
+247a2d62ca4d87ab328db1b99d61876e804bd90a,,yasser.cherfaoui@gmail.com,2025-05-18 14:37:50 +0100,"feat(database, models, handlers): enhance sales and franchise data calculations",Yes
+3069da9b44f991bae59ee1077c67de0caa0af98b,,yasser.cherfaoui@gmail.com,2025-05-15 16:01:04 +0100,Merge pull request #67 from YasserCherfaoui/dev,No
+5e928c790ce808ae468f62ad4d698eb92e5b24e8,,yasser.cherfaoui@gmail.com,2025-05-15 15:56:03 +0100,feat(orders): implement order creation functionality,Yes
+764c503df84d8698942430a43086d861370c5430,,yasser.cherfaoui@gmail.com,2025-05-14 12:50:15 +0100,Merge pull request #66 from YasserCherfaoui/dev,No
+5fc13e7039abca8953bc197ca570d7995af9fa56,,yasser.cherfaoui@gmail.com,2025-05-14 12:46:41 +0100,feat(woocommerce): add order management functionality,Yes
+5fa3561ae92f1e3feff010ba86e7d912fce8f8e6,,yasser.cherfaoui@gmail.com,2025-05-13 14:49:32 +0100,Merge pull request #65 from YasserCherfaoui/dev,No
+e99409ad1d525d527be953d46bb61cb6e4774a44,,yasser.cherfaoui@gmail.com,2025-05-13 14:47:22 +0100,feat(woocommerce): enhance order handling in webhook processing,Yes
+ff527bfa094ba0b99389173ca84f738a5035ce95,,yasser.cherfaoui@gmail.com,2025-05-13 13:57:53 +0100,Merge pull request #64 from YasserCherfaoui/dev,No
+459ad1dd8a3587ec1f63bfa75630446170d09b71,,yasser.cherfaoui@gmail.com,2025-05-13 13:56:48 +0100,fix(woocommerce): improve error handling and logging in webhook handler,Yes
+324d45adefcb0076dd91e0b6757a7f6df5b150f9,,yasser.cherfaoui@gmail.com,2025-05-13 13:38:24 +0100,Merge pull request #63 from YasserCherfaoui/dev,No
+6b117015de52137e487b499656b31eeb1702063f,,yasser.cherfaoui@gmail.com,2025-05-13 13:35:32 +0100,fix(franchises): correct product ID and add inventory item ID in transaction log,Yes
+3c8dd3dd0db3eebf1b771e58dcfaac7cbd55127c,,yasser.cherfaoui@gmail.com,2025-05-13 13:12:57 +0100,Merge pull request #62 from YasserCherfaoui/dev,No
+5e84fb010c3dc9f1f04112c8fbb894e9e48ea846,,yasser.cherfaoui@gmail.com,2025-05-13 13:12:34 +0100,"feat(database, routes): integrate WooCommerce event handling",Yes
+d0a3e57effca5454552892e0a9d73d494c484570,,yasser.cherfaoui@gmail.com,2025-05-12 10:47:34 +0100,Merge pull request #61 from YasserCherfaoui/dev,No
+02951af1f9d047e6031bea2377b514f9a6094458,,yasser.cherfaoui@gmail.com,2025-05-12 10:46:41 +0100,feat(suppliers): enhance supplier bill quantity retrieval with filtering options,Yes
+1b28589c554d230c3db52f05763556a4e139c1b1,,yasser.cherfaoui@gmail.com,2025-05-11 15:33:03 +0100,Merge pull request #60 from YasserCherfaoui/dev,No
+415548a6a75a53c1938d4fdfc58980b1b80a6054,,yasser.cherfaoui@gmail.com,2025-05-11 15:31:35 +0100,feat(suppliers): add endpoint to retrieve supplier bill quantities,Yes
+c085ea46c40cc5f31cd12bce3f878ff2699d34e6,,yasser.cherfaoui@gmail.com,2025-05-11 14:09:08 +0100,Merge pull request #59 from YasserCherfaoui/dev,No
+cf10c490a636e94bca7c810f132cf8689196970a,,yasser.cherfaoui@gmail.com,2025-05-11 14:06:44 +0100,feat(routes): add endpoint for franchise-specific sales quantities,Yes
+a19441ed26deb8327e05f16c4938fec4c13b3986,,yasser.cherfaoui@gmail.com,2025-05-11 11:21:21 +0100,Merge pull request #58 from YasserCherfaoui/dev,No
+b80a2c2380b576c490f907a9c40a6816216cbef5,,yasser.cherfaoui@gmail.com,2025-05-11 11:20:12 +0100,feat(products): enhance product sales response with detailed variant sales data,Yes
+1c9bbc6430cd9f822331ed681c41045e81707125,,yasser.cherfaoui@gmail.com,2025-05-07 16:31:52 +0100,Merge pull request #57 from YasserCherfaoui/dev,No
+4fabd646b817bf6aa71bd79a4c42a3076e03ba92,,yasser.cherfaoui@gmail.com,2025-05-07 16:30:38 +0100,feat(inventory): enhance franchise inventory retrieval with cost details,Yes
+dabcf939ab8b83c8a05b4f4e2c2b9c1ad449e016,,yasser.cherfaoui@gmail.com,2025-05-07 15:10:30 +0100,Merge pull request #56 from YasserCherfaoui/dev,No
+819ef1fc60b70c4263630d6f794406eec5d6a125,,yasser.cherfaoui@gmail.com,2025-05-07 15:09:51 +0100,feat(inventory): implement transaction logging for entry bills and franchise sales,Yes
+af9864bae66d752312fe991a8f05b26b93e5dee9,,yasser.cherfaoui@gmail.com,2025-05-07 13:05:06 +0100,Merge pull request #55 from YasserCherfaoui/dev,No
+813a361e27603da747802118d39302d4ebf0d5f8,,yasser.cherfaoui@gmail.com,2025-05-07 13:04:33 +0100,feat(inventory): add endpoint to retrieve inventory transaction logs by franchise,Yes
+b4660f34a935dbb811b89f155b33d648e4bc74d7,,yasser.cherfaoui@gmail.com,2025-05-07 12:37:55 +0100,Merge pull request #54 from YasserCherfaoui/dev,No
+db168c6b492e8374b475d2747a530b0e8294a2ef,,yasser.cherfaoui@gmail.com,2025-05-07 12:35:25 +0100,feat(middleware): add UserOnly role middleware for user-specific routes,Yes
+b29f0a0d0f3c80e1c5b1a0ced1c6efeafaf6b3a4,,yasser.cherfaoui@gmail.com,2025-05-07 12:05:56 +0100,Merge pull request #53 from YasserCherfaoui/dev,No
+54ba06e28b305514c0b0d1611215694150f0082e,,yasser.cherfaoui@gmail.com,2025-05-06 16:04:58 +0100,feat(returns): add ReturnType field to Return model and schema,Yes
+44a8c42a97336f8a69191f5b80458d60cea67aa6,,yasser.cherfaoui@gmail.com,2025-05-06 12:27:21 +0100,Merge pull request #52 from YasserCherfaoui/dev,No
+12d07b11041a1d1d60cb323c3f4ee9b9912072e5,,yasser.cherfaoui@gmail.com,2025-05-06 12:26:13 +0100,feat(inventory): enhance inventory retrieval with cost calculation,Yes
+725f788a63de10c1d4d44b2744c0555d5d5cab41,,yasser.cherfaoui@gmail.com,2025-05-05 16:02:36 +0100,Merge pull request #51 from YasserCherfaoui/dev,No
+3c4439a86e7fad1439fa4ab932ee1cb94374590d,,yasser.cherfaoui@gmail.com,2025-05-05 16:01:21 +0100,feat(company): add logo and registration details to Company model,Yes
+99d6f8de80596b20b0c6d9c1d5d7af189fdb9f9c,,yasser.cherfaoui@gmail.com,2025-05-05 15:14:38 +0100,Merge pull request #50 from YasserCherfaoui/dev,No
+74c1dd7c03645514e198db1bd01a471054661304,,yasser.cherfaoui@gmail.com,2025-05-05 15:13:28 +0100,refactor: remove GetFranchise handler and update routes accordingly,Yes
+1c6de5103e09ee54f184f1e5f223986e5e47cc33,,yasser.cherfaoui@gmail.com,2025-05-05 14:34:04 +0100,Merge pull request #49 from YasserCherfaoui/dev,No
+18dccb55c43a25ad799d522ec367ead60ebe7f1e,,yasser.cherfaoui@gmail.com,2025-05-05 14:33:33 +0100,refactor: streamline GetMyCompanyFranchises handler by removing unnecessary claims checks,Yes
+9bd18352fad89ed887fa68f829aad6ef5e17567d,,yasser.cherfaoui@gmail.com,2025-05-05 12:59:44 +0100,refactor: update token generation and user handling in various handlers,Yes
+6d0cef04036204e3656b166f5fa8e9b5d023540e,,yasser.cherfaoui@gmail.com,2025-05-04 15:57:07 +0100,Merge pull request #48 from YasserCherfaoui/dev,No
+4cd8870a6684701f69815caab38e1a9d0da6a858,,yasser.cherfaoui@gmail.com,2025-05-04 15:56:18 +0100,feat(users): add user authentication and management features,Yes
+bca9caca2a429f22daf44e1146a4e0cd6c19a539,,yasser.cherfaoui@gmail.com,2025-05-04 11:40:10 +0100,Merge pull request #47 from YasserCherfaoui/dev,No
+88e192127fbaf3d4433ba218f92b8719f34a7548,,yasser.cherfaoui@gmail.com,2025-05-04 11:39:12 +0100,feat(products): add pagination to product sales quantities endpoint,Yes
+89d0329c750e34a9453802ada71b2b383b46748d,,yasser.cherfaoui@gmail.com,2025-05-04 11:11:30 +0100,Merge pull request #46 from YasserCherfaoui/dev,No
+27d5430610080bb5375a2c2cddffa8d8845f57e5,,yasser.cherfaoui@gmail.com,2025-05-04 11:10:44 +0100,perf(products): optimize sales quantity calculation by pre-aggregating data,Yes
+17c4785dfcd6ab32f6d8d4e07c032645677d5413,,yasser.cherfaoui@gmail.com,2025-05-04 10:42:44 +0100,Merge pull request #45 from YasserCherfaoui/dev,No
+bb04681c16ccaa3952cf5d8d6b859b3a7390a86b,,yasser.cherfaoui@gmail.com,2025-05-04 10:34:57 +0100,feat(products): add endpoint to retrieve product sales quantities,Yes
+216db1be899ef7ba12953b8f053d1b42af94c4a5,,yasser.cherfaoui@gmail.com,2025-05-01 14:23:30 +0100,Merge pull request #44 from YasserCherfaoui/dev,No
+7cb887f58a0f5152d48447044aa34ca926f46150,,yasser.cherfaoui@gmail.com,2025-05-01 14:21:41 +0100,feat: Integrate product variants handling in routes,Yes
+1133f95436a21493941c4bd789d04522b45ac810,,yasser.cherfaoui@gmail.com,2025-05-01 12:06:31 +0100,"feat: Implement product management handlers for creation, deletion, and retrieval",Yes
+984e50a4737c12d91ad77e2554442d30e087eaed,,yasser.cherfaoui@gmail.com,2025-04-19 19:08:21 +0100,Merge pull request #43 from YasserCherfaoui/dev,No
+42d062107516075959df4f8bcfdd0226768b08d2,,yasser.cherfaoui@gmail.com,2025-04-19 19:07:33 +0100,fix: Adjust SQL joins in GetFranchiseSalesTotals for accurate data retrieval,Yes
+b562eb5493ad2c8ffc8e223f4301709fedf979a6,,yasser.cherfaoui@gmail.com,2025-04-19 18:57:54 +0100,Merge pull request #42 from YasserCherfaoui/dev,No
+0dbcdc178e52768c9209673d5b45d7bdeba1b8aa,,yasser.cherfaoui@gmail.com,2025-04-19 18:55:36 +0100,fix: Improve sales totals calculations in GetFranchiseSalesTotals handler,Yes
+eb2023c8eb07768936419b8f2cf5e384c621129c,,yasser.cherfaoui@gmail.com,2025-04-18 22:53:42 +0100,Merge pull request #41 from YasserCherfaoui/dev,No
+cd3ff1ce68ec633e527eff618fb3e524120c8bc0,,yasser.cherfaoui@gmail.com,2025-04-18 22:51:56 +0100,feat: Enhance sales totals and return handling for franchises,Yes
+4e013a815016ad483443dafd5f9fef525a5d67ab,,yasser.cherfaoui@gmail.com,2025-04-17 14:24:04 +0100,Merge pull request #40 from YasserCherfaoui/dev,No
+afb12b197dddac7bd7ecf3f54c21f557ac39cf5e,,yasser.cherfaoui@gmail.com,2025-04-17 14:22:42 +0100,fix: Correct franchise price assignment in UpdateProduct handler,Yes
+a3ebfeb013f79bc41b851299fa5e80be23675152,,yasser.cherfaoui@gmail.com,2025-04-15 15:41:24 +0100,feat: Enhance database models and routes for broken items and returns,Yes
+59032309431ab4bdad2f262029d93d7ed7f0cff8,,yasser.cherfaoui@gmail.com,2025-04-09 17:32:16 +0100,Merge pull request #39 from YasserCherfaoui/dev,No
+c74350d958aae8e6cbcc742da4ebb60670a0f72e,,yasser.cherfaoui@gmail.com,2025-04-09 17:31:01 +0100,feat: Add SaleType field to sales models and handlers,Yes
+fe1f610045d4b25f1df1a6511acd89fcde4ecf1c,,yasser.cherfaoui@gmail.com,2025-04-08 13:05:33 +0100,Merge pull request #38 from YasserCherfaoui/dev,No
+956df1f739893c40a0fc639b32ab92bb5bac8901,,yasser.cherfaoui@gmail.com,2025-04-08 13:04:24 +0100,feat: Remove FranchiseHandler and related routes for improved organization,Yes
+3e8983af0982497e005a2a6c75dc34a16f6e8b45,,yasser.cherfaoui@gmail.com,2025-04-07 13:31:19 +0100,Merge pull request #37 from YasserCherfaoui/dev,No
+350304a6aebfabda3f16d21ae6680be374191677,,yasser.cherfaoui@gmail.com,2025-04-07 13:28:37 +0100,feat: Add InventoryItemTransactionLog model and update database connection,Yes
+f257f9353b4870f7f6ff5c34948e22f9acef97e5,,yasser.cherfaoui@gmail.com,2025-04-02 16:36:57 +0100,Merge pull request #36 from YasserCherfaoui/dev,No
+c2d5b23ca12df7106d4a2a00764b546e5c434571,,yasser.cherfaoui@gmail.com,2025-04-02 16:36:19 +0100,refactor: Rename items to variants in BarcodeRequest struct for clarity,Yes
+3cdde3fde4b58d317708963d10c927b1e0fcd209,,yasser.cherfaoui@gmail.com,2025-04-02 16:28:06 +0100,feat: Add endpoint for generating single barcode sticker PDFs,Yes
+bc6382a49a280065cd6fbcc5d265406383ce631f,,yasser.cherfaoui@gmail.com,2025-03-31 03:37:14 +0100,Merge pull request #35 from YasserCherfaoui/dev,No
+c31e34615ecaf92bc508e966c5e6e73af3eb3663,,yasser.cherfaoui@gmail.com,2025-03-31 03:35:40 +0100,feat: Update sales queries to exclude soft-deleted records,Yes
+a8ccfdb3e7b739d77f08c46df77194b84f7dcb67,,yasser.cherfaoui@gmail.com,2025-03-30 07:08:17 +0100,Merge pull request #34 from YasserCherfaoui/dev,No
+5b2d57f695015bba089151b58a9546aa067c1fd6,,yasser.cherfaoui@gmail.com,2025-03-30 07:07:26 +0100,feat: Add PDF generation for sales receipts and invoices,Yes
+83e57756a50b4d2ff5bc98d9cfd0185a416de85e,,yasser.cherfaoui@gmail.com,2025-03-30 03:24:09 +0100,Merge pull request #33 from YasserCherfaoui/dev,No
+ec3ffc43d0f8f15ae44d29275f108ad3951262cf,,yasser.cherfaoui@gmail.com,2025-03-30 03:23:29 +0100,feat: Optimize DeleteFranchiseSale handler for improved inventory management,Yes
+7b013ae18f7ac4b80e59ba63beb36eb019ea23d5,,yasser.cherfaoui@gmail.com,2025-03-30 02:44:18 +0100,Merge pull request #32 from YasserCherfaoui/dev,No
+40517d314cfa1a70c3a662193a9284d68710df84,,yasser.cherfaoui@gmail.com,2025-03-30 02:42:33 +0100,feat: Add overflow check for inventory quantity updates in DeleteFranchiseSale,Yes
+eb79d46130e56b59d6cb9f0aa24a59f60b80e07f,,yasser.cherfaoui@gmail.com,2025-03-27 05:05:43 +0100,Merge pull request #31 from YasserCherfaoui/dev,No
+1d22c0f0b0d071e7b965b7e756cb569b7f203796,,yasser.cherfaoui@gmail.com,2025-03-27 05:04:42 +0100,feat: Add total franchise price calculation to sales totals endpoints,Yes
+7b7c456d87c4608d9884f971f2be9a343400eacb,,yasser.cherfaoui@gmail.com,2025-03-24 19:33:24 +0100,Merge pull request #30 from YasserCherfaoui/dev,No
+65731442f97da53e5eba6a64e37e58ff0f533153,,yasser.cherfaoui@gmail.com,2025-03-24 19:32:22 +0100,feat: Add UpdateInventoryItem endpoint for inventory updates,Yes
+eb3515f14e4162242fe564d77bbc6e2f38af3e75,,yasser.cherfaoui@gmail.com,2025-03-23 23:51:29 +0100,feat: Add DELETE endpoint for franchise sale removal,Yes
+0c1848c206857410ec4a53d09ff213d1338cadb8,,yasser.cherfaoui@gmail.com,2025-03-23 23:49:33 +0100,Merge pull request #29 from YasserCherfaoui/dev,No
+8f39bccf3094a999d3c7b24b1244dc8b562f006f,,yasser.cherfaoui@gmail.com,2025-03-23 23:48:04 +0100,feat: Add DeleteFranchiseSale endpoint for sale deletion and inventory restoration,Yes
+2d0f7fda9d11bc45f57fa4cf7c282f6909327808,,yasser.cherfaoui@gmail.com,2025-03-23 04:56:01 +0100,Merge pull request #28 from YasserCherfaoui/dev,No
+ee5be663d19d9ad68dbe6d7c9b451fc75bbe6199,,yasser.cherfaoui@gmail.com,2025-03-23 04:55:21 +0100,feat: Add sales totals endpoints for franchises and companies,Yes
+8811f16099b4f0b6a3fa5628e29c5d208d2300a5,,yasser.cherfaoui@gmail.com,2025-03-23 04:18:57 +0100,Merge pull request #27 from YasserCherfaoui/dev,No
+bf8a835cde928eec470b10078ca2fe37cc6ef9fe,,yasser.cherfaoui@gmail.com,2025-03-23 04:07:39 +0100,feat: Optimize sale and supplier bill handling with bulk operations,Yes
+1257f66aa6a96e41fc9202af7254cf001c5c8ce7,,yasser.cherfaoui@gmail.com,2025-03-22 04:44:10 +0100,Merge pull request #26 from YasserCherfaoui/dev,No
+88582c56dcc00f53a152072a371ee7c858bbaf5d,,yasser.cherfaoui@gmail.com,2025-03-22 04:37:08 +0100,feat: Enhance company data retrieval by preloading franchises,Yes
+0531f3eb8814ac44d1063ac327609c1bd35d330f,,yasser.cherfaoui@gmail.com,2025-03-21 08:12:32 +0100,Merge pull request #25 from YasserCherfaoui/dev,No
+93106d7ff6630cc59cd4344651dc6947115bde7c,,yasser.cherfaoui@gmail.com,2025-03-21 08:11:30 +0100,feat: Enhance franchise payment management and entry bill handling,Yes
+73a86c455b346f26ca74a1688244d383464f1b18,,yasser.cherfaoui@gmail.com,2025-03-20 06:51:37 +0100,Merge pull request #24 from YasserCherfaoui/dev,No
+1e4dd3ad558c5b619f672bbe331be87c88d1ca97,,yasser.cherfaoui@gmail.com,2025-03-20 06:49:06 +0100,feat: Add CreateUnknownReturn endpoint and related functionality,Yes
+efb1026d865cb7e64becf398b10d7f5011cf297b,,yasser.cherfaoui@gmail.com,2025-03-16 06:33:00 +0100,Merge pull request #23 from YasserCherfaoui/dev,No
+717390870489a1f826504218e2328b3f9479b50f,,yasser.cherfaoui@gmail.com,2025-03-16 06:31:22 +0100,feat: Enhance administrator data retrieval and expand franchise routes,Yes
+db60a599bab532ce62ff8f7ae58fcbfc70ccc842,,yasser.cherfaoui@gmail.com,2025-03-15 00:11:54 +0100,Merge pull request #22 from YasserCherfaoui/dev,No
+8a34a0e335ebf4a070970c3a2550d2e7ad4b62fb,,yasser.cherfaoui@gmail.com,2025-03-15 00:10:42 +0100,feat: Implement RemoveCompanyExitBill endpoint to delete exit bills and update inventory,Yes
+b25dbc71f18536402043f04e99a8b978355447a0,,yasser.cherfaoui@gmail.com,2025-03-14 23:44:08 +0100,Merge pull request #21 from YasserCherfaoui/dev,No
+5111bf2116cc1cc4920bacb6f040b4e71b7718a1,,yasser.cherfaoui@gmail.com,2025-03-14 23:42:45 +0100,feat: Add CreateSupplierPayment endpoint and schema,Yes
+69073271663487995a568671738571e8f813f116,,yasser.cherfaoui@gmail.com,2025-03-13 07:52:23 +0100,Merge pull request #20 from YasserCherfaoui/dev,No
+f25f2b829ef8914675806d84f0272577d421248f,,yasser.cherfaoui@gmail.com,2025-03-13 07:47:51 +0100,feat: implement return and exchange functionality,Yes
+49ba5c3557624b5808d5b608411401e393dd21a7,,yasser.cherfaoui@gmail.com,2025-03-12 23:19:47 +0100,Merge pull request #19 from YasserCherfaoui/dev,No
+79003add6d9d58f56d3e373312a8b7de33601b79,,yasser.cherfaoui@gmail.com,2025-03-12 23:18:33 +0100,SUPPLIER BILL: fixing the issue when client tries to create a new supplier bill.,Yes
+8ab9023489add3d5f15ff9db89f6495f2ace4b12,,yasser.cherfaoui@gmail.com,2025-03-12 18:41:36 +0100,Merge pull request #18 from YasserCherfaoui/dev,No
+33758ba1b6b2e2d73734a989968ba9009678fa87,,yasser.cherfaoui@gmail.com,2025-03-12 18:40:02 +0100,feat: Implement RemoveSale endpoint to delete sales and update inventory,Yes
+1a55774298d3efa9d81f8a9579c462ea2b762000,,yasser.cherfaoui@gmail.com,2025-03-12 05:56:05 +0100,Merge pull request #17 from YasserCherfaoui/dev,No
+d4273b83cf8c752a82dc078f3dbe779edd967bc9,,yasser.cherfaoui@gmail.com,2025-03-12 05:54:16 +0100,Changing the way we calculate the total of bill just for serverside validation.,Yes
+b969e6665014007ce768bf12ccc8ec5ba684ed43,,yasser.cherfaoui@gmail.com,2025-03-12 03:35:44 +0100,Merge pull request #16 from YasserCherfaoui/dev,No
+3b74cbea6ff4b1143657052857ad053b410c9a9e,,yasser.cherfaoui@gmail.com,2025-03-12 03:31:48 +0100,feat: Implement DeleteSupplierBill endpoint,Yes
+4fb6492a32ba3d223a19e8defcd20a0476112b19,,yasser.cherfaoui@gmail.com,2025-03-12 01:17:26 +0100,Merge pull request #15 from YasserCherfaoui/dev,No
+cbcb14963de073d82312b1d6510d93a734d641bb,,yasser.cherfaoui@gmail.com,2025-03-12 01:16:48 +0100,feat: Add transaction for product creation,Yes
+094c987be46d9f7ca967443631bea24cc978e3cf,,yasser.cherfaoui@gmail.com,2025-03-10 13:53:33 +0100,Merge pull request #14 from YasserCherfaoui/dev,No
+0bc8b844ea386519e847b813f4524011532b586c,,yasser.cherfaoui@gmail.com,2025-03-10 13:52:04 +0100,BARCODES: changing the scale so that it can fit with variants with long name.,Yes
+acda80f7558dddab5438f4e4c98f49c50713529f,,yasser.cherfaoui@gmail.com,2025-03-10 05:34:18 +0100,Merge pull request #13 from YasserCherfaoui/dev,No
+9668dd0beba72a0fa996a157463e22ff3cdbb89b,,yasser.cherfaoui@gmail.com,2025-03-10 05:30:56 +0100,README added.,Yes
+0aae93613b88fa76885dea4592a53b870a4920aa,,yasser.cherfaoui@gmail.com,2025-03-10 05:26:00 +0100,Merge pull request #12 from YasserCherfaoui/dev,No
+a7a3e7e2c40de89da758a6942f5af00adacf25ac,,yasser.cherfaoui@gmail.com,2025-03-10 05:25:23 +0100,"feat: Implement GetMyCompanies, UpdateProduct, DeleteSupplier, and enhance barcode generation",Yes
+4bad538413221d81f7b92ff179224420fb9e72eb,,yasser.cherfaoui@gmail.com,2025-03-06 05:23:38 +0100,Merge pull request #11 from YasserCherfaoui/dev,No
+91738f48932252740fd2ca8f9dbd518eb5d13f8d,,yasser.cherfaoui@gmail.com,2025-03-06 05:22:14 +0100,fix: Update sale routes and schemas,Yes
+ac3cc129f20dfff14587dd2c51f0ba3601013350,,yasser.cherfaoui@gmail.com,2025-03-06 03:46:30 +0100,Merge pull request #10 from YasserCherfaoui/dev,No
+6a4af0a13f6441b1ceb3c0c8e5b3d5324b9d7d1f,,yasser.cherfaoui@gmail.com,2025-03-06 03:43:06 +0100,new build,No
+42b6a6a07a852d19c6d7bcf9c335a1157a144a5b,,yasser.cherfaoui@gmail.com,2025-03-06 03:39:38 +0100,Merge pull request #9 from YasserCherfaoui/dev,No
+e62869b1b142b54b4cdda94ea214f3a30ab9088d,,yasser.cherfaoui@gmail.com,2025-03-06 03:23:04 +0100,feat: Add sale model and routes,Yes
+67195886520e14ce91db0601db064655c38ed411,,yasser.cherfaoui@gmail.com,2025-03-04 17:45:28 +0100,Merge pull request #8 from YasserCherfaoui/dev,No
+ee6774c9f2060ae2b840bd73a4d07dc5b67d6edc,,yasser.cherfaoui@gmail.com,2025-03-04 17:43:37 +0100,line commented because it was adding extra blank page,Yes
+a5eceada913372bdb3698e05d00a9eb63ceb530b,,yasser.cherfaoui@gmail.com,2025-03-04 08:37:56 +0100,Merge pull request #7 from YasserCherfaoui/dev,No
+e96e1e87c6f003b3bcb839ba30daf27488eb1d2b,,yasser.cherfaoui@gmail.com,2025-03-04 07:45:23 +0100,feat: Add supplier model and routes,Yes
+d524bfcbf042a218d7432b717a83076ce9412caa,,yasser.cherfaoui@gmail.com,2025-03-04 01:38:53 +0100,feat: Implement transactional entry bill creation and enhance database connection handling,Yes
+267a636ed14db9e413cf2463f18c65fc4e363ff9,,yasser.cherfaoui@gmail.com,2025-03-03 01:03:48 +0100,Merge pull request #6 from YasserCherfaoui/dev,No
+38f7f4ec610acbf2d6018c07e451d074099b4590,,yasser.cherfaoui@gmail.com,2025-03-03 01:01:55 +0100,remove the unnecessary godotenv.load(),Yes
+e875d1432df1e2e648dfaf438d470bfea87f0a16,,yasser.cherfaoui@gmail.com,2025-03-03 00:54:53 +0100,Merge pull request #5 from YasserCherfaoui/dev,No
+5ccfea4e5c93af72567f78513563e65c3828c5c5,,yasser.cherfaoui@gmail.com,2025-03-03 00:52:05 +0100,GITIGNORE: updated,Yes
+d13fd87fb3534804e71cb256bef7e06c6756adcc,,yasser.cherfaoui@gmail.com,2025-03-03 00:51:25 +0100,DATABASE: Tweaks to switch between debug and release mode,Yes
+8b46b5b9102af8af5a1f9ce8100e130c3de50384,,yasser.cherfaoui@gmail.com,2025-03-03 00:18:33 +0100,Merge pull request #4 from YasserCherfaoui/dev,No
+0be0c65882748a8ed47776cddeb8473df2db27da,,yasser.cherfaoui@gmail.com,2025-03-03 00:16:51 +0100,DATABASE: Switching to prod database,Yes
+08d0b00eb21091b223f1daf83cbdb3842279d4d4,,yasser.cherfaoui@gmail.com,2025-03-02 23:44:54 +0100,Merge pull request #3 from YasserCherfaoui/dev,No
+a0777807f40e9b210b0a8801edcf704e0aa218b6,,yasser.cherfaoui@gmail.com,2025-03-02 23:43:41 +0100,feat: Add barcode generation and extra items to entry bills,Yes
+6f316dd64259f920354e425c1c7a459d7c3378bf,,yasser.cherfaoui@gmail.com,2025-03-02 16:07:46 +0100,Merge pull request #2 from YasserCherfaoui/dev,No
+99f5f85e95e4d5781536e9d087010fe45ba2adc2,GitButler,gitbutler@gitbutler.com,2025-03-02 16:04:35 +0100,GitButler Workspace Commit,Yes
+168e3657dc24c6c4e8fbe4f2dc7655cf1c0c3f37,,yasser.cherfaoui@gmail.com,2025-03-02 16:04:35 +0100,"This commit adds features for managing **franchise bills and inventory**. It lets franchises view and manage their bills (incoming and outgoing), create new bills with options to report problems, and manage their own inventory. It also automatically populates new franchise inventories and adds new products to all relevant franchise inventories. Additionally, there are improvements to API responses, error handling, and database relationships for better data management.",Yes
+d523785178cc959a5052eb440d0d1285eba118d3,,yasser.cherfaoui@gmail.com,2025-03-02 16:03:46 +0100,feat: Franchise Bills and Inventory,Yes
+c1493aa7e9e78ea73849e3f021a8b2f1d7b76c4e,,yasser.cherfaoui@gmail.com,2025-02-27 14:42:32 +0100,Merge pull request #1 from YasserCherfaoui/yc-branch-1,No
+791ee298e0daa7be2d6a4af012669cc344e871af,,yasser.cherfaoui@gmail.com,2025-02-27 14:40:58 +0100,refactor: clean up .gitignore and fix log file issues,Yes
+fd46e36b976706bd4d5586bb47753a39d220b41d,,yasser.cherfaoui@gmail.com,2025-02-27 14:38:14 +0100,feat(models): enforce unique email for administrators,Yes
+dee19a5d8fb6f026c523c502da3e4792fab0bf09,,yasser.cherfaoui@gmail.com,2025-02-27 14:37:57 +0100,refactor: update route handlers to use gin.IRoutes,Yes
+2885227bfa4c8411270aed6df32df046563b0bf8,,yasser.cherfaoui@gmail.com,2025-02-27 14:36:35 +0100,refactor: update product routes and handler structure,Yes
+fb2bd70fdf5464d36f6c140ec8c69595e08addf7,,yasser.cherfaoui@gmail.com,2025-02-27 14:35:37 +0100,feat: update franchise routes and handler logic,Yes
+ecd8d368549146dd1ac255d21a49490fdd9be4e1,,yasser.cherfaoui@gmail.com,2025-02-26 09:39:10 +0100,Exit Bills on Franchises Models & Handlers are added.,Yes
+f4ea2669b2e97662baa57127ad53374fecfed3e0,,yasser.cherfaoui@gmail.com,2025-02-24 00:07:30 +0100,PRODUCT: onCreate Product an inventory item is made with each made variant onDelete Product all the rest is deleted.,Yes
+34b395c40f8f775e94f494926ef9880c9fe351e4,,yasser.cherfaoui@gmail.com,2025-02-16 14:52:15 +0100,"FRANCHISE: on create franchise, franchise_admin & franchise_inventory are created.",Yes
+91bde9e82ed50bca2669d7c65ceb35ad67d61e81,,yasser.cherfaoui@gmail.com,2025-02-16 14:06:21 +0100,MODELS: Franchise administrators has been added.,Yes
+d7930d779ee98a9f2e9e90241cf57c33a466417c,,yasser.cherfaoui@gmail.com,2025-02-14 16:51:43 +0100,"MODELS: fixing issue of relationship between inventory and (company, franchise)",Yes
+9cd0e77f68d68c10892a12187b44950a69177579,,yasser.cherfaoui@gmail.com,2025-02-14 16:50:09 +0100,COMPANY: create inventory & link to comapny when comapny created.,Yes
+d469b93eb9c0b4cd14d0fe699ce086c8b0c04c3c,,yasser.cherfaoui@gmail.com,2025-02-14 16:49:17 +0100,PRODUCT: adding GetAllProductsJoinsProductVariantsByCompany to handler.,Yes
+dcb3da625952ceef5d519f622246122166dc26d2,,yasser.cherfaoui@gmail.com,2025-02-14 02:19:18 +0100,GITIGNORE: new files to be ignored.,Yes
+c3a3f3501e146a686ec9df2db368fc58c2d3fec6,,yasser.cherfaoui@gmail.com,2025-02-14 02:18:50 +0100,ROUTES: all new routes are added to the main routes function,Yes
+7c3ef30f5d3252e154dfc131cd354b3e36624ea2,,yasser.cherfaoui@gmail.com,2025-02-14 02:18:29 +0100,RELATIONS: Company has a one to many to Products,Yes
+ca59c4ac90502d3e8a9eaa4763523ba3a5b09e5c,,yasser.cherfaoui@gmail.com,2025-02-14 02:17:57 +0100,MIDDLEWARE: setting the auth middleware response to be like the custom one,Yes
+4a3b90dd505190155507e9db78874c20aeeb502d,,yasser.cherfaoui@gmail.com,2025-02-14 02:17:29 +0100,SCHEMAS: Create &  Update product schemas,Yes
+84eb01d6df3e9676234d23c806c270d2a2656c1a,,yasser.cherfaoui@gmail.com,2025-02-14 02:16:57 +0100,PRODUCT: setting up the handlers and the routes. assigning a relationship between Product & Company,Yes
+9703b9941e842a73c96441e1407025d3b54e0876,,yasser.cherfaoui@gmail.com,2025-02-14 02:15:53 +0100,COMPANY: adjusting the responses and adding a new route to get the current company.,Yes
+e5025f74096da853e6e7d303ea83b68b6e899f93,,yasser.cherfaoui@gmail.com,2025-02-14 02:14:48 +0100,ADMIN: Get current admin & Refresh Token.,Yes
+a7e29b7920dfe64bb0d58fef962208e73607289c,,yasser.cherfaoui@gmail.com,2025-02-09 17:45:14 +0100,.gitignore added,Yes
+0429cb6445332eb351bb08340c0de36af229053f,,yasser.cherfaoui@gmail.com,2025-02-09 17:42:00 +0100,In this commit the following updates were made: - Administrator model now has a unique key which is Email. - a unified APIReponse is made with a unified APIError. - all the responses within the handlers/administrator are using the APIReponse interface. - modules added.,Yes
+d51428af0bb272798d3f8c53f945a630de0f3718,,yasser.cherfaoui@gmail.com,2025-02-05 01:03:48 +0100,MIDDLEWARE: authentication for protected routes.,Yes
+d7755fd87765d26b962d877b53148d82d4e6ce03,,yasser.cherfaoui@gmail.com,2025-02-05 01:03:25 +0100,"FRANCHISE: handlers, schemas & routes implemented.",Yes
+ee4f521c907c78c600c369405f9dfff71aa2d103,,yasser.cherfaoui@gmail.com,2025-02-05 01:02:41 +0100,COMPANY: handlers & routes implemented.,Yes
+bed538286cd28f6abd7f2f66da5a8b8a1850694d,,yasser.cherfaoui@gmail.com,2025-02-05 01:02:07 +0100,AUTH: adding JWT to the app.,Yes
+30ca7d3f6f0ec74f4b6e7f2d010b1bd0617ac01f,,yasser.cherfaoui@gmail.com,2025-02-04 22:24:00 +0100,ADMIN: all methods added.,Yes
+5ed6f2883dac65a68b65610320bf314bbed6df65,,yasser.cherfaoui@gmail.com,2025-02-04 21:25:59 +0100,MODELS: making updates to fix the issues.,Yes
+000be549789dff6b690869a5170e80c39393e5fb,,yasser.cherfaoui@gmail.com,2025-02-04 18:24:45 +0100,setting up AIR,Yes
+81322d45c7774f99a32204437b021dea394073ea,,yasser.cherfaoui@gmail.com,2025-02-04 18:24:33 +0100,setting up the app,Yes
+35d510743df230b72521d355b0663cfb782045a0,,yasser.cherfaoui@gmail.com,2025-02-04 18:24:10 +0100,setting up the models,Yes
