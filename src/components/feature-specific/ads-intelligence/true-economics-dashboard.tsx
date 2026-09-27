@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -13,7 +12,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { AdsModelFunnelRow, AdsTrueEconomicsRow } from "@/models/data/ads-intelligence/chat.model";
 import { cn } from "@/lib/utils";
-import { Info } from "lucide-react";
+import { BarChart3, ChevronDown, Info } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type PlatformFilter = "all" | "meta" | "tiktok";
@@ -114,7 +113,7 @@ function ColumnHint({ label, hint }: { label: string; hint: string }) {
       <TooltipTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-1 text-left font-medium text-muted-foreground"
+          className="inline-flex cursor-pointer items-center gap-1 text-left font-medium text-muted-foreground"
         >
           {label}
           <Info className="h-3 w-3 shrink-0" aria-hidden />
@@ -181,68 +180,91 @@ export default function TrueEconomicsDashboard({
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="space-y-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">What this dashboard measures</CardTitle>
-            <CardDescription>
-              Each row is one ad campaign. Spend is shown in the ad account currency. Collected
-              cash, product cost, shipping, and model margin are in DZD. Profit subtracts spend
-              from those DZD amounts, so compare them only when the account currency is also DZD.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {metricHelp.map((item) => (
-                <div key={item.label} className="rounded-md border border-border bg-muted/30 px-3 py-2">
-                  <dt className="text-sm font-medium">{item.label}</dt>
-                  <dd className="text-xs text-muted-foreground">{item.detail}</dd>
-                </div>
-              ))}
-            </dl>
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-wrap gap-2">
-          {(
-            [
-              ["all", "All platforms"],
-              ["meta", "Meta"],
-              ["tiktok", "TikTok"],
-            ] as const
-          ).map(([value, label]) => (
-            <Button
-              key={value}
-              type="button"
-              size="sm"
-              variant={platform === value ? "default" : "outline"}
-              onClick={() => {
-                setPlatform(value);
-                setSelectedId(null);
-              }}
-            >
-              {label}
-            </Button>
-          ))}
+      <div className="space-y-6 px-4 py-5 sm:px-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <BarChart3 className="h-4 w-4" aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <h2 className="text-sm font-semibold tracking-tight">Campaign economics</h2>
+              <p className="text-xs text-muted-foreground">
+                Spend stays in the ad account currency. Cash, cost, and margin are in DZD.
+              </p>
+            </div>
+          </div>
+          <div className="inline-flex rounded-lg bg-muted p-1" role="group" aria-label="Platform">
+            {(
+              [
+                ["all", "All"],
+                ["meta", "Meta"],
+                ["tiktok", "TikTok"],
+              ] as const
+            ).map(([value, label]) => (
+              <Button
+                key={value}
+                type="button"
+                size="sm"
+                variant="ghost"
+                aria-pressed={platform === value}
+                className={cn(
+                  "shadow-none",
+                  platform === value && "bg-background text-foreground shadow-sm hover:bg-background",
+                )}
+                onClick={() => {
+                  setPlatform(value);
+                  setSelectedId(null);
+                }}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
         </div>
 
-        {loading && (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <Skeleton key={index} className="h-24" />
+        <details className="group rounded-lg border bg-background">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 text-sm marker:content-none [&::-webkit-details-marker]:hidden">
+            <span className="font-medium">How to read these numbers</span>
+            <ChevronDown
+              className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
+              aria-hidden
+            />
+          </summary>
+          <dl className="grid gap-3 border-t px-3 py-3 sm:grid-cols-2">
+            {metricHelp.map((item) => (
+              <div key={item.label}>
+                <dt className="text-sm font-medium">{item.label}</dt>
+                <dd className="text-sm leading-6 text-muted-foreground">{item.detail}</dd>
+              </div>
             ))}
+          </dl>
+        </details>
+
+        {loading && (
+          <div className="space-y-3" aria-label="Loading campaign economics">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} className="h-24 rounded-xl" />
+              ))}
+            </div>
+            <Skeleton className="h-64 rounded-xl" />
           </div>
         )}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         {!loading && !error && filtered.length === 0 && (
-          <Card>
-            <CardContent className="py-8 text-sm text-muted-foreground">
-              No attributed campaigns yet. Add credentials in Settings, run a platform sync, and
-              make sure store orders include the campaign id in UTM content.
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-start gap-4 py-10">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <BarChart3 className="h-5 w-5" aria-hidden />
+            </span>
+            <div className="max-w-lg space-y-2">
+              <h3 className="text-xl font-semibold tracking-tight">No attributed campaigns yet</h3>
+              <p className="text-sm leading-7 text-muted-foreground">
+                Add credentials in Settings, run a platform sync, and make sure store orders include the campaign id in UTM content.
+              </p>
+            </div>
+          </div>
         )}
 
         {!loading && filtered.length > 0 && (
@@ -297,36 +319,35 @@ export default function TrueEconomicsDashboard({
               />
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Campaign economics</CardTitle>
-                <CardDescription>
-                  Select a row to see which product models were confirmed and delivered under that
-                  campaign.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+            <section className="space-y-3">
+              <div>
+                <h3 className="text-sm font-semibold tracking-tight">Campaigns</h3>
+                <p className="text-xs text-muted-foreground">
+                  Select a row to see which product models were confirmed and delivered.
+                </p>
+              </div>
+              <div className="overflow-hidden rounded-lg border bg-background">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Campaign</TableHead>
-                      <TableHead>Platform</TableHead>
-                      <TableHead>Currency</TableHead>
-                      <TableHead className="text-right">
+                  <TableHeader className="bg-muted/80">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="text-xs uppercase tracking-wide">Campaign</TableHead>
+                      <TableHead className="text-xs uppercase tracking-wide">Platform</TableHead>
+                      <TableHead className="text-xs uppercase tracking-wide">Currency</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">
                         <ColumnHint label="Spend" hint={metricHelp[0].detail} />
                       </TableHead>
-                      <TableHead className="text-right">Orders</TableHead>
-                      <TableHead className="text-right">Confirmed</TableHead>
-                      <TableHead className="text-right">Delivered</TableHead>
-                      <TableHead className="text-right">Returned</TableHead>
-                      <TableHead className="text-right">Confirm %</TableHead>
-                      <TableHead className="text-right">Deliver %</TableHead>
-                      <TableHead className="text-right">Return %</TableHead>
-                      <TableHead className="text-right">Collected</TableHead>
-                      <TableHead className="text-right">COGS</TableHead>
-                      <TableHead className="text-right">Shipping</TableHead>
-                      <TableHead className="text-right">Net profit</TableHead>
-                      <TableHead className="text-right">Cost / delivered</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Orders</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Confirmed</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Delivered</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Returned</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Confirm %</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Deliver %</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Return %</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Collected</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">COGS</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Shipping</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Net profit</TableHead>
+                      <TableHead className="text-right text-xs uppercase tracking-wide">Cost / delivered</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -336,7 +357,7 @@ export default function TrueEconomicsDashboard({
                         <TableRow
                           key={`${row.platform}-${row.campaign_id}`}
                           data-state={active ? "selected" : undefined}
-                          className="cursor-pointer"
+                          className="cursor-pointer even:bg-muted/30 data-[state=selected]:bg-primary/10"
                           onClick={() => setSelectedId(row.campaign_id)}
                         >
                           <TableCell className="max-w-[220px]">
@@ -394,40 +415,38 @@ export default function TrueEconomicsDashboard({
                     })}
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
+              </div>
+            </section>
 
             {selected && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Models in {campaignLabel(selected)}</CardTitle>
-                  <CardDescription>
-                    Confirmed quantity is what the team accepted. Delivered revenue, cost, and margin
-                    are in DZD and only count units that reached the customer.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {selectedFunnel.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      No product lines are linked to this campaign yet. Confirmed order items need a
-                      product and the same UTM attribution as the campaign.
-                    </p>
-                  ) : (
+              <section className="space-y-3">
+                <div>
+                  <h3 className="text-sm font-semibold tracking-tight">Models in {campaignLabel(selected)}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Confirmed quantity is what the team accepted. Revenue, cost, and margin are in DZD and count delivered units only.
+                  </p>
+                </div>
+                {selectedFunnel.length === 0 ? (
+                  <p className="text-sm leading-7 text-muted-foreground">
+                    No product lines are linked to this campaign yet. Confirmed order items need a product and the same UTM attribution as the campaign.
+                  </p>
+                ) : (
+                  <div className="overflow-hidden rounded-lg border bg-background">
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Model</TableHead>
-                          <TableHead className="text-right">Confirmed qty</TableHead>
-                          <TableHead className="text-right">Delivered qty</TableHead>
-                          <TableHead className="text-right">Confirm → deliver</TableHead>
-                          <TableHead className="text-right">Delivered revenue</TableHead>
-                          <TableHead className="text-right">Delivered COGS</TableHead>
-                          <TableHead className="text-right">Gross margin</TableHead>
+                      <TableHeader className="bg-muted/80">
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead className="text-xs uppercase tracking-wide">Model</TableHead>
+                          <TableHead className="text-right text-xs uppercase tracking-wide">Confirmed qty</TableHead>
+                          <TableHead className="text-right text-xs uppercase tracking-wide">Delivered qty</TableHead>
+                          <TableHead className="text-right text-xs uppercase tracking-wide">Confirm → deliver</TableHead>
+                          <TableHead className="text-right text-xs uppercase tracking-wide">Delivered revenue</TableHead>
+                          <TableHead className="text-right text-xs uppercase tracking-wide">Delivered COGS</TableHead>
+                          <TableHead className="text-right text-xs uppercase tracking-wide">Gross margin</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {selectedFunnel.map((row) => (
-                          <TableRow key={`${row.campaign_id}-${row.product_id}`}>
+                          <TableRow key={`${row.campaign_id}-${row.product_id}`} className="even:bg-muted/30">
                             <TableCell>
                               <p className="font-medium">{row.model_name || `Product #${row.product_id}`}</p>
                               <p className="text-xs text-muted-foreground">#{row.product_id}</p>
@@ -457,9 +476,9 @@ export default function TrueEconomicsDashboard({
                         ))}
                       </TableBody>
                     </Table>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                )}
+              </section>
             )}
           </>
         )}
@@ -480,22 +499,18 @@ function SummaryCard({
   tone?: "positive" | "negative";
 }) {
   return (
-    <Card>
-      <CardHeader className="space-y-1 p-4 pb-2">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle
-          className={cn(
-            "text-2xl tabular-nums",
-            tone === "positive" && "text-emerald-700 dark:text-emerald-400",
-            tone === "negative" && "text-destructive",
-          )}
-        >
-          {value}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0">
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
+    <div className="rounded-xl border bg-background p-4 shadow-sm">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p
+        className={cn(
+          "mt-2 text-xl font-semibold tracking-tight tabular-nums",
+          tone === "positive" && "text-emerald-700 dark:text-emerald-400",
+          tone === "negative" && "text-destructive",
+        )}
+      >
+        {value}
+      </p>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint}</p>
+    </div>
   );
 }

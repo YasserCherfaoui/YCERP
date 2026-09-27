@@ -135,46 +135,45 @@ export default function AdsIntelligencePage() {
 
   if (!company) return null;
 
-  const chatOpen = activeTab === "chat";
+  const syncing = syncingMeta || syncingTikTok;
 
   return (
-    <div
-      className={cn(
-        "mx-auto flex w-full max-w-screen-2xl flex-col",
-        chatOpen
-          ? "h-[calc(100dvh-2.75rem)] gap-3 overflow-hidden px-3 py-3 md:px-5"
-          : "container space-y-6 p-4 md:p-6",
-      )}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Ads Intelligence</h1>
-          <p className="text-sm text-muted-foreground">
+    <div className="mx-auto flex h-[calc(100dvh-2.75rem)] w-full max-w-screen-2xl flex-col gap-3 overflow-hidden px-3 py-3 md:px-5">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-lg font-semibold tracking-tight">Ads Intelligence</h1>
+          <p className="truncate text-xs text-muted-foreground">
             Campaign spend compared with confirmed, delivered, and returned orders.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => void onSyncMeta()} disabled={syncingMeta}>
-            <RefreshCw className={syncingMeta ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+          <Button variant="outline" size="sm" onClick={() => void onSyncMeta()} disabled={syncingMeta}>
+            <RefreshCw className={cn("h-4 w-4", syncingMeta && "animate-spin")} />
             {syncingMeta ? "Syncing Meta…" : "Sync Meta"}
           </Button>
-          <Button variant="outline" onClick={() => void onSyncTikTok()} disabled={syncingTikTok}>
-            <RefreshCw className={syncingTikTok ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
+          <Button variant="outline" size="sm" onClick={() => void onSyncTikTok()} disabled={syncingTikTok}>
+            <RefreshCw className={cn("h-4 w-4", syncingTikTok && "animate-spin")} />
             {syncingTikTok ? "Syncing TikTok…" : "Sync TikTok"}
           </Button>
         </div>
       </div>
 
       {syncStatus && (
-        <p className="text-sm text-muted-foreground">{syncStatus}</p>
+        <p className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+          <span
+            className={cn("h-2 w-2 rounded-full bg-primary", syncing && "motion-safe:animate-pulse")}
+            aria-hidden
+          />
+          {syncStatus}
+        </p>
       )}
 
       <Tabs
         value={activeTab}
         onValueChange={onTabChange}
-        className={cn(chatOpen && "flex min-h-0 flex-1 flex-col")}
+        className="flex min-h-0 flex-1 flex-col"
       >
-        <TabsList>
+        <TabsList className="w-fit shrink-0">
           <TabsTrigger value="dashboard" className="gap-2">
             <BarChart3 className="h-4 w-4" />
             Dashboard
@@ -189,13 +188,18 @@ export default function AdsIntelligencePage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard" className="mt-4">
-          <TrueEconomicsDashboard
-            rows={rows}
-            funnel={funnel}
-            loading={loading}
-            error={error}
-          />
+        <TabsContent
+          value="dashboard"
+          className="mt-3 min-h-0 flex-1 overflow-hidden focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
+          <div className="h-full overflow-y-auto rounded-xl border bg-card shadow-sm">
+            <TrueEconomicsDashboard
+              rows={rows}
+              funnel={funnel}
+              loading={loading}
+              error={error}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent
@@ -205,8 +209,13 @@ export default function AdsIntelligencePage() {
           <AiChatPanel className="h-full" />
         </TabsContent>
 
-        <TabsContent value="settings" className="mt-4">
-          <AdsCredentialsSettings companyId={company.ID} />
+        <TabsContent
+          value="settings"
+          className="mt-3 min-h-0 flex-1 overflow-hidden focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
+          <div className="h-full overflow-y-auto rounded-xl border bg-card shadow-sm">
+            <AdsCredentialsSettings companyId={company.ID} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
