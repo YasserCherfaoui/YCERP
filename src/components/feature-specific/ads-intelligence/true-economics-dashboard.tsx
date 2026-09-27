@@ -12,8 +12,8 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { AdsModelFunnelRow, AdsTrueEconomicsRow } from "@/models/data/ads-intelligence/chat.model";
 import { cn } from "@/lib/utils";
-import { BarChart3, ChevronDown, Info } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowDown, ArrowUp, ArrowUpDown, BarChart3, ChevronDown, Info } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 
 type PlatformFilter = "all" | "meta" | "tiktok";
 
@@ -107,21 +107,177 @@ function campaignLabel(row: AdsTrueEconomicsRow) {
   return `Campaign #${row.campaign_id}`;
 }
 
-function ColumnHint({ label, hint }: { label: string; hint: string }) {
+type SortDirection = "asc" | "desc";
+
+type SortState<K extends string> = { key: K; direction: SortDirection } | null;
+
+type CampaignSortKey =
+  | "campaign"
+  | "platform"
+  | "currency"
+  | "spend"
+  | "orders"
+  | "confirmed"
+  | "delivered"
+  | "returned"
+  | "confirmation_rate"
+  | "delivery_rate"
+  | "return_rate"
+  | "collected"
+  | "cogs"
+  | "shipping"
+  | "profit"
+  | "cost_per_delivered";
+
+type ModelSortKey =
+  | "model"
+  | "qty_confirmed"
+  | "qty_delivered"
+  | "confirm_to_deliver_rate"
+  | "delivered_revenue"
+  | "delivered_cogs"
+  | "gross_margin";
+
+const numericCampaignKeys = new Set<CampaignSortKey>([
+  "spend",
+  "orders",
+  "confirmed",
+  "delivered",
+  "returned",
+  "confirmation_rate",
+  "delivery_rate",
+  "return_rate",
+  "collected",
+  "cogs",
+  "shipping",
+  "profit",
+  "cost_per_delivered",
+]);
+
+const numericModelKeys = new Set<ModelSortKey>([
+  "qty_confirmed",
+  "qty_delivered",
+  "confirm_to_deliver_rate",
+  "delivered_revenue",
+  "delivered_cogs",
+  "gross_margin",
+]);
+
+const campaignValue: Record<CampaignSortKey, (row: AdsTrueEconomicsRow) => string | number> = {
+  campaign: (row) => campaignLabel(row),
+  platform: (row) => row.platform,
+  currency: (row) => spendCurrency(row.currency),
+  spend: (row) => row.spend,
+  orders: (row) => row.orders_received,
+  confirmed: (row) => row.confirmed,
+  delivered: (row) => row.delivered,
+  returned: (row) => row.returned,
+  confirmation_rate: (row) => row.confirmation_rate,
+  delivery_rate: (row) => row.delivery_rate,
+  return_rate: (row) => row.return_rate,
+  collected: (row) => row.collected_cash,
+  cogs: (row) => row.delivered_cogs,
+  shipping: (row) => row.shipping_cost,
+  profit: (row) => row.net_profit,
+  cost_per_delivered: (row) => row.real_cost_per_delivered,
+};
+
+const modelValue: Record<ModelSortKey, (row: AdsModelFunnelRow) => string | number> = {
+  model: (row) => row.model_name || `Product #${row.product_id}`,
+  qty_confirmed: (row) => row.qty_confirmed,
+  qty_delivered: (row) => row.qty_delivered,
+  confirm_to_deliver_rate: (row) => row.confirm_to_deliver_rate,
+  delivered_revenue: (row) => row.delivered_revenue,
+  delivered_cogs: (row) => row.delivered_cogs,
+  gross_margin: (row) => row.gross_margin,
+};
+
+function compareSortValues(a: string | number, b: string | number) {
+  if (typeof a === "number" && typeof b === "number") return a - b;
+  return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
+}
+
+function sortRows<T>(
+  rows: T[],
+  getValue: (row: T) => string | number,
+  direction: SortDirection,
+) {
+  return [...rows].sort((left, right) => {
+    const result = compareSortValues(getValue(left), getValue(right));
+    return direction === "asc" ? result : -result;
+  });
+}
+
+function toggleSort<K extends string>(
+  current: SortState<K>,
+  key: K,
+  numericKeys: ReadonlySet<K>,
+): SortState<K> {
+  if (current?.key !== key) {
+    return { key, direction: numericKeys.has(key) ? "desc" : "asc" };
+  }
+  return { key, direction: current.direction === "asc" ? "desc" : "asc" };
+}
+
+function ColumnHint({ hint }: { hint: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           type="button"
-          className="inline-flex cursor-pointer items-center gap-1 text-left font-medium text-muted-foreground"
+          className="inline-flex cursor-pointer text-muted-foreground hover:text-foreground"
+          aria-label={hint}
         >
-          {label}
           <Info className="h-3 w-3 shrink-0" aria-hidden />
-          <span className="sr-only">{hint}</span>
         </button>
       </TooltipTrigger>
       <TooltipContent className="max-w-xs">{hint}</TooltipContent>
     </Tooltip>
+  );
+}
+
+function SortableHead<K extends string>({
+  label,
+  sortKey,
+  sort,
+  align = "right",
+  hint,
+  onSort,
+}: {
+  label: string;
+  sortKey: K;
+  sort: SortState<K>;
+  align?: "left" | "right";
+  hint?: string;
+  onSort: (key: K) => void;
+}) {
+  const active = sort?.key === sortKey;
+  const direction = active ? sort.direction : null;
+  const Icon = direction === "asc" ? ArrowUp : direction === "desc" ? ArrowDown : ArrowUpDown;
+
+  return (
+    <TableHead
+      className={cn("text-xs uppercase tracking-wide", align === "right" && "text-right")}
+      aria-sort={direction === "asc" ? "ascending" : direction === "desc" ? "descending" : "none"}
+    >
+      <span className={cn("inline-flex items-center gap-1", align === "right" && "w-full justify-end")}>
+        <button
+          type="button"
+          onClick={() => onSort(sortKey)}
+          className={cn(
+            "inline-flex items-center gap-1 font-medium text-muted-foreground hover:text-foreground",
+            active && "text-foreground",
+          )}
+        >
+          {label}
+          <Icon className={cn("h-3 w-3 shrink-0", !active && "opacity-40")} aria-hidden />
+          <span className="sr-only">
+            {direction === "asc" ? ", sorted ascending" : direction === "desc" ? ", sorted descending" : ", not sorted"}
+          </span>
+        </button>
+        {hint ? <ColumnHint hint={hint} /> : null}
+      </span>
+    </TableHead>
   );
 }
 
@@ -138,11 +294,18 @@ export default function TrueEconomicsDashboard({
 }) {
   const [platform, setPlatform] = useState<PlatformFilter>("all");
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [campaignSort, setCampaignSort] = useState<SortState<CampaignSortKey>>(null);
+  const [modelSort, setModelSort] = useState<SortState<ModelSortKey>>(null);
 
   const filtered = useMemo(
     () => (platform === "all" ? rows : rows.filter((row) => row.platform === platform)),
     [platform, rows],
   );
+
+  const sortedCampaigns = useMemo(() => {
+    if (!campaignSort) return filtered;
+    return sortRows(filtered, campaignValue[campaignSort.key], campaignSort.direction);
+  }, [campaignSort, filtered]);
 
   const totals = useMemo(() => {
     return filtered.reduce(
@@ -174,9 +337,19 @@ export default function TrueEconomicsDashboard({
 
   const selected =
     filtered.find((row) => row.campaign_id === selectedId) ?? filtered[0] ?? null;
-  const selectedFunnel = selected
-    ? funnel.filter((row) => row.campaign_id === selected.campaign_id)
-    : [];
+  const onCampaignSort = useCallback((key: CampaignSortKey) => {
+    setCampaignSort((current) => toggleSort(current, key, numericCampaignKeys));
+  }, []);
+
+  const onModelSort = useCallback((key: ModelSortKey) => {
+    setModelSort((current) => toggleSort(current, key, numericModelKeys));
+  }, []);
+
+  const selectedFunnel = useMemo(() => {
+    const models = selected ? funnel.filter((row) => row.campaign_id === selected.campaign_id) : [];
+    if (!modelSort) return models;
+    return sortRows(models, modelValue[modelSort.key], modelSort.direction);
+  }, [funnel, modelSort, selected]);
 
   return (
     <TooltipProvider delayDuration={200}>
@@ -330,28 +503,26 @@ export default function TrueEconomicsDashboard({
                 <Table>
                   <TableHeader className="bg-muted/80">
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="text-xs uppercase tracking-wide">Campaign</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Platform</TableHead>
-                      <TableHead className="text-xs uppercase tracking-wide">Currency</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">
-                        <ColumnHint label="Spend" hint={metricHelp[0].detail} />
-                      </TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Orders</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Confirmed</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Delivered</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Returned</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Confirm %</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Deliver %</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Return %</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Collected</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">COGS</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Shipping</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Net profit</TableHead>
-                      <TableHead className="text-right text-xs uppercase tracking-wide">Cost / delivered</TableHead>
+                      <SortableHead label="Campaign" sortKey="campaign" sort={campaignSort} align="left" onSort={onCampaignSort} />
+                      <SortableHead label="Platform" sortKey="platform" sort={campaignSort} align="left" onSort={onCampaignSort} />
+                      <SortableHead label="Currency" sortKey="currency" sort={campaignSort} align="left" onSort={onCampaignSort} />
+                      <SortableHead label="Spend" sortKey="spend" sort={campaignSort} hint={metricHelp[0].detail} onSort={onCampaignSort} />
+                      <SortableHead label="Orders" sortKey="orders" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Confirmed" sortKey="confirmed" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Delivered" sortKey="delivered" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Returned" sortKey="returned" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Confirm %" sortKey="confirmation_rate" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Deliver %" sortKey="delivery_rate" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Return %" sortKey="return_rate" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Collected" sortKey="collected" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="COGS" sortKey="cogs" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Shipping" sortKey="shipping" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Net profit" sortKey="profit" sort={campaignSort} onSort={onCampaignSort} />
+                      <SortableHead label="Cost / delivered" sortKey="cost_per_delivered" sort={campaignSort} onSort={onCampaignSort} />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map((row) => {
+                    {sortedCampaigns.map((row) => {
                       const active = selected?.campaign_id === row.campaign_id;
                       return (
                         <TableRow
@@ -435,13 +606,13 @@ export default function TrueEconomicsDashboard({
                     <Table>
                       <TableHeader className="bg-muted/80">
                         <TableRow className="hover:bg-transparent">
-                          <TableHead className="text-xs uppercase tracking-wide">Model</TableHead>
-                          <TableHead className="text-right text-xs uppercase tracking-wide">Confirmed qty</TableHead>
-                          <TableHead className="text-right text-xs uppercase tracking-wide">Delivered qty</TableHead>
-                          <TableHead className="text-right text-xs uppercase tracking-wide">Confirm → deliver</TableHead>
-                          <TableHead className="text-right text-xs uppercase tracking-wide">Delivered revenue</TableHead>
-                          <TableHead className="text-right text-xs uppercase tracking-wide">Delivered COGS</TableHead>
-                          <TableHead className="text-right text-xs uppercase tracking-wide">Gross margin</TableHead>
+                          <SortableHead label="Model" sortKey="model" sort={modelSort} align="left" onSort={onModelSort} />
+                          <SortableHead label="Confirmed qty" sortKey="qty_confirmed" sort={modelSort} onSort={onModelSort} />
+                          <SortableHead label="Delivered qty" sortKey="qty_delivered" sort={modelSort} onSort={onModelSort} />
+                          <SortableHead label="Confirm → deliver" sortKey="confirm_to_deliver_rate" sort={modelSort} onSort={onModelSort} />
+                          <SortableHead label="Delivered revenue" sortKey="delivered_revenue" sort={modelSort} onSort={onModelSort} />
+                          <SortableHead label="Delivered COGS" sortKey="delivered_cogs" sort={modelSort} onSort={onModelSort} />
+                          <SortableHead label="Gross margin" sortKey="gross_margin" sort={modelSort} onSort={onModelSort} />
                         </TableRow>
                       </TableHeader>
                       <TableBody>
