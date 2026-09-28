@@ -1,3 +1,6 @@
+import { PasskeySettingsCard } from "@/components/feature-specific/auth/passkey-settings-card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -6,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useApiEnvironment } from "@/hooks/use-api-environment";
 import { ApiEnvironment } from "@/lib/api-environment";
+import { cn } from "@/lib/utils";
 import { CheckCircle2, Globe, RefreshCw, Server, Settings } from "lucide-react";
 import { useState } from "react";
 
@@ -42,35 +46,33 @@ export default function SettingsPage() {
   const hasChanges = selectedEnvironment !== currentEnvironment;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6">
       <div className="container mx-auto max-w-4xl space-y-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Settings className="h-8 w-8 text-gray-700" />
-            <h1 className="text-3xl font-bold text-gray-900">Application Settings</h1>
+        <div className="mb-2">
+          <div className="mb-2 flex items-center gap-3">
+            <Settings className="h-8 w-8 text-muted-foreground" />
+            <h1 className="text-3xl font-bold tracking-tight">Application Settings</h1>
           </div>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Configure your application preferences and API environment.
           </p>
         </div>
 
-        {/* Current Environment Status */}
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              <CheckCircle2 className="h-5 w-5 text-primary" />
               <CardTitle className="text-xl">Current Environment</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{currentConfig.name}</p>
-                <p className="text-sm text-gray-600">{currentConfig.description}</p>
-                <p className="text-xs text-gray-500 mt-2 font-mono">{currentConfig.url}</p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-2xl font-bold">{currentConfig.name}</p>
+                <p className="text-sm text-muted-foreground">{currentConfig.description}</p>
+                <p className="mt-2 break-all font-mono text-xs text-muted-foreground">{currentConfig.url}</p>
               </div>
-              <Globe className="h-12 w-12 text-blue-500 opacity-20" />
+              <Globe className="h-12 w-12 shrink-0 text-primary/25" />
             </div>
           </CardContent>
         </Card>
@@ -79,7 +81,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Server className="h-5 w-5 text-gray-700" />
+              <Server className="h-5 w-5 text-muted-foreground" />
               <CardTitle>API Environment</CardTitle>
             </div>
             <CardDescription>
@@ -92,32 +94,29 @@ export default function SettingsPage() {
               onValueChange={(value) => setSelectedEnvironment(value as ApiEnvironment)}
             >
               {availableEnvironments.map((env) => (
-                <div 
+                <div
                   key={env.name}
-                  className={`flex items-start space-x-3 p-4 rounded-lg border-2 transition-all ${
-                    selectedEnvironment === env.name 
-                      ? 'border-blue-500 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                  className={cn(
+                    "flex items-start gap-3 rounded-lg border p-4 transition-colors",
+                    selectedEnvironment === env.name
+                      ? "border-primary bg-accent"
+                      : "border-border hover:bg-accent/50"
+                  )}
                 >
                   <RadioGroupItem value={env.name} id={env.name} className="mt-1" />
-                  <div className="flex-1">
+                  <div className="min-w-0 flex-1">
                     <Label htmlFor={env.name} className="cursor-pointer">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-lg">{env.name}</span>
-                        {env.name === 'GCP' && (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                            Default
-                          </span>
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <span className="text-lg font-semibold">{env.name}</span>
+                        {env.name === "GCP" && (
+                          <Badge variant="secondary">Default</Badge>
                         )}
                         {currentEnvironment === env.name && (
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                            Active
-                          </span>
+                          <Badge variant="outline">Active</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600">{env.description}</p>
-                      <p className="text-xs text-gray-500 mt-1 font-mono break-all">{env.url}</p>
+                      <p className="text-sm text-muted-foreground">{env.description}</p>
+                      <p className="mt-1 break-all font-mono text-xs text-muted-foreground">{env.url}</p>
                     </Label>
                   </div>
                 </div>
@@ -128,18 +127,14 @@ export default function SettingsPage() {
 
             {/* Warning Message */}
             {hasChanges && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                <div className="flex items-start gap-2">
-                  <RefreshCw className="h-5 w-5 text-amber-600 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-amber-900">Page Reload Required</p>
-                    <p className="text-sm text-amber-700">
-                      Changing the API environment will reload the page to apply the changes. 
-                      Any unsaved work will be lost.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <Alert className="border-amber-500/40 bg-amber-500/10">
+                <RefreshCw className="text-amber-700 dark:text-amber-300" />
+                <AlertTitle>Page reload required</AlertTitle>
+                <AlertDescription className="text-muted-foreground">
+                  Changing the API environment will reload the page to apply the changes.
+                  Any unsaved work will be lost.
+                </AlertDescription>
+              </Alert>
             )}
 
             {/* Action Buttons */}
@@ -165,24 +160,26 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
+        <PasskeySettingsCard />
+
         {/* Additional Info */}
-        <Card className="bg-gray-50">
+        <Card className="bg-muted/40">
           <CardHeader>
             <CardTitle className="text-lg">About API Environments</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-gray-600">
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>
-              <strong>GCP (Google Cloud Platform):</strong> Production environment with the highest reliability 
+              <strong className="text-foreground">GCP (Google Cloud Platform):</strong> Production environment with the highest reliability
               and performance. This is the default and recommended option.
             </p>
             <p>
-              <strong>RAILWAY:</strong> Staging environment for testing new features before they go to production.
+              <strong className="text-foreground">RAILWAY:</strong> Staging environment for testing new features before they go to production.
             </p>
             <p>
-              <strong>KOYEB:</strong> Development environment for experimental features and testing.
+              <strong className="text-foreground">KOYEB:</strong> Development environment for experimental features and testing.
             </p>
-            <p className="text-xs text-gray-500 mt-4">
-              Note: Environment URLs can be customized using environment variables (VITE_GCP_API_URL, 
+            <p className="mt-4 text-xs">
+              Note: Environment URLs can be customized using environment variables (VITE_GCP_API_URL,
               VITE_RAILWAY_API_URL, VITE_KOYEB_API_URL).
             </p>
           </CardContent>

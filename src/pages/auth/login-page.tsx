@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { login } from "@/features/auth/auth-slice";
 import { useToast } from "@/hooks/use-toast";
 import { LoginFormSchema, loginSchema } from "@/schemas/auth";
-import { loginUser } from "@/services/auth-service";
+import { loginUser, loginWithPasskey } from "@/services/auth-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -34,9 +34,9 @@ export default function () {
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginSchema),
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<"password" | "passkey" | null>(null);
   const onSubmit = async (data: LoginFormSchema) => {
-    setLoading(true);
+    setLoading("password");
     try {
       const response = await loginUser(data);
       if (response.data != undefined) {
@@ -61,9 +61,39 @@ export default function () {
         description: "Wrong credentials.",
       });
     } finally {
-      setLoading(false);
+      setLoading(null);
     }
     console.log(data);
+  };
+
+  const onPasskey = async () => {
+    setLoading("passkey");
+    try {
+      const response = await loginWithPasskey();
+      if (response.data != undefined) {
+        toast({
+          title: "Access Granted",
+          description: "Welcome to your portal.",
+        });
+        localStorage.setItem("token", response.data.token);
+        dispatch(login(response.data.user));
+        navigate("/menu", { replace: true });
+      } else {
+        toast({
+          title: "Error logging in",
+          description: "There was an error logging in. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Passkey sign-in failed",
+        variant: "destructive",
+        description: error instanceof Error ? error.message : "Try again, or use your password.",
+      });
+    } finally {
+      setLoading(null);
+    }
   };
 
   return (
@@ -123,8 +153,25 @@ export default function () {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={loading} className="w-full">
-                {loading ? "Logging in..." : "Login"}
+              <Button type="submit" disabled={loading !== null} className="w-full">
+                {loading === "password" ? "Logging in..." : "Login"}
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">or</span>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading !== null}
+                className="w-full"
+                onClick={() => void onPasskey()}
+              >
+                {loading === "passkey" ? "Waiting for passkey..." : "Sign in with a passkey"}
               </Button>
             </form>
           </Form>
