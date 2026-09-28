@@ -13,8 +13,10 @@ import {
   waitForAdsSync,
 } from "@/services/ads-intelligence-service";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import { BarChart3, Bot, RefreshCw, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import type { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
@@ -32,6 +34,9 @@ export default function AdsIntelligencePage() {
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
   const [syncingMeta, setSyncingMeta] = useState(false);
   const [syncingTikTok, setSyncingTikTok] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const dateFrom = dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined;
+  const dateTo = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
 
   useEffect(() => {
     if (tabParam === "settings" || tabParam === "chat" || tabParam === "dashboard") {
@@ -53,8 +58,8 @@ export default function AdsIntelligencePage() {
     setError(null);
     try {
       const [economics, models] = await Promise.all([
-        getAdsTrueEconomics(),
-        getAdsModelFunnel(),
+        getAdsTrueEconomics({ range: { from: dateFrom, to: dateTo } }),
+        getAdsModelFunnel({ range: { from: dateFrom, to: dateTo } }),
       ]);
       setRows(economics.data ?? []);
       setFunnel(models.data ?? []);
@@ -63,7 +68,7 @@ export default function AdsIntelligencePage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [dateFrom, dateTo]);
 
   useEffect(() => {
     void loadEconomics();
@@ -198,6 +203,8 @@ export default function AdsIntelligencePage() {
               funnel={funnel}
               loading={loading}
               error={error}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
             />
           </div>
         </TabsContent>

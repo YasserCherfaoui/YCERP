@@ -50,6 +50,7 @@ import CompanyInventoryAnalyticsPage from "@/pages/dashboard/company/company-inv
 import CompanyMissingVariantsPage from "@/pages/dashboard/company/company-missing-variants-page";
 import CompanyPickupRequestsPage from "@/pages/dashboard/company/company-pickup-requests-page";
 import CompanyOrdersPage from "@/pages/dashboard/company/company-orders-page";
+import WooOrderPage from "@/pages/dashboard/company/woo-order-page";
 import PackingCheckPage from "@/pages/dashboard/company/packing-check-page";
 import CompanyPage from "@/pages/dashboard/company/company-page";
 import CompanyProductsPage from "@/pages/dashboard/company/company-products-page";
@@ -185,6 +186,7 @@ export default function AppRouter() {
           <Route element={<UserPrivateRoute />}>
             <Route index element={<UserMenuPage />} />
             <Route path="orders" element={<CompanyOrdersPage />} />
+            <Route path="orders/:orderID" element={<WooOrderPage />} />
             <Route path="packing-check" element={<PackingCheckPage />} />
             <Route path="sales">
               <Route index element={<CompanySalesSwitchPage />} />
@@ -304,6 +306,7 @@ export default function AppRouter() {
                 <Route path=":supplierID" element={<CompanySupplierPage />} />
               </Route>
               <Route path="orders" element={<CompanyOrdersPage />} />
+              <Route path="orders/:orderID" element={<WooOrderPage />} />
               <Route path="packing-check" element={<PackingCheckPage />} />
               <Route path="sales">
                 <Route index element={<CompanySalesSwitchPage />} />
