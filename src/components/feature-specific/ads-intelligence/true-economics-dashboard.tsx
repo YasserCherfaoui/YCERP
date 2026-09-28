@@ -1,5 +1,8 @@
+import UndeliveredOrdersDialog from "@/components/feature-specific/ads-intelligence/undelivered-orders-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -11,9 +14,12 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { AdsModelFunnelRow, AdsTrueEconomicsRow } from "@/models/data/ads-intelligence/chat.model";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp, ArrowUpDown, BarChart3, ChevronDown, Info } from "lucide-react";
+import { format } from "date-fns";
+import { ArrowDown, ArrowUp, ArrowUpDown, BarChart3, Calendar as CalendarIcon, ChevronDown, Info } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import type { DateRange } from "react-day-picker";
 
 type PlatformFilter = "all" | "meta" | "tiktok";
 
@@ -281,21 +287,80 @@ function SortableHead<K extends string>({
   );
 }
 
+function DateRangePicker({
+  value,
+  onChange,
+}: {
+  value?: DateRange;
+  onChange: (range: DateRange | undefined) => void;
+}) {
+  const isMobile = useIsMobile();
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={cn("justify-start text-left font-normal", !value?.from && "text-muted-foreground")}
+        >
+          <CalendarIcon className="h-4 w-4" />
+          {value?.from ? (
+            value.to ? (
+              <>
+                {format(value.from, "LLL dd, y")} – {format(value.to, "LLL dd, y")}
+              </>
+            ) : (
+              format(value.from, "LLL dd, y")
+            )
+          ) : (
+            "All dates"
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="end">
+        <Calendar
+          initialFocus
+          mode="range"
+          defaultMonth={value?.from}
+          selected={value}
+          onSelect={onChange}
+          numberOfMonths={isMobile ? 1 : 2}
+        />
+        <div className="flex items-center justify-between gap-3 border-t p-2">
+          <p className="px-1 text-xs text-muted-foreground">
+            Spend uses the ad date. Orders use the day they were created.
+          </p>
+          <Button type="button" size="sm" variant="ghost" onClick={() => onChange(undefined)}>
+            Reset
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function TrueEconomicsDashboard({
   rows,
   funnel,
   loading,
   error,
+  dateRange,
+  onDateRangeChange,
 }: {
   rows: AdsTrueEconomicsRow[];
   funnel: AdsModelFunnelRow[];
   loading: boolean;
   error: string | null;
+  dateRange?: DateRange;
+  onDateRangeChange: (range: DateRange | undefined) => void;
 }) {
   const [platform, setPlatform] = useState<PlatformFilter>("all");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [campaignSort, setCampaignSort] = useState<SortState<CampaignSortKey>>(null);
   const [modelSort, setModelSort] = useState<SortState<ModelSortKey>>(null);
+  const [undeliveredCampaign, setUndeliveredCampaign] = useState<AdsTrueEconomicsRow | null>(null);
 
   const filtered = useMemo(
     () => (platform === "all" ? rows : rows.filter((row) => row.platform === platform)),
@@ -366,7 +431,9 @@ export default function TrueEconomicsDashboard({
               </p>
             </div>
           </div>
-          <div className="inline-flex rounded-lg bg-muted p-1" role="group" aria-label="Platform">
+          <div className="flex flex-wrap items-center gap-2">
+            <DateRangePicker value={dateRange} onChange={onDateRangeChange} />
+            <div className="inline-flex rounded-lg bg-muted p-1" role="group" aria-label="Platform">
             {(
               [
                 ["all", "All"],
@@ -392,6 +459,7 @@ export default function TrueEconomicsDashboard({
                 {label}
               </Button>
             ))}
+            </div>
           </div>
         </div>
 
@@ -496,7 +564,7 @@ export default function TrueEconomicsDashboard({
               <div>
                 <h3 className="text-sm font-semibold tracking-tight">Campaigns</h3>
                 <p className="text-xs text-muted-foreground">
-                  Select a row to see which product models were confirmed and delivered.
+                  Select a row to see which product models were confirmed and delivered. Click a Confirmed count to see the orders that are still open.
                 </p>
               </div>
               <div className="overflow-hidden rounded-lg border bg-background">
@@ -547,7 +615,24 @@ export default function TrueEconomicsDashboard({
                             {formatMoney(row.spend, row.currency)}
                           </TableCell>
                           <TableCell className="text-right tabular-nums">{row.orders_received}</TableCell>
-                          <TableCell className="text-right tabular-nums">{row.confirmed}</TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {row.confirmed > 0 ? (
+                              <button
+                                type="button"
+                                className="underline-offset-2 hover:underline"
+                                aria-label={`Show confirmed orders that are not delivered for ${campaignLabel(row)}`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setSelectedId(row.campaign_id);
+                                  setUndeliveredCampaign(row);
+                                }}
+                              >
+                                {row.confirmed}
+                              </button>
+                            ) : (
+                              row.confirmed
+                            )}
+                          </TableCell>
                           <TableCell className="text-right tabular-nums">{row.delivered}</TableCell>
                           <TableCell className="text-right tabular-nums">{row.returned}</TableCell>
                           <TableCell className="text-right tabular-nums">
@@ -654,6 +739,12 @@ export default function TrueEconomicsDashboard({
           </>
         )}
       </div>
+      <UndeliveredOrdersDialog
+        campaign={undeliveredCampaign}
+        dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
+        dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
+        onClose={() => setUndeliveredCampaign(null)}
+      />
     </TooltipProvider>
   );
 }

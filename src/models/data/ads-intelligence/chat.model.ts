@@ -51,6 +51,23 @@ export interface AdsTrueEconomicsRow {
   real_cost_per_delivered: number;
 }
 
+export interface AdsUndeliveredOrder {
+  woo_order_id: number;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  order_status: string;
+  franchise_order_status: string;
+  shipping_provider: string;
+  tracking_number: string;
+  carrier_status: string;
+  carrier_reason: string;
+  wilaya_name: string;
+  comments: string;
+  created_at?: string;
+  why: string;
+}
+
 export interface AdsModelFunnelRow {
   campaign_id: number;
   product_id: number;

@@ -4,6 +4,7 @@ import type {
   AdsChatSessionRecord,
   AdsModelFunnelRow,
   AdsTrueEconomicsRow,
+  AdsUndeliveredOrder,
 } from "@/models/data/ads-intelligence/chat.model";
 import type {
   AdsPlatformCredential,
@@ -56,14 +57,31 @@ export async function getAdsChatMessages(
   return data as APIResponse<AdsChatMessageRecord[]>;
 }
 
-export async function getAdsTrueEconomics(
-  platform?: string,
-): Promise<APIResponse<AdsTrueEconomicsRow[]>> {
-  const qs = platform ? `?platform=${encodeURIComponent(platform)}` : "";
-  const res = await fetch(`${getBaseUrl()}/adsintel/economics/true${qs}`, {
-    method: "GET",
-    headers: authHeaders(),
-  });
+export type AdsDateRange = {
+  from?: string;
+  to?: string;
+};
+
+function appendDateRange(params: URLSearchParams, range?: AdsDateRange) {
+  if (range?.from) params.set("from", range.from);
+  if (range?.to) params.set("to", range.to);
+}
+
+export async function getAdsTrueEconomics(opts?: {
+  platform?: string;
+  range?: AdsDateRange;
+}): Promise<APIResponse<AdsTrueEconomicsRow[]>> {
+  const params = new URLSearchParams();
+  if (opts?.platform) params.set("platform", opts.platform);
+  appendDateRange(params, opts?.range);
+  const qs = params.toString();
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/economics/true${qs ? `?${qs}` : ""}`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    },
+  );
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message ?? "Failed to load true economics.");
@@ -71,20 +89,46 @@ export async function getAdsTrueEconomics(
   return data as APIResponse<AdsTrueEconomicsRow[]>;
 }
 
-export async function getAdsModelFunnel(
-  campaignId?: number,
-): Promise<APIResponse<AdsModelFunnelRow[]>> {
-  const qs =
-    campaignId != null ? `?campaign_id=${encodeURIComponent(String(campaignId))}` : "";
-  const res = await fetch(`${getBaseUrl()}/adsintel/economics/models${qs}`, {
-    method: "GET",
-    headers: authHeaders(),
-  });
+export async function getAdsModelFunnel(opts?: {
+  campaignId?: number;
+  range?: AdsDateRange;
+}): Promise<APIResponse<AdsModelFunnelRow[]>> {
+  const params = new URLSearchParams();
+  if (opts?.campaignId != null) params.set("campaign_id", String(opts.campaignId));
+  appendDateRange(params, opts?.range);
+  const qs = params.toString();
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/economics/models${qs ? `?${qs}` : ""}`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    },
+  );
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message ?? "Failed to load model funnel.");
   }
   return data as APIResponse<AdsModelFunnelRow[]>;
+}
+
+export async function getUndeliveredConfirmedOrders(
+  campaignId: number,
+  range?: AdsDateRange,
+): Promise<APIResponse<AdsUndeliveredOrder[]>> {
+  const params = new URLSearchParams({ campaign_id: String(campaignId) });
+  appendDateRange(params, range);
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/economics/undelivered?${params.toString()}`,
+    {
+      method: "GET",
+      headers: authHeaders(),
+    },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message ?? "Failed to load undelivered orders.");
+  }
+  return data as APIResponse<AdsUndeliveredOrder[]>;
 }
 
 export async function triggerMetaAdsSync(
