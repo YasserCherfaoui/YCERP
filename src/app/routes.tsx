@@ -58,6 +58,7 @@ import CompanySalesPage from "@/pages/dashboard/company/company-sales-page";
 import CompanySalesSwitchPage from "@/pages/dashboard/company/company-sales-switch-page";
 import CompanyStatsPage from "@/pages/dashboard/company/company-stats-page";
 import CompanyBrokenItemsTransfersPage from "@/pages/dashboard/company/company-broken-items-transfers-page";
+import CompanyStockMovementsPage from "@/pages/dashboard/company/company-stock-movements-page";
 import CompanyBrokenItemsDeclarationsPage from "@/pages/dashboard/company/company-broken-items-declarations-page";
 import CompanyFranchiseFulfillmentPage from "@/pages/dashboard/company/company-franchise-fulfillment-page";
 import CompanyWooRefundPage from "@/pages/dashboard/company/company-woo-refund-page";
@@ -245,6 +246,7 @@ export default function AppRouter() {
               <Route path="notifications" element={<ModeratorStockAlertsNotificationsPage />} />
             </Route>
             <Route path="broken-items-transfers" element={<ModeratorBrokenItemsTransfersPage />} />
+            <Route path="stock-movements" element={<CompanyStockMovementsPage />} />
             <Route path="broken-items-declarations" element={<ModeratorBrokenItemsDeclarationsPage />} />
             <Route
               path="franchise-fulfillment"
@@ -357,6 +359,7 @@ export default function AppRouter() {
                 <Route path="notifications" element={<CompanyStockAlertsNotificationsPage />} />
               </Route>
               <Route path="broken-items-transfers" element={<CompanyBrokenItemsTransfersPage />} />
+              <Route path="stock-movements" element={<CompanyStockMovementsPage />} />
               <Route path="broken-items-declarations" element={<CompanyBrokenItemsDeclarationsPage />} />
               <Route
                 path="franchise-fulfillment"

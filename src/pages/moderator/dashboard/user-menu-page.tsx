@@ -4,6 +4,7 @@ import CompanyTile from "@/components/feature-specific/company/company-tile";
 import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon";
 import {
   AlertTriangle,
+  ArrowLeftRight,
   Apple,
   Bell,
   Handshake,
@@ -120,6 +121,11 @@ const quickMenu = [
     label: "Broken Items Transfers",
     icon: PackageX,
     href: "broken-items-transfers",
+  },
+  {
+    label: "Stock movements",
+    icon: ArrowLeftRight,
+    href: "stock-movements",
   },
   {
     label: "Declared Quantities",

@@ -7,6 +7,7 @@ import IssuesIcon from "@/components/feature-specific/company/issues/issues-icon
 import OrderTicketsIcon from "@/components/feature-specific/company/order-tickets/order-tickets-icon";
 import {
   AlertTriangle,
+  ArrowLeftRight,
   Apple,
   Bell,
   ChartNoAxesCombined,
@@ -93,6 +94,7 @@ export default function CompanyControlPanelPage() {
         { label: "Stock alerts", icon: Bell, href: "stock-alerts" },
         { label: "Unknown returns", icon: Undo2, href: "unknown-returns" },
         { label: "Broken items transfers", icon: PackageX, href: "broken-items-transfers" },
+        { label: "Stock movements", icon: ArrowLeftRight, href: "stock-movements" },
         { label: "Declared quantities", icon: RotateCcw, href: "broken-items-declarations" },
       ],
     },
