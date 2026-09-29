@@ -205,7 +205,6 @@ export default function AppRouter() {
               element={<CompanyUnknownReturnsPage />}
             />
             <Route path="advertising" element={<AdvertisingPage />} />
-            <Route path="ads-intelligence" element={<AdsIntelligencePage />} />
             <Route path="charges" element={<ChargesPage />} />
             <Route path="exchange-rates" element={<ExchangeRatesPage />} />
             <Route path="boxing" element={<BoxingPage />} />

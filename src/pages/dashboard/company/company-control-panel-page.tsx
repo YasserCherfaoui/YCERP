@@ -22,6 +22,7 @@ import {
   PackageCheck,
   PackageX,
   ScanLine,
+  Sparkles,
   ReceiptText,
   RotateCcw,
   Settings2,
@@ -112,6 +113,7 @@ export default function CompanyControlPanelPage() {
         { label: "Expenses", icon: ReceiptText, href: "expenses" },
         { label: "Statistics", icon: ChartPie, href: "statistics" },
         { label: "Inventory analytics", icon: ChartNoAxesCombined, href: "inventory-analytics" },
+        { label: "Ads Intelligence", icon: Sparkles, href: "ads-intelligence" },
       ],
     },
     {
