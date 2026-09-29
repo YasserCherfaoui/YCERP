@@ -18,10 +18,12 @@ import { BarChart3, Bot, RefreshCw, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { Navigate, useParams, useSearchParams } from "react-router-dom";
 
 export default function AdsIntelligencePage() {
   const company = useSelector((state: RootState) => state.company.company);
+  const isSuperAdmin = useSelector((state: RootState) => state.auth.user?.is_super_admin === true);
+  const { companyID } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(
@@ -71,8 +73,9 @@ export default function AdsIntelligencePage() {
   }, [dateFrom, dateTo]);
 
   useEffect(() => {
+    if (!isSuperAdmin) return;
     void loadEconomics();
-  }, [loadEconomics]);
+  }, [loadEconomics, isSuperAdmin]);
 
   const onSyncMeta = async () => {
     if (!company) {
@@ -137,6 +140,10 @@ export default function AdsIntelligencePage() {
       setSyncingTikTok(false);
     }
   };
+
+  if (!isSuperAdmin) {
+    return <Navigate to={companyID ? `/company/${companyID}` : "/company"} replace />;
+  }
 
   if (!company) return null;
 

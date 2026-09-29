@@ -54,6 +54,7 @@ type MenuSection = {
 
 export default function CompanyControlPanelPage() {
   const company = useSelector((state: RootState) => state.company.company);
+  const isSuperAdmin = useSelector((state: RootState) => state.auth.user?.is_super_admin === true);
   const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
 
   if (!company) {
@@ -113,7 +114,9 @@ export default function CompanyControlPanelPage() {
         { label: "Expenses", icon: ReceiptText, href: "expenses" },
         { label: "Statistics", icon: ChartPie, href: "statistics" },
         { label: "Inventory analytics", icon: ChartNoAxesCombined, href: "inventory-analytics" },
-        { label: "Ads Intelligence", icon: Sparkles, href: "ads-intelligence" },
+        ...(isSuperAdmin
+          ? [{ label: "Ads Intelligence", icon: Sparkles, href: "ads-intelligence" }]
+          : []),
       ],
     },
     {

@@ -8,6 +8,7 @@ export interface Administrator {
     DeletedAt: string | null;
     full_name: string;
     email: string;
+    is_super_admin?: boolean;
     companies: Company[];
   }
 
