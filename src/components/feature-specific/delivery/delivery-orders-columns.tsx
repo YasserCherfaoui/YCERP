@@ -17,6 +17,13 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[] }) : ColumnDef<WooOrder, { id: number }>[] => [
   {
     accessorKey: "id",
@@ -129,7 +136,6 @@ export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[
         mutation.mutate({
           id: row.original.id,
           shipping: {
-            ...row.original.woo_shipping,
             employee_id: employeeId,
           },
         });
@@ -174,13 +180,11 @@ export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[
       });
       const handleDateChange = (selected?: Date) => {
         setDate(selected);
+        if (!selected) return;
         mutation.mutate({
           id: row.original.id,
           shipping: {
-            ...row.original.woo_shipping,
-            expected_delivery_date: selected
-              ? selected.toLocaleDateString("en-US")
-              : undefined,
+            expected_delivery_date: formatLocalDate(selected),
           },
         });
       };
@@ -233,9 +237,6 @@ export const deliveryOrdersColumns = ({ ordersQueryKey }: { ordersQueryKey: any[
       const handleSave = () => {
         mutation.mutate({
           id: row.original.id,
-          shipping: {
-            ...row.original.woo_shipping,
-          },
           comments: input,
         });
       };
