@@ -20,7 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { PaginationMeta } from "@/models/responses/company-stats.model";
 import { CompanyInventoryListItem } from "@/models/responses/inventory-with-cost.model";
-import { getCompanyInventoryItems, getInventoryTotalCost } from "@/services/inventory-service";
+import { getCompanyInventoryItems, getFranchiseInventoryItems, getFranchiseInventoryTotalCost, getInventoryTotalCost } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
 import { Column, ColumnDef, OnChangeFn, SortingState } from "@tanstack/react-table";
 import { Banknote, Boxes, ChevronDown, ChevronUp, Package, PackageX, TriangleAlert, type LucideIcon } from "lucide-react";
@@ -33,8 +33,14 @@ const PAGE_SIZES = [20, 50];
 const SORT_KEYS = ["product_name", "name", "quantity", "broken_count"] as const;
 type StockFilter = "" | "out_of_stock" | "broken";
 
+export type InventoryCostMode = "first-price" | "franchise-price" | "both";
+
 interface Props {
   onInventoryId: (inventoryId: number | null) => void;
+  onSummary?: (summary: { brokenUnits: number }) => void;
+  franchiseId?: number;
+  costMode?: InventoryCostMode;
+  showActions?: boolean;
 }
 
 function SortableHeader<TData>({
@@ -127,12 +133,23 @@ function formatMoney(value: number) {
   }).format(value);
 }
 
-export default function WarehouseTable({ onInventoryId }: Props) {
+export default function WarehouseTable({
+  onInventoryId,
+  onSummary,
+  franchiseId,
+  costMode,
+  showActions = true,
+}: Props) {
   const companyFromStore = useSelector((state: RootState) => state.company.company);
   const userCompany = useSelector((state: RootState) => state.user.company);
   const { pathname } = useLocation();
   const isModerator = pathname.includes("moderator");
   const company = isModerator ? userCompany : companyFromStore;
+  const mode: InventoryCostMode = costMode ?? (franchiseId ? "franchise-price" : "first-price");
+  const showFirstPrice = !isModerator && (mode === "first-price" || mode === "both");
+  const showFranchiseCost = !isModerator && (mode === "franchise-price" || mode === "both");
+  const locationHint = franchiseId ? "In this franchise" : "In this warehouse";
+  const costStatCount = Number(showFirstPrice) + Number(showFranchiseCost);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
@@ -159,10 +176,19 @@ export default function WarehouseTable({ onInventoryId }: Props) {
     : "quantity";
   const sortOrder = !activeSort || activeSort.desc ? "desc" : "asc";
 
+  const listParams = {
+    page: currentPage + 1,
+    limit: pageSize,
+    search: debouncedSearch || undefined,
+    sort: sortKey,
+    order: sortOrder as "asc" | "desc",
+    stock: stockFilter || undefined,
+  };
   const { data, isLoading, isFetching } = useQuery({
     queryKey: [
-      "company-inventory-items",
-      company?.ID,
+      franchiseId ? "franchise-inventory" : "company-inventory-items",
+      franchiseId ? "items" : company?.ID,
+      franchiseId ?? company?.ID,
       currentPage,
       pageSize,
       debouncedSearch,
@@ -171,15 +197,10 @@ export default function WarehouseTable({ onInventoryId }: Props) {
       stockFilter,
     ],
     queryFn: () =>
-      getCompanyInventoryItems(company!.ID, {
-        page: currentPage + 1,
-        limit: pageSize,
-        search: debouncedSearch || undefined,
-        sort: sortKey,
-        order: sortOrder,
-        stock: stockFilter || undefined,
-      }),
-    enabled: !!company,
+      franchiseId
+        ? getFranchiseInventoryItems(franchiseId, listParams)
+        : getCompanyInventoryItems(company!.ID, listParams),
+    enabled: franchiseId ? franchiseId > 0 : !!company,
     placeholderData: (previousData) => previousData,
   });
 
@@ -188,11 +209,26 @@ export default function WarehouseTable({ onInventoryId }: Props) {
     onInventoryId(inventoryId);
   }, [inventoryId, onInventoryId]);
 
-  const { data: totalCostData } = useQuery({
+  const brokenUnits = data?.data?.summary?.broken_units;
+  useEffect(() => {
+    if (brokenUnits == null || !onSummary) return;
+    onSummary({ brokenUnits });
+  }, [brokenUnits, onSummary]);
+
+  const { data: companyTotalCost } = useQuery({
     queryKey: ["inventory-total-cost", company?.ID],
     queryFn: () => getInventoryTotalCost(company?.ID ?? 0),
-    enabled: !!company && !isModerator,
+    enabled: !franchiseId && !!company && showFirstPrice,
   });
+  const { data: franchiseTotalCost } = useQuery({
+    queryKey: ["inventory-total-cost", "franchise", franchiseId],
+    queryFn: () => getFranchiseInventoryTotalCost(franchiseId ?? 0),
+    enabled: !!franchiseId && (showFirstPrice || showFranchiseCost),
+  });
+  const firstPriceTotal = franchiseId
+    ? franchiseTotalCost?.data?.total_first_price ?? 0
+    : companyTotalCost?.data?.total ?? 0;
+  const franchisePriceTotal = franchiseTotalCost?.data?.total_franchise_price ?? 0;
 
   const items = data?.data?.items ?? [];
   const summary = data?.data?.summary;
@@ -326,7 +362,7 @@ export default function WarehouseTable({ onInventoryId }: Props) {
       },
     ];
 
-    if (!isModerator) {
+    if (showFirstPrice) {
       defs.push({
         id: "cost",
         header: "Cost",
@@ -345,29 +381,44 @@ export default function WarehouseTable({ onInventoryId }: Props) {
         ),
       });
     }
+    if (showFranchiseCost) {
+      defs.push({
+        id: "franchise_cost",
+        header: "Franchise cost",
+        enableSorting: false,
+        accessorKey: "franchise_cost",
+        cell: ({ row }) => (
+          <span className="tabular-nums text-green-600">
+            {formatMoney(row.original.franchise_cost ?? 0)}
+          </span>
+        ),
+      });
+    }
 
-    defs.push({
-      id: "actions",
-      header: "Actions",
-      enableSorting: false,
-      cell: ({ row }) => (
-        <div className="flex items-center justify-end">
-          <UpdateInventoryItemDialog inventoryItem={row.original} />
-          <TransactionsLogDialog inventoryItemId={row.original.ID} />
-        </div>
-      ),
-    });
+    if (showActions) {
+      defs.push({
+        id: "actions",
+        header: "Actions",
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end">
+            <UpdateInventoryItemDialog inventoryItem={row.original} />
+            <TransactionsLogDialog inventoryItemId={row.original.ID} />
+          </div>
+        ),
+      });
+    }
 
     return defs;
-  }, [isModerator]);
+  }, [showActions, showFirstPrice, showFranchiseCost]);
 
-  if (!company) return null;
+  if (!franchiseId && !company) return null;
 
   if (isLoading && !data) {
     return (
-      <div className="flex flex-1 flex-col gap-3" aria-busy="true" aria-label="Loading warehouse">
+      <div className="flex flex-1 flex-col gap-3" aria-busy="true" aria-label={franchiseId ? "Loading inventory" : "Loading warehouse"}>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          {Array.from({ length: isModerator ? 4 : 5 }).map((_, index) => (
+          {Array.from({ length: 4 + costStatCount }).map((_, index) => (
             <Skeleton key={index} className="h-16 w-full" />
           ))}
         </div>
@@ -386,8 +437,13 @@ export default function WarehouseTable({ onInventoryId }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <section
-        aria-label="Warehouse summary"
-        className={cn("grid grid-cols-2 gap-3", isModerator ? "xl:grid-cols-4" : "xl:grid-cols-5")}
+        aria-label={franchiseId ? "Franchise inventory summary" : "Warehouse summary"}
+        className={cn(
+          "grid grid-cols-2 gap-3",
+          costStatCount === 0 && "xl:grid-cols-4",
+          costStatCount === 1 && "xl:grid-cols-5",
+          costStatCount === 2 && "xl:grid-cols-6"
+        )}
       >
         <SummaryStat
           icon={Package}
@@ -399,7 +455,7 @@ export default function WarehouseTable({ onInventoryId }: Props) {
           icon={Boxes}
           label="Units on hand"
           value={String(summary?.units_on_hand ?? 0)}
-          hint="In this warehouse"
+          hint={locationHint}
         />
         <SummaryStat
           icon={PackageX}
@@ -419,14 +475,22 @@ export default function WarehouseTable({ onInventoryId }: Props) {
           pressed={stockFilter === "broken"}
           onClick={() => toggleStock("broken")}
         />
-        {isModerator ? null : (
+        {showFirstPrice ? (
           <SummaryStat
             icon={Banknote}
             label="Total cost"
-            value={formatMoney(totalCostData?.data?.total ?? 0)}
+            value={formatMoney(firstPriceTotal)}
             hint="At first price"
           />
-        )}
+        ) : null}
+        {showFranchiseCost ? (
+          <SummaryStat
+            icon={Banknote}
+            label="Franchise cost"
+            value={formatMoney(franchisePriceTotal)}
+            hint="At franchise price"
+          />
+        ) : null}
       </section>
       <div className={cn(isFetching && "opacity-80 transition-opacity duration-200")}>
       <DataTable

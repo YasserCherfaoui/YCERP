@@ -68,6 +68,35 @@ export const getCompanyInventoryItems = async (
     return response.json();
 };
 
+export const getFranchiseInventoryItems = async (
+    franchiseId: number,
+    params: CompanyInventoryItemsParams = {}
+): Promise<APIResponse<CompanyInventoryItemsResponse>> => {
+    const query = new URLSearchParams();
+    if (params.page) query.set("page", String(params.page));
+    if (params.limit) query.set("limit", String(params.limit));
+    if (params.search) query.set("search", params.search);
+    if (params.sort) query.set("sort", params.sort);
+    if (params.order) query.set("order", params.order);
+    if (params.stock) query.set("stock", params.stock);
+    const suffix = query.toString();
+    const response = await fetch(
+        `${baseUrl}/franchise/${franchiseId}/inventory/items${suffix ? `?${suffix}` : ""}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory items.");
+    }
+    return response.json();
+};
+
 export const getCompanyVariantLocations = async (
     companyId: number
 ): Promise<APIResponse<VariantLocationSummary[]>> => {

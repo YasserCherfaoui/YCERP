@@ -18,28 +18,53 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { InventoryItem } from "@/models/data/inventory.model";
-import { clearBrokenCounts } from "@/services/inventory-service";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { clearBrokenCounts, getFranchiseInventoryItems } from "@/services/inventory-service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  items: InventoryItem[];
+  items?: InventoryItem[];
+  franchiseId?: number;
+}
+
+async function fetchBrokenFranchiseItems(franchiseId: number) {
+  const items: InventoryItem[] = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const response = await getFranchiseInventoryItems(franchiseId, {
+      page,
+      limit: 50,
+      stock: "broken",
+    });
+    items.push(...(response.data.items ?? []));
+    totalPages = response.data.pagination.total_pages;
+    page += 1;
+  } while (page <= totalPages);
+  return items;
 }
 
 export default function ClearBrokenCountDialog({
   open,
   onOpenChange,
-  items,
+  items = [],
+  franchiseId,
 }: Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const { data: fetchedItems, isLoading } = useQuery({
+    queryKey: ["franchise-inventory", "broken", franchiseId],
+    queryFn: () => fetchBrokenFranchiseItems(franchiseId!),
+    enabled: open && !!franchiseId,
+  });
+  const sourceItems = franchiseId ? fetchedItems ?? [] : items;
 
   const brokenItems = useMemo(
-    () => items.filter((item) => (item.broken_count ?? 0) > 0),
-    [items]
+    () => sourceItems.filter((item) => (item.broken_count ?? 0) > 0),
+    [sourceItems]
   );
 
   useEffect(() => {
@@ -127,7 +152,11 @@ export default function ClearBrokenCountDialog({
             Unselect all
           </Button>
         </div>
-        {brokenItems.length === 0 ? (
+        {isLoading ? (
+          <div className="py-8 text-center text-muted-foreground">
+            Loading broken items…
+          </div>
+        ) : brokenItems.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             No items with broken count greater than zero.
           </div>
