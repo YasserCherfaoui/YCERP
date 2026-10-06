@@ -87,6 +87,10 @@ interface DataTableProps<TData, TValue> {
   /** When set with onSortingChange, sorting is controlled by the parent (API-driven). */
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
+  /** Extra controls in the toolbar, before the column menu. */
+  headerExtra?: React.ReactNode;
+  /** Replaces the default empty table and mobile card message. */
+  emptyState?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -107,6 +111,8 @@ export function DataTable<TData, TValue>({
   onSearchChange,
   sorting: controlledSorting,
   onSortingChange: controlledOnSortingChange,
+  headerExtra,
+  emptyState,
 }: DataTableProps<TData, TValue>) {
   const [internalSorting, setInternalSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -367,6 +373,7 @@ export function DataTable<TData, TValue>({
             className="w-full max-w-sm"
           />
         )}
+        {headerExtra}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="sm:ml-auto">
@@ -395,17 +402,18 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
       {paginationBar}
-      <div className="flex-1 text-sm text-muted-foreground">
-        {selectionEnabled
-          ? `${table.getFilteredSelectedRowModel().rows.length} of ${
-              table.getFilteredRowModel().rows.length
-            } row(s) selected.`
-          : null}
-      </div>
+      {selectionEnabled ? (
+        <div className="text-sm text-muted-foreground">
+          {`${table.getFilteredSelectedRowModel().rows.length} of ${
+            table.getFilteredRowModel().rows.length
+          } row(s) selected.`}
+        </div>
+      ) : null}
       <div className="min-h-0 flex-1 overflow-auto md:hidden">
         <DataTableMobileCards
           table={table}
           selectionEnabled={selectionEnabled}
+          emptyState={emptyState}
         />
       </div>
       <div className="hidden min-h-0 flex-1 overflow-auto rounded-md border md:block">
@@ -482,7 +490,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length + (selectionEnabled ? 1 : 0)}
                   className="h-24 text-center"
                 >
-                  No results.
+                  {emptyState ?? "No results."}
                 </TableCell>
               </TableRow>
             )}

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 import { flexRender, type Column, type Table as TanstackTable } from "@tanstack/react-table";
 import { Card } from "./card";
 
@@ -33,18 +34,20 @@ function isActionColumn<TData>(column: Column<TData, unknown>): boolean {
 interface DataTableMobileCardsProps<TData> {
   table: TanstackTable<TData>;
   selectionEnabled?: boolean;
+  emptyState?: ReactNode;
 }
 
 export function DataTableMobileCards<TData>({
   table,
   selectionEnabled = false,
+  emptyState,
 }: DataTableMobileCardsProps<TData>) {
   const rows = table.getRowModel().rows;
 
   if (!rows.length) {
     return (
       <div className="rounded-xl border bg-card px-4 py-10 text-center text-sm text-muted-foreground">
-        No results.
+        {emptyState ?? "No results."}
       </div>
     );
   }

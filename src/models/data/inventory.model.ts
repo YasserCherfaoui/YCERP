@@ -111,6 +111,19 @@ export interface InventoryItemBalanceAtResponse {
     snapshot_date?: string;
 }
 
+export interface VariantLocationStock {
+    inventory_id: number;
+    name: string;
+    location_type: string;
+    quantity: number;
+}
+
+export interface VariantLocationSummary {
+    product_variant_id: number;
+    total_quantity: number;
+    locations: VariantLocationStock[];
+}
+
 export interface InventoryReferenceResponse {
     reference_type: string;
     reference_id: number;

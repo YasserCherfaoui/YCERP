@@ -40,6 +40,19 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+const algiersDateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Africa/Algiers",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function algiersDateKey(value: string | Date): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return "";
+  return algiersDateKeyFormatter.format(date);
+}
+
 export default function () {
   useEffect(() => {
     document.title = "COSMOS Delivery App";
@@ -119,8 +132,8 @@ export default function () {
       <h1 className="text-2xl font-bold">Delivery Employee Dashboard</h1>
       {(() => {
         const list = orders?.data || [];
-        const todayStr = new Date().toLocaleDateString();
-        const todaysOrders = list.filter((o: any) => new Date(o.woo_shipping?.expected_delivery_date ?? "").toLocaleDateString() === todayStr);
+        const todayStr = algiersDateKey(new Date());
+        const todaysOrders = list.filter((o: any) => algiersDateKey(o.woo_shipping?.expected_delivery_date ?? "") === todayStr);
         const delivered = todaysOrders.filter((o: any) => o.order_status === "delivered");
 
         const currency = (n: number) => new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(n);
@@ -183,9 +196,8 @@ export default function () {
             )
             .map((order) => {
               const isToday =
-                new Date(
-                  order.woo_shipping?.expected_delivery_date ?? ""
-                ).toLocaleDateString() == new Date().toLocaleDateString();
+                algiersDateKey(order.woo_shipping?.expected_delivery_date ?? "") ===
+                algiersDateKey(new Date());
               return (
                 <AccordionItem key={order.id} value={order.id.toString()}>
                   <AccordionTrigger>

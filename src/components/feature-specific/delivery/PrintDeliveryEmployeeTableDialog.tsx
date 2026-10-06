@@ -35,6 +35,13 @@ const schema = z.object({
 
 type PrintDeliveryEmployeeTableForm = z.infer<typeof schema>;
 
+function formatLocalDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function PrintDeliveryEmployeeTableDialog({ open, onOpenChange, employees }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -51,10 +58,9 @@ export default function PrintDeliveryEmployeeTableDialog({ open, onOpenChange, e
     mutationFn: async (data: PrintDeliveryEmployeeTableForm) => {
       const d = data.delivery_date;
       if (!d) throw new Error("Date is required");
-      const localDate = d.toLocaleDateString("en-US"); // YYYY-MM-DD, no time, no timezone
       await printDeliveryEmployeeTable({
         delivery_employee_id: data.delivery_employee_id,
-        delivery_date: localDate,
+        delivery_date: formatLocalDate(d),
       });
     },
     onSuccess: () => {
