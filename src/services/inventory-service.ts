@@ -10,7 +10,7 @@ import {
     VariantLocationSummary,
 } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
-import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
+import { CompanyInventoryItemsResponse, InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
 import { UpdateInventoryItemSchema } from "@/schemas/inventory-schema";
 
 export const getCompanyInventory = async (companyId: number): Promise<APIResponse<InventoryWithCostResponse>> => {
@@ -29,6 +29,44 @@ export const getCompanyInventory = async (companyId: number): Promise<APIRespons
     const apiResponse: APIResponse<InventoryWithCostResponse> = await response.json();
     return apiResponse;
 }
+
+export type CompanyInventoryItemsParams = {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sort?: string;
+    order?: "asc" | "desc";
+    stock?: "out_of_stock" | "broken";
+};
+
+export const getCompanyInventoryItems = async (
+    companyId: number,
+    params: CompanyInventoryItemsParams = {}
+): Promise<APIResponse<CompanyInventoryItemsResponse>> => {
+    const query = new URLSearchParams();
+    if (params.page) query.set("page", String(params.page));
+    if (params.limit) query.set("limit", String(params.limit));
+    if (params.search) query.set("search", params.search);
+    if (params.sort) query.set("sort", params.sort);
+    if (params.order) query.set("order", params.order);
+    if (params.stock) query.set("stock", params.stock);
+    const suffix = query.toString();
+    const response = await fetch(
+        `${baseUrl}/company/${companyId}/inventory/items${suffix ? `?${suffix}` : ""}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+        }
+    );
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch inventory items.");
+    }
+    return response.json();
+};
 
 export const getCompanyVariantLocations = async (
     companyId: number

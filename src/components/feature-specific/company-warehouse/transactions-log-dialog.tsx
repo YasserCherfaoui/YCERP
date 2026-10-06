@@ -55,7 +55,7 @@ export default function ({ inventoryItemId, trigger }: Props) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           {trigger ?? (
-            <Button variant={"ghost"}>
+            <Button variant="ghost" size="icon" aria-label="Transaction logs">
               <History />
             </Button>
           )}

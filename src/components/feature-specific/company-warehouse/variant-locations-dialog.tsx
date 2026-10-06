@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { VariantLocationStock } from "@/models/data/inventory.model";
 
 interface Props {
@@ -46,19 +48,23 @@ export default function VariantLocationsDialog({
       <DialogTrigger asChild>
         <Button
           type="button"
-          variant="link"
-          className="h-auto p-0 font-semibold tabular-nums underline-offset-4 hover:underline"
+          variant="outline"
+          size="sm"
+          className="h-8 min-w-8 border-border bg-muted/40 px-2 font-medium tabular-nums"
+          aria-label={`Available quantity across locations: ${totalQuantity}`}
         >
           {totalQuantity}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md gap-4">
         <DialogHeader>
           <DialogTitle>{productName || "Product variant"}</DialogTitle>
-          {variantLabel ? (
-            <DialogDescription>{variantLabel}</DialogDescription>
-          ) : null}
+          <DialogDescription>
+            {variantLabel ? `${variantLabel} · ` : ""}
+            On-hand quantity at each location
+          </DialogDescription>
         </DialogHeader>
+        <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -77,9 +83,20 @@ export default function VariantLocationsDialog({
             ) : (
               locations.map((location) => (
                 <TableRow key={location.inventory_id}>
-                  <TableCell>{location.name || "Unnamed location"}</TableCell>
-                  <TableCell>{locationTypeLabel(location.location_type)}</TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell className="font-medium">
+                    {location.name || "Unnamed location"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={location.location_type === "company" ? "secondary" : "outline"}>
+                      {locationTypeLabel(location.location_type)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "text-right font-medium tabular-nums",
+                      location.quantity === 0 && "text-muted-foreground"
+                    )}
+                  >
                     {location.quantity}
                   </TableCell>
                 </TableRow>
@@ -93,6 +110,7 @@ export default function VariantLocationsDialog({
             </TableRow>
           </TableFooter>
         </Table>
+        </div>
       </DialogContent>
     </Dialog>
   );

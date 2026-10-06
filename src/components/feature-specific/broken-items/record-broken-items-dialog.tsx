@@ -33,9 +33,16 @@ import { Textarea } from "@/components/ui/textarea";
 interface RecordBrokenItemsDialogProps {
   inventoryId: number;
   isFranchise?: boolean;
+  disabled?: boolean;
+  compact?: boolean;
 }
 
-export default function RecordBrokenItemsDialog({ inventoryId, isFranchise = false }: RecordBrokenItemsDialogProps) {
+export default function RecordBrokenItemsDialog({
+  inventoryId,
+  isFranchise = false,
+  disabled = false,
+  compact = false,
+}: RecordBrokenItemsDialogProps) {
   const company = useSelector((state: RootState) => state.company.company);
   const franchise = useSelector((state: RootState) => state.franchise.franchise);
   const [open, setOpen] = useState(false);
@@ -55,7 +62,7 @@ export default function RecordBrokenItemsDialog({ inventoryId, isFranchise = fal
       }
       throw new Error("No company or franchise found");
     },
-    enabled: !!company || !!franchise,
+    enabled: open && (!!company || !!franchise),
   });
 
   const barcodes: string[] =
@@ -158,9 +165,9 @@ export default function RecordBrokenItemsDialog({ inventoryId, isFranchise = fal
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <AlertCircle className="mr-2 h-4 w-4" />
-          Record Broken Items
+        <Button variant="outline" size={compact ? "sm" : "default"} disabled={disabled}>
+          <AlertCircle className={compact ? "h-4 w-4" : "mr-2 h-4 w-4"} />
+          {compact ? "Record broken" : "Record Broken Items"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh]">

@@ -91,7 +91,7 @@ export default function UpdateInventoryItemDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       {!isControlled && (
         <DialogTrigger asChild>
-          <Button variant={"ghost"}>
+          <Button variant="ghost" size="icon" aria-label="Edit inventory item">
             <Edit2 />
           </Button>
         </DialogTrigger>
