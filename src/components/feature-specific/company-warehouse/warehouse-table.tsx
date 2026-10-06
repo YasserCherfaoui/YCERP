@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import TransactionsLogDialog from "@/components/feature-specific/company-warehouse/transactions-log-dialog";
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
+import VariantLocationsDialog from "@/components/feature-specific/company-warehouse/variant-locations-dialog";
 import RecordBrokenItemsDialog from "@/components/feature-specific/broken-items/record-broken-items-dialog";
 import { Button } from "@/components/ui/button";
 import { DataTableMobileCards } from "@/components/ui/data-table-mobile-cards";
@@ -27,9 +28,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { VariantLocationSummary } from "@/models/data/inventory.model";
 import { InventoryItemWithCost } from "@/models/responses/inventory-with-cost.model";
 import {
   getCompanyInventory,
+  getCompanyVariantLocations,
   getInventoryTotalCost,
 } from "@/services/inventory-service";
 import { useQuery } from "@tanstack/react-query";
@@ -77,6 +80,18 @@ export default function () {
         typeof updater === "function" ? updater(old.pagination) : updater,
     }));
   };
+  const { data: variantLocationsData, isPending: variantLocationsPending } = useQuery({
+    queryKey: ["variant-locations", company?.ID],
+    queryFn: () => getCompanyVariantLocations(company?.ID ?? 0),
+    enabled: !!company,
+  });
+  const locationsByVariant = useMemo(() => {
+    const map = new Map<number, VariantLocationSummary>();
+    for (const row of variantLocationsData?.data ?? []) {
+      map.set(row.product_variant_id, row);
+    }
+    return map;
+  }, [variantLocationsData?.data]);
   const columns: ColumnDef<InventoryItemWithCost>[] = [
     {
       header: "Product",
@@ -99,6 +114,27 @@ export default function () {
     {
       header: "Quantity",
       accessorKey: "quantity",
+    },
+    {
+      header: "All locations",
+      id: "all_locations",
+      accessorFn: (row) =>
+        locationsByVariant.get(row.product_variant_id)?.total_quantity ?? 0,
+      cell: ({ row }) => {
+        if (variantLocationsPending) {
+          return <span className="text-muted-foreground">…</span>;
+        }
+        const summary = locationsByVariant.get(row.original.product_variant_id);
+        return (
+          <VariantLocationsDialog
+            productName={row.original.product?.name}
+            color={row.original.product_variant?.color}
+            size={row.original.product_variant?.size?.toString()}
+            totalQuantity={summary?.total_quantity ?? 0}
+            locations={summary?.locations ?? []}
+          />
+        );
+      },
     },
     {
       header: "Broken Count",

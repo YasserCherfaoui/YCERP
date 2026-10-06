@@ -7,6 +7,7 @@ import {
     InventorySnapshotResponse,
     InventoryItemBalanceAtResponse,
     InventoryReferenceResponse,
+    VariantLocationSummary,
 } from "@/models/data/inventory.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { InventoryWithCostResponse } from "@/models/responses/inventory-with-cost.model";
@@ -28,6 +29,23 @@ export const getCompanyInventory = async (companyId: number): Promise<APIRespons
     const apiResponse: APIResponse<InventoryWithCostResponse> = await response.json();
     return apiResponse;
 }
+
+export const getCompanyVariantLocations = async (
+    companyId: number
+): Promise<APIResponse<VariantLocationSummary[]>> => {
+    const response = await fetch(`${baseUrl}/company/${companyId}/inventory/variant-locations`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch variant locations.");
+    }
+    return response.json();
+};
 
 export const getUserInventory = async (companyId: number): Promise<APIResponse<Inventory>> => {
     const response = await fetch(`${baseUrl}/company/${companyId}/inventory`, {
