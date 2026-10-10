@@ -1,6 +1,8 @@
 import { RootState } from "@/app/store";
 import AdsCredentialsSettings from "@/components/feature-specific/ads-intelligence/ads-credentials-settings";
 import AiChatPanel from "@/components/feature-specific/ads-intelligence/ai-chat-panel";
+import TrendTrackPanel from "@/components/feature-specific/ads-intelligence/trendtrack-panel";
+import TrendTrackSettings from "@/components/feature-specific/ads-intelligence/trendtrack-settings";
 import TrueEconomicsDashboard from "@/components/feature-specific/ads-intelligence/true-economics-dashboard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +16,7 @@ import {
 } from "@/services/ads-intelligence-service";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { BarChart3, Bot, RefreshCw, Settings2 } from "lucide-react";
+import { BarChart3, Bot, Radar, RefreshCw, Settings2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
@@ -27,7 +29,7 @@ export default function AdsIntelligencePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(
-    tabParam === "settings" || tabParam === "chat" ? tabParam : "dashboard",
+    tabParam === "settings" || tabParam === "chat" || tabParam === "trendtrack" ? tabParam : "dashboard",
   );
   const [rows, setRows] = useState<AdsTrueEconomicsRow[]>([]);
   const [funnel, setFunnel] = useState<AdsModelFunnelRow[]>([]);
@@ -41,7 +43,7 @@ export default function AdsIntelligencePage() {
   const dateTo = dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined;
 
   useEffect(() => {
-    if (tabParam === "settings" || tabParam === "chat" || tabParam === "dashboard") {
+    if (tabParam === "settings" || tabParam === "chat" || tabParam === "dashboard" || tabParam === "trendtrack") {
       setActiveTab(tabParam);
     }
   }, [tabParam]);
@@ -198,6 +200,10 @@ export default function AdsIntelligencePage() {
             <Settings2 className="h-4 w-4" />
             Settings
           </TabsTrigger>
+          <TabsTrigger value="trendtrack" className="gap-2">
+            <Radar className="h-4 w-4" />
+            TrendTrack
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent
@@ -229,6 +235,16 @@ export default function AdsIntelligencePage() {
         >
           <div className="h-full overflow-y-auto rounded-xl border bg-card shadow-sm">
             <AdsCredentialsSettings companyId={company.ID} />
+            <TrendTrackSettings companyId={company.ID} />
+          </div>
+        </TabsContent>
+
+        <TabsContent
+          value="trendtrack"
+          className="mt-3 min-h-0 flex-1 overflow-hidden focus-visible:ring-0 focus-visible:ring-offset-0"
+        >
+          <div className="h-full overflow-hidden rounded-xl border bg-card shadow-sm">
+            <TrendTrackPanel companyId={company.ID} />
           </div>
         </TabsContent>
       </Tabs>

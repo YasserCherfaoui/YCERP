@@ -11,6 +11,15 @@ import type {
   AdsPlatformCredentialCreate,
   AdsPlatformCredentialUpdate,
 } from "@/models/data/ads-intelligence/credentials.model";
+import type {
+  TrendTrackAd,
+  TrendTrackBrandtracker,
+  TrendTrackProduct,
+  TrendTrackSettings,
+  TrendTrackSettingsUpdate,
+  TrendTrackShop,
+  TrendTrackSyncStatus,
+} from "@/models/data/ads-intelligence/trendtrack.model";
 import type { APIResponse } from "@/models/responses/api-response.model";
 
 const authHeaders = (): HeadersInit => ({
@@ -318,4 +327,142 @@ export async function deleteAdsPlatformCredential(
     );
   }
   return data as APIResponse<unknown>;
+}
+
+function trendTrackList<T>(path: string): Promise<APIResponse<T[]>> {
+  return fetch(`${getBaseUrl()}${path}`, {
+    method: "GET",
+    headers: authHeaders(),
+  }).then(async (res) => {
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message ?? "Failed to load TrendTrack data.");
+    }
+    return data as APIResponse<T[]>;
+  });
+}
+
+export function listTrendTrackAds(): Promise<APIResponse<TrendTrackAd[]>> {
+  return trendTrackList("/adsintel/trendtrack/ads?limit=50");
+}
+
+export function listTrendTrackShops(): Promise<APIResponse<TrendTrackShop[]>> {
+  return trendTrackList("/adsintel/trendtrack/shops?limit=50");
+}
+
+export function listTrendTrackProducts(): Promise<APIResponse<TrendTrackProduct[]>> {
+  return trendTrackList("/adsintel/trendtrack/products?limit=50");
+}
+
+export function listTrendTrackBrandtrackers(): Promise<APIResponse<TrendTrackBrandtracker[]>> {
+  return trendTrackList("/adsintel/trendtrack/brandtrackers?limit=50");
+}
+
+export async function lookupTrendTrack(
+  companyId: number,
+  q: string,
+): Promise<APIResponse<unknown>> {
+  const params = new URLSearchParams({
+    company_id: String(companyId),
+    q,
+  });
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/trendtrack/lookup?${params.toString()}`,
+    { method: "GET", headers: authHeaders() },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error?.description ?? data.message ?? "Lookup failed.");
+  }
+  return data as APIResponse<unknown>;
+}
+
+export async function getTrendTrackSettings(
+  companyId: number,
+): Promise<APIResponse<TrendTrackSettings>> {
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/companies/${companyId}/trendtrack/settings`,
+    { method: "GET", headers: authHeaders() },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message ?? "Failed to load TrendTrack settings.");
+  }
+  return data as APIResponse<TrendTrackSettings>;
+}
+
+export async function updateTrendTrackSettings(
+  companyId: number,
+  body: TrendTrackSettingsUpdate,
+): Promise<APIResponse<TrendTrackSettings>> {
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/companies/${companyId}/trendtrack/settings`,
+    {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify(body),
+    },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(
+      data.error?.description ?? data.message ?? "Failed to save TrendTrack settings.",
+    );
+  }
+  return data as APIResponse<TrendTrackSettings>;
+}
+
+export async function getTrendTrackStatus(
+  companyId: number,
+): Promise<APIResponse<TrendTrackSyncStatus>> {
+  const params = new URLSearchParams({ company_id: String(companyId) });
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/trendtrack/status?${params.toString()}`,
+    { method: "GET", headers: authHeaders() },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message ?? "Failed to load TrendTrack status.");
+  }
+  return data as APIResponse<TrendTrackSyncStatus>;
+}
+
+export async function triggerTrendTrackSync(
+  companyId: number,
+): Promise<APIResponse<unknown>> {
+  const res = await fetch(
+    `${getBaseUrl()}/adsintel/companies/${companyId}/trendtrack/sync`,
+    { method: "POST", headers: authHeaders() },
+  );
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(
+      data.error?.description ?? data.message ?? "Failed to start TrendTrack sync.",
+    );
+  }
+  return data as APIResponse<unknown>;
+}
+
+export async function waitForTrendTrackSync(
+  companyId: number,
+  opts?: { intervalMs?: number; timeoutMs?: number },
+): Promise<TrendTrackSyncStatus> {
+  const intervalMs = opts?.intervalMs ?? 2500;
+  const timeoutMs = opts?.timeoutMs ?? 45 * 60 * 1000;
+  const started = Date.now();
+  await new Promise((r) => setTimeout(r, 400));
+  for (;;) {
+    const res = await getTrendTrackStatus(companyId);
+    const snap = res.data;
+    if (!snap) {
+      throw new Error("TrendTrack status missing");
+    }
+    if (!snap.running) {
+      return snap;
+    }
+    if (Date.now() - started > timeoutMs) {
+      throw new Error("Timed out waiting for TrendTrack sync to finish");
+    }
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
 }
