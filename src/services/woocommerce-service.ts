@@ -906,7 +906,7 @@ export const cloneWooCommerceOrder = async (order: WooOrder): Promise<APIRespons
     status: "unconfirmed",
     discount: order.discount || 0,
     taken_by_id: order.taken_by_id || undefined,
-    shipping_provider: (order.woo_shipping?.shipping_provider as "yalidine" | "my_companies") || "yalidine",
+    shipping_provider: (order.woo_shipping?.shipping_provider as "yalidine" | "my_companies" | "noest") || "yalidine",
     delivery_type: (order.woo_shipping?.delivery_type as "home" | "stopdesk") || "home",
     selected_commune: order.woo_shipping?.selected_commune || undefined,
     selected_center: order.woo_shipping?.selected_center || undefined,

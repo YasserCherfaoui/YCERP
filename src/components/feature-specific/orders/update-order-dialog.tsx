@@ -41,6 +41,9 @@ import { WooOrder } from "@/models/data/woo-order.model";
 import { getDeliveryCompanies } from "@/services/delivery-service";
 import { getCompanyInventory } from "@/services/inventory-service";
 import {
+  getNoestCommunes,
+  getNoestDesks,
+  getNoestFees,
   getYalidineCenters,
   getYalidineCommunes,
   getYalidinePricing,
@@ -261,6 +264,28 @@ function useYalidineData(
   return { yalidinePricing, yalidineCenters, yalidineCommunes };
 }
 
+function useNoestData(state: string | number, deliveryType: string, shippingProvider: string, open: boolean) {
+  const fees = useQuery({
+    queryKey: ["noest-fees", state],
+    queryFn: () => getNoestFees(Number(state)),
+    select: (res) => res.data,
+    enabled: shippingProvider === "noest" && Boolean(state) && open,
+  });
+  const communes = useQuery({
+    queryKey: ["noest-communes", state],
+    queryFn: () => getNoestCommunes(Number(state)),
+    select: (res) => res.data ?? [],
+    enabled: shippingProvider === "noest" && deliveryType === "home" && Boolean(state) && open,
+  });
+  const desks = useQuery({
+    queryKey: ["noest-desks", state],
+    queryFn: () => getNoestDesks(Number(state)),
+    select: (res) => res.data ?? [],
+    enabled: shippingProvider === "noest" && deliveryType === "stopdesk" && Boolean(state) && open,
+  });
+  return { fees, communes, desks };
+}
+
 // --- Main Dialog Component ---
 export default function UpdateOrderDialog({
   order,
@@ -352,6 +377,12 @@ export default function UpdateOrderDialog({
   } = useDeliveryCompanies(
     watch("shipping_provider") === "my_companies" && open
   );
+  const { fees: noestFees, communes: noestCommunes, desks: noestDesks } = useNoestData(
+    watch("shipping.state"),
+    watch("delivery_type"),
+    watch("shipping_provider"),
+    open
+  );
   const { yalidinePricing, yalidineCenters, yalidineCommunes } =
     useYalidineData(
       watch("shipping.state"),
@@ -371,6 +402,15 @@ export default function UpdateOrderDialog({
   useEffect(() => {
     setValue("company_id", companyId);
   }, [companyId, setValue]);
+
+  const noestProvider = watch("shipping_provider");
+  const noestDeliveryType = watch("delivery_type");
+  useEffect(() => {
+    if (noestProvider !== "noest" || !noestFees.data) return;
+    const first = noestDeliveryType === "stopdesk" ? noestFees.data.stopdesk : noestFees.data.home;
+    setValue("first_delivery_cost", first);
+    setValue("second_delivery_cost", noestFees.data.return);
+  }, [noestFees.data, noestDeliveryType, noestProvider, setValue]);
 
   useEffect(() => {
     if (open) {
@@ -456,6 +496,11 @@ export default function UpdateOrderDialog({
                 yalidinePricing={yalidinePricing.data}
                 yalidineCenters={yalidineCenters.data}
                 yalidineCommunes={yalidineCommunes.data}
+                noestFees={noestFees.data}
+                noestCommunes={noestCommunes.data}
+                noestDesks={noestDesks.data}
+                noestCommunesLoading={noestCommunes.isLoading}
+                noestCommunesError={noestCommunes.isError}
               />
               <CustomerInfoSection />
               <div className="flex flex-col gap-4 flex-1 min-w-[340px] xl:w-1/3">
@@ -519,6 +564,11 @@ function ShippingSection({
   deliveryCompaniesError,
   yalidineCenters,
   yalidineCommunes,
+  noestFees,
+  noestCommunes,
+  noestDesks,
+  noestCommunesLoading,
+  noestCommunesError,
 }: any) {
   const { control, watch, setValue } = useFormContext();
   const shippingProvider = watch("shipping_provider");
@@ -547,13 +597,15 @@ function ShippingSection({
                 <FormLabel htmlFor="my_companies">
                   My Delivery Companies
                 </FormLabel>
+                <RadioGroupItem value="noest" id="noest" />
+                <FormLabel htmlFor="noest">NOEST</FormLabel>
               </RadioGroup>
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
-      {shippingProvider === "yalidine" && (
+      {(shippingProvider === "yalidine" || shippingProvider === "noest") && (
         <FormField
           control={control}
           name="delivery_type"
@@ -646,6 +698,78 @@ function ShippingSection({
             </FormItem>
           )}
         />
+      )}
+      {shippingProvider === "noest" && deliveryType === "home" && (
+        <FormField
+          control={control}
+          name="selected_commune"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>NOEST Commune</FormLabel>
+              <FormControl>
+                <Select
+                  value={field.value}
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    setValue("shipping.commune", val);
+                  }}
+                >
+                  <SelectTrigger className="w-full mt-1">
+                    <SelectValue placeholder={noestCommunesLoading ? "Loading..." : "Select a commune"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {noestCommunesError && <div className="p-2 text-red-500">Error loading communes</div>}
+                    {(noestCommunes || [])
+                      .slice()
+                      .sort((a: any, b: any) => a.name.localeCompare(b.name))
+                      .map((commune: any) => (
+                        <SelectItem key={commune.name} value={commune.name}>
+                          {commune.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
+      {shippingProvider === "noest" && deliveryType === "stopdesk" && (
+        <FormField
+          control={control}
+          name="selected_center"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>NOEST Desk</FormLabel>
+              <FormControl>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full mt-1">
+                    <SelectValue placeholder="Select a desk" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(noestDesks || [])
+                      .slice()
+                      .sort((a: any, b: any) => a.name.localeCompare(b.name))
+                      .map((desk: any) => (
+                        <SelectItem key={desk.code} value={desk.code}>
+                          {desk.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
+      {shippingProvider === "noest" && noestFees && (
+        <div className="border rounded p-2 bg-muted/30 text-sm">
+          <div>Home {noestFees.home} DZD</div>
+          <div>Stop desk {noestFees.stopdesk} DZD</div>
+          <div>Return {noestFees.return} DZD</div>
+        </div>
       )}
       {shippingProvider === "my_companies" && (
         <>

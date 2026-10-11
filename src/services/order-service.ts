@@ -134,3 +134,64 @@ export const getYalidinePricing = async (fromWilaya: number, toWilaya: number): 
   const cache: APIResponse<PricingResponse> = await response.json();
   return cache;
 }
+
+export type NoestWilaya = { code: number; name: string; is_active: number };
+export type NoestCommune = { name: string; wilaya_id: number; postal_code: string; is_active: number };
+export type NoestDesk = { code: string; name: string; address: string; wilaya_id: number };
+export type NoestWilayaQuote = { wilaya_id: number; home: number; stopdesk: number; return: number };
+
+export const getNoestWilayas = async (): Promise<APIResponse<NoestWilaya[]>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/noest/wilayas`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to get NOEST wilayas.");
+  }
+  return response.json();
+};
+
+export const getNoestCommunes = async (wilayaId: number): Promise<APIResponse<NoestCommune[]>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/noest/communes/${wilayaId}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to get NOEST communes.");
+  }
+  return response.json();
+};
+
+export const getNoestDesks = async (wilayaId: number): Promise<APIResponse<NoestDesk[]>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/noest/desks/${wilayaId}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to get NOEST desks.");
+  }
+  return response.json();
+};
+
+export const getNoestFees = async (wilayaId: number): Promise<APIResponse<NoestWilayaQuote>> => {
+  const response = await fetch(`${baseUrl}/woocommerce/noest/fees/${wilayaId}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+    },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || "Failed to get NOEST fees.");
+  }
+  return response.json();
+};
