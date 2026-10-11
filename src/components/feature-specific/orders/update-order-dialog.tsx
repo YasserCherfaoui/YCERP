@@ -44,11 +44,13 @@ import {
   getNoestCommunes,
   getNoestDesks,
   getNoestFees,
+  getNoestWilayas,
   getYalidineCenters,
   getYalidineCommunes,
   getYalidinePricing,
 } from "@/services/order-service";
 import { updateWooCommerceOrder } from "@/services/woocommerce-service";
+import { CarrierRadioGroup } from "@/components/feature-specific/orders/carrier-radio-group";
 import { algerCities, cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -265,6 +267,12 @@ function useYalidineData(
 }
 
 function useNoestData(state: string | number, deliveryType: string, shippingProvider: string, open: boolean) {
+  const wilayas = useQuery({
+    queryKey: ["noest-wilayas"],
+    queryFn: getNoestWilayas,
+    select: (res) => (res.data ?? []).filter((wilaya) => wilaya.is_active !== 0),
+    enabled: shippingProvider === "noest" && open,
+  });
   const fees = useQuery({
     queryKey: ["noest-fees", state],
     queryFn: () => getNoestFees(Number(state)),
@@ -283,7 +291,7 @@ function useNoestData(state: string | number, deliveryType: string, shippingProv
     select: (res) => res.data ?? [],
     enabled: shippingProvider === "noest" && deliveryType === "stopdesk" && Boolean(state) && open,
   });
-  return { fees, communes, desks };
+  return { fees, communes, desks, wilayas };
 }
 
 // --- Main Dialog Component ---
@@ -377,7 +385,7 @@ export default function UpdateOrderDialog({
   } = useDeliveryCompanies(
     watch("shipping_provider") === "my_companies" && open
   );
-  const { fees: noestFees, communes: noestCommunes, desks: noestDesks } = useNoestData(
+  const { fees: noestFees, communes: noestCommunes, desks: noestDesks, wilayas: noestWilayas } = useNoestData(
     watch("shipping.state"),
     watch("delivery_type"),
     watch("shipping_provider"),
@@ -405,12 +413,48 @@ export default function UpdateOrderDialog({
 
   const noestProvider = watch("shipping_provider");
   const noestDeliveryType = watch("delivery_type");
+  const noestCommune = watch("selected_commune");
+  const noestCenter = watch("selected_center");
+  const noestState = watch("shipping.state");
   useEffect(() => {
     if (noestProvider !== "noest" || !noestFees.data) return;
-    const first = noestDeliveryType === "stopdesk" ? noestFees.data.stopdesk : noestFees.data.home;
-    setValue("first_delivery_cost", first);
-    setValue("second_delivery_cost", noestFees.data.return);
-  }, [noestFees.data, noestDeliveryType, noestProvider, setValue]);
+    const hasDestination = noestDeliveryType === "stopdesk" ? Boolean(noestCenter) : Boolean(noestCommune);
+    const price = !hasDestination
+      ? 0
+      : noestDeliveryType === "stopdesk"
+        ? noestFees.data.stopdesk
+        : noestFees.data.home;
+    setValue("first_delivery_cost", price);
+    setValue("second_delivery_cost", price);
+  }, [noestFees.data, noestDeliveryType, noestProvider, noestCommune, noestCenter, setValue]);
+
+  useEffect(() => {
+    if (noestProvider !== "noest" || !noestWilayas.data || !noestState) return;
+    const known = noestWilayas.data.some((wilaya) => String(wilaya.code) === String(noestState));
+    if (!known) {
+      setValue("shipping.state", "");
+      setValue("shipping.wilaya", "");
+      setValue("shipping.city", "");
+      setValue("selected_commune", "");
+      setValue("selected_center", "");
+      setValue("shipping.commune", "");
+    }
+  }, [noestWilayas.data, noestState, noestProvider, setValue]);
+
+  useEffect(() => {
+    if (noestProvider !== "noest" || noestDeliveryType !== "home" || !noestCommunes.data || !noestCommune) return;
+    if (!noestCommunes.data.some((commune) => commune.name === noestCommune)) {
+      setValue("selected_commune", "");
+      setValue("shipping.commune", "");
+    }
+  }, [noestCommunes.data, noestCommune, noestDeliveryType, noestProvider, setValue]);
+
+  useEffect(() => {
+    if (noestProvider !== "noest" || noestDeliveryType !== "stopdesk" || !noestDesks.data || !noestCenter) return;
+    if (!noestDesks.data.some((desk) => desk.code === noestCenter)) {
+      setValue("selected_center", "");
+    }
+  }, [noestDesks.data, noestCenter, noestDeliveryType, noestProvider, setValue]);
 
   useEffect(() => {
     if (open) {
@@ -502,7 +546,7 @@ export default function UpdateOrderDialog({
                 noestCommunesLoading={noestCommunes.isLoading}
                 noestCommunesError={noestCommunes.isError}
               />
-              <CustomerInfoSection />
+              <CustomerInfoSection noestWilayas={noestWilayas.data} />
               <div className="flex flex-col gap-4 flex-1 min-w-[340px] xl:w-1/3">
                 <FranchiseOrderFulfillmentSection
                   form={methods as unknown as import("react-hook-form").UseFormReturn<CreateOrderSchema>}
@@ -584,22 +628,11 @@ function ShippingSection({
           <FormItem>
             <FormLabel>Shipping Provider</FormLabel>
             <FormControl>
-              <RadioGroup
+              <CarrierRadioGroup
                 value={field.value}
-                onValueChange={(val) => field.onChange(val)}
-                className="flex flex-row gap-6 mt-2"
-              >
-                <RadioGroupItem value="yalidine" id="yalidine" />
-                <FormLabel htmlFor="yalidine" className="mr-4">
-                  Yalidine
-                </FormLabel>
-                <RadioGroupItem value="my_companies" id="my_companies" />
-                <FormLabel htmlFor="my_companies">
-                  My Delivery Companies
-                </FormLabel>
-                <RadioGroupItem value="noest" id="noest" />
-                <FormLabel htmlFor="noest">NOEST</FormLabel>
-              </RadioGroup>
+                onChange={field.onChange}
+                idPrefix="update-carrier"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -856,9 +889,10 @@ function ShippingSection({
   );
 }
 
-function CustomerInfoSection() {
+function CustomerInfoSection({ noestWilayas }: { noestWilayas?: { code: number; name: string }[] }) {
   const { control, setValue, watch } = useFormContext();
   const shipping = watch("shipping");
+  const shippingProvider = watch("shipping_provider");
   return (
     <section className="space-y-4 border rounded p-4 min-w-[320px] xl:w-1/3">
       <FormField
@@ -915,15 +949,26 @@ function CustomerInfoSection() {
       />
       <div>
         <Combobox
-          items={cities.map((city) => ({
-            value: city.key,
-            label: city.label,
-          }))}
+          items={
+            shippingProvider === "noest"
+              ? (noestWilayas || []).map((wilaya) => ({
+                  value: String(wilaya.code),
+                  label: wilaya.name,
+                }))
+              : cities.map((city) => ({
+                  value: city.key,
+                  label: city.label,
+                }))
+          }
           value={shipping.state}
           onChange={(value: string) => {
             setValue("shipping.state", value);
-            const wilayaName = cities.find((c) => c.key === value)?.label || "";
+            const wilayaName =
+              shippingProvider === "noest"
+                ? (noestWilayas || []).find((wilaya) => String(wilaya.code) === value)?.name || ""
+                : cities.find((c) => c.key === value)?.label || "";
             setValue("shipping.wilaya", wilayaName);
+            setValue("shipping.city", wilayaName);
           }}
           placeholder="Select a wilaya"
           label="State"
