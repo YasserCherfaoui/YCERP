@@ -1,6 +1,15 @@
 import UndeliveredOrdersDialog from "@/components/feature-specific/ads-intelligence/undelivered-orders-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,12 +27,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ArrowDown, ArrowUp, ArrowUpDown, BarChart3, Calendar as CalendarIcon, ChevronDown, Info } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 
 type PlatformFilter = "all" | "meta" | "tiktok";
 
 const STORE_CURRENCY = "DZD";
+const CAMPAIGN_PAGE_SIZE = 10;
 
 const metricHelp: { label: string; detail: string }[] = [
   {
@@ -225,6 +235,23 @@ function toggleSort<K extends string>(
   return { key, direction: current.direction === "asc" ? "desc" : "asc" };
 }
 
+function campaignPageItems(pageCount: number, currentPage: number): Array<number | "ellipsis"> {
+  if (pageCount <= 7) {
+    return Array.from({ length: pageCount }, (_, index) => index + 1);
+  }
+  const pages = new Set<number>([1, pageCount, currentPage - 1, currentPage, currentPage + 1]);
+  const sorted = [...pages].filter((page) => page >= 1 && page <= pageCount).sort((a, b) => a - b);
+  const items: Array<number | "ellipsis"> = [];
+  sorted.forEach((page, index) => {
+    const previous = sorted[index - 1];
+    if (previous !== undefined && page - previous > 1) {
+      items.push("ellipsis");
+    }
+    items.push(page);
+  });
+  return items;
+}
+
 function ColumnHint({ hint }: { hint: string }) {
   return (
     <Tooltip>
@@ -359,6 +386,7 @@ export default function TrueEconomicsDashboard({
   const [platform, setPlatform] = useState<PlatformFilter>("all");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [campaignSort, setCampaignSort] = useState<SortState<CampaignSortKey>>(null);
+  const [campaignPage, setCampaignPage] = useState(1);
   const [modelSort, setModelSort] = useState<SortState<ModelSortKey>>(null);
   const [undeliveredCampaign, setUndeliveredCampaign] = useState<AdsTrueEconomicsRow | null>(null);
 
@@ -371,6 +399,19 @@ export default function TrueEconomicsDashboard({
     if (!campaignSort) return filtered;
     return sortRows(filtered, campaignValue[campaignSort.key], campaignSort.direction);
   }, [campaignSort, filtered]);
+
+  const campaignPageCount = Math.max(1, Math.ceil(sortedCampaigns.length / CAMPAIGN_PAGE_SIZE));
+  const currentCampaignPage = Math.min(campaignPage, campaignPageCount);
+  const campaignPageStart = (currentCampaignPage - 1) * CAMPAIGN_PAGE_SIZE;
+  const pagedCampaigns = sortedCampaigns.slice(campaignPageStart, campaignPageStart + CAMPAIGN_PAGE_SIZE);
+  const campaignPageNumbers = useMemo(
+    () => campaignPageItems(campaignPageCount, currentCampaignPage),
+    [campaignPageCount, currentCampaignPage],
+  );
+
+  useEffect(() => {
+    setCampaignPage(1);
+  }, [platform, campaignSort, rows]);
 
   const totals = useMemo(() => {
     return filtered.reduce(
@@ -590,7 +631,7 @@ export default function TrueEconomicsDashboard({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedCampaigns.map((row) => {
+                    {pagedCampaigns.map((row) => {
                       const active = selected?.campaign_id === row.campaign_id;
                       return (
                         <TableRow
@@ -671,6 +712,59 @@ export default function TrueEconomicsDashboard({
                     })}
                   </TableBody>
                 </Table>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs text-muted-foreground">
+                  Showing {campaignPageStart + 1}–{campaignPageStart + pagedCampaigns.length} of {sortedCampaigns.length}
+                </p>
+                {campaignPageCount > 1 && (
+                  <Pagination className="mx-0 w-auto justify-start sm:justify-end">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          aria-disabled={currentCampaignPage <= 1}
+                          className={currentCampaignPage <= 1 ? "pointer-events-none opacity-50" : undefined}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setCampaignPage(Math.max(1, currentCampaignPage - 1));
+                          }}
+                        />
+                      </PaginationItem>
+                      {campaignPageNumbers.map((item, index) =>
+                        item === "ellipsis" ? (
+                          <PaginationItem key={`ellipsis-${index}`}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        ) : (
+                          <PaginationItem key={item}>
+                            <PaginationLink
+                              href="#"
+                              isActive={item === currentCampaignPage}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                setCampaignPage(item);
+                              }}
+                            >
+                              {item}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ),
+                      )}
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          aria-disabled={currentCampaignPage >= campaignPageCount}
+                          className={currentCampaignPage >= campaignPageCount ? "pointer-events-none opacity-50" : undefined}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            setCampaignPage(Math.min(campaignPageCount, currentCampaignPage + 1));
+                          }}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
               </div>
             </section>
 
