@@ -50,11 +50,13 @@ import {
     getNoestCommunes,
     getNoestDesks,
     getNoestFees,
+    getNoestWilayas,
     getYalidineCenters,
     getYalidineCommunes,
     getYalidinePricing,
 } from "@/services/order-service";
 import { exchangeWooCommerceOrder } from "@/services/woocommerce-service";
+import { CarrierRadioGroup } from "@/components/feature-specific/orders/carrier-radio-group";
 import { algerCities, cities } from "@/utils/algeria-cities";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef } from "react";
@@ -187,6 +189,12 @@ export default function DeclareExchangeDialog({
       open,
   });
 
+  const { data: noestWilayas } = useQuery({
+    queryKey: ["noest-wilayas"],
+    queryFn: getNoestWilayas,
+    select: (res) => (res.data ?? []).filter((wilaya) => wilaya.is_active !== 0),
+    enabled: watch("shipping_provider") === "noest" && open,
+  });
   const { data: noestFees } = useQuery({
     queryKey: ["noest-fees", shipping.state],
     queryFn: () => getNoestFees(Number(shipping.state)),
@@ -258,8 +266,11 @@ export default function DeclareExchangeDialog({
       }
     }
     if (watch("shipping_provider") === "noest" && noestFees) {
-      deliveryFee =
-        watch("delivery_type") === "stopdesk" ? noestFees.stopdesk : noestFees.home;
+      if (watch("delivery_type") === "stopdesk" && watch("selected_center")) {
+        deliveryFee = noestFees.stopdesk;
+      } else if (watch("delivery_type") === "home" && watch("selected_commune")) {
+        deliveryFee = noestFees.home;
+      }
     }
     return deliveryFee;
   };
@@ -285,19 +296,57 @@ export default function DeclareExchangeDialog({
 
   const userEditedSecondDelivery = useRef(false);
   const deliveryFee = computeDeliveryFee();
+  const noestQuoteSelection = [
+    watch("shipping_provider"),
+    shipping.state,
+    watch("delivery_type"),
+    watch("selected_commune"),
+    watch("selected_center"),
+  ].join("|");
+
+  useEffect(() => {
+    if (!noestQuoteSelection.startsWith("noest|")) return;
+    userEditedSecondDelivery.current = false;
+  }, [noestQuoteSelection]);
+
+  useEffect(() => {
+    if (watch("shipping_provider") !== "noest" || !noestWilayas || !shipping.state) return;
+    const known = noestWilayas.some((wilaya) => String(wilaya.code) === String(shipping.state));
+    if (!known) {
+      setValue("shipping.state", "");
+      setValue("shipping.wilaya", "");
+      setValue("shipping.city", "");
+      setValue("selected_commune", "");
+      setValue("selected_center", "");
+      setValue("shipping.commune", "");
+    }
+  }, [noestWilayas, shipping.state, watch("shipping_provider"), setValue]);
+
+  useEffect(() => {
+    if (watch("shipping_provider") !== "noest" || watch("delivery_type") !== "home" || !noestCommunes) return;
+    const selected = watch("selected_commune");
+    if (selected && !noestCommunes.some((commune) => commune.name === selected)) {
+      setValue("selected_commune", "");
+      setValue("shipping.commune", "");
+    }
+  }, [noestCommunes, shipping.state, watch("delivery_type"), watch("shipping_provider"), setValue]);
+
+  useEffect(() => {
+    if (watch("shipping_provider") !== "noest" || watch("delivery_type") !== "stopdesk" || !noestDesks) return;
+    const selected = watch("selected_center");
+    if (selected && !noestDesks.some((desk) => desk.code === selected)) {
+      setValue("selected_center", "");
+    }
+  }, [noestDesks, shipping.state, watch("delivery_type"), watch("shipping_provider"), setValue]);
 
   useEffect(() => {
     setValue("first_delivery_cost", deliveryFee);
     // Only set second_delivery_cost if the user hasn't edited it
     if (!userEditedSecondDelivery.current) {
-      const returnFee =
-        watch("shipping_provider") === "noest" && noestFees
-          ? noestFees.return
-          : deliveryFee;
-      setValue("second_delivery_cost", returnFee);
+      setValue("second_delivery_cost", deliveryFee);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deliveryFee, setValue]);
+  }, [deliveryFee, noestQuoteSelection, setValue]);
 
   // Reset commune/center when state or delivery type changes
   useEffect(() => {
@@ -562,16 +611,26 @@ export default function DeclareExchangeDialog({
               {/* Shipping Section */}
               <section className="border rounded p-4 flex flex-col gap-4 min-w-[320px] xl:w-1/3">
                 <Combobox
-                  items={cities.map((city) => ({
-                    value: city.key,
-                    label: city.label,
-                  }))}
+                  items={
+                    watch("shipping_provider") === "noest"
+                      ? (noestWilayas || []).map((wilaya) => ({
+                          value: String(wilaya.code),
+                          label: wilaya.name,
+                        }))
+                      : cities.map((city) => ({
+                          value: city.key,
+                          label: city.label,
+                        }))
+                  }
                   value={shipping.state}
                   onChange={(value: string) => {
                     setValue("shipping.state", value);
                     const wilayaName =
-                      cities.find((c) => c.key === value)?.label || "";
+                      watch("shipping_provider") === "noest"
+                        ? (noestWilayas || []).find((wilaya) => String(wilaya.code) === value)?.name || ""
+                        : cities.find((c) => c.key === value)?.label || "";
                     setValue("shipping.wilaya", wilayaName);
+                    setValue("shipping.city", wilayaName);
                   }}
                   placeholder="Select a wilaya"
                   label="State"
@@ -585,25 +644,11 @@ export default function DeclareExchangeDialog({
                       <FormItem>
                         <FormLabel>Shipping Provider</FormLabel>
                         <FormControl>
-                          <RadioGroup
+                          <CarrierRadioGroup
                             value={field.value}
-                            onValueChange={(val) => field.onChange(val)}
-                            className="flex flex-row gap-6 mt-2"
-                          >
-                            <RadioGroupItem value="yalidine" id="yalidine" />
-                            <FormLabel htmlFor="yalidine" className="mr-4">
-                              Yalidine
-                            </FormLabel>
-                            <RadioGroupItem
-                              value="my_companies"
-                              id="my_companies"
-                            />
-                            <FormLabel htmlFor="my_companies">
-                              My Delivery Companies
-                            </FormLabel>
-                            <RadioGroupItem value="noest" id="noest" />
-                            <FormLabel htmlFor="noest">NOEST</FormLabel>
-                          </RadioGroup>
+                            onChange={field.onChange}
+                            idPrefix="exchange-carrier"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

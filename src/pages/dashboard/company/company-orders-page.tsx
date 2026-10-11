@@ -136,12 +136,13 @@ export default function CompanyOrdersPage() {
     undefined,
     selectedConfirmedVariant,
     company.ID,
-    selectedFranchise
+    selectedFranchise,
+    selectedShippingProvider
   );
 
   useEffect(() => {
     setCurrentPage(0);
-  }, [selectedStatus, selectedUser, selectedWilaya]);
+  }, [selectedStatus, selectedUser, selectedWilaya, selectedShippingProvider]);
 
   useEffect(() => {
     setCurrentPage(0);
