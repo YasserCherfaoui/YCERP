@@ -31,7 +31,7 @@ export const createOrderSchema = z.object({
   status: z.string(),
   discount: z.number().optional(),
   taken_by_id: z.number().optional(),
-  shipping_provider: z.enum(['yalidine', 'my_companies']),
+  shipping_provider: z.enum(['yalidine', 'my_companies', 'noest']),
   delivery_type: z.enum(['home', 'stopdesk']),
   selected_commune: z.string().optional(),
   selected_center: z.string().optional(),
@@ -41,18 +41,18 @@ export const createOrderSchema = z.object({
   ship_from_franchise: z.boolean().optional().default(false),
   franchise_id: z.number().optional(),
 }).superRefine((data, ctx) => {
-  if (data.shipping_provider === 'yalidine') {
+  if (data.shipping_provider === 'yalidine' || data.shipping_provider === 'noest') {
     if (data.delivery_type === 'home' && !data.selected_commune) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Commune must be selected for Yalidine Home delivery',
+        message: 'Commune must be selected for home delivery',
         path: ['selected_commune'],
       });
     }
     if (data.delivery_type === 'stopdesk' && !data.selected_center) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Center must be selected for Yalidine Stop Desk delivery',
+        message: 'Center must be selected for stop desk delivery',
         path: ['selected_center'],
       });
     }
@@ -104,25 +104,25 @@ export const exchangeWooOrderSchema = z.object({
   shipping: createShippingSchema,
   total: z.number(),
   discount: z.number().optional(),
-  shipping_provider: z.enum(['yalidine', 'my_companies']),
+  shipping_provider: z.enum(['yalidine', 'my_companies', 'noest']),
   delivery_type: z.enum(['home', 'stopdesk']),
   selected_commune: z.string().optional(),
   selected_center: z.string().optional(),
   first_delivery_cost: z.number().optional(),
   second_delivery_cost: z.number().optional()
 }).superRefine((data, ctx) => {
-  if (data.shipping_provider === 'yalidine') {
+  if (data.shipping_provider === 'yalidine' || data.shipping_provider === 'noest') {
     if (data.delivery_type === 'home' && !data.selected_commune) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Commune must be selected for Yalidine Home delivery',
+        message: 'Commune must be selected for home delivery',
         path: ['selected_commune'],
       });
     }
     if (data.delivery_type === 'stopdesk' && !data.selected_center) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Center must be selected for Yalidine Stop Desk delivery',
+        message: 'Center must be selected for stop desk delivery',
         path: ['selected_center'],
       });
     }

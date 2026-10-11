@@ -405,7 +405,9 @@ export default function CompanyOrdersPage() {
       wilaya: selectedWilaya ?? "",
       phone_number: debouncedPhoneNumber,
       shipping_provider:
-        selectedShippingProvider === "my_companies" ? "my_companies" : "",
+        selectedShippingProvider === "my_companies" || selectedShippingProvider === "noest"
+          ? selectedShippingProvider
+          : "",
       yalidine_status: selectedYalidineStatus ?? "",
       product_variant_id:
         selectedConfirmedVariant !== undefined
@@ -641,6 +643,7 @@ export default function CompanyOrdersPage() {
                 <SelectItem value="all">All Providers</SelectItem>
                 <SelectItem value="my_companies">My Companies</SelectItem>
                 <SelectItem value="yalidine">Yalidine</SelectItem>
+                <SelectItem value="noest">NOEST</SelectItem>
               </SelectContent>
             </Select>
           </label>
