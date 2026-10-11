@@ -105,6 +105,19 @@ function formatSpendTotals(rows: AdsTrueEconomicsRow[]) {
   return [...byCurrency.entries()].map(([code, amount]) => formatMoney(amount, code)).join(" · ");
 }
 
+function formatCampaignDate(value?: string) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return format(date, "dd MMM yyyy, HH:mm");
+}
+
+function campaignTimestamp(value?: string) {
+  if (!value) return 0;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
 function formatRate(value: number) {
   return new Intl.NumberFormat("fr-DZ", {
     style: "percent",
@@ -129,6 +142,8 @@ type SortState<K extends string> = { key: K; direction: SortDirection } | null;
 
 type CampaignSortKey =
   | "campaign"
+  | "created_at"
+  | "updated_at"
   | "platform"
   | "currency"
   | "spend"
@@ -155,6 +170,8 @@ type ModelSortKey =
   | "gross_margin";
 
 const numericCampaignKeys = new Set<CampaignSortKey>([
+  "created_at",
+  "updated_at",
   "spend",
   "orders",
   "confirmed",
@@ -181,6 +198,8 @@ const numericModelKeys = new Set<ModelSortKey>([
 
 const campaignValue: Record<CampaignSortKey, (row: AdsTrueEconomicsRow) => string | number> = {
   campaign: (row) => campaignLabel(row),
+  created_at: (row) => campaignTimestamp(row.created_at),
+  updated_at: (row) => campaignTimestamp(row.updated_at),
   platform: (row) => row.platform,
   currency: (row) => spendCurrency(row.currency),
   spend: (row) => row.spend,
@@ -613,6 +632,8 @@ export default function TrueEconomicsDashboard({
                   <TableHeader className="bg-muted/80">
                     <TableRow className="hover:bg-transparent">
                       <SortableHead label="Campaign" sortKey="campaign" sort={campaignSort} align="left" onSort={onCampaignSort} />
+                      <SortableHead label="Created" sortKey="created_at" sort={campaignSort} align="left" hint="Meta uses the campaign start time. TikTok uses the campaign create time." onSort={onCampaignSort} />
+                      <SortableHead label="Updated" sortKey="updated_at" sort={campaignSort} align="left" hint="Meta uses the last sync time. TikTok uses the campaign modify time." onSort={onCampaignSort} />
                       <SortableHead label="Platform" sortKey="platform" sort={campaignSort} align="left" onSort={onCampaignSort} />
                       <SortableHead label="Currency" sortKey="currency" sort={campaignSort} align="left" onSort={onCampaignSort} />
                       <SortableHead label="Spend" sortKey="spend" sort={campaignSort} hint={metricHelp[0].detail} onSort={onCampaignSort} />
@@ -643,6 +664,12 @@ export default function TrueEconomicsDashboard({
                           <TableCell className="max-w-[220px]">
                             <p className="truncate font-medium">{campaignLabel(row)}</p>
                             <p className="text-xs text-muted-foreground">#{row.campaign_id}</p>
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                            {formatCampaignDate(row.created_at)}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-xs tabular-nums">
+                            {formatCampaignDate(row.updated_at)}
                           </TableCell>
                           <TableCell>
                             <Badge variant={row.platform === "meta" ? "default" : "secondary"}>
