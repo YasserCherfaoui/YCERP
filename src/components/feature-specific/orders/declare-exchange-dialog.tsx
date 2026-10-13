@@ -357,16 +357,15 @@ export default function DeclareExchangeDialog({
   // Set commune when center changes
   const yalidineCenter = watch("selected_center");
   useEffect(() => {
-    if (yalidineCenter) {
-      const center = (yalidineCenters?.data || []).find(
-        (c) => String(c.center_id) === yalidineCenter
-      );
-      if (center) {
-        setValue("selected_commune", String(center.commune_id));
-        setValue("shipping.commune", String(center.commune_name));
-      }
+    if (watch("shipping_provider") !== "yalidine" || !yalidineCenter) return;
+    const center = (yalidineCenters?.data || []).find(
+      (c) => String(c.center_id) === yalidineCenter
+    );
+    if (center) {
+      setValue("selected_commune", String(center.commune_id));
+      setValue("shipping.commune", String(center.commune_name));
     }
-  }, [yalidineCenter]);
+  }, [yalidineCenter, watch("shipping_provider")]);
   // Map product_variant_id to cost for quick lookup
   const variantCostMap: Record<number, number> = {};
   if (inventoryData?.data?.items) {
@@ -840,7 +839,14 @@ export default function DeclareExchangeDialog({
                         <FormItem>
                           <FormLabel>NOEST Desk</FormLabel>
                           <FormControl>
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value}
+                              onValueChange={(val) => {
+                                field.onChange(val);
+                                const desk = (noestDesks || []).find((item) => item.code === val);
+                                if (desk) setValue("shipping.commune", desk.name);
+                              }}
+                            >
                               <SelectTrigger className="w-full mt-1">
                                 <SelectValue placeholder="Select a desk" />
                               </SelectTrigger>
