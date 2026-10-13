@@ -1,4 +1,5 @@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { cn } from "@/lib/utils";
 
 const carriers = [
   { value: "yalidine", label: "Yalidine" },
@@ -17,17 +18,20 @@ export function CarrierRadioGroup({
 }) {
   return (
     <RadioGroup value={value} onValueChange={onChange} className="flex flex-col gap-2 mt-2">
-      {carriers.map((carrier) => (
-        <label
-          key={carrier.value}
-          htmlFor={`${idPrefix}-${carrier.value}`}
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={() => onChange(carrier.value)}
-        >
-          <RadioGroupItem value={carrier.value} id={`${idPrefix}-${carrier.value}`} />
-          <span className={value === carrier.value ? "font-medium" : undefined}>{carrier.label}</span>
-        </label>
-      ))}
+      {carriers.map((carrier) => {
+        const id = `${idPrefix}-${carrier.value}`;
+        return (
+          <div key={carrier.value} className="flex items-center gap-2">
+            <RadioGroupItem value={carrier.value} id={id} />
+            <label
+              htmlFor={id}
+              className={cn("cursor-pointer", value === carrier.value && "font-medium")}
+            >
+              {carrier.label}
+            </label>
+          </div>
+        );
+      })}
     </RadioGroup>
   );
 }

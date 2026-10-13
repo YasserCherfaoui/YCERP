@@ -776,7 +776,14 @@ function ShippingSection({
             <FormItem>
               <FormLabel>NOEST Desk</FormLabel>
               <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    const desk = (noestDesks || []).find((item: { code: string; name: string }) => item.code === val);
+                    if (desk) setValue("shipping.commune", desk.name);
+                  }}
+                >
                   <SelectTrigger className="w-full mt-1">
                     <SelectValue placeholder="Select a desk" />
                   </SelectTrigger>
