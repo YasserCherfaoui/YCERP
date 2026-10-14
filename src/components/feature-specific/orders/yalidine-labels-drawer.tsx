@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { YalidineParcelLabel } from "@/models/data/yalidine-label-batch.model";
 import {
   downloadYalidineParcelLabel,
@@ -19,7 +20,7 @@ import {
   getPendingYalidineParcelLabels,
   mergeYalidineParcelLabels,
 } from "@/services/woocommerce-service";
-import { carrierLabel } from "@/utils/shipping-provider";
+import { carrierChipClass, carrierLabel } from "@/utils/shipping-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { Download, Files, Loader2, Merge } from "lucide-react";
@@ -66,10 +67,12 @@ function formatDateHeading(dateKey: string) {
 
 interface YalidineLabelsDrawerProps {
   companyId: number;
+  triggerClassName?: string;
 }
 
 export default function YalidineLabelsDrawer({
   companyId,
+  triggerClassName,
 }: YalidineLabelsDrawerProps) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState("pending");
@@ -177,7 +180,7 @@ export default function YalidineLabelsDrawer({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="relative">
+        <Button variant="outline" size="sm" className={cn("relative", triggerClassName)}>
           <Files className="h-4 w-4" />
           <span className="sm:hidden">Labels</span>
           <span className="hidden sm:inline">Parcel labels</span>
@@ -253,7 +256,7 @@ export default function YalidineLabelsDrawer({
                             <p className="truncate text-sm font-medium">
                               {label.tracking_number || `Label #${label.id}`}
                             </p>
-                            <Badge variant="outline" className="mt-1">
+                            <Badge variant="outline" className={cn("mt-1", carrierChipClass(label.carrier))}>
                               {carrierLabel(label.carrier)}
                             </Badge>
                             <p className="text-xs text-muted-foreground">
@@ -411,7 +414,7 @@ export default function YalidineLabelsDrawer({
                           <p className="truncate text-sm font-medium">
                             {label.tracking_number || `Label #${label.id}`}
                           </p>
-                          <Badge variant="outline" className="mt-1">
+                          <Badge variant="outline" className={cn("mt-1", carrierChipClass(label.carrier))}>
                             {carrierLabel(label.carrier)}
                           </Badge>
                           <p className="text-xs text-muted-foreground">
