@@ -12,6 +12,7 @@ export interface YalidineParcelLabel {
   created_by_user_id: number;
   woo_order_id: number;
   tracking_number: string;
+  carrier?: string;
   gcs_object_path: string;
   status: YalidineParcelLabelStatus;
   upload_error?: string;

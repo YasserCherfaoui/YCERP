@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WooOrder } from "@/models/data/woo-order.model";
+import { carrierLabel, carrierStatusLabel } from "@/utils/shipping-provider";
 import { getYalidineCenter } from "@/services/woocommerce-service";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -217,7 +218,7 @@ export default function OrderDetailsContent({ order }: { order: WooOrder }) {
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Provider</div>
-                <Badge variant="outline">{order.woo_shipping.shipping_provider}</Badge>
+                <Badge variant="outline">{carrierLabel(order.woo_shipping.shipping_provider)}</Badge>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Type</div>
@@ -354,7 +355,9 @@ export default function OrderDetailsContent({ order }: { order: WooOrder }) {
               {order.yalidine_order_histories.map((history, idx) => (
                 <div key={history.ID ?? idx} className="rounded-lg border p-3">
                   <div className="mb-2 flex items-center justify-between">
-                    <Badge className={getStatusColor(history.status)}>{history.status}</Badge>
+                    <Badge className={getStatusColor(history.status)}>
+                      {carrierStatusLabel(order.woo_shipping?.shipping_provider, history.status)}
+                    </Badge>
                     <div className="text-xs text-muted-foreground">{formatDate(history.date)}</div>
                   </div>
                   <div className="space-y-1 text-sm">
@@ -363,12 +366,17 @@ export default function OrderDetailsContent({ order }: { order: WooOrder }) {
                         <span className="font-medium">Reason:</span> {history.reason}
                       </div>
                     )}
-                    <div>
-                      <span className="font-medium">Center:</span> {history.center_name}
-                    </div>
-                    <div>
-                      <span className="font-medium">Location:</span> {history.commune_name}, {history.wilaya_name}
-                    </div>
+                    {history.center_name?.trim() && (
+                      <div>
+                        <span className="font-medium">Center:</span> {history.center_name}
+                      </div>
+                    )}
+                    {(history.commune_name?.trim() || history.wilaya_name?.trim()) && (
+                      <div>
+                        <span className="font-medium">Location:</span>{" "}
+                        {[history.commune_name, history.wilaya_name].filter(Boolean).join(", ")}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

@@ -19,6 +19,7 @@ import {
   getPendingYalidineParcelLabels,
   mergeYalidineParcelLabels,
 } from "@/services/woocommerce-service";
+import { carrierLabel } from "@/utils/shipping-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import { Download, Files, Loader2, Merge } from "lucide-react";
@@ -179,7 +180,7 @@ export default function YalidineLabelsDrawer({
         <Button variant="outline" className="relative">
           <Files className="h-4 w-4" />
           <span className="sm:hidden">Labels</span>
-          <span className="hidden sm:inline">Yalidine Labels</span>
+          <span className="hidden sm:inline">Parcel labels</span>
           {pendingCount > 0 && (
             <Badge
               className="ml-1 h-5 min-w-5 justify-center px-1.5"
@@ -192,7 +193,7 @@ export default function YalidineLabelsDrawer({
       </SheetTrigger>
       <SheetContent side="left" className="flex w-full flex-col sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Yalidine labels</SheetTitle>
+          <SheetTitle>Parcel labels</SheetTitle>
           <SheetDescription>
             One PDF page per parcel. Merge combines selected or ready labels into
             a single file.
@@ -252,6 +253,9 @@ export default function YalidineLabelsDrawer({
                             <p className="truncate text-sm font-medium">
                               {label.tracking_number || `Label #${label.id}`}
                             </p>
+                            <Badge variant="outline" className="mt-1">
+                              {carrierLabel(label.carrier)}
+                            </Badge>
                             <p className="text-xs text-muted-foreground">
                               Order #{label.woo_order_id} ·{" "}
                               {format(
@@ -407,6 +411,9 @@ export default function YalidineLabelsDrawer({
                           <p className="truncate text-sm font-medium">
                             {label.tracking_number || `Label #${label.id}`}
                           </p>
+                          <Badge variant="outline" className="mt-1">
+                            {carrierLabel(label.carrier)}
+                          </Badge>
                           <p className="text-xs text-muted-foreground">
                             Order #{label.woo_order_id}
                             {label.downloaded_at

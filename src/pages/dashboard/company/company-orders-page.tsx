@@ -37,6 +37,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { User } from "@/models/data/user.model";
 import { YALIDINE_STATUSES } from "@/models/data/woo-order.model";
+import { NOEST_STATUSES } from "@/utils/shipping-provider";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { getMyCompanyFranchises } from "@/services/franchise-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
@@ -451,7 +452,7 @@ export default function CompanyOrdersPage() {
               <Loader2 className="ml-2 h-4 w-4 animate-spin" />
             )}
           </Button>
-          {selectedStatus === "dispaching" && (
+          {selectedStatus === "dispaching" && selectedShippingProvider !== "noest" && (
             <Button
               onClick={() => syncDispatchingOrdersMutation()}
               disabled={syncDispatchingOrdersLoading}
@@ -465,29 +466,35 @@ export default function CompanyOrdersPage() {
               )}
             </Button>
           )}
-          <Button
-            variant="outline"
-            onClick={() => setYalidineReconciliationOpen(true)}
-          >
-            <span className="sm:hidden">Reconcile</span>
-            <span className="hidden sm:inline">Reconcile Yalidine</span>
-          </Button>
-          <Button
-            variant="outline"
-            disabled={selectedRows.length === 0}
-            onClick={() => setDuplicateParcelsOpen(true)}
-          >
-            <span className="sm:hidden">Duplicates</span>
-            <span className="hidden sm:inline">Duplicate parcels</span>
-          </Button>
+          {selectedShippingProvider !== "noest" && (
+            <Button
+              variant="outline"
+              onClick={() => setYalidineReconciliationOpen(true)}
+            >
+              <span className="sm:hidden">Reconcile</span>
+              <span className="hidden sm:inline">Reconcile Yalidine</span>
+            </Button>
+          )}
+          {selectedShippingProvider !== "noest" && (
+            <Button
+              variant="outline"
+              disabled={selectedRows.length === 0}
+              onClick={() => setDuplicateParcelsOpen(true)}
+            >
+              <span className="sm:hidden">Duplicates</span>
+              <span className="hidden sm:inline">Duplicate parcels</span>
+            </Button>
+          )}
           <YalidineLabelsDrawer companyId={company.ID} />
-          <Button
-            variant="outline"
-            onClick={() => setDeletedParcelReconciliationOpen(true)}
-          >
-            <span className="sm:hidden">Deleted parcel</span>
-            <span className="hidden sm:inline">Deleted Yalidine Parcel</span>
-          </Button>
+          {selectedShippingProvider !== "noest" && (
+            <Button
+              variant="outline"
+              onClick={() => setDeletedParcelReconciliationOpen(true)}
+            >
+              <span className="sm:hidden">Deleted parcel</span>
+              <span className="hidden sm:inline">Deleted Yalidine Parcel</span>
+            </Button>
+          )}
           <Button
             onClick={() => setAssignOpen(true)}
             disabled={isModerator || selectedRows.length === 0}
@@ -563,27 +570,49 @@ export default function CompanyOrdersPage() {
               </SelectContent>
             </Select>
           </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span>Filter by Yalidine Status</span>
-            <Select
-              value={selectedYalidineStatus || "all"}
-              onValueChange={(e) =>
-                setSelectedYalidineStatus(e === "all" ? undefined : e)
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="All Yalidine Statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Yalidine Statuses</SelectItem>
-                {Object.values(YALIDINE_STATUSES).map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {status}
+          {selectedShippingProvider !== "my_companies" && (
+            <label className="flex flex-col gap-1 text-sm">
+              <span>
+                {selectedShippingProvider === "noest"
+                  ? "Filter by NOEST Status"
+                  : "Filter by Yalidine Status"}
+              </span>
+              <Select
+                value={selectedYalidineStatus || "all"}
+                onValueChange={(e) =>
+                  setSelectedYalidineStatus(e === "all" ? undefined : e)
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue
+                    placeholder={
+                      selectedShippingProvider === "noest"
+                        ? "All NOEST Statuses"
+                        : "All Yalidine Statuses"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {selectedShippingProvider === "noest"
+                      ? "All NOEST Statuses"
+                      : "All Yalidine Statuses"}
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </label>
+                  {selectedShippingProvider === "noest"
+                    ? NOEST_STATUSES.map((status) => (
+                        <SelectItem key={status.value} value={status.value}>
+                          {status.label}
+                        </SelectItem>
+                      ))
+                    : Object.values(YALIDINE_STATUSES).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status}
+                        </SelectItem>
+                      ))}
+                </SelectContent>
+              </Select>
+            </label>
+          )}
           <label className="flex flex-col gap-1 text-sm">
             <span>Confirmed Order Item</span>
             <ProductVariantCombobox
@@ -633,9 +662,10 @@ export default function CompanyOrdersPage() {
             <span>Filter by Shipping Provider</span>
             <Select
               value={selectedShippingProvider || "all"}
-              onValueChange={(e) =>
-                setSelectedShippingProvider(e === "all" ? undefined : e)
-              }
+              onValueChange={(e) => {
+                setSelectedShippingProvider(e === "all" ? undefined : e);
+                setSelectedYalidineStatus(undefined);
+              }}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="All Providers" />

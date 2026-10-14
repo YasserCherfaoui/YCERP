@@ -3,6 +3,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Qualification } from "@/models/data/qualification.model";
 import { WooOrder } from "@/models/data/woo-order.model";
+import { carrierLabel, carrierStatusLabel } from "@/utils/shipping-provider";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import AddOrderHistoryDialog from "./add-order-history-dialog";
@@ -49,9 +50,14 @@ function HistoryList({ title, histories }: { title: string; histories: { status:
 
 export default function OrderHistoryDialog({ order, open, setOpen }: { order: WooOrder; open: boolean; setOpen: (open: boolean) => void; ordersQueryKey?: any[] }) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const sortedYalidineHistories = (order.yalidine_order_histories || []).sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const provider = order.woo_shipping?.shipping_provider;
+  const sortedCarrierHistories = (order.yalidine_order_histories || [])
+    .slice()
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .map((history) => ({
+      ...history,
+      status: carrierStatusLabel(provider, history.status),
+    }));
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -62,7 +68,7 @@ export default function OrderHistoryDialog({ order, open, setOpen }: { order: Wo
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-6 flex-col md:flex-row">
-          <HistoryList title="Yalidine Order Histories" histories={sortedYalidineHistories} />
+          <HistoryList title={`${carrierLabel(provider)} updates`} histories={sortedCarrierHistories} />
           <HistoryList title="Order Histories" histories={order.order_histories || []} />
         </div>
         <DialogFooter>
