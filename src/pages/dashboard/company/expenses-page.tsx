@@ -26,6 +26,22 @@ import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
+function deliveryRateLabel(delivered: number, total: number): string {
+  if (total <= 0) return "0/0 · 0%";
+  const pct = Math.round(((delivered / total) * 100) * 10) / 10;
+  const pctLabel = `${pct}%`;
+  return `${delivered}/${total} · ${pctLabel}`;
+}
+
+function CreatedRangeRate({ ready, delivered, total }: { ready: boolean; delivered: number; total: number }) {
+  return (
+    <div className="text-xs text-muted-foreground mt-1">
+      {ready ? deliveryRateLabel(delivered, total) : "-"}
+      <span className="block">Delivered / orders created in range</span>
+    </div>
+  );
+}
+
 export default function ExpensesPage() {
   const queryClient = useQueryClient();
   const company = useSelector((state: RootState) => state.company.company);
@@ -164,13 +180,24 @@ export default function ExpensesPage() {
   });
   const yalidineDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount_yalidine ?? 0;
   const myCompaniesDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount_my_companies ?? 0;
-  const totalDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount ?? (yalidineDeliveredAmount + myCompaniesDeliveredAmount);
+  const noestDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount_noest ?? 0;
+  const totalDeliveredAmount: number = deliveredAgg?.total_delivered_orders_amount ?? (yalidineDeliveredAmount + myCompaniesDeliveredAmount + noestDeliveredAmount);
   const yalidineDeliveredCount: number = deliveredAgg?.total_delivered_orders_count_yalidine ?? 0;
   const myCompaniesDeliveredCount: number = deliveredAgg?.total_delivered_orders_count_my_companies ?? 0;
-  const totalDeliveredCount: number = deliveredAgg?.total_delivered_orders_count ?? (yalidineDeliveredCount + myCompaniesDeliveredCount);
+  const noestDeliveredCount: number = deliveredAgg?.total_delivered_orders_count_noest ?? 0;
+  const totalDeliveredCount: number = deliveredAgg?.total_delivered_orders_count ?? (yalidineDeliveredCount + myCompaniesDeliveredCount + noestDeliveredCount);
   const benefitsYalidine: number = deliveredAgg?.total_benefits_yalidine ?? 0;
   const benefitsMyCompanies: number = deliveredAgg?.total_benefits_my_companies ?? 0;
-  const benefitsTotal: number = deliveredAgg?.total_benefits ?? (benefitsYalidine + benefitsMyCompanies);
+  const benefitsNoest: number = deliveredAgg?.total_benefits_noest ?? 0;
+  const benefitsTotal: number = deliveredAgg?.total_benefits ?? (benefitsYalidine + benefitsMyCompanies + benefitsNoest);
+  const yalidineTotalOrders: number = deliveredAgg?.total_orders_yalidine ?? 0;
+  const myCompaniesTotalOrders: number = deliveredAgg?.total_orders_my_companies ?? 0;
+  const noestTotalOrders: number = deliveredAgg?.total_orders_noest ?? 0;
+  const totalOrders: number = deliveredAgg?.total_orders ?? (yalidineTotalOrders + myCompaniesTotalOrders + noestTotalOrders);
+  const yalidineCreatedDelivered: number = deliveredAgg?.created_delivered_orders_yalidine ?? 0;
+  const myCompaniesCreatedDelivered: number = deliveredAgg?.created_delivered_orders_my_companies ?? 0;
+  const noestCreatedDelivered: number = deliveredAgg?.created_delivered_orders_noest ?? 0;
+  const totalCreatedDelivered: number = deliveredAgg?.created_delivered_orders ?? (yalidineCreatedDelivered + myCompaniesCreatedDelivered + noestCreatedDelivered);
 
   const exportDeliveredCsvMut = useMutation({
     mutationFn: downloadDeliveredOrdersCsv,
@@ -529,18 +556,34 @@ export default function ExpensesPage() {
               />
             </>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <Card>
               <CardHeader><CardTitle>Total Yalidine's Delivered Orders</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{deliveredAgg ? yalidineDeliveredCount : "-"}</div></CardContent>
+              <CardContent>
+                <div className="text-xl font-bold">{deliveredAgg ? yalidineDeliveredCount : "-"}</div>
+                <CreatedRangeRate ready={deliveredAgg?.total_orders_yalidine != null} delivered={yalidineCreatedDelivered} total={yalidineTotalOrders} />
+              </CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle>Total My Company's Delivered Orders</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{deliveredAgg ? myCompaniesDeliveredCount : "-"}</div></CardContent>
+              <CardContent>
+                <div className="text-xl font-bold">{deliveredAgg ? myCompaniesDeliveredCount : "-"}</div>
+                <CreatedRangeRate ready={deliveredAgg?.total_orders_my_companies != null} delivered={myCompaniesCreatedDelivered} total={myCompaniesTotalOrders} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Total Noest's Delivered Orders</CardTitle></CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">{deliveredAgg ? noestDeliveredCount : "-"}</div>
+                <CreatedRangeRate ready={deliveredAgg?.total_orders_noest != null} delivered={noestCreatedDelivered} total={noestTotalOrders} />
+              </CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle>Total Delivered Orders</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{deliveredAgg ? totalDeliveredCount : "-"}</div></CardContent>
+              <CardContent>
+                <div className="text-xl font-bold">{deliveredAgg ? totalDeliveredCount : "-"}</div>
+                <CreatedRangeRate ready={deliveredAgg?.total_orders != null} delivered={totalCreatedDelivered} total={totalOrders} />
+              </CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle>Total Yalidine's Delivered Orders Amount</CardTitle></CardHeader>
@@ -556,6 +599,14 @@ export default function ExpensesPage() {
                 <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(myCompaniesDeliveredAmount)}</div>
                 <div className="text-xs text-muted-foreground mt-1">{myCompaniesDeliveredCount} orders</div>
                 <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsMyCompanies)}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader><CardTitle>Total Noest's Delivered Orders Amount</CardTitle></CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(noestDeliveredAmount)}</div>
+                <div className="text-xs text-muted-foreground mt-1">{noestDeliveredCount} orders</div>
+                <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsNoest)}</div>
               </CardContent>
             </Card>
             <Card>
