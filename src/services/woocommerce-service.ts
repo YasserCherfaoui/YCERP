@@ -678,6 +678,26 @@ export const refreshWooCommerceStatus = async () => {
     return data;
 }
 
+export const refreshNoestStatuses = async (companyId: number): Promise<APIResponse<{
+    checked: number;
+    with_activity: number;
+    updated: number;
+}>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/noest/refresh-statuses`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify({ company_id: companyId }),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to refresh NOEST statuses");
+    }
+    return response.json();
+};
+
 export const syncDispatchingOrders = async (): Promise<APIResponse<{
     updated_to_deliviring: number;
     updated_orders: number;

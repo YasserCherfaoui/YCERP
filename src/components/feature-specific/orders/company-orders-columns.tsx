@@ -1,6 +1,7 @@
 import DeclareExchangeDialog from "@/components/feature-specific/orders/declare-exchange-dialog";
 import OrderActions from "@/components/feature-specific/orders/order-actions";
 import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
+import { carrierStatusLabel } from "@/utils/shipping-provider";
 import OrderLineItemsAccordion from "@/components/feature-specific/orders/order-line-items-accordion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -270,7 +271,9 @@ export const companyOrdersColumns: ColumnDef<WooOrder, { id: number }>[] = [
               "No status"
             ) : (
               <>
-                <span>{lastStatus.status}</span>
+                <span>
+                  {carrierStatusLabel(order.woo_shipping?.shipping_provider, lastStatus.status)}
+                </span>
                 {lastStatus.reason?.trim() && (
                   <span className="text-xs text-muted-foreground">
                     Reason: {lastStatus.reason}

@@ -318,7 +318,7 @@ export default function PackingCheckPage() {
         {!progress ? (
           <>
             <p className="text-sm text-muted-foreground">
-              Scan the Yalidine tracking sticker, then scan each product QR.
+              Scan the parcel tracking sticker, then scan each product QR.
             </p>
             <div className="flex gap-2">
               <Input
@@ -457,7 +457,7 @@ export default function PackingCheckPage() {
         description={
           scannerTarget === "variant"
             ? "Scan the product variant QR. USB scanners still work from the keyboard field."
-            : "Scan the Yalidine parcel sticker (Code 128 or QR)."
+            : "Scan the parcel sticker (Code 128 or QR)."
         }
       />
     </div>
