@@ -45,6 +45,7 @@ import { getUsersByCompany } from "@/services/user-service";
 import {
     dispatchWooCommerceOrders,
     exportWooCommerceOrders,
+    refreshNoestStatuses,
     refreshWooCommerceStatus,
     syncDispatchingOrders,
 } from "@/services/woocommerce-service";
@@ -291,6 +292,27 @@ export default function CompanyOrdersPage() {
   });
 
   const {
+    mutate: refreshNoestStatusesMutation,
+    isPending: refreshNoestStatusesLoading,
+  } = useMutation({
+    mutationFn: () => refreshNoestStatuses(company.ID),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      toast({
+        title: "NOEST statuses refreshed",
+        description: `Checked ${data.data?.checked || 0} orders, ${data.data?.with_activity || 0} with activity, updated ${data.data?.updated || 0}`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to refresh NOEST statuses",
+        description: error.message || "Failed to refresh NOEST statuses",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const {
     mutate: syncDispatchingOrdersMutation,
     isPending: syncDispatchingOrdersLoading,
   } = useMutation({
@@ -452,6 +474,20 @@ export default function CompanyOrdersPage() {
               <Loader2 className="ml-2 h-4 w-4 animate-spin" />
             )}
           </Button>
+          {(selectedShippingProvider === "noest" || selectedShippingProvider === undefined) && (
+            <Button
+              variant="outline"
+              onClick={() => refreshNoestStatusesMutation()}
+              disabled={refreshNoestStatusesLoading}
+            >
+              <RefreshCcwIcon className="h-4 w-4" />
+              <span className="sm:hidden">NOEST</span>
+              <span className="hidden sm:inline">Refresh NOEST</span>
+              {refreshNoestStatusesLoading && (
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              )}
+            </Button>
+          )}
           {selectedStatus === "dispaching" && selectedShippingProvider !== "noest" && (
             <Button
               onClick={() => syncDispatchingOrdersMutation()}
