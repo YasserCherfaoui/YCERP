@@ -70,14 +70,30 @@ export default function OrderPageActions({ order }: { order: WooOrder }) {
     <>
       <OrderHistoryDialog order={order} open={historyOpen} setOpen={setHistoryOpen} ordersQueryKey={ordersQueryKey} />
       <ClientStatusDialog open={clientStatusOpen} setOpen={setClientStatusOpen} wooOrderID={order.id} />
-      <CreateOrderDialog wooOrder={order} open={createOpen} setOpen={setCreateOpen} ordersQueryKey={ordersQueryKey} />
-      <SetPackingStatusDialog order={order} open={packingOpen} setOpen={setPackingOpen} ordersQueryKey={ordersQueryKey} />
-      <DispatchConfirmDialog order={order} open={dispatchOpen} setOpen={setDispatchOpen} ordersQueryKey={ordersQueryKey} />
-      <ExportConfirmDialog order={order} open={exportOpen} setOpen={setExportOpen} ordersQueryKey={ordersQueryKey} />
-      <UpdateOrderDialog order={order} open={updateOpen} setOpen={setUpdateOpen} ordersQueryKey={ordersQueryKey} />
-      <SetCancelledStatusDialog order={order} open={cancelOpen} setOpen={setCancelOpen} ordersQueryKey={ordersQueryKey} />
-      <SetUnconfirmedStatusDialog order={order} open={unconfirmedOpen} setOpen={setUnconfirmedOpen} ordersQueryKey={ordersQueryKey} />
-      <DeclareExchangeDialog open={exchangeOpen} onOpenChange={setExchangeOpen} order={order} />
+      {(status === "unconfirmed" || status === "relaunched") && (
+        <CreateOrderDialog wooOrder={order} open={createOpen} setOpen={setCreateOpen} ordersQueryKey={ordersQueryKey} />
+      )}
+      {status !== "packing" && (
+        <SetPackingStatusDialog order={order} open={packingOpen} setOpen={setPackingOpen} ordersQueryKey={ordersQueryKey} />
+      )}
+      {status === "packing" && (
+        <DispatchConfirmDialog order={order} open={dispatchOpen} setOpen={setDispatchOpen} ordersQueryKey={ordersQueryKey} />
+      )}
+      {status === "dispaching" && (
+        <ExportConfirmDialog order={order} open={exportOpen} setOpen={setExportOpen} ordersQueryKey={ordersQueryKey} />
+      )}
+      {(status === "packing" || status === "dispaching") && (
+        <UpdateOrderDialog order={order} open={updateOpen} setOpen={setUpdateOpen} ordersQueryKey={ordersQueryKey} />
+      )}
+      {status !== "cancelled" && (
+        <SetCancelledStatusDialog order={order} open={cancelOpen} setOpen={setCancelOpen} ordersQueryKey={ordersQueryKey} />
+      )}
+      {status === "cancelled" && (
+        <SetUnconfirmedStatusDialog order={order} open={unconfirmedOpen} setOpen={setUnconfirmedOpen} ordersQueryKey={ordersQueryKey} />
+      )}
+      {status === "delivered" && (
+        <DeclareExchangeDialog open={exchangeOpen} onOpenChange={setExchangeOpen} order={order} />
+      )}
       {isAdminOrModerator && (
         <DeliveryFulfillmentDialog
           order={order}
