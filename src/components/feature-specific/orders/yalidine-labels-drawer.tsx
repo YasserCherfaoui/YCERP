@@ -19,11 +19,12 @@ import {
   getDownloadedYalidineParcelLabels,
   getPendingYalidineParcelLabels,
   mergeYalidineParcelLabels,
+  retryNoestParcelLabel,
 } from "@/services/woocommerce-service";
 import { carrierChipClass, carrierLabel } from "@/utils/shipping-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
-import { Download, Files, Loader2, Merge } from "lucide-react";
+import { Download, Files, Loader2, Merge, RefreshCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
 function statusLabel(status: YalidineParcelLabel["status"]) {
@@ -159,7 +160,23 @@ export default function YalidineLabelsDrawer({
     },
   });
 
-  const busy = downloadOneMutation.isPending || mergeMutation.isPending;
+  const retryMutation = useMutation({
+    mutationFn: (labelId: number) => retryNoestParcelLabel(labelId, companyId),
+    onSuccess: () => {
+      toast({ title: "NOEST label fetched", description: "The slip is ready to download." });
+      invalidate();
+    },
+    onError: (err: Error) => {
+      toast({
+        title: "NOEST label could not be fetched",
+        description: err.message,
+        variant: "destructive",
+      });
+      invalidate();
+    },
+  });
+
+  const busy = downloadOneMutation.isPending || mergeMutation.isPending || retryMutation.isPending;
 
   const toggleId = (
     set: Set<number>,
@@ -276,10 +293,26 @@ export default function YalidineLabelsDrawer({
                             {label.upload_error}
                           </p>
                         )}
+                        <div className="mt-2 flex flex-wrap gap-2">
+                        {label.carrier === "noest" && label.status === "failed" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-sky-300 bg-sky-100 text-sky-800 hover:bg-sky-200 dark:border-sky-800 dark:bg-sky-950/70 dark:text-sky-100 dark:hover:bg-sky-950"
+                            disabled={busy}
+                            onClick={() => retryMutation.mutate(label.id)}
+                          >
+                            {retryMutation.isPending && retryMutation.variables === label.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <RefreshCcw className="h-4 w-4" />
+                            )}
+                            Fetch again
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           variant="secondary"
-                          className="mt-2"
                           disabled={
                             (label.status !== "ready" &&
                               label.status !== "downloaded") ||
@@ -295,6 +328,7 @@ export default function YalidineLabelsDrawer({
                           )}
                           Download
                         </Button>
+                        </div>
                       </div>
                     </div>
                   </div>

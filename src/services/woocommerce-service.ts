@@ -11,6 +11,7 @@ import {
   DownloadedYalidineParcelLabelsResponse,
   MergeYalidineParcelLabelsRequest,
   PendingYalidineParcelLabelsResponse,
+  YalidineParcelLabel,
 } from "@/models/data/yalidine-label-batch.model";
 import { CenterListResponse } from "@/models/responses/yalidine.cache";
 import { CreateOrderSchema, ExchangeWooOrderSchema } from "@/schemas/order";
@@ -1348,6 +1349,26 @@ export const getDownloadedYalidineParcelLabels = async (
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "Failed to load downloaded labels");
+  }
+  return response.json();
+};
+
+export const retryNoestParcelLabel = async (
+  labelId: number,
+  companyId: number
+): Promise<APIResponse<YalidineParcelLabel>> => {
+  const response = await fetch(
+    `${baseUrl}/woocommerce/yalidine-parcel-labels/${labelId}/retry?company_id=${companyId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + authToken(),
+      },
+    }
+  );
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error?.description || errorData.message || "Failed to fetch NOEST label");
   }
   return response.json();
 };
