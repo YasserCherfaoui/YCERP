@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { Expense, ExpensesListResponseData } from "@/models/data/expenses/expense.model";
 import ExpensesCategoriesPage from "@/pages/dashboard/company/expenses-categories-page";
 import { getEmployeePaymentsSum } from "@/services/delivery-payments-service";
@@ -20,11 +21,35 @@ import { countReturnedOrders, downloadDeliveredOrdersCsv, downloadDeliveredProdu
 import { approveExpense, createExpense, deleteExpense, listExpenses, markExpensePaid, updateExpense } from "@/services/expenses-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Download, Package, RefreshCw } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  Banknote,
+  BarChart3,
+  Calculator,
+  CircleDollarSign,
+  Coins,
+  Download,
+  HandCoins,
+  Package,
+  PackageCheck,
+  Receipt,
+  RefreshCw,
+  Send,
+  Store,
+  Tags,
+  Truck,
+  Undo2,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { DateRange } from "react-day-picker";
 import { useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+
+const liquidGlass =
+  "border border-white/40 bg-white/45 shadow-[0_12px_40px_-18px_rgba(15,23,42,0.45),inset_0_1px_0_0_rgba(255,255,255,0.7)] backdrop-blur-xl dark:border-white/15 dark:bg-white/[0.07] dark:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.16)]";
+
+const dzd = new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" });
 
 function deliveryRateLabel(delivered: number, total: number): string {
   if (total <= 0) return "0/0 · 0%";
@@ -35,11 +60,56 @@ function deliveryRateLabel(delivered: number, total: number): string {
 
 function CreatedRangeRate({ ready, delivered, total }: { ready: boolean; delivered: number; total: number }) {
   return (
-    <div className="text-xs text-muted-foreground mt-1">
-      {ready ? deliveryRateLabel(delivered, total) : "-"}
+    <div className="mt-2 text-xs text-muted-foreground">
+      <span className="font-medium text-foreground">{ready ? deliveryRateLabel(delivered, total) : "-"}</span>
       <span className="block">Delivered / orders created in range</span>
     </div>
   );
+}
+
+function GlassMetricCard({
+  title,
+  value,
+  icon: Icon,
+  iconClass,
+  glowClass,
+  children,
+}: {
+  title: string;
+  value: ReactNode;
+  icon: LucideIcon;
+  iconClass: string;
+  glowClass: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <Card className={cn("relative overflow-hidden", liquidGlass)}>
+      <div aria-hidden className={cn("pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full blur-2xl", glowClass)} />
+      <CardHeader className="relative flex flex-row items-start justify-between gap-3 space-y-0 p-4 pb-2">
+        <CardTitle className="text-sm font-medium leading-snug">{title}</CardTitle>
+        <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm", iconClass)}>
+          <Icon className="h-4 w-4" aria-hidden />
+        </span>
+      </CardHeader>
+      <CardContent className="relative p-4 pt-0">
+        <div className="text-2xl font-semibold tracking-tight">{value}</div>
+        {children}
+      </CardContent>
+    </Card>
+  );
+}
+
+function expenseStatusClass(status: string) {
+  switch (status) {
+    case "paid":
+      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100";
+    case "approved":
+      return "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-100";
+    case "cancelled":
+      return "bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-100";
+    default:
+      return "bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-100";
+  }
 }
 
 export default function ExpensesPage() {
@@ -276,16 +346,32 @@ export default function ExpensesPage() {
   });
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="relative isolate min-h-full overflow-hidden">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-16 top-8 h-72 w-72 rounded-full bg-sky-400/30 blur-3xl dark:bg-sky-500/20" />
+        <div className="absolute right-0 top-24 h-80 w-80 rounded-full bg-rose-400/25 blur-3xl dark:bg-rose-500/15" />
+        <div className="absolute bottom-8 left-1/3 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl dark:bg-emerald-500/15" />
+        <div className="absolute bottom-32 right-1/4 h-64 w-64 rounded-full bg-amber-300/30 blur-3xl dark:bg-amber-500/10" />
+      </div>
+      <div className="relative space-y-4 p-4 sm:p-6">
       <ExpensesAppBar onOpenCreateExpense={() => { const el = document.getElementById('open-create-expense'); el?.click(); }} />
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <TabsList className={cn(liquidGlass, "h-auto gap-1 p-1")}>
+          <TabsTrigger value="expenses" className="gap-2 data-[state=active]:bg-white/80 dark:data-[state=active]:bg-white/15">
+            <Receipt className="h-4 w-4 text-amber-600 dark:text-amber-300" />
+            Expenses
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="gap-2 data-[state=active]:bg-white/80 dark:data-[state=active]:bg-white/15">
+            <Tags className="h-4 w-4 text-violet-600 dark:text-violet-300" />
+            Categories
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-2 data-[state=active]:bg-white/80 dark:data-[state=active]:bg-white/15">
+            <BarChart3 className="h-4 w-4 text-sky-600 dark:text-sky-300" />
+            Analytics
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="expenses" className="space-y-4">
-      <Card className="p-4 flex gap-3 items-end flex-wrap">
+      <Card className={cn(liquidGlass, "flex flex-wrap items-end gap-3 p-4")}>
         <div className="w-48">
           <label className="text-sm">Status</label>
           <Select value={status || "__all__"} onValueChange={(v) => setStatus((v === "__all__" ? "" : (v as StatusFilter)))}>
@@ -315,33 +401,30 @@ export default function ExpensesPage() {
         </div>
       </Card>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Expenses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(expensesSum )}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Returned Orders Cost</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(returnedCost )}</div>
-            <div className="text-xs text-muted-foreground">{returnedCount} Yalidine return parcels × 100 DZD</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total + Returns</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(totalWithReturns / 100)}</div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <GlassMetricCard
+          title="Total Expenses"
+          value={dzd.format(expensesSum)}
+          icon={Receipt}
+          iconClass="border-amber-200/80 bg-amber-100 text-amber-800 dark:border-amber-400/30 dark:bg-amber-500/20 dark:text-amber-100"
+          glowClass="bg-amber-400/40"
+        />
+        <GlassMetricCard
+          title="Returned Orders Cost"
+          value={dzd.format(returnedCost)}
+          icon={Undo2}
+          iconClass="border-rose-200/80 bg-rose-100 text-rose-800 dark:border-rose-400/30 dark:bg-rose-500/20 dark:text-rose-100"
+          glowClass="bg-rose-400/40"
+        >
+          <div className="mt-1 text-xs text-muted-foreground">{returnedCount} Yalidine return parcels × 100 DZD</div>
+        </GlassMetricCard>
+        <GlassMetricCard
+          title="Total + Returns"
+          value={dzd.format(totalWithReturns / 100)}
+          icon={Calculator}
+          iconClass="border-violet-200/80 bg-violet-100 text-violet-800 dark:border-violet-400/30 dark:bg-violet-500/20 dark:text-violet-100"
+          glowClass="bg-violet-400/40"
+        />
       </div>
 
       <div className="flex justify-end">
@@ -373,7 +456,7 @@ export default function ExpensesPage() {
       {isLoading && <div>Loading expenses…</div>}
       {isError && <div className="text-red-500">{(error as Error)?.message || "Failed to load."}</div>}
       {!isLoading && data && (
-        <Card className="p-0 overflow-x-auto">
+        <Card className={cn(liquidGlass, "overflow-x-auto p-0")}>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left border-b">
@@ -393,7 +476,9 @@ export default function ExpensesPage() {
                    <td className="p-2 underline cursor-pointer" onClick={() => alert(JSON.stringify(e, null, 2))}>{e.title}</td>
                   <td className="p-2">{e.category}</td>
                   <td className="p-2">{(e.amount/100).toFixed(2)} {e.currency}</td>
-                  <td className="p-2">{e.status}</td>
+                  <td className="p-2">
+                    <span className={cn("inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize", expenseStatusClass(e.status))}>{e.status}</span>
+                  </td>
                   <td className="p-2">{e.vendor}</td>
                   <td className="p-2 flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => approveMut.mutate(e.id)} disabled={e.status !== 'recorded'}>Approve</Button>
@@ -456,7 +541,7 @@ export default function ExpensesPage() {
           <ExpensesCategoriesPage />
         </TabsContent>
         <TabsContent value="analytics" className="space-y-4">
-          <Card className="p-4 flex gap-3 items-end flex-wrap">
+          <Card className={cn(liquidGlass, "flex flex-wrap items-end gap-3 p-4")}>
             <div className="w-[320px]">
               <label className="text-sm block mb-1">Date</label>
               <DatePickerWithRange
@@ -467,6 +552,7 @@ export default function ExpensesPage() {
             <Button
               type="button"
               variant="outline"
+              className="border-red-300 bg-red-50 text-red-800 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/70 dark:text-red-100 dark:hover:bg-red-950"
               disabled={!analyticsEnabled || exportDeliveredCsvMut.isPending}
               onClick={() => {
                 if (!analyticsYmdBounds.start || !analyticsYmdBounds.end) return;
@@ -483,6 +569,7 @@ export default function ExpensesPage() {
             <Button
               type="button"
               variant="outline"
+              className="border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/70 dark:text-amber-100 dark:hover:bg-amber-950"
               disabled={!analyticsEnabled || exportProductsCsvMut.isPending}
               onClick={() => {
                 if (!analyticsYmdBounds.start || !analyticsYmdBounds.end) return;
@@ -499,6 +586,7 @@ export default function ExpensesPage() {
             <Button
               type="button"
               variant="outline"
+              className="border-sky-300 bg-sky-50 text-sky-800 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/70 dark:text-sky-100 dark:hover:bg-sky-950"
               disabled={!analyticsEnabled}
               onClick={() => setMissingLivreOpen(true)}
             >
@@ -508,6 +596,7 @@ export default function ExpensesPage() {
             <Button
               type="button"
               variant="outline"
+              className="border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-100 dark:hover:bg-emerald-950"
               disabled={!analyticsEnabled}
               onClick={() => setDeliveryFeeOpen(true)}
             >
@@ -517,6 +606,7 @@ export default function ExpensesPage() {
             <Button
               type="button"
               variant="outline"
+              className="border-violet-300 bg-violet-50 text-violet-800 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/70 dark:text-violet-100 dark:hover:bg-violet-950"
               disabled={!analyticsEnabled}
               onClick={() => setProductsSoldOpen(true)}
             >
@@ -556,99 +646,128 @@ export default function ExpensesPage() {
               />
             </>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader><CardTitle>Total Yalidine's Delivered Orders</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{deliveredAgg ? yalidineDeliveredCount : "-"}</div>
-                <CreatedRangeRate ready={deliveredAgg?.total_orders_yalidine != null} delivered={yalidineCreatedDelivered} total={yalidineTotalOrders} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total My Company's Delivered Orders</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{deliveredAgg ? myCompaniesDeliveredCount : "-"}</div>
-                <CreatedRangeRate ready={deliveredAgg?.total_orders_my_companies != null} delivered={myCompaniesCreatedDelivered} total={myCompaniesTotalOrders} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Noest's Delivered Orders</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{deliveredAgg ? noestDeliveredCount : "-"}</div>
-                <CreatedRangeRate ready={deliveredAgg?.total_orders_noest != null} delivered={noestCreatedDelivered} total={noestTotalOrders} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Delivered Orders</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{deliveredAgg ? totalDeliveredCount : "-"}</div>
-                <CreatedRangeRate ready={deliveredAgg?.total_orders != null} delivered={totalCreatedDelivered} total={totalOrders} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Yalidine's Delivered Orders Amount</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(yalidineDeliveredAmount)}</div>
-                <div className="text-xs text-muted-foreground mt-1">{yalidineDeliveredCount} orders</div>
-                <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsYalidine)}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total My Company's Delivered Orders Amount</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(myCompaniesDeliveredAmount)}</div>
-                <div className="text-xs text-muted-foreground mt-1">{myCompaniesDeliveredCount} orders</div>
-                <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsMyCompanies)}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Noest's Delivered Orders Amount</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(noestDeliveredAmount)}</div>
-                <div className="text-xs text-muted-foreground mt-1">{noestDeliveredCount} orders</div>
-                <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsNoest)}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Delivered Orders Amount</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(totalDeliveredAmount)}</div>
-                <div className="text-xs text-muted-foreground mt-1">{totalDeliveredCount} orders</div>
-                <div className="text-sm font-bold text-green-600 mt-1">Benefit: {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(benefitsTotal)}</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Expenses Amount</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(expensesSumAnalytics)}</div></CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Returned Cost</CardTitle></CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(returnedCostAnalytics)}</div>
-                <div className="text-xs text-muted-foreground mt-1">{returnedCountAnalytics} Yalidine return parcels × 100 DZD</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Expenses</CardTitle></CardHeader>
-              <CardContent><div className="text-xl font-bold">{new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(totalExpensesAnalytics)}</div></CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle>Total Collected from Delivery Employees</CardTitle></CardHeader>
-              <CardContent>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <GlassMetricCard
+              title="Total Yalidine's Delivered Orders"
+              value={deliveredAgg ? yalidineDeliveredCount : "-"}
+              icon={Truck}
+              iconClass="border-red-200/80 bg-red-100 text-red-800 dark:border-red-400/30 dark:bg-red-500/20 dark:text-red-100"
+              glowClass="bg-red-400/40"
+            >
+              <CreatedRangeRate ready={deliveredAgg?.total_orders_yalidine != null} delivered={yalidineCreatedDelivered} total={yalidineTotalOrders} />
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total My Company's Delivered Orders"
+              value={deliveredAgg ? myCompaniesDeliveredCount : "-"}
+              icon={Store}
+              iconClass="border-emerald-200/80 bg-emerald-100 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-500/20 dark:text-emerald-100"
+              glowClass="bg-emerald-400/40"
+            >
+              <CreatedRangeRate ready={deliveredAgg?.total_orders_my_companies != null} delivered={myCompaniesCreatedDelivered} total={myCompaniesTotalOrders} />
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total Noest's Delivered Orders"
+              value={deliveredAgg ? noestDeliveredCount : "-"}
+              icon={Send}
+              iconClass="border-sky-200/80 bg-sky-100 text-sky-800 dark:border-sky-400/30 dark:bg-sky-500/20 dark:text-sky-100"
+              glowClass="bg-sky-400/40"
+            >
+              <CreatedRangeRate ready={deliveredAgg?.total_orders_noest != null} delivered={noestCreatedDelivered} total={noestTotalOrders} />
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total Delivered Orders"
+              value={deliveredAgg ? totalDeliveredCount : "-"}
+              icon={PackageCheck}
+              iconClass="border-violet-200/80 bg-violet-100 text-violet-800 dark:border-violet-400/30 dark:bg-violet-500/20 dark:text-violet-100"
+              glowClass="bg-violet-400/40"
+            >
+              <CreatedRangeRate ready={deliveredAgg?.total_orders != null} delivered={totalCreatedDelivered} total={totalOrders} />
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total Yalidine's Delivered Orders Amount"
+              value={dzd.format(yalidineDeliveredAmount)}
+              icon={Banknote}
+              iconClass="border-red-200/80 bg-red-100 text-red-800 dark:border-red-400/30 dark:bg-red-500/20 dark:text-red-100"
+              glowClass="bg-red-400/35"
+            >
+              <div className="mt-1 text-xs text-muted-foreground">{yalidineDeliveredCount} orders</div>
+              <div className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-300">Benefit: {dzd.format(benefitsYalidine)}</div>
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total My Company's Delivered Orders Amount"
+              value={dzd.format(myCompaniesDeliveredAmount)}
+              icon={Coins}
+              iconClass="border-emerald-200/80 bg-emerald-100 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-500/20 dark:text-emerald-100"
+              glowClass="bg-emerald-400/35"
+            >
+              <div className="mt-1 text-xs text-muted-foreground">{myCompaniesDeliveredCount} orders</div>
+              <div className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-300">Benefit: {dzd.format(benefitsMyCompanies)}</div>
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total Noest's Delivered Orders Amount"
+              value={dzd.format(noestDeliveredAmount)}
+              icon={CircleDollarSign}
+              iconClass="border-sky-200/80 bg-sky-100 text-sky-800 dark:border-sky-400/30 dark:bg-sky-500/20 dark:text-sky-100"
+              glowClass="bg-sky-400/35"
+            >
+              <div className="mt-1 text-xs text-muted-foreground">{noestDeliveredCount} orders</div>
+              <div className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-300">Benefit: {dzd.format(benefitsNoest)}</div>
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total Delivered Orders Amount"
+              value={dzd.format(totalDeliveredAmount)}
+              icon={Wallet}
+              iconClass="border-indigo-200/80 bg-indigo-100 text-indigo-800 dark:border-indigo-400/30 dark:bg-indigo-500/20 dark:text-indigo-100"
+              glowClass="bg-indigo-400/40"
+            >
+              <div className="mt-1 text-xs text-muted-foreground">{totalDeliveredCount} orders</div>
+              <div className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-300">Benefit: {dzd.format(benefitsTotal)}</div>
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total Expenses Amount"
+              value={dzd.format(expensesSumAnalytics)}
+              icon={Receipt}
+              iconClass="border-amber-200/80 bg-amber-100 text-amber-800 dark:border-amber-400/30 dark:bg-amber-500/20 dark:text-amber-100"
+              glowClass="bg-amber-400/40"
+            />
+            <GlassMetricCard
+              title="Total Returned Cost"
+              value={dzd.format(returnedCostAnalytics)}
+              icon={Undo2}
+              iconClass="border-rose-200/80 bg-rose-100 text-rose-800 dark:border-rose-400/30 dark:bg-rose-500/20 dark:text-rose-100"
+              glowClass="bg-rose-400/40"
+            >
+              <div className="mt-1 text-xs text-muted-foreground">{returnedCountAnalytics} Yalidine return parcels × 100 DZD</div>
+            </GlassMetricCard>
+            <GlassMetricCard
+              title="Total Expenses"
+              value={dzd.format(totalExpensesAnalytics)}
+              icon={Calculator}
+              iconClass="border-fuchsia-200/80 bg-fuchsia-100 text-fuchsia-800 dark:border-fuchsia-400/30 dark:bg-fuchsia-500/20 dark:text-fuchsia-100"
+              glowClass="bg-fuchsia-400/40"
+            />
+            <GlassMetricCard
+              title="Total Collected from Delivery Employees"
+              value={(
                 <button
                   type="button"
-                  className="text-xl font-bold underline-offset-4 hover:underline cursor-pointer text-left disabled:cursor-default disabled:no-underline"
+                  className="text-left underline-offset-4 hover:underline disabled:cursor-default disabled:no-underline"
                   disabled={!analyticsEnabled}
                   onClick={() => setEmployeePaymentsOpen(true)}
                 >
-                  {new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD" }).format(employeePaymentsTotal)}
+                  {dzd.format(employeePaymentsTotal)}
                 </button>
-                <div className="text-xs text-muted-foreground mt-1">{employeePaymentsCount} payment{employeePaymentsCount === 1 ? "" : "s"}</div>
-              </CardContent>
-            </Card>
+              )}
+              icon={HandCoins}
+              iconClass="border-teal-200/80 bg-teal-100 text-teal-800 dark:border-teal-400/30 dark:bg-teal-500/20 dark:text-teal-100"
+              glowClass="bg-teal-400/40"
+            >
+              <div className="mt-1 text-xs text-muted-foreground">{employeePaymentsCount} payment{employeePaymentsCount === 1 ? "" : "s"}</div>
+            </GlassMetricCard>
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
