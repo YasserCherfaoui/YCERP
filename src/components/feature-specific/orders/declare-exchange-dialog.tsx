@@ -135,7 +135,15 @@ export default function DeclareExchangeDialog({
 
   const { watch, setValue, control, handleSubmit } = form;
 
-  const shipping = watch("shipping");
+  const shipping = watch("shipping") ?? {
+    full_name: "",
+    phone_number: "",
+    address: "",
+    city: "",
+    state: "",
+    wilaya: "",
+    commune: "",
+  };
   const exchangeItems = watch("exchange_items");
   const returnedItems = watch("returned_items");
   const discount = watch("discount");

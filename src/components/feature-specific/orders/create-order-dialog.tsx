@@ -128,7 +128,7 @@ function CreateOrderDialog({
         from_wilaya_id: undefined,
         from_wilaya_name: "",
       },
-      order_items: wooOrder.line_items.map((item) => {
+      order_items: (wooOrder.line_items ?? []).map((item) => {
         const variant = item.sku ? qrCodeToVariant[item.sku] : undefined;
         return {
           product_id: variant?.product_id || 0,
@@ -160,7 +160,16 @@ function CreateOrderDialog({
     formState: { errors },
   } = form;
 
-  const shipping = watch("shipping");
+  const shipping = watch("shipping") ?? {
+    full_name: "",
+    phone_number: "",
+    phone_number_2: "",
+    address: "",
+    city: "",
+    state: "",
+    wilaya: "",
+    commune: "",
+  };
   const discount = watch("discount");
   const orderItems = watch("order_items");
   const fromWilayaId = watch("shipping.from_wilaya_id");
