@@ -9,6 +9,7 @@ import DeletedParcelReconciliationDialog from "@/components/feature-specific/ord
 import ImportOrdersCSVDialog from "@/components/feature-specific/orders/import-orders-csv-dialog";
 import ManagerStatusCards from "@/components/feature-specific/orders/manager-status-cards";
 import OrderActions from "@/components/feature-specific/orders/order-actions";
+import OrderDetailsDialog from "@/components/feature-specific/orders/order-details-dialog";
 import OrderHistoryDialog from "@/components/feature-specific/orders/order-history-dialog";
 import OrderLineItemsAccordion, {
   ConfirmedOrderItemsAccordion,
@@ -28,6 +29,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { DataTable } from "@/components/ui/data-table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,6 +81,7 @@ import {
   dispatchWooCommerceOrders,
   exportWooCommerceOrders,
   getOrderStatusCount,
+  getWooCommerceOrders,
   refreshNoestStatuses,
   refreshWooCommerceStatus,
   syncDispatchingOrders,
@@ -528,8 +537,13 @@ export default function CompanyOrdersDeskPage() {
   const [deletedParcelReconciliationOpen, setDeletedParcelReconciliationOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  const [phonePaletteOpen, setPhonePaletteOpen] = useState(false);
+  const [phoneHighlight, setPhoneHighlight] = useState(0);
+  const [phoneQuery, setPhoneQuery] = useState("");
+  const [detailsOrder, setDetailsOrder] = useState<WooOrder | null>(null);
+
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedPhoneNumber(phoneNumber), 1000);
+    const handler = setTimeout(() => setPhoneQuery(phoneNumber.trim()), 700);
     return () => clearTimeout(handler);
   }, [phoneNumber]);
 
@@ -690,6 +704,52 @@ export default function CompanyOrdersDeskPage() {
       });
     },
   });
+
+  const phoneSearchProvider =
+    selectedShippingProvider === undefined ? "all" : selectedShippingProvider;
+  const phoneSearchEnabled = phonePaletteOpen && phoneQuery.length >= 3 && companyId > 0;
+  const { data: phoneMatchesRes, isFetching: phoneMatchesLoading, isPending: phoneMatchesPending } = useQuery({
+    queryKey: ["orders-phone-matches", companyId, phoneQuery, phoneSearchProvider],
+    queryFn: () =>
+      getWooCommerceOrders({
+        _page: 0,
+        limit: 30,
+        phone_number: phoneQuery,
+        company_id: companyId,
+        shipping_provider: phoneSearchProvider,
+      }),
+    enabled: phoneSearchEnabled,
+    placeholderData: (previous) => previous,
+  });
+  const phoneMatches = phoneMatchesRes?.data?.orders ?? [];
+  const phoneMatchTotal = phoneMatchesRes?.data?.meta?.total_items ?? phoneMatches.length;
+  const groupedPhoneMatches = useMemo(() => {
+    const groups = new Map<string, WooOrder[]>();
+    for (const order of phoneMatches) {
+      const key = order.order_status || "unknown";
+      const list = groups.get(key) ?? [];
+      list.push(order);
+      groups.set(key, list);
+    }
+    const ordered = STAGES.map((stage) => stage.value).filter((value) => groups.has(value));
+    for (const key of groups.keys()) {
+      if (!ordered.includes(key)) ordered.push(key);
+    }
+    return ordered.map((value) => ({
+      stage: STAGES.find((stage) => stage.value === value),
+      orders: groups.get(value) ?? [],
+    }));
+  }, [phoneMatches]);
+  const flatPhoneMatches = groupedPhoneMatches.flatMap((group) => group.orders);
+
+  useEffect(() => {
+    setPhoneHighlight(0);
+  }, [phoneQuery, phoneMatches.length]);
+
+  const pickPhoneMatch = (order: WooOrder) => {
+    setPhonePaletteOpen(false);
+    setDetailsOrder(order);
+  };
 
   const sortedCities = useMemo(
     () => [...cities].sort((a, b) => a.label.localeCompare(b.label)),
@@ -974,7 +1034,7 @@ export default function CompanyOrdersDeskPage() {
       <Card className={liquidGlass} aria-label="Filters">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Find orders</CardTitle>
-          <CardDescription>Carrier and phone stay visible. The rest narrow the current stage.</CardDescription>
+          <CardDescription>Phone search lists every match and its status. Other filters narrow the current stage.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
         <div className="flex flex-col gap-4">
@@ -1008,19 +1068,137 @@ export default function CompanyOrdersDeskPage() {
             </div>
             <div className="flex min-w-[16rem] flex-1 flex-col gap-2">
               <Label htmlFor="orders-phone">Phone</Label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="tel"
-                  inputMode="numeric"
-                  autoComplete="tel"
-                  id="orders-phone"
-                  placeholder="Search by phone"
-                  value={phoneNumber}
-                  onChange={(event) => setPhoneNumber(event.target.value)}
-                  className="bg-background pl-9"
+              <Button
+                id="orders-phone"
+                type="button"
+                variant="outline"
+                onClick={() => setPhonePaletteOpen(true)}
+                className={cn(
+                  "justify-start bg-white/70 font-normal backdrop-blur-md hover:bg-white/80 dark:bg-white/10 dark:hover:bg-white/15",
+                  debouncedPhoneNumber ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                <Search />
+                {debouncedPhoneNumber || "Search every status"}
+              </Button>
+              <Dialog open={phonePaletteOpen} onOpenChange={setPhonePaletteOpen}>
+                <DialogContent className={cn("max-w-xl gap-0 overflow-hidden p-0 sm:p-0", liquidGlass)}>
+                  <DialogHeader className="space-y-1 border-b border-white/40 px-4 py-4 pr-10 text-left dark:border-white/10">
+                    <DialogTitle>Find an order by phone</DialogTitle>
+                    <DialogDescription>Matches from every status, in one list.</DialogDescription>
+                  </DialogHeader>
+                  <div className="border-b border-white/40 px-4 py-3 dark:border-white/10">
+                    <div className="relative">
+                      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        autoFocus
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        role="combobox"
+                        aria-expanded={phonePaletteOpen}
+                        aria-controls="orders-phone-matches"
+                        aria-autocomplete="list"
+                        placeholder="Type a phone number, then pause"
+                        value={phoneNumber}
+                        onChange={(event) => setPhoneNumber(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (!flatPhoneMatches.length) return;
+                          if (event.key === "ArrowDown") {
+                            event.preventDefault();
+                            setPhoneHighlight((index) => (index + 1) % flatPhoneMatches.length);
+                          } else if (event.key === "ArrowUp") {
+                            event.preventDefault();
+                            setPhoneHighlight((index) => (index - 1 + flatPhoneMatches.length) % flatPhoneMatches.length);
+                          } else if (event.key === "Enter") {
+                            event.preventDefault();
+                            const match = flatPhoneMatches[phoneHighlight];
+                            if (match) pickPhoneMatch(match);
+                          }
+                        }}
+                        className="bg-white/70 pl-9 backdrop-blur-md dark:bg-white/10"
+                      />
+                    </div>
+                  </div>
+                  <div id="orders-phone-matches" role="listbox" aria-label="Phone matches" className="max-h-80 overflow-y-auto p-2">
+                    {phoneNumber.trim().length < 3 ? (
+                      <p className="px-3 py-6 text-center text-sm text-muted-foreground">Type at least 3 digits to search every status.</p>
+                    ) : phoneMatchesPending && phoneMatchesLoading ? (
+                      <div className="space-y-2 p-2" aria-busy="true">
+                        <Skeleton className="h-12 w-full rounded-lg" />
+                        <Skeleton className="h-12 w-full rounded-lg" />
+                      </div>
+                    ) : flatPhoneMatches.length === 0 ? (
+                      <p className="px-3 py-6 text-center text-sm text-muted-foreground">No orders match this phone.</p>
+                    ) : (
+                      <>
+                        <p className="px-2 py-1.5 text-xs text-muted-foreground">
+                          {phoneMatchesLoading ? "Searching…" : `${phoneMatchTotal.toLocaleString()} match${phoneMatchTotal === 1 ? "" : "es"} across all statuses`}
+                          {!phoneMatchesLoading && phoneMatchTotal > flatPhoneMatches.length ? ` · showing ${flatPhoneMatches.length}` : ""}
+                        </p>
+                        {groupedPhoneMatches.map((group) => {
+                          const StageIcon = group.stage?.icon ?? Package;
+                          return (
+                            <div key={group.stage?.value ?? group.orders[0]?.order_status} className="mb-1">
+                              <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-muted-foreground">
+                                <StageIcon className="size-3.5" />
+                                {group.stage?.label ?? group.orders[0]?.order_status}
+                                <span>{group.orders.length}</span>
+                              </div>
+                              {group.orders.map((order) => {
+                                const index = flatPhoneMatches.findIndex((item) => item.id === order.id);
+                                const selected = index === phoneHighlight;
+                                return (
+                                  <button
+                                    key={order.id}
+                                    type="button"
+                                    role="option"
+                                    aria-selected={selected}
+                                    onMouseEnter={() => setPhoneHighlight(index)}
+                                    onClick={() => pickPhoneMatch(order)}
+                                    className={cn(
+                                      "flex w-full cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-left",
+                                      selected && "bg-white/70 dark:bg-white/10"
+                                    )}
+                                  >
+                                    <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg border", group.stage?.iconClass)}>
+                                      <StageIcon className="size-4" />
+                                    </span>
+                                    <span className="min-w-0 flex-1">
+                                      <span className="block truncate text-sm font-medium">
+                                        {order.shipping_name || order.billing_name || "No name"}
+                                      </span>
+                                      <span className="block truncate text-xs text-muted-foreground">
+                                        {order.customer_phone}
+                                        {order.customer_phone_2 ? ` · ${order.customer_phone_2}` : ""}
+                                        {" · #"}
+                                        {order.id}
+                                        {order.tracking_number ? ` · ${order.tracking_number}` : ""}
+                                      </span>
+                                    </span>
+                                    <Badge variant="outline" className={cn("shrink-0", group.stage?.surfaceClass)}>
+                                      {group.stage?.label ?? order.order_status}
+                                    </Badge>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          );
+                        })}
+                      </>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+              {detailsOrder && (
+                <OrderDetailsDialog
+                  order={detailsOrder}
+                  open
+                  setOpen={(open) => {
+                    if (!open) setDetailsOrder(null);
+                  }}
                 />
-              </div>
+              )}
             </div>
             <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
               <SheetTrigger asChild>
