@@ -39,13 +39,24 @@ export async function countReturnedOrders(params: {
 export interface DeliveredAggregatesResponse {
   total_delivered_orders_amount_yalidine: number;
   total_delivered_orders_amount_my_companies: number;
+  total_delivered_orders_amount_noest: number;
   total_delivered_orders_amount: number;
   total_delivered_orders_count_yalidine: number;
   total_delivered_orders_count_my_companies: number;
+  total_delivered_orders_count_noest: number;
   total_delivered_orders_count: number;
   total_benefits_yalidine: number;
   total_benefits_my_companies: number;
+  total_benefits_noest: number;
   total_benefits: number;
+  total_orders_yalidine: number;
+  total_orders_my_companies: number;
+  total_orders_noest: number;
+  total_orders: number;
+  created_delivered_orders_yalidine: number;
+  created_delivered_orders_my_companies: number;
+  created_delivered_orders_noest: number;
+  created_delivered_orders: number;
 }
 
 export async function getDeliveredAggregates(params: { company_id: number; start?: string; end?: string }): Promise<APIResponse<DeliveredAggregatesResponse>> {

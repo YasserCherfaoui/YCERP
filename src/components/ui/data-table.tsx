@@ -91,6 +91,8 @@ interface DataTableProps<TData, TValue> {
   headerExtra?: React.ReactNode;
   /** Replaces the default empty table and mobile card message. */
   emptyState?: React.ReactNode;
+  /** The orders desk draws its own selection bar. */
+  showSelectionSummary?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -113,6 +115,7 @@ export function DataTable<TData, TValue>({
   onSortingChange: controlledOnSortingChange,
   headerExtra,
   emptyState,
+  showSelectionSummary = true,
 }: DataTableProps<TData, TValue>) {
   const [internalSorting, setInternalSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -394,7 +397,9 @@ export function DataTable<TData, TValue>({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {typeof column.columnDef.header === "string"
+                      ? column.columnDef.header
+                      : column.id.replace(/[_-]+/g, " ")}
                   </DropdownMenuCheckboxItem>
                 );
               })}
@@ -402,7 +407,7 @@ export function DataTable<TData, TValue>({
         </DropdownMenu>
       </div>
       {paginationBar}
-      {selectionEnabled ? (
+      {selectionEnabled && showSelectionSummary ? (
         <div className="text-sm text-muted-foreground">
           {`${table.getFilteredSelectedRowModel().rows.length} of ${
             table.getFilteredRowModel().rows.length
