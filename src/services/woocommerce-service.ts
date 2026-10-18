@@ -679,6 +679,19 @@ export const refreshWooCommerceStatus = async () => {
     return data;
 }
 
+export const getNoestStatuses = async (companyId: number): Promise<APIResponse<{ status: string; count: number }[]>> => {
+    const response = await fetch(`${baseUrl}/woocommerce/noest/statuses?company_id=${companyId}`, {
+        headers: {
+            "Authorization": "Bearer " + token,
+        },
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to load NOEST statuses");
+    }
+    return response.json();
+}
+
 export const refreshNoestStatuses = async (companyId: number): Promise<APIResponse<{
     checked: number;
     with_activity: number;

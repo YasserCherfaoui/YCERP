@@ -37,7 +37,6 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { User } from "@/models/data/user.model";
 import { YALIDINE_STATUSES } from "@/models/data/woo-order.model";
-import { NOEST_STATUSES } from "@/utils/shipping-provider";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { getMyCompanyFranchises } from "@/services/franchise-service";
 import { assignOrders, shuffleOrders } from "@/services/order-service";
@@ -45,6 +44,7 @@ import { getUsersByCompany } from "@/services/user-service";
 import {
     dispatchWooCommerceOrders,
     exportWooCommerceOrders,
+    getNoestStatuses,
     refreshNoestStatuses,
     refreshWooCommerceStatus,
     syncDispatchingOrders,
@@ -298,6 +298,7 @@ export default function CompanyOrdersPage() {
     mutationFn: () => refreshNoestStatuses(company.ID),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["noest-statuses"] });
       toast({
         title: "NOEST statuses refreshed",
         description: `Checked ${data.data?.checked || 0} orders, ${data.data?.with_activity || 0} with activity, updated ${data.data?.updated || 0}`,
@@ -410,6 +411,13 @@ export default function CompanyOrdersPage() {
     enabled: Boolean(company?.ID),
   });
   const franchises = franchisesData?.data ?? [];
+
+  const { data: noestStatusesData } = useQuery({
+    queryKey: ["noest-statuses", company.ID],
+    queryFn: () => getNoestStatuses(company.ID),
+    enabled: Boolean(company?.ID) && selectedShippingProvider === "noest",
+  });
+  const noestStatuses = noestStatusesData?.data ?? [];
 
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", company.ID],
@@ -635,9 +643,9 @@ export default function CompanyOrdersPage() {
                       : "All Yalidine Statuses"}
                   </SelectItem>
                   {selectedShippingProvider === "noest"
-                    ? NOEST_STATUSES.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
+                    ? noestStatuses.map((option) => (
+                        <SelectItem key={option.status} value={option.status}>
+                          {option.status} ({option.count})
                         </SelectItem>
                       ))
                     : Object.values(YALIDINE_STATUSES).map((status) => (
