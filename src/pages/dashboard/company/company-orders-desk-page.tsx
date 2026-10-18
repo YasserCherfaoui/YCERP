@@ -81,13 +81,14 @@ import {
   dispatchWooCommerceOrders,
   exportWooCommerceOrders,
   getOrderStatusCount,
+  getNoestStatuses,
   getWooCommerceOrders,
   refreshNoestStatuses,
   refreshWooCommerceStatus,
   syncDispatchingOrders,
 } from "@/services/woocommerce-service";
 import { cities } from "@/utils/algeria-cities";
-import { carrierChipClass, carrierLabel, carrierStatusLabel, NOEST_STATUSES } from "@/utils/shipping-provider";
+import { carrierChipClass, carrierLabel, carrierStatusLabel } from "@/utils/shipping-provider";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
@@ -581,6 +582,13 @@ export default function CompanyOrdersDeskPage() {
   });
   const franchises = franchisesData?.data ?? [];
 
+  const { data: noestStatusesData } = useQuery({
+    queryKey: ["noest-statuses", companyId],
+    queryFn: () => getNoestStatuses(companyId),
+    enabled: companyId > 0 && selectedShippingProvider === "noest",
+  });
+  const noestStatuses = noestStatusesData?.data ?? [];
+
   const { data: inventoryData } = useQuery({
     queryKey: ["inventory", companyId],
     queryFn: () => getCompanyInventory(companyId),
@@ -674,6 +682,7 @@ export default function CompanyOrdersDeskPage() {
     mutationFn: () => refreshNoestStatuses(companyId),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["noest-statuses"] });
       toast({
         title: "NOEST statuses refreshed",
         description: `Checked ${data.data?.checked || 0} orders, ${data.data?.with_activity || 0} with activity, updated ${data.data?.updated || 0}`,
@@ -761,10 +770,7 @@ export default function CompanyOrdersDeskPage() {
   const selectedUserName = users.find((user: User) => user.ID === selectedUser)?.full_name;
   const selectedFranchiseName = franchises.find((franchise) => franchise.ID === selectedFranchise)?.name;
   const selectedVariant = allVariants.find((variant) => variant.ID === selectedConfirmedVariant);
-  const carrierStatusLabelText =
-    selectedShippingProvider === "noest"
-      ? NOEST_STATUSES.find((status) => status.value === selectedCarrierStatus)?.label
-      : selectedCarrierStatus;
+  const carrierStatusLabelText = selectedCarrierStatus;
 
   const chips = [
     selectedUserName && { key: "user", label: selectedUserName, clear: () => setSelectedUser(undefined) },
@@ -867,7 +873,10 @@ export default function CompanyOrdersDeskPage() {
           onChange={(value) => setSelectedCarrierStatus(value === "all" ? undefined : value)}
           options={
             selectedShippingProvider === "noest"
-              ? [{ value: "all", label: "All NOEST statuses" }, ...NOEST_STATUSES.map((status) => ({ value: status.value, label: status.label }))]
+              ? [
+                  { value: "all", label: "All NOEST statuses" },
+                  ...noestStatuses.map((option) => ({ value: option.status, label: `${option.status} (${option.count})` })),
+                ]
               : [
                   { value: "all", label: "All Yalidine statuses" },
                   ...Object.values(YALIDINE_STATUSES).map((status) => ({ value: status, label: status })),
