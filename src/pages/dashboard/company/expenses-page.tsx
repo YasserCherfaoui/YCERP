@@ -3,6 +3,7 @@ import ExpenseForm from "@/components/feature-specific/expenses/expense-form";
 import ExpensesAppBar from "@/components/feature-specific/expenses/expenses-app-bar";
 import DeliveryFeeCorrectionDialog from "@/components/feature-specific/expenses/delivery-fee-correction-dialog";
 import DeliveredProductsSoldDialog from "@/components/feature-specific/expenses/delivered-products-sold-dialog";
+import DeliveredAmountBreakdownDialog, { type DeliveredAmountProvider } from "@/components/feature-specific/expenses/delivered-amount-breakdown-dialog";
 import DeliveryEmployeePaymentsDialog from "@/components/feature-specific/expenses/delivery-employee-payments-dialog";
 import MissingLivreReconciliationDialog from "@/components/feature-specific/expenses/missing-livre-reconciliation-dialog";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ function GlassMetricCard({
   icon: Icon,
   iconClass,
   glowClass,
+  onIconClick,
   children,
 }: {
   title: string;
@@ -80,16 +82,30 @@ function GlassMetricCard({
   icon: LucideIcon;
   iconClass: string;
   glowClass: string;
+  onIconClick?: () => void;
   children?: React.ReactNode;
 }) {
+  const iconBoxClass = cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm", iconClass);
   return (
     <Card className={cn("relative overflow-hidden", liquidGlass)}>
       <div aria-hidden className={cn("pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full blur-2xl", glowClass)} />
       <CardHeader className="relative flex flex-row items-start justify-between gap-3 space-y-0 p-4 pb-2">
         <CardTitle className="text-sm font-medium leading-snug">{title}</CardTitle>
-        <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border shadow-sm", iconClass)}>
-          <Icon className="h-4 w-4" aria-hidden />
-        </span>
+        {onIconClick ? (
+          <button
+            type="button"
+            onClick={onIconClick}
+            aria-label={`Show details: ${title}`}
+            title="Show details"
+            className={cn(iconBoxClass, "cursor-pointer transition hover:scale-105 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring")}
+          >
+            <Icon className="h-4 w-4" aria-hidden />
+          </button>
+        ) : (
+          <span className={iconBoxClass}>
+            <Icon className="h-4 w-4" aria-hidden />
+          </span>
+        )}
       </CardHeader>
       <CardContent className="relative p-4 pt-0">
         <div className="text-2xl font-semibold tracking-tight">{value}</div>
@@ -199,6 +215,7 @@ export default function ExpensesPage() {
   const [deliveryFeeOpen, setDeliveryFeeOpen] = useState(false);
   const [productsSoldOpen, setProductsSoldOpen] = useState(false);
   const [employeePaymentsOpen, setEmployeePaymentsOpen] = useState(false);
+  const [amountBreakdownProvider, setAmountBreakdownProvider] = useState<DeliveredAmountProvider | null>(null);
   const createMut = useMutation({
     mutationFn: createExpense,
     onSuccess: () => {
@@ -591,7 +608,7 @@ export default function ExpensesPage() {
               onClick={() => setMissingLivreOpen(true)}
             >
               <RefreshCw className="mr-2 h-4 w-4" />
-              Reconcile missing Livré
+              Reconcile missing delivered
             </Button>
             <Button
               type="button"
@@ -644,6 +661,18 @@ export default function ExpensesPage() {
                 start={analyticsYmdBounds.start}
                 end={analyticsYmdBounds.end}
               />
+              <DeliveredAmountBreakdownDialog
+                provider={amountBreakdownProvider}
+                setProvider={setAmountBreakdownProvider}
+                breakdown={
+                  amountBreakdownProvider === "noest"
+                    ? deliveredAgg?.delivered_amount_breakdown_noest
+                    : deliveredAgg?.delivered_amount_breakdown_yalidine
+                }
+                benefit={amountBreakdownProvider === "noest" ? benefitsNoest : benefitsYalidine}
+                start={analyticsYmdBounds.start}
+                end={analyticsYmdBounds.end}
+              />
             </>
           )}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -687,6 +716,7 @@ export default function ExpensesPage() {
               title="Total Yalidine's Delivered Orders Amount"
               value={dzd.format(yalidineDeliveredAmount)}
               icon={Banknote}
+              onIconClick={deliveredAgg ? () => setAmountBreakdownProvider("yalidine") : undefined}
               iconClass="border-red-200/80 bg-red-100 text-red-800 dark:border-red-400/30 dark:bg-red-500/20 dark:text-red-100"
               glowClass="bg-red-400/35"
             >
@@ -707,6 +737,7 @@ export default function ExpensesPage() {
               title="Total Noest's Delivered Orders Amount"
               value={dzd.format(noestDeliveredAmount)}
               icon={CircleDollarSign}
+              onIconClick={deliveredAgg ? () => setAmountBreakdownProvider("noest") : undefined}
               iconClass="border-sky-200/80 bg-sky-100 text-sky-800 dark:border-sky-400/30 dark:bg-sky-500/20 dark:text-sky-100"
               glowClass="bg-sky-400/35"
             >

@@ -62,15 +62,16 @@ export default function DeliveryFeeCorrectionDialog({
 
   const [fetchLimit, setFetchLimit] = useState(25);
   const [apiPage, setApiPage] = useState(0);
+  const [carrier, setCarrier] = useState<"all" | "yalidine" | "noest">("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     setApiPage(0);
     setSelectedIds(new Set());
-  }, [rangeKey, fetchLimit]);
+  }, [rangeKey, fetchLimit, carrier]);
 
   const compareQuery = useQuery({
-    queryKey: ["delivery-fee-correction", rangeKey, apiPage, fetchLimit],
+    queryKey: ["delivery-fee-correction", rangeKey, carrier, apiPage, fetchLimit],
     queryFn: () =>
       compareDeliveryFeeCorrection({
         company_id: companyId,
@@ -78,6 +79,7 @@ export default function DeliveryFeeCorrectionDialog({
         end,
         page: apiPage,
         limit: fetchLimit,
+        shipping_provider: carrier === "all" ? undefined : carrier,
       }),
     enabled: open && Boolean(companyId && start && end),
   });
@@ -139,7 +141,11 @@ export default function DeliveryFeeCorrectionDialog({
     onSuccess: (data) => {
       toast({
         title: "Delivery fees corrected",
-        description: `Updated ${data.data?.corrected || 0} of ${data.data?.requested || 0} orders.`,
+        description: `Updated ${data.data?.corrected || 0} of ${data.data?.requested || 0} orders${
+          data.data?.skipped_no_live
+            ? `, skipped ${data.data.skipped_no_live} with no carrier fee`
+            : ""
+        }.`,
       });
       setSelectedIds(new Set());
       queryClient.invalidateQueries({ queryKey: ["delivery-fee-correction"] });
@@ -153,6 +159,12 @@ export default function DeliveryFeeCorrectionDialog({
       });
     },
   });
+
+  const carrierLabel = (provider: string) => {
+    if (provider === "noest") return "NOEST";
+    if (provider === "yalidine") return "Yalidine";
+    return provider || "-";
+  };
 
   const formatFee = (value: number | null | undefined) => {
     if (value == null) return "-";
@@ -169,13 +181,29 @@ export default function DeliveryFeeCorrectionDialog({
         <DialogHeader>
           <DialogTitle>Correct delivery fees</DialogTitle>
           <DialogDescription>
-            Only orders where <span className="font-medium">first_delivery_cost</span> differs from
-            Yalidine <span className="font-medium">delivery_fee</span> (Livré date between {start}{" "}
-            and {end}). Select rows, then Correct.
+            Delivered Yalidine and NOEST orders whose{" "}
+            <span className="font-medium">first_delivery_cost</span> differs from the carrier fee
+            between {start} and {end}. Yalidine uses the live parcel fee. NOEST uses the wilaya home
+            or stop-desk price. Select rows, then Correct.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">Carrier</span>
+          <Select
+            value={carrier}
+            onValueChange={(value) => setCarrier(value as "all" | "yalidine" | "noest")}
+            disabled={isCorrecting}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="yalidine">Yalidine</SelectItem>
+              <SelectItem value="noest">NOEST</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             type="button"
             variant="secondary"
@@ -269,30 +297,31 @@ export default function DeliveryFeeCorrectionDialog({
               <TableRow>
                 <TableHead className="w-10" />
                 <TableHead>Order ID</TableHead>
+                <TableHead>Carrier</TableHead>
                 <TableHead>Tracking Number</TableHead>
                 <TableHead>First Delivery Cost</TableHead>
-                <TableHead>Yalidine Delivery Fee</TableHead>
+                <TableHead>Carrier fee</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {compareQuery.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={6} className="text-center py-8">
                     <div className="flex items-center justify-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Loading orders and Yalidine fees...
+                      Loading orders and carrier fees...
                     </div>
                   </TableCell>
                 </TableRow>
               ) : compareQuery.isError ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-destructive">
+                  <TableCell colSpan={6} className="text-center py-8 text-destructive">
                     Failed to load delivery fee comparison.
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No delivery fee differences in this date range.
                   </TableCell>
                 </TableRow>
@@ -310,11 +339,12 @@ export default function DeliveryFeeCorrectionDialog({
                         />
                       </TableCell>
                       <TableCell>{row.order_id}</TableCell>
+                      <TableCell>{carrierLabel(row.shipping_provider)}</TableCell>
                       <TableCell>{row.tracking_number || "-"}</TableCell>
                       <TableCell>{formatFee(row.first_delivery_cost)}</TableCell>
                       <TableCell>
                         {row.yalidine_delivery_fee == null ? (
-                          <span className="text-muted-foreground">No live parcel</span>
+                          <span className="text-muted-foreground">No carrier fee</span>
                         ) : (
                           formatFee(row.yalidine_delivery_fee)
                         )}

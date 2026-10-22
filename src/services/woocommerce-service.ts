@@ -335,6 +335,7 @@ export const fixDeletedParcelReconciliation = async (body: {
 export interface MissingLivreRow {
   order_id: number;
   tracking_number: string;
+  shipping_provider: string;
   my_erp_status: string;
   latest_yalidine_order_history: string;
   yalidine_status: string;
@@ -368,6 +369,7 @@ export const compareMissingLivreReconciliation = async (body: {
   end: string;
   page: number;
   limit: number;
+  shipping_provider?: "yalidine" | "noest";
 }): Promise<APIResponse<MissingLivreCompareResponse>> => {
   const currentToken = localStorage.getItem("token");
   const response = await fetch(
@@ -396,6 +398,7 @@ export const fixMissingLivreReconciliation = async (body: {
   end: string;
   page: number;
   limit: number;
+  shipping_provider?: "yalidine" | "noest";
 }): Promise<APIResponse<MissingLivreFixResponse>> => {
   const currentToken = localStorage.getItem("token");
   const response = await fetch(
@@ -421,6 +424,7 @@ export const fixMissingLivreReconciliation = async (body: {
 export interface DeliveryFeeRow {
   order_id: number;
   tracking_number: string;
+  shipping_provider: string;
   first_delivery_cost: number;
   yalidine_delivery_fee: number | null;
   mismatch: boolean;
@@ -450,6 +454,7 @@ export const compareDeliveryFeeCorrection = async (body: {
   end: string;
   page: number;
   limit: number;
+  shipping_provider?: "yalidine" | "noest";
 }): Promise<APIResponse<DeliveryFeeCompareResponse>> => {
   const currentToken = localStorage.getItem("token");
   const response = await fetch(

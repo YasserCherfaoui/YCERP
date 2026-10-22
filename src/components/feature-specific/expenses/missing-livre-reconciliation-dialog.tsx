@@ -62,13 +62,14 @@ export default function MissingLivreReconciliationDialog({
 
   const [fetchLimit, setFetchLimit] = useState(25);
   const [apiPage, setApiPage] = useState(0);
+  const [carrier, setCarrier] = useState<"all" | "yalidine" | "noest">("all");
 
   useEffect(() => {
     setApiPage(0);
-  }, [rangeKey, fetchLimit]);
+  }, [rangeKey, fetchLimit, carrier]);
 
   const compareQuery = useQuery({
-    queryKey: ["missing-livre-reconciliation", rangeKey, apiPage, fetchLimit],
+    queryKey: ["missing-livre-reconciliation", rangeKey, carrier, apiPage, fetchLimit],
     queryFn: () =>
       compareMissingLivreReconciliation({
         company_id: companyId,
@@ -76,6 +77,7 @@ export default function MissingLivreReconciliationDialog({
         end,
         page: apiPage,
         limit: fetchLimit,
+        shipping_provider: carrier === "all" ? undefined : carrier,
       }),
     enabled: open && Boolean(companyId && start && end),
   });
@@ -97,13 +99,14 @@ export default function MissingLivreReconciliationDialog({
         end,
         page: apiPage,
         limit: fetchLimit,
+        shipping_provider: carrier === "all" ? undefined : carrier,
       }),
     onSuccess: (data) => {
       toast({
         title: "Missing Livré reconciled",
         description: `Checked ${data.data?.checked || 0}, inserted ${data.data?.history_inserted || 0} histories${
           data.data?.skipped_no_live
-            ? `, skipped ${data.data.skipped_no_live} with no live Yalidine status`
+            ? `, skipped ${data.data.skipped_no_live} with no live carrier status`
             : ""
         }.`,
       });
@@ -123,13 +126,32 @@ export default function MissingLivreReconciliationDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>Missing Livré histories</DialogTitle>
+          <DialogTitle>Missing delivered histories</DialogTitle>
           <DialogDescription>
-            Delivered Yalidine orders updated between {start} and {end} that have no{" "}
-            <span className="font-medium">Livré</span> history row. Reconcile fetches the live
-            Yalidine parcel status and appends the missing history entry.
+            Delivered orders updated between {start} and {end} that are missing the history analytics
+            uses: <span className="font-medium">Livré</span> for Yalidine,{" "}
+            <span className="font-medium">order_delivered</span> for NOEST. Reconcile fetches the
+            live carrier status and appends that history entry.
           </DialogDescription>
         </DialogHeader>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted-foreground">Carrier</span>
+          <Select
+            value={carrier}
+            onValueChange={(value) => setCarrier(value as "all" | "yalidine" | "noest")}
+            disabled={isFixing}
+          >
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="yalidine">Yalidine</SelectItem>
+              <SelectItem value="noest">NOEST</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
         {rows.length > 0 && !compareQuery.isLoading && !compareQuery.isError && (
           <div className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -199,17 +221,18 @@ export default function MissingLivreReconciliationDialog({
             <TableHeader>
               <TableRow>
                 <TableHead>Order ID</TableHead>
+                <TableHead>Carrier</TableHead>
                 <TableHead>Tracking</TableHead>
                 <TableHead>ERP Status</TableHead>
                 <TableHead>Latest History</TableHead>
-                <TableHead>Live Yalidine</TableHead>
+                <TableHead>Live carrier</TableHead>
                 <TableHead>Updated At</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {compareQuery.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     <div className="flex items-center justify-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin" />
                       Loading orders...
@@ -218,20 +241,21 @@ export default function MissingLivreReconciliationDialog({
                 </TableRow>
               ) : compareQuery.isError ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-destructive">
-                    Failed to load missing Livré orders.
+                  <TableCell colSpan={7} className="text-center py-8 text-destructive">
+                    Failed to load orders missing a delivered history.
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    No delivered orders missing Livré history in this date range.
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    No delivered Yalidine or NOEST orders are missing a delivered history in this date range.
                   </TableCell>
                 </TableRow>
               ) : (
                 rows.map((row) => (
                   <TableRow key={row.order_id}>
                     <TableCell>{row.order_id}</TableCell>
+                    <TableCell>{row.shipping_provider === "noest" ? "NOEST" : "Yalidine"}</TableCell>
                     <TableCell>{row.tracking_number || "-"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{row.my_erp_status || "-"}</Badge>
