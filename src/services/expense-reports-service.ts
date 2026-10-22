@@ -36,6 +36,26 @@ export async function countReturnedOrders(params: {
   return apiFetch<ReturnedOrdersCountResponse>(`/expenses/reports/returned-count${qs}`);
 }
 
+export interface DeliveredAmountBreakdown {
+  order_count: number;
+  sum_final_price: number;
+  sum_second_delivery_cost: number;
+  sum_first_delivery_cost: number;
+  sum_cogs: number;
+  sum_carrier_charge: number;
+  orders_without_items: number;
+}
+
+export interface DeliveredAmountBreakdown {
+  order_count: number;
+  sum_final_price: number;
+  sum_second_delivery_cost: number;
+  sum_first_delivery_cost: number;
+  sum_cogs: number;
+  sum_carrier_charge: number;
+  orders_without_items: number;
+}
+
 export interface DeliveredAggregatesResponse {
   total_delivered_orders_amount_yalidine: number;
   total_delivered_orders_amount_my_companies: number;
@@ -57,6 +77,8 @@ export interface DeliveredAggregatesResponse {
   created_delivered_orders_my_companies: number;
   created_delivered_orders_noest: number;
   created_delivered_orders: number;
+  delivered_amount_breakdown_yalidine: DeliveredAmountBreakdown;
+  delivered_amount_breakdown_noest: DeliveredAmountBreakdown;
 }
 
 export async function getDeliveredAggregates(params: { company_id: number; start?: string; end?: string }): Promise<APIResponse<DeliveredAggregatesResponse>> {
