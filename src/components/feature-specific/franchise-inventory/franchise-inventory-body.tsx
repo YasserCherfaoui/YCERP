@@ -15,6 +15,7 @@ export default function FranchiseInventoryBody({ onInventoryId }: Props) {
       franchiseId={franchise.ID}
       costMode="franchise-price"
       showActions={false}
+      showAllLocations={false}
       onInventoryId={onInventoryId}
     />
   );

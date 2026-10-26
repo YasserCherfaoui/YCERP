@@ -41,6 +41,7 @@ interface Props {
   franchiseId?: number;
   costMode?: InventoryCostMode;
   showActions?: boolean;
+  showAllLocations?: boolean;
 }
 
 function SortableHeader<TData>({
@@ -139,6 +140,7 @@ export default function WarehouseTable({
   franchiseId,
   costMode,
   showActions = true,
+  showAllLocations = true,
 }: Props) {
   const companyFromStore = useSelector((state: RootState) => state.company.company);
   const userCompany = useSelector((state: RootState) => state.user.company);
@@ -321,7 +323,10 @@ export default function WarehouseTable({
           </span>
         ),
       },
-      {
+    ];
+
+    if (showAllLocations) {
+      defs.push({
         id: "all_locations",
         header: "All locations",
         enableSorting: false,
@@ -339,28 +344,29 @@ export default function WarehouseTable({
             locations={row.original.locations ?? []}
           />
         ),
+      });
+    }
+
+    defs.push({
+      id: "broken_count",
+      header: ({ column }) => <SortableHeader column={column} label="Broken" />,
+      accessorKey: "broken_count",
+      cell: ({ row }) => {
+        const count = row.original.broken_count || 0;
+        return (
+          <span
+            className={cn(
+              "inline-flex min-w-8 items-center justify-center rounded-md px-2 py-0.5 text-sm font-medium tabular-nums",
+              count > 0
+                ? "bg-orange-500/10 text-orange-700 dark:text-orange-400"
+                : "bg-muted text-muted-foreground"
+            )}
+          >
+            {count}
+          </span>
+        );
       },
-      {
-        id: "broken_count",
-        header: ({ column }) => <SortableHeader column={column} label="Broken" />,
-        accessorKey: "broken_count",
-        cell: ({ row }) => {
-          const count = row.original.broken_count || 0;
-          return (
-            <span
-              className={cn(
-                "inline-flex min-w-8 items-center justify-center rounded-md px-2 py-0.5 text-sm font-medium tabular-nums",
-                count > 0
-                  ? "bg-orange-500/10 text-orange-700 dark:text-orange-400"
-                  : "bg-muted text-muted-foreground"
-              )}
-            >
-              {count}
-            </span>
-          );
-        },
-      },
-    ];
+    });
 
     if (showFirstPrice) {
       defs.push({
@@ -410,7 +416,7 @@ export default function WarehouseTable({
     }
 
     return defs;
-  }, [showActions, showFirstPrice, showFranchiseCost]);
+  }, [showActions, showAllLocations, showFirstPrice, showFranchiseCost]);
 
   if (!franchiseId && !company) return null;
 
