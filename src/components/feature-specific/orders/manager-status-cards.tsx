@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getManagerOrderStatusCount } from "@/services/woocommerce-service";
+import { getManagerOrderStatusCount, getTakenByOrderStatusCount } from "@/services/woocommerce-service";
 import { useQuery } from "@tanstack/react-query";
 import {
     Car,
@@ -21,6 +21,7 @@ interface ManagerStatusCardsProps {
   shippingProvider?: string;
   companyId?: number;
   managerId?: number;
+  groupBy?: "confirmed_by" | "taken_by";
 }
 
 const STATUS_COLORS: Record<string, { 
@@ -143,12 +144,16 @@ export default function ManagerStatusCards({
   wilaya, 
   shippingProvider, 
   companyId,
-  managerId 
+  managerId,
+  groupBy = "confirmed_by",
 }: ManagerStatusCardsProps) {
+  const isTakenBy = groupBy === "taken_by";
+  const fetchCounts = isTakenBy ? getTakenByOrderStatusCount : getManagerOrderStatusCount;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["manager-status-count", dateFrom, dateTo, wilaya, shippingProvider, companyId, managerId],
+    queryKey: [isTakenBy ? "taken-by-status-count" : "manager-status-count", dateFrom, dateTo, wilaya, shippingProvider, companyId, managerId],
     queryFn: () =>
-      getManagerOrderStatusCount({
+      fetchCounts({
         date_from: dateFrom,
         date_to: dateTo,
         wilaya: wilaya,
@@ -180,7 +185,9 @@ export default function ManagerStatusCards({
   if (managers.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        No managers found with confirmed orders in the selected period.
+        {isTakenBy
+          ? "No users found with taken orders in the selected period."
+          : "No managers found with confirmed orders in the selected period."}
       </div>
     );
   }
@@ -200,7 +207,7 @@ export default function ManagerStatusCards({
                   <div className="text-sm font-normal text-muted-foreground">{manager.manager_email}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-muted-foreground">Total Confirmed</div>
+                  <div className="text-sm text-muted-foreground">{isTakenBy ? "Total Taken" : "Total Confirmed"}</div>
                   <div className="text-2xl font-bold text-primary">{totalOrders.toLocaleString()}</div>
                 </div>
               </CardTitle>

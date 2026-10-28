@@ -1036,6 +1036,21 @@ export default function CompanyOrdersDeskPage() {
                 />
               </AccordionContent>
             </AccordionItem>
+            <AccordionItem value="taken-by-statistics" className="border-none">
+              <AccordionTrigger className="rounded-lg px-2 py-2 text-sm hover:bg-muted/60 hover:no-underline">
+                Taken-by statistics
+              </AccordionTrigger>
+              <AccordionContent>
+                <ManagerStatusCards
+                  groupBy="taken_by"
+                  wilaya={selectedWilaya}
+                  shippingProvider={selectedShippingProvider}
+                  companyId={company.ID}
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                />
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
         )}
       </Card>

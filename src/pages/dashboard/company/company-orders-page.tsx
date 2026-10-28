@@ -793,6 +793,21 @@ export default function CompanyOrdersPage() {
                 />
               </AccordionContent>
             </AccordionItem>
+            <AccordionItem value="taken-by-statistics">
+              <AccordionTrigger>
+                <h2 className="text-xl font-semibold">Taken-by Statistics</h2>
+              </AccordionTrigger>
+              <AccordionContent>
+                <ManagerStatusCards 
+                  groupBy="taken_by"
+                  wilaya={selectedWilaya}
+                  shippingProvider={selectedShippingProvider}
+                  companyId={company.ID}
+                  dateFrom={dateRange?.from ? format(dateRange.from, "yyyy-MM-dd") : undefined}
+                  dateTo={dateRange?.to ? format(dateRange.to, "yyyy-MM-dd") : undefined}
+                />
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
         </div>
       )}
