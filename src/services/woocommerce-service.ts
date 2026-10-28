@@ -1026,7 +1026,7 @@ export const getManagerOrderStatusCount = async (params?: {
   shipping_provider?: string;
   company_id?: number;
   manager_id?: number;
-}): Promise<APIResponse<{
+}, endpoint: "manager-status-count" | "taken-by-status-count" = "manager-status-count"): Promise<APIResponse<{
   managers: {
     manager_id: number;
     manager_name: string;
@@ -1041,7 +1041,7 @@ export const getManagerOrderStatusCount = async (params?: {
   company_id?: number;
 }>> => {
   const currentToken = localStorage.getItem("token");
-  let url = `${baseUrl}/orders/manager-status-count`;
+  let url = `${baseUrl}/orders/${endpoint}`;
   const queryParams = new URLSearchParams();
   
   if (params?.date_from) queryParams.append('date_from', params.date_from);
@@ -1071,6 +1071,9 @@ export const getManagerOrderStatusCount = async (params?: {
   const data = await response.json();
   return data;
 };
+
+export const getTakenByOrderStatusCount = (params?: Parameters<typeof getManagerOrderStatusCount>[0]) =>
+  getManagerOrderStatusCount(params, "taken-by-status-count");
 
 export interface WooLineItemGroup {
   name: string;
