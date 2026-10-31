@@ -1,10 +1,10 @@
 import { RootState } from "@/app/store";
 import CrmBackdrop from "@/components/feature-specific/crm/crm-backdrop";
+import CustomerHistoryCard from "@/components/feature-specific/crm/customer-history-card";
 import {
   avatarTone,
   customerInitials,
   liquidGlass,
-  orderStatus,
   rateTier,
   tile,
   TileColor,
@@ -16,14 +16,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Customer, CustomerStats } from "@/models/data/customer.model";
 import CreateReviewDialog from "@/pages/crm/reviews/create-review-dialog";
 import { getCustomer, updateCustomer } from "@/services/customer-service";
-import { cities } from "@/utils/algeria-cities";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -50,27 +48,7 @@ import {
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useSelector } from "react-redux";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-
-type RecentOrder = {
-  id: number;
-  number: string;
-  amount: number;
-  final_price?: number;
-  order_status: string;
-  created_at: string;
-  tracking_number?: string;
-  is_exchange?: boolean;
-  shipping_city?: string;
-};
-
-type FranchiseSale = {
-  ID: number;
-  CreatedAt: string;
-  total: number;
-  rating?: number;
-  sale_items?: { quantity: number; product_variant_id: number; product_variant?: { qr_code?: string } }[];
-};
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const money = new Intl.NumberFormat("en-DZ", { style: "currency", currency: "DZD", maximumFractionDigits: 0 });
 
@@ -89,11 +67,6 @@ function daysUntilBirthday(value: string | Date) {
   const next = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
   if (next < today) next.setFullYear(today.getFullYear() + 1);
   return Math.round((next.getTime() - today.getTime()) / 86_400_000);
-}
-
-function wilayaLabel(key?: string) {
-  if (!key) return null;
-  return cities.find((city) => city.key == key)?.label || key;
 }
 
 function Stars({ rating, size = "size-4" }: { rating: number; size?: string }) {
@@ -214,9 +187,6 @@ export default function CustomerDetailPage() {
 
   const customer: Customer | undefined = data?.data?.customer;
   const stats: CustomerStats | undefined = data?.data?.stats;
-  const recentOrders: RecentOrder[] = data?.data?.recent_orders ?? [];
-  const franchiseSales: FranchiseSale[] = data?.data?.franchise_sales ?? [];
-
   if (isLoading) {
     return (
       <div className="relative isolate min-h-full overflow-hidden">
@@ -263,8 +233,6 @@ export default function CustomerDetailPage() {
   const telHref = `tel:${customer.phone.startsWith("213") ? "+" : ""}${customer.phone}`;
   const reviews = customer.reviews ?? [];
   const avgRating = reviews.length ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
-  const showSales = isFranchiseRoute || !!customer.franchise_id;
-
   const timeline = [
     { label: "First order", value: formatDay(stats?.first_order_date), color: "bg-indigo-500" },
     { label: "Last order", value: formatDay(stats?.last_order_date), color: "bg-violet-500" },
@@ -384,125 +352,14 @@ export default function CustomerDetailPage() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="space-y-4 lg:col-span-2">
-            {(!isFranchiseRoute || recentOrders.length > 0) && (
-              <Card className={cn("overflow-hidden", liquidGlass)}>
-                <CardHeader className="pb-3">
-                  <SectionTitle icon={Package} color="indigo" title="Recent orders" description="The last 10 online orders for this phone." />
-                </CardHeader>
-                <Separator />
-                <CardContent className="p-2 sm:p-3">
-                  {recentOrders.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-muted-foreground">No orders yet.</p>
-                  ) : (
-                    <ul className="divide-y divide-black/5 dark:divide-white/10">
-                      {recentOrders.map((order) => {
-                        const status = orderStatus(order.order_status);
-                        const path = orderPath(order.id);
-                        const content = (
-                          <>
-                            <span className="min-w-0 flex-1">
-                              <span className="flex flex-wrap items-center gap-1.5">
-                                <span className="font-semibold tabular-nums">#{order.number || order.id}</span>
-                                {order.is_exchange && (
-                                  <Badge variant="outline" className={cn("h-5 px-1.5 text-[10px]", tone.amber)}>
-                                    Exchange
-                                  </Badge>
-                                )}
-                              </span>
-                              <span className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-                                <span>{formatDay(order.created_at) ?? "—"}</span>
-                                {wilayaLabel(order.shipping_city) && (
-                                  <span className="inline-flex items-center gap-1">
-                                    <MapPin className="size-3 text-rose-400" />
-                                    {wilayaLabel(order.shipping_city)}
-                                  </span>
-                                )}
-                              </span>
-                            </span>
-                            {order.tracking_number && (
-                              <span className="hidden rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] tracking-wide text-foreground/80 sm:inline">
-                                {order.tracking_number.toUpperCase()}
-                              </span>
-                            )}
-                            <Badge variant="outline" className={cn("shrink-0", status.chip)}>
-                              {status.label}
-                            </Badge>
-                            <span className="w-24 shrink-0 text-right text-sm font-semibold tabular-nums">
-                              {money.format(order.final_price || order.amount || 0)}
-                            </span>
-                          </>
-                        );
-                        return (
-                          <li key={order.id}>
-                            {path ? (
-                              <Link
-                                to={path}
-                                className="flex items-center gap-3 rounded-lg px-2 py-2.5 motion-safe:transition-colors hover:bg-white/60 dark:hover:bg-white/5"
-                              >
-                                {content}
-                              </Link>
-                            ) : (
-                              <div className="flex items-center gap-3 px-2 py-2.5">{content}</div>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {showSales && (
-              <Card className={cn("overflow-hidden", liquidGlass)}>
-                <CardHeader className="pb-3">
-                  <SectionTitle
-                    icon={ShoppingBag}
-                    color="sky"
-                    title={isFranchiseRoute ? "Store sales" : "Franchise sales"}
-                    description={
-                      !isFranchiseRoute && stats
-                        ? `${(stats.total_sales_count ?? 0).toLocaleString()} sales · ${money.format(stats.total_sales ?? 0)}`
-                        : undefined
-                    }
-                  />
-                </CardHeader>
-                <Separator />
-                <CardContent className="space-y-2 p-2 sm:p-3">
-                  {franchiseSales.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-muted-foreground">No sales found.</p>
-                  ) : (
-                    franchiseSales.map((sale) => (
-                      <div key={sale.ID} className="rounded-xl border border-sky-200/70 bg-sky-50/60 p-3 dark:border-sky-400/20 dark:bg-sky-500/10">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="space-y-1">
-                            <div className="text-sm font-semibold">Sale #{sale.ID}</div>
-                            <div className="text-xs text-muted-foreground">{formatDay(sale.CreatedAt) ?? "—"}</div>
-                            {!!sale.rating && <Stars rating={sale.rating} size="size-3" />}
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-semibold tabular-nums">{money.format(sale.total || 0)}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {sale.sale_items?.length || 0} item{sale.sale_items?.length === 1 ? "" : "s"}
-                            </div>
-                          </div>
-                        </div>
-                        {sale.sale_items && sale.sale_items.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1.5 border-t border-sky-200/70 pt-2 dark:border-sky-400/20">
-                            {sale.sale_items.map((item, idx) => (
-                              <span key={idx} className="rounded-md bg-white/80 px-1.5 py-0.5 font-mono text-[11px] dark:bg-white/10">
-                                {item.product_variant?.qr_code || `Variant ${item.product_variant_id}`}
-                                <span className="ml-1 font-sans font-semibold text-sky-700 dark:text-sky-300">×{item.quantity}</span>
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
-            )}
+            <CustomerHistoryCard
+              phone={customer.phone}
+              companyId={companyId}
+              franchiseId={isFranchiseRoute ? franchiseIdNum : undefined}
+              defaultTab={isFranchiseRoute ? "sales" : "orders"}
+              orderPath={orderPath}
+              allowOrderDetails={!isFranchiseRoute}
+            />
           </div>
 
           <div className="space-y-4">

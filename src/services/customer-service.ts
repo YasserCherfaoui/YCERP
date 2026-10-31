@@ -5,6 +5,8 @@ import {
     DailyDelivery,
     UpcomingBirthday,
 } from "@/models/data/customer.model";
+import { Sale } from "@/models/data/sale.model";
+import { WooOrder } from "@/models/data/woo-order.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 
 export interface GetCustomersParams {
@@ -70,13 +72,45 @@ export const getCustomer = async (
   phone: string,
   companyId?: number,
   franchiseId?: number
-): Promise<APIResponse<{ customer: Customer; stats: CustomerStats; recent_orders: any[]; franchise_sales?: any[] }>> => {
+): Promise<APIResponse<{ customer: Customer; stats: CustomerStats }>> => {
   const queryParams = new URLSearchParams();
   if (companyId) queryParams.append("company_id", companyId.toString());
   if (franchiseId) queryParams.append("franchise_id", franchiseId.toString());
   const queryString = queryParams.toString();
   return apiFetch(`/customers/${encodeURIComponent(phone)}${queryString ? `?${queryString}` : ""}`);
 };
+
+type CustomerHistoryParams = { companyId?: number; franchiseId?: number; page?: number; limit?: number };
+
+type HistoryPagination = { page: number; limit: number; total: number; total_pages: number };
+
+const customerHistoryQuery = ({ companyId, franchiseId, page, limit }: CustomerHistoryParams) => {
+  const params = new URLSearchParams();
+  if (companyId) params.append("company_id", companyId.toString());
+  if (franchiseId) params.append("franchise_id", franchiseId.toString());
+  if (page) params.append("page", page.toString());
+  if (limit) params.append("limit", limit.toString());
+  const query = params.toString();
+  return query ? `?${query}` : "";
+};
+
+export const getCustomerOrders = async (
+  phone: string,
+  params: CustomerHistoryParams
+): Promise<APIResponse<{
+  orders: WooOrder[];
+  pagination: HistoryPagination;
+  summary: { total_orders: number; delivered_orders: number; delivered_amount: number };
+}>> => apiFetch(`/customers/${encodeURIComponent(phone)}/orders${customerHistoryQuery(params)}`);
+
+export const getCustomerSales = async (
+  phone: string,
+  params: CustomerHistoryParams
+): Promise<APIResponse<{
+  sales: (Sale & { franchise?: { ID: number; name: string } | null; sale_type?: string })[];
+  pagination: HistoryPagination;
+  summary: { total_sales: number; total_amount: number; stores: number };
+}>> => apiFetch(`/customers/${encodeURIComponent(phone)}/sales${customerHistoryQuery(params)}`);
 
 export const updateCustomer = async (
   phone: string,
@@ -236,7 +270,7 @@ export const getFranchiseCustomer = async (
   franchiseId: number,
   phone: string,
   companyId?: number
-): Promise<APIResponse<{ customer: Customer; stats: CustomerStats; recent_orders: any[]; franchise_sales?: any[] }>> => {
+): Promise<APIResponse<{ customer: Customer; stats: CustomerStats }>> => {
   return getCustomer(phone, companyId, franchiseId);
 };
 
