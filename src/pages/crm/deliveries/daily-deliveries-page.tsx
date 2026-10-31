@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { CustomerDeliveryInfo, DailyDelivery, OrderDeliveryInfo } from "@/models/data/customer.model";
 import { getDailyDeliveries, updateOrderDeliveryStatus } from "@/services/customer-service";
@@ -91,6 +92,13 @@ export default function DailyDeliveriesPage() {
   const setContactStatusFilter = (s: string) => updateParams({ contact_status: s, deliveries_page: 1 });
   const setActiveTab = (t: string) => updateParams({ deliveries_tab: t, deliveries_page: 1 });
   const setPhoneSearch = (v: string) => updateParams({ phone: v || undefined, deliveries_page: 1 });
+
+  const [phoneInput, setPhoneInput] = useState(phoneSearch);
+  const debouncedPhoneInput = useDebounce(phoneInput, 300);
+  useEffect(() => {
+    if (debouncedPhoneInput !== phoneSearch) setPhoneSearch(debouncedPhoneInput);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedPhoneInput]);
   
   // Order history drawer state
   const [orderHistoryDrawerOpen, setOrderHistoryDrawerOpen] = useState(false);
@@ -291,8 +299,8 @@ export default function DailyDeliveriesPage() {
                 id="deliveries-phone"
                 type="text"
                 placeholder="Search by phone number"
-                value={phoneSearch}
-                onChange={(e) => setPhoneSearch(e.target.value)}
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
                 className="w-full"
               />
             </div>

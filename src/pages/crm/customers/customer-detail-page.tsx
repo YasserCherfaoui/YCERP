@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Customer, CustomerStats } from "@/models/data/customer.model";
-import { getCustomer, getCustomerStats, updateCustomer } from "@/services/customer-service";
+import { getCustomer, updateCustomer } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Phone, Mail, Calendar, Star, Package, ArrowLeft } from "lucide-react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -36,17 +36,10 @@ export default function CustomerDetailPage() {
     enabled: !!phone && !!companyId,
   });
 
-  const { data: statsData } = useQuery({
-    queryKey: ["customer-stats", companyId, franchiseIdNum, phone],
-    queryFn: () => getCustomerStats(phone!, companyId, franchiseIdNum),
-    enabled: !!phone && (!!companyId || !!franchiseIdNum),
-  });
-
   const updateMut = useMutation({
     mutationFn: (data: { birthday?: string }) => updateCustomer(phone!, data, companyId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customer", companyId, phone] });
-      queryClient.invalidateQueries({ queryKey: ["customer-stats", companyId, phone] });
+      queryClient.invalidateQueries({ queryKey: ["customer", companyId, franchiseIdNum, phone] });
       setEditDialogOpen(false);
       toast({
         title: "Success",
@@ -67,7 +60,7 @@ export default function CustomerDetailPage() {
   }
 
   const customer: Customer | undefined = data?.data?.customer;
-  const stats: CustomerStats | undefined = statsData?.data?.stats;
+  const stats: CustomerStats | undefined = data?.data?.stats;
 
   if (!customer) {
     return <div className="container mx-auto p-6">Customer not found</div>;

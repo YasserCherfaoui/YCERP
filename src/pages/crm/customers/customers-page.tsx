@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useToast } from "@/hooks/use-toast";
 import { Customer } from "@/models/data/customer.model";
 import { deleteCustomersWithZeroOrders, getCustomers, syncCustomers, updateSelectedCustomers } from "@/services/customer-service";
@@ -58,6 +59,13 @@ export default function CustomersPage() {
   const setSortBy = (s: string) => updateParams({ sort_by: s, page: 1 });
   const setSortOrder = (o: "asc" | "desc") => updateParams({ sort_order: o, page: 1 });
   const setActiveTab = (t: string) => updateParams({ tab: t });
+
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearchInput = useDebounce(searchInput, 300);
+  useEffect(() => {
+    if (debouncedSearchInput !== search) setSearch(debouncedSearchInput);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchInput]);
 
   // Clear selection when page changes
   useEffect(() => {
@@ -218,8 +226,8 @@ export default function CustomersPage() {
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       placeholder="Search by phone, name, or email..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
                       className="pl-8"
                     />
                   </div>
