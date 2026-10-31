@@ -23,6 +23,7 @@ export interface GetCustomersParams {
 
 export interface UpdateCustomerRequest {
   birthday?: string | Date | null;
+  clear_birthday?: boolean;
   first_name?: string;
   last_name?: string;
   email?: string;

@@ -1,6 +1,7 @@
 import { RootState } from "@/app/store";
 import CrmBackdrop from "@/components/feature-specific/crm/crm-backdrop";
 import CustomerHistoryCard from "@/components/feature-specific/crm/customer-history-card";
+import EditCustomerDialog from "@/components/feature-specific/crm/edit-customer-dialog";
 import {
   avatarTone,
   customerInitials,
@@ -13,16 +14,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Customer, CustomerStats } from "@/models/data/customer.model";
 import CreateReviewDialog from "@/pages/crm/reviews/create-review-dialog";
-import { getCustomer, updateCustomer } from "@/services/customer-service";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCustomer } from "@/services/customer-service";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
   ArrowLeft,
@@ -144,34 +142,13 @@ export default function CustomerDetailPage() {
 
   const navigate = useNavigate();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [birthday, setBirthday] = useState<string>("");
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["customer", companyId, franchiseIdNum, phone],
     queryFn: () => getCustomer(phone!, companyId, franchiseIdNum),
     enabled: !!phone && !!companyId,
-  });
-
-  const updateMut = useMutation({
-    mutationFn: (data: { birthday?: string }) => updateCustomer(phone!, data, companyId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customer", companyId, franchiseIdNum, phone] });
-      setEditDialogOpen(false);
-      toast({
-        title: "Success",
-        description: "Customer updated successfully",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
   });
 
   const goBack = () => {
@@ -306,9 +283,9 @@ export default function CustomerDetailPage() {
                 Call
               </a>
             </Button>
-            <Button type="button" variant="outline" className={tone.pink} onClick={() => setEditDialogOpen(true)}>
+            <Button type="button" variant="outline" className={tone.violet} onClick={() => setEditDialogOpen(true)}>
               <Pencil />
-              Edit birthday
+              Edit details
             </Button>
             <Button
               type="button"
@@ -488,33 +465,12 @@ export default function CustomerDetailPage() {
         companyId={companyId}
       />
 
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Edit birthday</DialogTitle>
-            <DialogDescription>Used for birthday reminders in the CRM.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="customer-birthday">Birthday</Label>
-              <Input
-                id="customer-birthday"
-                type="date"
-                value={birthday || (customer.birthday ? new Date(customer.birthday).toISOString().split("T")[0] : "")}
-                onChange={(e) => setBirthday(e.target.value)}
-              />
-            </div>
-            <Button
-              type="button"
-              className="w-full"
-              onClick={() => updateMut.mutate({ birthday: birthday || undefined })}
-              disabled={updateMut.isPending}
-            >
-              Save
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EditCustomerDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        customer={customer}
+        companyId={companyId}
+      />
     </div>
   );
 }
