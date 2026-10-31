@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { WooOrder } from "@/models/data/woo-order.model";
-import { carrierLabel, carrierStatusLabel } from "@/utils/shipping-provider";
+import CarrierTimeline from "@/components/feature-specific/orders/carrier-timeline";
+import { carrierLabel } from "@/utils/shipping-provider";
 import { CheckCircle, Clock, MapPin, MessageSquare, ShoppingCart, Truck, User } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -148,23 +149,11 @@ export default function OrderDetailsContent({ order }: { order: WooOrder }) {
       )}
 
       {!!order.yalidine_order_histories?.length && (
-        <Section title={`Carrier updates (${order.yalidine_order_histories.length})`} icon={<Truck className="size-4 text-rose-600 dark:text-rose-300" />}>
-          <ul className="space-y-2">
-            {order.yalidine_order_histories.map((history, idx) => (
-              <li key={history.ID ?? idx} className="rounded-lg bg-white/50 px-3 py-2 dark:bg-white/5">
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <Badge variant="outline">{carrierStatusLabel(order.woo_shipping?.shipping_provider, history.status)}</Badge>
-                  <span className="text-xs text-muted-foreground">{formatDate(history.date)}</span>
-                </div>
-                {history.reason?.trim() && <p className="text-sm">{history.reason}</p>}
-                {(history.center_name || history.commune_name || history.wilaya_name) && (
-                  <p className="text-xs text-muted-foreground">
-                    {[history.center_name, history.commune_name, history.wilaya_name].filter((part) => part?.trim()).join(" · ")}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
+        <Section
+          title={`${carrierLabel(order.woo_shipping?.shipping_provider)} updates (${order.yalidine_order_histories.length})`}
+          icon={<Truck className="size-4 text-rose-600 dark:text-rose-300" />}
+        >
+          <CarrierTimeline histories={order.yalidine_order_histories} provider={order.woo_shipping?.shipping_provider} />
         </Section>
       )}
 
