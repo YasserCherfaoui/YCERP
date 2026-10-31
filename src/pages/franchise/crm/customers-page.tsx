@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Customer } from "@/models/data/customer.model";
 import { createFranchiseCustomer, getFranchiseCustomers, syncFranchiseCustomers } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { ArrowLeft, Plus, RefreshCw, Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +31,13 @@ export default function FranchiseCustomersPage() {
   const [maxDeliveryRate, setMaxDeliveryRate] = useState<number | undefined>();
   const [sortBy, setSortBy] = useState<string>("updated_at");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const sorting: SortingState = [{ id: sortBy, desc: sortOrder === "desc" }];
+  const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    const first = next[0];
+    setSortBy(first?.id ?? "updated_at");
+    setSortOrder(first ? (first.desc ? "desc" : "asc") : "desc");
+  };
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
     phone: "",
@@ -296,6 +304,8 @@ export default function FranchiseCustomersPage() {
                   <SelectItem value="total_orders">Total Orders</SelectItem>
                   <SelectItem value="delivered_orders">Delivered Orders</SelectItem>
                   <SelectItem value="delivery_rate">Delivery Rate</SelectItem>
+                  <SelectItem value="last_update">Last Update</SelectItem>
+                  <SelectItem value="birthday">Birthday</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -338,8 +348,10 @@ export default function FranchiseCustomersPage() {
             <DataTable
               columns={getCustomersColumns(companyId?.toString(), franchiseIdNum?.toString())}
               data={tableData}
-              searchColumn="customer.phone"
+              searchColumn="phone"
               searchBar={false}
+              sorting={sorting}
+              onSortingChange={handleSortingChange}
               paginationMeta={
                 data?.data?.pagination
                   ? {

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { ColumnDef } from "@tanstack/react-table";
+import { Column, ColumnDef } from "@tanstack/react-table";
 import { Customer } from "@/models/data/customer.model";
-import { Phone, Mail, Calendar, Eye, Package, PackageCheck, Clock, ShoppingCart } from "lucide-react";
+import { Phone, Mail, Calendar, Eye, Package, PackageCheck, Clock, ShoppingCart, ChevronUp, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export type CustomerTableRow = {
@@ -10,13 +10,34 @@ export type CustomerTableRow = {
   sales_count?: number;
 };
 
+// Column ids match the backend `sort_by` keys of GET /customers.
+const sortableHeader =
+  (label: string) =>
+  ({ column }: { column: Column<CustomerTableRow, unknown> }) => {
+    const sorted = column.getIsSorted();
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="-ml-2 px-2"
+        onClick={() => column.toggleSorting(sorted === "asc")}
+      >
+        {label}
+        {sorted === "asc" ? <ChevronUp /> : null}
+        {sorted === "desc" ? <ChevronDown /> : null}
+      </Button>
+    );
+  };
+
 export const getCustomersColumns = (companyID?: string, franchiseId?: string): ColumnDef<CustomerTableRow>[] => {
   const isFranchise = !!franchiseId;
   
   const baseColumns: ColumnDef<CustomerTableRow>[] = [
     {
+      id: "name",
       accessorKey: "customer.first_name",
-      header: "Name",
+      header: sortableHeader("Name"),
       cell: ({ row }) => {
         const customer = row.original.customer;
         return (
@@ -27,8 +48,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
       },
     },
     {
+      id: "phone",
       accessorKey: "customer.phone",
-      header: "Phone",
+      header: sortableHeader("Phone"),
       cell: ({ row }) => {
         const phone = row.original.customer.phone;
         return (
@@ -40,8 +62,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
       },
     },
     {
+      id: "email",
       accessorKey: "customer.email",
-      header: "Email",
+      header: sortableHeader("Email"),
       cell: ({ row }) => {
         const email = row.original.customer.email;
         if (!email) return <span className="text-muted-foreground">-</span>;
@@ -57,8 +80,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
     // For non-franchise: Show Total Orders
     ...(isFranchise ? [
       {
+        id: "total_orders",
         accessorKey: "customer.total_orders",
-        header: "WooCommerce Orders",
+        header: sortableHeader("WooCommerce Orders"),
         cell: ({ row }) => {
           const totalOrders = row.original.customer.total_orders ?? 0;
           return (
@@ -72,6 +96,7 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
       {
         accessorKey: "sales_count",
         header: "Franchise Sales",
+        enableSorting: false,
         cell: ({ row }) => {
           const salesCount = row.original.sales_count ?? 0;
           return (
@@ -84,8 +109,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
       } as ColumnDef<CustomerTableRow>,
     ] : [
       {
+        id: "total_orders",
         accessorKey: "customer.total_orders",
-        header: "Total Orders",
+        header: sortableHeader("Total Orders"),
         cell: ({ row }) => {
           const totalOrders = row.original.customer.total_orders ?? 0;
           return (
@@ -100,8 +126,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
     // Only show delivered orders and delivery rate for non-franchise customers
     ...(isFranchise ? [] : [
       {
+        id: "delivered_orders",
         accessorKey: "customer.delivered_orders",
-        header: "Delivered Orders",
+        header: sortableHeader("Delivered Orders"),
         cell: ({ row }) => {
           const deliveredOrders = row.original.customer.delivered_orders ?? 0;
           return (
@@ -113,8 +140,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
         },
       } as ColumnDef<CustomerTableRow>,
       {
+        id: "delivery_rate",
         accessorKey: "delivery_rate",
-        header: "Delivery Rate",
+        header: sortableHeader("Delivery Rate"),
         cell: ({ row }) => {
           const rate = row.original.delivery_rate;
           return (
@@ -134,8 +162,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
       } as ColumnDef<CustomerTableRow>,
     ]),
   {
+    id: "last_update",
     accessorKey: "customer.updated_at",
-    header: "Last Update",
+    header: sortableHeader("Last Update"),
     cell: ({ row }) => {
       const updatedAt = row.original.customer.updated_at;
       if (!updatedAt) return <span className="text-muted-foreground">-</span>;
@@ -151,8 +180,9 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
     },
   },
   {
+    id: "birthday",
     accessorKey: "customer.birthday",
-    header: "Birthday",
+    header: sortableHeader("Birthday"),
     cell: ({ row }) => {
       const birthday = row.original.customer.birthday;
       if (!birthday) return <span className="text-muted-foreground">-</span>;

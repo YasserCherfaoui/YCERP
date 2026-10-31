@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Customer } from "@/models/data/customer.model";
 import { deleteCustomersWithZeroOrders, getCustomers, syncCustomers, updateSelectedCustomers } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { OnChangeFn, SortingState } from "@tanstack/react-table";
 import { ArrowLeft, Package, RefreshCw, Search, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -58,6 +59,16 @@ export default function CustomersPage() {
   const setMaxDeliveryRate = (r: number | undefined) => updateParams({ max_delivery_rate: r, page: 1 });
   const setSortBy = (s: string) => updateParams({ sort_by: s, page: 1 });
   const setSortOrder = (o: "asc" | "desc") => updateParams({ sort_order: o, page: 1 });
+  const sorting: SortingState = [{ id: sortBy, desc: sortOrder === "desc" }];
+  const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
+    const next = typeof updater === "function" ? updater(sorting) : updater;
+    const first = next[0];
+    updateParams({
+      sort_by: first?.id ?? "updated_at",
+      sort_order: first ? (first.desc ? "desc" : "asc") : "desc",
+      page: 1,
+    });
+  };
   const setActiveTab = (t: string) => updateParams({ tab: t });
 
   const [searchInput, setSearchInput] = useState(search);
@@ -78,7 +89,7 @@ export default function CustomersPage() {
       queryClient.invalidateQueries({ queryKey: ["customers", companyId] });
       toast({
         title: "Sync completed",
-        description: `Synced ${res.data?.synced || 0} of ${res.data?.total || 0} orders.`,
+        description: `Synced ${(res.data?.synced || 0).toLocaleString()} customers from ${(res.data?.total || 0).toLocaleString()} orders.`,
       });
     },
     onError: (error: Error) => {
@@ -285,6 +296,8 @@ export default function CustomersPage() {
                       <SelectItem value="total_orders">Total Orders</SelectItem>
                       <SelectItem value="delivered_orders">Delivered Orders</SelectItem>
                       <SelectItem value="delivery_rate">Delivery Rate</SelectItem>
+                      <SelectItem value="last_update">Last Update</SelectItem>
+                      <SelectItem value="birthday">Birthday</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -319,8 +332,10 @@ export default function CustomersPage() {
                 <DataTable
                   columns={getCustomersColumns(companyID)}
                   data={tableData}
-                  searchColumn="customer.phone"
+                  searchColumn="phone"
                   searchBar={false}
+                  sorting={sorting}
+                  onSortingChange={handleSortingChange}
                   paginationMeta={
                     data?.data?.pagination
                       ? {
