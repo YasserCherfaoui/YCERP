@@ -2,6 +2,7 @@ import { RootState } from "@/app/store";
 import CustomerOrderHistoryDrawer from "@/components/feature-specific/deliveries/customer-order-history-drawer";
 import OrderReviewDialog from "@/components/feature-specific/deliveries/order-review-dialog";
 import DeclareExchangeDialog from "@/components/feature-specific/orders/declare-exchange-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -44,6 +45,12 @@ import { AlertCircle, Calendar, CheckCircle, ChevronDown, ChevronLeft, ChevronRi
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+
+const SHIPPING_PROVIDER_LABELS: Record<NonNullable<OrderDeliveryInfo["shipping_provider"]>, string> = {
+  yalidine: "Yalidine",
+  noest: "NOEST",
+  my_companies: "My Companies",
+};
 
 export default function DailyDeliveriesPage() {
   const { companyID } = useParams<{ companyID: string }>();
@@ -316,6 +323,7 @@ export default function DailyDeliveriesPage() {
                 <SelectContent>
                   <SelectItem value="all">All Providers</SelectItem>
                   <SelectItem value="yalidine">Yalidine</SelectItem>
+                  <SelectItem value="noest">NOEST</SelectItem>
                   <SelectItem value="my_companies">My Companies</SelectItem>
                 </SelectContent>
               </Select>
@@ -849,7 +857,14 @@ function CardsView({
                     >
                       <div className="flex justify-between items-center p-3 bg-muted">
                         <div className="flex-1">
-                          <div className="font-medium">Order #{order.order_number}</div>
+                          <div className="font-medium flex items-center gap-2">
+                            Order #{order.order_number}
+                            {order.shipping_provider && (
+                              <Badge variant="outline" className="text-xs font-normal">
+                                {SHIPPING_PROVIDER_LABELS[order.shipping_provider]}
+                              </Badge>
+                            )}
+                          </div>
                           <div className="text-sm text-muted-foreground">
                             {format(new Date(order.delivered_at), "PPp")}
                           </div>
