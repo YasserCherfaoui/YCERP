@@ -1,4 +1,6 @@
 import { RootState } from "@/app/store";
+import CrmBackdrop from "@/components/feature-specific/crm/crm-backdrop";
+import { liquidGlass, tone } from "@/components/feature-specific/crm/crm-theme";
 import { CustomerTableRow, getCustomersColumns } from "@/components/feature-specific/crm/customers-columns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,26 +42,42 @@ import { useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import DailyDeliveriesPage from "../deliveries/daily-deliveries-page";
 
-const liquidGlass =
-  "border border-white/40 bg-white/45 shadow-[0_12px_40px_-18px_rgba(15,23,42,0.45),inset_0_1px_0_0_rgba(255,255,255,0.7)] backdrop-blur-xl dark:border-white/15 dark:bg-white/[0.07] dark:shadow-[0_16px_40px_-20px_rgba(0,0,0,0.75),inset_0_1px_0_0_rgba(255,255,255,0.16)]";
-
-const updateTone =
-  "border-violet-300 bg-violet-50 text-violet-800 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/70 dark:text-violet-100 dark:hover:bg-violet-950";
-
 const VIEWS = [
-  { value: "customers", label: "Customers", icon: Users },
-  { value: "deliveries", label: "Daily deliveries", icon: Package },
+  {
+    value: "customers",
+    label: "Customers",
+    icon: Users,
+    selected: "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm",
+    idle: "text-indigo-700 hover:bg-indigo-100/70 dark:text-indigo-200 dark:hover:bg-indigo-500/20",
+  },
+  {
+    value: "deliveries",
+    label: "Daily deliveries",
+    icon: Package,
+    selected: "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm",
+    idle: "text-emerald-700 hover:bg-emerald-100/70 dark:text-emerald-200 dark:hover:bg-emerald-500/20",
+  },
 ] as const;
 
 const RATE_SEGMENTS = [
-  { value: "all", label: "All", min: undefined, max: undefined, tone: "" },
+  {
+    value: "all",
+    label: "All",
+    min: undefined,
+    max: undefined,
+    dot: "bg-gradient-to-br from-emerald-400 via-amber-400 to-rose-400",
+    idle: "text-foreground/70 hover:bg-background/70",
+    selected: "bg-background text-foreground shadow-sm",
+  },
   {
     value: "reliable",
     label: "Reliable",
     hint: "≥ 80%",
     min: 80,
     max: undefined,
-    tone: "bg-emerald-100 text-emerald-900 ring-emerald-400 dark:bg-emerald-950/70 dark:text-emerald-100",
+    dot: "bg-emerald-500",
+    idle: "text-emerald-800 hover:bg-emerald-100 dark:text-emerald-200 dark:hover:bg-emerald-500/20",
+    selected: "bg-emerald-500 text-white shadow-sm",
   },
   {
     value: "mixed",
@@ -67,7 +85,9 @@ const RATE_SEGMENTS = [
     hint: "50–80%",
     min: 50,
     max: 80,
-    tone: "bg-amber-100 text-amber-900 ring-amber-400 dark:bg-amber-950/70 dark:text-amber-100",
+    dot: "bg-amber-500",
+    idle: "text-amber-800 hover:bg-amber-100 dark:text-amber-200 dark:hover:bg-amber-500/20",
+    selected: "bg-amber-500 text-white shadow-sm",
   },
   {
     value: "risky",
@@ -75,7 +95,9 @@ const RATE_SEGMENTS = [
     hint: "< 50%",
     min: undefined,
     max: 50,
-    tone: "bg-rose-100 text-rose-900 ring-rose-400 dark:bg-rose-950/70 dark:text-rose-100",
+    dot: "bg-rose-500",
+    idle: "text-rose-800 hover:bg-rose-100 dark:text-rose-200 dark:hover:bg-rose-500/20",
+    selected: "bg-rose-500 text-white shadow-sm",
   },
 ] as const;
 
@@ -261,11 +283,7 @@ export default function CustomersPage() {
 
   return (
     <div className="relative isolate min-h-full overflow-hidden">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-16 top-8 h-72 w-72 rounded-full bg-sky-400/35 blur-3xl dark:bg-sky-500/25" />
-        <div className="absolute right-0 top-32 h-80 w-80 rounded-full bg-rose-400/30 blur-3xl dark:bg-rose-500/20" />
-        <div className="absolute bottom-10 left-1/3 h-72 w-72 rounded-full bg-violet-400/25 blur-3xl dark:bg-violet-500/20" />
-      </div>
+      <CrmBackdrop />
       <div className="relative mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-5 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex min-w-0 items-start gap-3">
@@ -278,7 +296,9 @@ export default function CustomersPage() {
               {company?.company_name && (
                 <p className="text-xs font-medium text-muted-foreground">{company.company_name}</p>
               )}
-              <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">CRM</h1>
+              <h1 className="truncate bg-gradient-to-r from-indigo-600 via-violet-600 to-rose-500 bg-clip-text text-2xl font-semibold tracking-tight text-transparent dark:from-indigo-300 dark:via-violet-300 dark:to-rose-300 sm:text-3xl">
+                CRM
+              </h1>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -295,13 +315,18 @@ export default function CustomersPage() {
                     onClick={() => setActiveTab(view.value)}
                     className={cn(
                       "inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-lg px-3 text-sm font-medium motion-safe:transition-colors",
-                      selected ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      selected ? view.selected : view.idle
                     )}
                   >
                     <Icon className="size-4" />
                     {view.label}
                     {view.value === "customers" && totalCustomers != null && (
-                      <span className="rounded-md bg-muted px-1.5 text-xs tabular-nums text-muted-foreground">
+                      <span
+                        className={cn(
+                          "rounded-md px-1.5 text-xs tabular-nums",
+                          selected ? "bg-white/25 text-white" : "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-100"
+                        )}
+                      >
                         {totalCustomers.toLocaleString()}
                       </span>
                     )}
@@ -330,7 +355,12 @@ export default function CustomersPage() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button type="button" disabled={syncMut.isPending} onClick={() => syncMut.mutate()}>
+            <Button
+              type="button"
+              className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/20 hover:from-indigo-500 hover:to-violet-500"
+              disabled={syncMut.isPending}
+              onClick={() => syncMut.mutate()}
+            >
               {syncMut.isPending ? <Loader2 className="animate-spin" /> : <RefreshCcw />}
               {syncMut.isPending ? "Syncing…" : "Sync customers"}
             </Button>
@@ -343,14 +373,14 @@ export default function CustomersPage() {
           <Card className={cn("overflow-hidden", liquidGlass)}>
             <div className="flex flex-col gap-2 p-3 sm:p-4 lg:flex-row lg:items-center" aria-label="Filters">
               <div className="relative min-w-[14rem] flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-indigo-500 dark:text-indigo-300" />
                 <Input
                   aria-label="Search customers"
                   placeholder="Search phone, name or email"
                   autoComplete="off"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  className="h-9 bg-white/70 pl-9 pr-8 backdrop-blur-md dark:bg-white/10"
+                  className="h-9 border-indigo-200/80 bg-white/70 pl-9 pr-8 backdrop-blur-md focus-visible:ring-indigo-400 dark:border-indigo-400/30 dark:bg-white/10"
                 />
                 {searchInput && (
                   <button
@@ -364,7 +394,7 @@ export default function CustomersPage() {
                 )}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <div role="group" aria-label="Delivery rate" className="inline-flex flex-wrap rounded-lg bg-muted p-0.5">
+                <div role="group" aria-label="Delivery rate" className="inline-flex flex-wrap gap-0.5 rounded-lg bg-white/60 p-0.5 ring-1 ring-black/5 dark:bg-white/5 dark:ring-white/10">
                   {RATE_SEGMENTS.map((segment) => {
                     const selected = activeSegment === segment.value;
                     return (
@@ -375,14 +405,11 @@ export default function CustomersPage() {
                         title={"hint" in segment ? `Delivery rate ${segment.hint}` : "Any delivery rate"}
                         onClick={() => setRateRange(segment.min, segment.max)}
                         className={cn(
-                          "min-h-8 cursor-pointer rounded-md px-2.5 text-xs font-medium motion-safe:transition-colors",
-                          selected
-                            ? segment.value === "all"
-                              ? "bg-background text-foreground shadow-sm"
-                              : cn(segment.tone, "shadow-sm ring-1")
-                            : "text-muted-foreground hover:text-foreground"
+                          "inline-flex min-h-8 cursor-pointer items-center gap-1.5 rounded-md px-2.5 text-xs font-medium motion-safe:transition-colors",
+                          selected ? segment.selected : segment.idle
                         )}
                       >
+                        <span className={cn("size-2 rounded-full", segment.dot, selected && segment.value !== "all" && "bg-white")} aria-hidden />
                         {segment.label}
                       </button>
                     );
@@ -390,7 +417,12 @@ export default function CustomersPage() {
                 </div>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button type="button" variant="outline" size="sm" className={cn("h-9 bg-background", hasCustomRange && "border-primary")}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className={cn("h-9", hasCustomRange ? "border-violet-500 bg-violet-500 text-white hover:bg-violet-600 hover:text-white" : tone.violet)}
+                    >
                       <SlidersHorizontal />
                       {hasCustomRange
                         ? `${minDeliveryRate ?? 0}–${maxDeliveryRate ?? 100}%`
@@ -450,12 +482,14 @@ export default function CustomersPage() {
             <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 px-3 py-2.5 sm:px-4">
               {selectedRows.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary" className="tabular-nums">{selectedRows.length} selected</Badge>
+                  <Badge className="border-transparent bg-gradient-to-r from-indigo-500 to-violet-500 tabular-nums text-white">
+                    {selectedRows.length} selected
+                  </Badge>
                   <Button
                     type="button"
                     size="sm"
                     variant="outline"
-                    className={updateTone}
+                    className={tone.violet}
                     disabled={updateSelectedMut.isPending}
                     onClick={() => updateSelectedMut.mutate(selectedRows)}
                   >
@@ -468,12 +502,15 @@ export default function CustomersPage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
+                  <span className="flex size-7 items-center justify-center rounded-lg bg-indigo-200/80 text-indigo-800 dark:bg-indigo-400/20 dark:text-indigo-100">
+                    <Users className="size-4" />
+                  </span>
                   <CardTitle className="text-base">Customers</CardTitle>
                   <CardDescription className="flex items-center gap-1.5">
                     {totalCustomers != null
                       ? `${totalCustomers.toLocaleString()} · sorted by ${SORT_LABELS[sortBy] ?? sortBy}, ${sortOrder === "desc" ? "high to low" : "low to high"}`
                       : "Loading…"}
-                    {isFetching && !isLoading && <Loader2 className="size-3.5 animate-spin" aria-label="Updating" />}
+                    {isFetching && !isLoading && <Loader2 className="size-3.5 animate-spin text-indigo-500" aria-label="Updating" />}
                   </CardDescription>
                 </div>
               )}

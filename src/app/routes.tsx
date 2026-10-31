@@ -29,7 +29,7 @@ import CompanyFranchiseStatsPage from "@/pages/company-franchise-stats-page";
 import CustomerDetailPage from "@/pages/crm/customers/customer-detail-page";
 import CustomersPage from "@/pages/crm/customers/customers-page";
 import DailyDeliveriesPage from "@/pages/crm/deliveries/daily-deliveries-page";
-import CreateReviewDialog from "@/pages/crm/reviews/create-review-dialog";
+import CreateReviewPage from "@/pages/crm/reviews/create-review-page";
 import AdvertisingPage from "@/pages/dashboard/company/advertising-page";
 import AdsIntelligencePage from "@/pages/dashboard/company/ads-intelligence-page";
 import BoxingPage from "@/pages/dashboard/company/boxing-page";
@@ -266,7 +266,7 @@ export default function AppRouter() {
               <Route path="customers" element={<CustomersPage />} />
               <Route path="customers/:phone" element={<CustomerDetailPage />} />
               <Route path="deliveries" element={<DailyDeliveriesPage />} />
-              <Route path="reviews/create" element={<CreateReviewDialog open={true} onOpenChange={() => {}} />} />
+              <Route path="reviews/create" element={<CreateReviewPage />} />
             </Route>
           </Route>
         </Route>
@@ -379,7 +379,7 @@ export default function AppRouter() {
                 <Route path="customers" element={<CustomersPage />} />
                 <Route path="customers/:phone" element={<CustomerDetailPage />} />
                 <Route path="deliveries" element={<DailyDeliveriesPage />} />
-                <Route path="reviews/create" element={<CreateReviewDialog open={true} onOpenChange={() => {}} />} />
+                <Route path="reviews/create" element={<CreateReviewPage />} />
               </Route>
             </Route>
           </Route>
