@@ -1,17 +1,17 @@
+import { liquidGlass, orderStatus, tile, TileColor } from "@/components/feature-specific/crm/crm-theme";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -24,15 +24,24 @@ import { getWooCommerceOrder } from "@/services/woocommerce-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
-    CreditCard,
-    Info,
-    Package,
-    ShoppingCart,
-    Star,
-    Truck,
-    User
+  Cake,
+  CalendarClock,
+  CreditCard,
+  Frown,
+  Info,
+  Loader2,
+  Meh,
+  MessageSquareQuote,
+  Package,
+  Phone,
+  ShoppingCart,
+  Smile,
+  Star,
+  Truck,
+  User,
+  type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 interface OrderReviewDialogProps {
@@ -40,6 +49,67 @@ interface OrderReviewDialogProps {
   onOpenChange: (open: boolean) => void;
   orderId: number;
   customerPhone: string;
+}
+
+const RATING_LABELS = [
+  { label: "Very bad", chip: "bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-100" },
+  { label: "Bad", chip: "bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-100" },
+  { label: "Okay", chip: "bg-amber-100 text-amber-900 dark:bg-amber-500/20 dark:text-amber-100" },
+  { label: "Good", chip: "bg-lime-100 text-lime-800 dark:bg-lime-500/20 dark:text-lime-100" },
+  { label: "Excellent", chip: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-100" },
+];
+
+const SATISFACTION = [
+  {
+    value: "satisfied",
+    label: "Satisfied",
+    icon: Smile,
+    selected: "border-emerald-500 bg-emerald-500 text-white shadow-sm",
+    idle: "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-100",
+  },
+  {
+    value: "moderately_satisfied",
+    label: "Moderately",
+    icon: Meh,
+    selected: "border-amber-500 bg-amber-500 text-white shadow-sm",
+    idle: "border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/60 dark:text-amber-100",
+  },
+  {
+    value: "unsatisfied",
+    label: "Unsatisfied",
+    icon: Frown,
+    selected: "border-rose-500 bg-rose-500 text-white shadow-sm",
+    idle: "border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-100",
+  },
+] as const;
+
+const formatDate = (value?: string | Date) => {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "—" : format(date, "d MMM yyyy, HH:mm");
+};
+
+function Panel({ icon: Icon, color, title, children }: { icon: LucideIcon; color: TileColor; title: string; children: ReactNode }) {
+  return (
+    <section className="space-y-3 rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+      <h3 className="flex items-center gap-2 text-sm font-semibold">
+        <span className={cn("flex size-7 items-center justify-center rounded-lg", tile[color].icon)}>
+          <Icon className="size-4" />
+        </span>
+        {title}
+      </h3>
+      {children}
+    </section>
+  );
+}
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="space-y-0.5">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-sm font-medium">{children}</div>
+    </div>
+  );
 }
 
 export default function OrderReviewDialog({
@@ -54,12 +124,12 @@ export default function OrderReviewDialog({
   const companyId = companyID ? parseInt(companyID, 10) : undefined;
 
   const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [satisfactionStatus, setSatisfactionStatus] = useState<string>("");
   const [followUpCallDate, setFollowUpCallDate] = useState<string>("");
   const [birthday, setBirthday] = useState<string>("");
 
-  // Fetch order details
   const { data: orderData, isLoading: orderLoading } = useQuery({
     queryKey: ["woo-order", orderId],
     queryFn: () => getWooCommerceOrder(orderId),
@@ -68,14 +138,14 @@ export default function OrderReviewDialog({
 
   const order: WooOrder | undefined = orderData?.data;
 
-  // Fetch customer data to get birthday
   const { data: customerData } = useQuery({
     queryKey: ["customer", customerPhone, companyId],
     queryFn: () => getCustomer(customerPhone, companyId),
     enabled: !!customerPhone && open,
   });
+  const customer = customerData?.data?.customer;
+  const customerName = customer ? `${customer.first_name ?? ""} ${customer.last_name ?? ""}`.trim() : "";
 
-  // Pre-fill birthday when customer data is loaded
   useEffect(() => {
     if (customerData?.data?.customer?.birthday && open) {
       const customerBirthday = customerData.data.customer.birthday;
@@ -89,10 +159,10 @@ export default function OrderReviewDialog({
     }
   }, [customerData, open]);
 
-  // Reset form when dialog closes
   useEffect(() => {
     if (!open) {
       setRating(5);
+      setHoverRating(null);
       setComment("");
       setSatisfactionStatus("");
       setFollowUpCallDate("");
@@ -103,7 +173,6 @@ export default function OrderReviewDialog({
   const createMut = useMutation({
     mutationFn: (data: CreateReviewRequest) => createReview(data),
     onSuccess: async () => {
-      // Update customer birthday if it was changed
       const currentBirthday = customerData?.data?.customer?.birthday;
       const currentBirthdayStr = currentBirthday
         ? typeof currentBirthday === "string"
@@ -127,8 +196,8 @@ export default function OrderReviewDialog({
       queryClient.invalidateQueries({ queryKey: ["reviews"] });
       queryClient.invalidateQueries({ queryKey: ["woo-order", orderId] });
       toast({
-        title: "Success",
-        description: "Review created successfully",
+        title: "Review saved",
+        description: customerName ? `Recorded for ${customerName}.` : "Review created successfully",
       });
       onOpenChange(false);
     },
@@ -173,399 +242,262 @@ export default function OrderReviewDialog({
     createMut.mutate(data);
   };
 
-  const formatDate = (dateString: string | Date) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
-
-  const getStatusColor = (status: string) => {
-    const statusLower = status.toLowerCase();
-    if (statusLower.includes("delivered") || statusLower.includes("livre"))
-      return "bg-green-100 text-green-800";
-    if (statusLower.includes("shipped") || statusLower.includes("expedie"))
-      return "bg-blue-100 text-blue-800";
-    if (statusLower.includes("pending") || statusLower.includes("en attente"))
-      return "bg-yellow-100 text-yellow-800";
-    if (statusLower.includes("failed") || statusLower.includes("echouee"))
-      return "bg-red-100 text-red-800";
-    if (
-      statusLower.includes("processing") ||
-      statusLower.includes("preparation")
-    )
-      return "bg-purple-100 text-purple-800";
-    return "bg-gray-100 text-gray-800";
-  };
+  const shown = hoverRating ?? rating;
+  const ratingStyle = RATING_LABELS[shown - 1];
+  const status = order ? orderStatus(order.order_status) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl max-h-[95vh] p-0">
-        <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Order Details & Review - #{order?.number || orderId}
-          </DialogTitle>
-          <DialogDescription>
-            View order information and submit a customer review
-          </DialogDescription>
+      <DialogContent className={cn("flex max-h-[95vh] max-w-6xl flex-col gap-0 overflow-hidden p-0 sm:p-0", liquidGlass, "bg-white/80 dark:bg-slate-950/80")}>
+        <DialogHeader className="space-y-3 border-b border-white/40 bg-gradient-to-r from-amber-100/80 via-orange-50/60 to-rose-100/60 px-5 py-4 pr-12 text-left dark:border-white/10 dark:from-amber-500/15 dark:via-orange-500/10 dark:to-rose-500/10">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-500/30">
+              <MessageSquareQuote className="size-5" />
+            </span>
+            <div className="min-w-0 space-y-0.5">
+              <DialogTitle>Review order #{order?.number || orderId}</DialogTitle>
+              <DialogDescription>Check the order, then record how the customer felt about it.</DialogDescription>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-2.5 py-1 font-medium tabular-nums shadow-sm dark:bg-white/10">
+              <Phone className="size-3.5 text-sky-600 dark:text-sky-300" />
+              {customerPhone}
+              {customerName && <span className="font-normal text-muted-foreground">· {customerName}</span>}
+            </span>
+            {status && (
+              <Badge variant="outline" className={cn("rounded-full px-2.5 py-1", status.chip)}>
+                {status.label}
+              </Badge>
+            )}
+            {order && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-2.5 py-1 font-semibold tabular-nums text-emerald-700 shadow-sm dark:bg-white/10 dark:text-emerald-300">
+                {order.final_price || order.total} {order.currency || "DZD"}
+              </span>
+            )}
+          </div>
         </DialogHeader>
 
-        <div className="flex h-[calc(95vh-140px)] overflow-hidden">
-          {/* Left Side - Order Details */}
-          <div className="flex-1 overflow-y-auto px-6 pb-6 border-r">
+        <div className="grid min-h-0 flex-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_24rem]">
+          <div className="min-h-0 space-y-4 overflow-y-auto p-5">
             {orderLoading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-muted-foreground">Loading order details...</div>
+              <div className="space-y-3" aria-busy="true">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="h-20 rounded-xl" />
+                  ))}
+                </div>
+                <Skeleton className="h-40 rounded-xl" />
+                <Skeleton className="h-40 rounded-xl" />
               </div>
             ) : order ? (
-              <div className="space-y-6">
-                {/* Order Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Order Status
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Badge
-                        className={getStatusColor(order.order_status)}
-                        variant="secondary"
-                      >
-                        {order.order_status}
-                      </Badge>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Total Amount
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-primary">
-                        {order.final_price || order.total} {order.currency}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Tracking
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Badge variant="outline" className="font-mono">
-                        {order.tracking_number || "N/A"}
-                      </Badge>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm font-medium text-muted-foreground">
-                        Created
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-sm text-muted-foreground">
-                        {formatDate(order.date_created)}
-                      </div>
-                    </CardContent>
-                  </Card>
+              <>
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                  {[
+                    { label: "Status", value: status?.label ?? order.order_status, color: "indigo" as const },
+                    { label: "Total", value: `${order.final_price || order.total} ${order.currency || "DZD"}`, color: "emerald" as const },
+                    { label: "Tracking", value: order.tracking_number || "—", color: "violet" as const, mono: true },
+                    { label: "Created", value: formatDate(order.date_created), color: "sky" as const },
+                  ].map((stat) => (
+                    <div key={stat.label} className={cn("rounded-xl border p-3", tile[stat.color].surface)}>
+                      <div className="text-xs font-medium opacity-70">{stat.label}</div>
+                      <div className={cn("mt-1 truncate font-semibold", stat.mono && "font-mono text-sm")}>{stat.value}</div>
+                    </div>
+                  ))}
                 </div>
 
-                {/* Order Info */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Info className="h-4 w-4" />
-                      Order Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Order ID</div>
-                        <div className="font-medium">{order.id}</div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Woo ID</div>
-                        <div className="font-medium">{order.woo_id}</div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Status</div>
-                        <Badge variant="outline">{order.status}</Badge>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Amount</div>
-                        <div className="font-medium">{order.amount}</div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Payment Method</div>
-                        <div className="font-medium">
-                          {order.payment_method_title || order.payment_method || "-"}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-muted-foreground">Modified</div>
-                        <div className="text-muted-foreground">
-                          {formatDate(order.date_modified)}
-                        </div>
+                <Panel icon={Info} color="indigo" title="Order information">
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    <Field label="Order ID">{order.id}</Field>
+                    <Field label="Woo ID">{order.woo_id}</Field>
+                    <Field label="Woo status">{order.status}</Field>
+                    <Field label="Amount">{order.amount}</Field>
+                    <Field label="Payment method">{order.payment_method_title || order.payment_method || "—"}</Field>
+                    <Field label="Modified">{formatDate(order.date_modified)}</Field>
+                  </div>
+                </Panel>
+
+                <Panel icon={User} color="sky" title="Customer">
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <Field label="Customer ID">{order.customer_id || "—"}</Field>
+                    <Field label="Email">{order.customer_email || "—"}</Field>
+                    <Field label="Primary phone">{order.customer_phone || "—"}</Field>
+                    <Field label="Secondary phone">{order.customer_phone_2 || "—"}</Field>
+                  </div>
+                </Panel>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <Panel icon={CreditCard} color="violet" title="Billing address">
+                    <div className="space-y-0.5 text-sm">
+                      <div className="font-medium">{order.billing_name || "—"}</div>
+                      <div className="text-muted-foreground">
+                        {[order.billing_address_1, order.billing_city].filter(Boolean).join(", ") || "—"}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Customer Info */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Customer Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">
-                            Customer ID
-                          </div>
-                          <Badge variant="outline">{order.customer_id}</Badge>
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">Email</div>
-                          <div className="font-medium">
-                            {order.customer_email || "-"}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">
-                            Primary Phone
-                          </div>
-                          <div className="font-medium">{order.customer_phone}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground mb-1">
-                            Secondary Phone
-                          </div>
-                          <div className="font-medium">
-                            {order.customer_phone_2 || "-"}
-                          </div>
-                        </div>
+                  </Panel>
+                  <Panel icon={Truck} color="emerald" title="Shipping address">
+                    <div className="space-y-0.5 text-sm">
+                      <div className="font-medium">{order.shipping_name || "—"}</div>
+                      <div className="text-muted-foreground">
+                        {[order.shipping_address_1, order.shipping_city].filter(Boolean).join(", ") || "—"}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Billing & Shipping */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <CreditCard className="h-4 w-4" />
-                        Billing Address
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="font-medium">{order.billing_name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {order.billing_address_1}, {order.billing_city}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Truck className="h-4 w-4" />
-                        Shipping Address
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="font-medium">{order.shipping_name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {order.shipping_address_1}, {order.shipping_city}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  </Panel>
                 </div>
 
-                {/* Line Items */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <ShoppingCart className="h-4 w-4" />
-                      Order Items ({order.line_items?.length || 0})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {(order.line_items ?? []).length === 0 ? (
-                        <div className="text-center text-muted-foreground py-4">
-                          No items
-                        </div>
-                      ) : (
-                        order.line_items.map((item, idx) => (
-                          <div
-                            key={item.id ?? idx}
-                            className="flex items-center justify-between p-3 border rounded-lg"
-                          >
-                            <div className="flex-1">
-                              <div className="font-medium">{item.name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                SKU: {item.sku || "N/A"} • Qty: {item.quantity}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-medium">{item.price}</div>
-                              <div className="text-sm text-muted-foreground">
-                                Total: {item.total}
-                              </div>
+                <Panel icon={ShoppingCart} color="amber" title={`Items (${order.line_items?.length || 0})`}>
+                  {(order.line_items ?? []).length === 0 ? (
+                    <p className="py-2 text-sm text-muted-foreground">No items</p>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {order.line_items.map((item, idx) => (
+                        <div
+                          key={item.id ?? idx}
+                          className="flex items-center justify-between gap-3 rounded-lg bg-amber-50/70 px-3 py-2 dark:bg-amber-500/10"
+                        >
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-medium">{item.name}</div>
+                            <div className="text-xs text-muted-foreground">
+                              SKU {item.sku || "N/A"} · Qty {item.quantity}
                             </div>
                           </div>
-                        ))
-                      )}
+                          <div className="shrink-0 text-right text-sm tabular-nums">
+                            <div className="font-medium">{item.price}</div>
+                            <div className="text-xs text-muted-foreground">Total {item.total}</div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  )}
+                </Panel>
+              </>
             ) : (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-muted-foreground">Order not found</div>
+              <div className="flex flex-col items-center gap-2 py-16 text-center">
+                <span className={cn("flex size-11 items-center justify-center rounded-xl", tile.slate.icon)}>
+                  <Package className="size-5" />
+                </span>
+                <p className="text-sm font-medium">Order not found</p>
               </div>
             )}
           </div>
 
-          {/* Vertical Divider */}
-          <div className="w-px bg-border" />
-
-          {/* Right Side - Review Form */}
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Record Review</h3>
+          <div className="min-h-0 space-y-5 overflow-y-auto border-t border-white/40 bg-white/40 p-5 dark:border-white/10 dark:bg-white/[0.03] lg:border-l lg:border-t-0">
+            <div className="space-y-2">
+              <Label>Rating</Label>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex gap-1" role="radiogroup" aria-label="Rating" onMouseLeave={() => setHoverRating(null)}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      role="radio"
+                      aria-checked={rating === star}
+                      aria-label={`${star} star${star === 1 ? "" : "s"}`}
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHoverRating(star)}
+                      className="cursor-pointer rounded-md p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 motion-safe:transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={cn(
+                          "size-8 motion-safe:transition-colors",
+                          star <= shown ? "fill-amber-400 text-amber-400 drop-shadow-sm" : "text-slate-300 dark:text-slate-600"
+                        )}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", ratingStyle.chip)}>
+                  {ratingStyle.label}
+                </span>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <div>
-                  <Label>Customer Phone</Label>
-                  <Input value={customerPhone} disabled />
-                </div>
-                {orderId && (
-                  <div>
-                    <Label>Order ID</Label>
-                    <Input value={orderId} disabled />
-                  </div>
-                )}
-                <div>
-                  <Label>Rating</Label>
-                  <div className="flex gap-2 mt-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setRating(star)}
-                        className="focus:outline-none"
-                      >
-                        <Star
-                          className={`h-8 w-8 ${
-                            star <= rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <Label>Customer Satisfaction</Label>
-                  <RadioGroup
-                    value={satisfactionStatus}
-                    onValueChange={setSatisfactionStatus}
-                    className="mt-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="satisfied" id="satisfied" />
-                      <Label htmlFor="satisfied" className="font-normal cursor-pointer">
-                        Satisfied
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="moderately_satisfied" id="moderately_satisfied" />
-                      <Label htmlFor="moderately_satisfied" className="font-normal cursor-pointer">
-                        Moderately Satisfied
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="unsatisfied" id="unsatisfied" />
-                      <Label htmlFor="unsatisfied" className="font-normal cursor-pointer">
-                        Unsatisfied
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                <div>
-                  <Label>Comment</Label>
-                  <Textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    rows={4}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="follow-up-date">Follow-up Call Date (Optional)</Label>
-                  <Input
-                    id="follow-up-date"
-                    type="date"
-                    value={followUpCallDate}
-                    onChange={(e) => setFollowUpCallDate(e.target.value)}
-                    className="w-full [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                    min={format(new Date(), "yyyy-MM-dd")}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="birthday-date">Customer Birthday (Optional)</Label>
-                  <Input
-                    id="birthday-date"
-                    type="date"
-                    value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                    className="w-full [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                    max={format(new Date(), "yyyy-MM-dd")}
-                  />
-                </div>
+            <div className="space-y-2">
+              <Label>Satisfaction</Label>
+              <div role="radiogroup" aria-label="Customer satisfaction" className="grid grid-cols-3 gap-2">
+                {SATISFACTION.map((option) => {
+                  const Icon = option.icon;
+                  const selected = satisfactionStatus === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => setSatisfactionStatus(selected ? "" : option.value)}
+                      className={cn(
+                        "flex cursor-pointer flex-col items-center gap-1 rounded-xl border px-2 py-2.5 text-xs font-medium motion-safe:transition-colors",
+                        selected ? option.selected : option.idle
+                      )}
+                    >
+                      <Icon className="size-5" />
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="order-review-comment">Comment</Label>
+              <Textarea
+                id="order-review-comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows={4}
+                placeholder="What did the customer say?"
+                className="resize-none bg-white/70 focus-visible:ring-amber-400 dark:bg-white/5"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="space-y-2">
+                <Label htmlFor="order-review-follow-up" className="flex items-center gap-1.5">
+                  <CalendarClock className="size-3.5 text-violet-500" />
+                  Follow-up call
+                </Label>
+                <Input
+                  id="order-review-follow-up"
+                  type="date"
+                  value={followUpCallDate}
+                  onChange={(e) => setFollowUpCallDate(e.target.value)}
+                  min={format(new Date(), "yyyy-MM-dd")}
+                  className="bg-white/70 focus-visible:ring-violet-400 dark:bg-white/5"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="order-review-birthday" className="flex items-center gap-1.5">
+                  <Cake className="size-3.5 text-pink-500" />
+                  Birthday
+                </Label>
+                <Input
+                  id="order-review-birthday"
+                  type="date"
+                  value={birthday}
+                  onChange={(e) => setBirthday(e.target.value)}
+                  max={format(new Date(), "yyyy-MM-dd")}
+                  className="bg-white/70 focus-visible:ring-pink-400 dark:bg-white/5"
+                />
               </div>
             </div>
           </div>
         </div>
 
-        <DialogFooter className="px-6 pb-6 pt-4 border-t">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="gap-2 border-t border-white/40 px-5 py-3 dark:border-white/10 sm:space-x-0">
+          <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
+            type="button"
             onClick={handleSubmit}
             disabled={createMut.isPending || orderLoading}
+            className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-500/25 hover:from-amber-400 hover:to-orange-400"
           >
-            {createMut.isPending ? "Saving..." : "Save Review"}
+            {createMut.isPending ? <Loader2 className="animate-spin" /> : <Star className="fill-white" />}
+            {createMut.isPending ? "Saving…" : "Save review"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
-
-
-

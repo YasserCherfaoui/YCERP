@@ -87,6 +87,7 @@ export interface OrderDeliveryInfo {
   line_items?: OrderLineItemInfo[];
   has_review?: boolean;
   delivery_contact_status?: string;
+  shipping_provider?: "yalidine" | "noest" | "my_companies";
 }
 
 export interface OrderLineItemInfo {

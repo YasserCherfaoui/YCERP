@@ -1,17 +1,23 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { getManagerOrderStatusCount, getTakenByOrderStatusCount } from "@/services/woocommerce-service";
 import { useQuery } from "@tanstack/react-query";
 import {
-    Car,
-    CheckCircle,
-    Clock,
-    Loader2,
-    Package,
-    RotateCcw,
-    Truck,
-    Undo2,
-    User,
-    XCircle
+  AlertTriangle,
+  CalendarDays,
+  CheckCircle2,
+  Crown,
+  MapPin,
+  Package,
+  Rocket,
+  RotateCcw,
+  Send,
+  Truck,
+  Undo2,
+  Users,
+  XCircle,
+  type LucideIcon,
 } from "lucide-react";
 
 interface ManagerStatusCardsProps {
@@ -24,125 +30,125 @@ interface ManagerStatusCardsProps {
   groupBy?: "confirmed_by" | "taken_by";
 }
 
-const STATUS_COLORS: Record<string, { 
-  bg: string; 
-  text: string; 
-  border: string; 
-  bgDark: string; 
-  textDark: string; 
-  borderDark: string;
-  icon: React.ReactNode;
-}> = {
+// Same order, colors and icons as the stage tiles on the Orders desk.
+const STATUSES: Record<string, { label: string; icon: LucideIcon; bar: string; tile: string; icon_bg: string }> = {
   unconfirmed: {
-    bg: "bg-gray-100 dark:bg-gray-800",
-    text: "text-gray-800 dark:text-gray-200",
-    border: "border-gray-300 dark:border-gray-600",
-    bgDark: "bg-gray-800",
-    textDark: "text-gray-200",
-    borderDark: "border-gray-600",
-    icon: <Clock className="w-4 h-4" />,
+    label: "Unconfirmed",
+    icon: Package,
+    bar: "bg-indigo-400",
+    tile: "border-indigo-200/80 bg-indigo-100/80 text-indigo-950 dark:border-indigo-400/30 dark:bg-indigo-500/20 dark:text-indigo-50",
+    icon_bg: "bg-indigo-200/80 text-indigo-800 dark:bg-indigo-400/20 dark:text-indigo-100",
   },
   packing: {
-    bg: "bg-blue-100 dark:bg-blue-900/30",
-    text: "text-blue-800 dark:text-blue-200",
-    border: "border-blue-300 dark:border-blue-600",
-    bgDark: "bg-blue-900/30",
-    textDark: "text-blue-200",
-    borderDark: "border-blue-600",
-    icon: <Package className="w-4 h-4" />,
+    label: "Packing",
+    icon: Package,
+    bar: "bg-blue-400",
+    tile: "border-blue-200/80 bg-blue-100/80 text-blue-950 dark:border-blue-400/30 dark:bg-blue-500/20 dark:text-blue-50",
+    icon_bg: "bg-blue-200/80 text-blue-800 dark:bg-blue-400/20 dark:text-blue-100",
   },
   dispaching: {
-    bg: "bg-purple-100 dark:bg-purple-900/30",
-    text: "text-purple-800 dark:text-purple-200",
-    border: "border-purple-300 dark:border-purple-600",
-    bgDark: "bg-purple-900/30",
-    textDark: "text-purple-200",
-    borderDark: "border-purple-600",
-    icon: <Truck className="w-4 h-4" />,
+    label: "Dispatching",
+    icon: Truck,
+    bar: "bg-violet-400",
+    tile: "border-violet-200/80 bg-violet-100/80 text-violet-950 dark:border-violet-400/30 dark:bg-violet-500/20 dark:text-violet-50",
+    icon_bg: "bg-violet-200/80 text-violet-800 dark:bg-violet-400/20 dark:text-violet-100",
   },
   deliviring: {
-    bg: "bg-yellow-100 dark:bg-yellow-900/30",
-    text: "text-yellow-800 dark:text-yellow-200",
-    border: "border-yellow-300 dark:border-yellow-600",
-    bgDark: "bg-yellow-900/30",
-    textDark: "text-yellow-200",
-    borderDark: "border-yellow-600",
-    icon: <Car className="w-4 h-4" />,
-  },
-  delivered: {
-    bg: "bg-green-100 dark:bg-green-900/30",
-    text: "text-green-800 dark:text-green-200",
-    border: "border-green-300 dark:border-green-600",
-    bgDark: "bg-green-900/30",
-    textDark: "text-green-200",
-    borderDark: "border-green-600",
-    icon: <CheckCircle className="w-4 h-4" />,
-  },
-  returning: {
-    bg: "bg-orange-100 dark:bg-orange-900/30",
-    text: "text-orange-800 dark:text-orange-200",
-    border: "border-orange-300 dark:border-orange-600",
-    bgDark: "bg-orange-900/30",
-    textDark: "text-orange-200",
-    borderDark: "border-orange-600",
-    icon: <RotateCcw className="w-4 h-4" />,
-  },
-  returned: {
-    bg: "bg-red-100 dark:bg-red-900/30",
-    text: "text-red-800 dark:text-red-200",
-    border: "border-red-300 dark:border-red-600",
-    bgDark: "bg-red-900/30",
-    textDark: "text-red-200",
-    borderDark: "border-red-600",
-    icon: <Undo2 className="w-4 h-4" />,
-  },
-  cancelled: {
-    bg: "bg-slate-100 dark:bg-slate-800",
-    text: "text-slate-800 dark:text-slate-200",
-    border: "border-slate-300 dark:border-slate-600",
-    bgDark: "bg-slate-800",
-    textDark: "text-slate-200",
-    borderDark: "border-slate-600",
-    icon: <XCircle className="w-4 h-4" />,
-  },
-  relaunched: {
-    bg: "bg-indigo-100 dark:bg-indigo-900/30",
-    text: "text-indigo-800 dark:text-indigo-200",
-    border: "border-indigo-300 dark:border-indigo-600",
-    bgDark: "bg-indigo-900/30",
-    textDark: "text-indigo-200",
-    borderDark: "border-indigo-600",
-    icon: <RotateCcw className="w-4 h-4" />,
+    label: "Delivering",
+    icon: Send,
+    bar: "bg-amber-400",
+    tile: "border-amber-200/80 bg-amber-100/85 text-amber-950 dark:border-amber-400/30 dark:bg-amber-500/20 dark:text-amber-50",
+    icon_bg: "bg-amber-200/80 text-amber-900 dark:bg-amber-400/20 dark:text-amber-100",
   },
   orphaned: {
-    bg: "bg-amber-100 dark:bg-amber-900/30",
-    text: "text-amber-800 dark:text-amber-200",
-    border: "border-amber-300 dark:border-amber-600",
-    bgDark: "bg-amber-900/30",
-    textDark: "text-amber-200",
-    borderDark: "border-amber-600",
-    icon: <RotateCcw className="w-4 h-4" />,
+    label: "Orphaned",
+    icon: AlertTriangle,
+    bar: "bg-yellow-400",
+    tile: "border-yellow-200/80 bg-yellow-100/90 text-yellow-950 dark:border-yellow-400/30 dark:bg-yellow-500/20 dark:text-yellow-50",
+    icon_bg: "bg-yellow-200/90 text-yellow-900 dark:bg-yellow-400/20 dark:text-yellow-100",
+  },
+  delivered: {
+    label: "Delivered",
+    icon: CheckCircle2,
+    bar: "bg-emerald-500",
+    tile: "border-emerald-200/80 bg-emerald-100/80 text-emerald-950 dark:border-emerald-400/30 dark:bg-emerald-500/20 dark:text-emerald-50",
+    icon_bg: "bg-emerald-200/80 text-emerald-900 dark:bg-emerald-400/20 dark:text-emerald-100",
+  },
+  returning: {
+    label: "Returning",
+    icon: RotateCcw,
+    bar: "bg-orange-400",
+    tile: "border-orange-200/80 bg-orange-100/85 text-orange-950 dark:border-orange-400/30 dark:bg-orange-500/20 dark:text-orange-50",
+    icon_bg: "bg-orange-200/80 text-orange-900 dark:bg-orange-400/20 dark:text-orange-100",
+  },
+  returned: {
+    label: "Returned",
+    icon: Undo2,
+    bar: "bg-rose-500",
+    tile: "border-rose-200/80 bg-rose-100/80 text-rose-950 dark:border-rose-400/30 dark:bg-rose-500/20 dark:text-rose-50",
+    icon_bg: "bg-rose-200/80 text-rose-900 dark:bg-rose-400/20 dark:text-rose-100",
+  },
+  cancelled: {
+    label: "Cancelled",
+    icon: XCircle,
+    bar: "bg-fuchsia-400",
+    tile: "border-fuchsia-200/80 bg-fuchsia-100/80 text-fuchsia-950 dark:border-fuchsia-400/30 dark:bg-fuchsia-500/20 dark:text-fuchsia-50",
+    icon_bg: "bg-fuchsia-200/80 text-fuchsia-900 dark:bg-fuchsia-400/20 dark:text-fuchsia-100",
+  },
+  relaunched: {
+    label: "Relaunched",
+    icon: Rocket,
+    bar: "bg-sky-400",
+    tile: "border-sky-200/80 bg-sky-100/80 text-sky-950 dark:border-sky-400/30 dark:bg-sky-500/20 dark:text-sky-50",
+    icon_bg: "bg-sky-200/80 text-sky-900 dark:bg-sky-400/20 dark:text-sky-100",
   },
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  unconfirmed: "Unconfirmed",
-  packing: "Packing",
-  dispaching: "Dispatching",
-  deliviring: "Delivering",
-  delivered: "Delivered",
-  returning: "Returning",
-  returned: "Returned",
-  cancelled: "Cancelled",
-  relaunched: "Relaunched",
-  orphaned: "Orphaned",
+const STATUS_ORDER = Object.keys(STATUSES);
+
+const FALLBACK_STATUS = {
+  label: "",
+  icon: Package,
+  bar: "bg-slate-400",
+  tile: "border-slate-200/80 bg-slate-100/80 text-slate-950 dark:border-slate-400/30 dark:bg-slate-500/20 dark:text-slate-50",
+  icon_bg: "bg-slate-200/80 text-slate-800 dark:bg-slate-400/20 dark:text-slate-100",
 };
 
-export default function ManagerStatusCards({ 
-  dateFrom, 
-  dateTo, 
-  wilaya, 
-  shippingProvider, 
+const AVATAR_TONES = [
+  "from-indigo-500 to-violet-500",
+  "from-sky-500 to-indigo-500",
+  "from-emerald-500 to-teal-500",
+  "from-amber-500 to-orange-500",
+  "from-rose-500 to-pink-500",
+  "from-fuchsia-500 to-violet-500",
+];
+
+const RANK_STYLES = [
+  "bg-gradient-to-br from-amber-300 to-yellow-500 text-amber-950",
+  "bg-gradient-to-br from-slate-200 to-slate-400 text-slate-900",
+  "bg-gradient-to-br from-orange-300 to-amber-600 text-orange-950",
+];
+
+const glassCard =
+  "rounded-xl border border-white/50 bg-white/55 shadow-[0_8px_30px_-18px_rgba(15,23,42,0.45),inset_0_1px_0_0_rgba(255,255,255,0.7)] backdrop-blur-md dark:border-white/10 dark:bg-white/[0.05]";
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letters = `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`;
+  return letters ? letters.toUpperCase() : "?";
+}
+
+function rateTone(rate: number) {
+  if (rate >= 70) return "border-emerald-300 bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200";
+  if (rate >= 45) return "border-amber-300 bg-amber-100 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200";
+  return "border-rose-300 bg-rose-100 text-rose-800 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-200";
+}
+
+export default function ManagerStatusCards({
+  dateFrom,
+  dateTo,
+  wilaya,
+  shippingProvider,
   companyId,
   managerId,
   groupBy = "confirmed_by",
@@ -161,129 +167,166 @@ export default function ManagerStatusCards({
         company_id: companyId,
         manager_id: managerId,
       }),
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-3" aria-busy="true">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-36 w-full rounded-xl" />
+        ))}
       </div>
     );
   }
 
   if (isError || !data?.data) {
     return (
-      <div className="text-center py-8 text-red-600">
-        Failed to load manager status counts
+      <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-6 text-center text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-100">
+        Failed to load {isTakenBy ? "taken-by" : "manager"} statistics.
       </div>
     );
   }
 
-  const { managers } = data.data;
+  const managers = [...data.data.managers].sort((a, b) => b.total_orders - a.total_orders);
+  const filters = [
+    data.data.date_from || data.data.date_to
+      ? { icon: CalendarDays, text: [data.data.date_from, data.data.date_to].filter(Boolean).join(" → ") }
+      : null,
+    data.data.wilaya ? { icon: MapPin, text: data.data.wilaya } : null,
+    data.data.shipping_provider ? { icon: Truck, text: data.data.shipping_provider } : null,
+  ].filter((f): f is { icon: LucideIcon; text: string } => f !== null);
 
   if (managers.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        {isTakenBy
-          ? "No users found with taken orders in the selected period."
-          : "No managers found with confirmed orders in the selected period."}
+      <div className={cn("flex flex-col items-center gap-2 px-4 py-10 text-center", glassCard)}>
+        <span className="flex size-11 items-center justify-center rounded-xl bg-slate-200/80 text-slate-700 dark:bg-slate-400/20 dark:text-slate-100">
+          <Users className="size-5" />
+        </span>
+        <p className="text-sm font-medium">
+          {isTakenBy
+            ? "No users found with taken orders in the selected period."
+            : "No managers found with confirmed orders in the selected period."}
+        </p>
       </div>
     );
   }
 
-  return (
-    <div className="w-full mb-6 space-y-6">
-      {managers.map((manager) => {
-        const totalOrders = manager.total_orders;
-        
-        return (
-          <Card key={manager.manager_id} className="border-2 hover:shadow-lg transition-all duration-200">
-            <CardHeader className="pb-3 bg-muted/50">
-              <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <User className="w-5 h-5 text-primary" />
-                <div className="flex-1">
-                  <div>{manager.manager_name}</div>
-                  <div className="text-sm font-normal text-muted-foreground">{manager.manager_email}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm text-muted-foreground">{isTakenBy ? "Total Taken" : "Total Confirmed"}</div>
-                  <div className="text-2xl font-bold text-primary">{totalOrders.toLocaleString()}</div>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3">
-                {manager.status_counts.map((statusCount) => {
-                  const percentage = totalOrders > 0 
-                    ? ((statusCount.count / totalOrders) * 100).toFixed(1)
-                    : "0.0";
-                  const colors = STATUS_COLORS[statusCount.status] || STATUS_COLORS.unconfirmed;
-                  const label = STATUS_LABELS[statusCount.status] || statusCount.status;
+  const grandTotal = managers.reduce((sum, m) => sum + m.total_orders, 0);
 
+  return (
+    <TooltipProvider delayDuration={150}>
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-2.5 py-1 font-medium text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-100">
+            <Users className="size-3.5" />
+            {managers.length} {isTakenBy ? "users" : "managers"} · {grandTotal.toLocaleString()} {isTakenBy ? "taken" : "confirmed"}
+          </span>
+          {filters.map((filter) => {
+            const Icon = filter.icon;
+            return (
+              <span key={filter.text} className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-muted-foreground shadow-sm dark:bg-white/10">
+                <Icon className="size-3.5" />
+                {filter.text}
+              </span>
+            );
+          })}
+        </div>
+
+        {managers.map((manager, index) => {
+          const total = manager.total_orders;
+          const counts = [...manager.status_counts].sort(
+            (a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)
+          );
+          const delivered = counts.find((c) => c.status === "delivered")?.count ?? 0;
+          const deliveryRate = total > 0 ? (delivered / total) * 100 : 0;
+          const share = grandTotal > 0 ? (total / grandTotal) * 100 : 0;
+
+          return (
+            <article key={manager.manager_id} className={cn("space-y-3 p-4", glassCard)}>
+              <header className="flex flex-wrap items-center gap-3">
+                <div className="relative">
+                  <span
+                    className={cn(
+                      "flex size-10 items-center justify-center rounded-full bg-gradient-to-br text-sm font-semibold text-white shadow-sm",
+                      AVATAR_TONES[index % AVATAR_TONES.length]
+                    )}
+                  >
+                    {initials(manager.manager_name)}
+                  </span>
+                  {index < 3 && (
+                    <span
+                      className={cn(
+                        "absolute -bottom-1 -right-1 flex size-5 items-center justify-center rounded-full text-[10px] font-bold ring-2 ring-white dark:ring-slate-900",
+                        RANK_STYLES[index]
+                      )}
+                      aria-label={`Rank ${index + 1}`}
+                    >
+                      {index === 0 ? <Crown className="size-3" /> : index + 1}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-semibold">{manager.manager_name}</div>
+                  <div className="truncate text-xs text-muted-foreground">{manager.manager_email}</div>
+                </div>
+                <span className={cn("rounded-full border px-2.5 py-1 text-xs font-semibold tabular-nums", rateTone(deliveryRate))}>
+                  {deliveryRate.toFixed(1)}% delivered
+                </span>
+                <div className="text-right">
+                  <div className="text-2xl font-semibold leading-none tabular-nums tracking-tight">{total.toLocaleString()}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {isTakenBy ? "taken" : "confirmed"} · {share.toFixed(0)}% of team
+                  </div>
+                </div>
+              </header>
+
+              <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/10" role="img" aria-label="Status breakdown">
+                {counts
+                  .filter((c) => c.count > 0)
+                  .map((c) => {
+                    const style = STATUSES[c.status] ?? FALLBACK_STATUS;
+                    const pct = total > 0 ? (c.count / total) * 100 : 0;
+                    return (
+                      <Tooltip key={c.status}>
+                        <TooltipTrigger asChild>
+                          <span className={cn("h-full first:rounded-l-full last:rounded-r-full", style.bar)} style={{ width: `${pct}%` }} />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {style.label || c.status}: {c.count.toLocaleString()} ({pct.toFixed(1)}%)
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                {counts.map((c) => {
+                  const style = STATUSES[c.status] ?? FALLBACK_STATUS;
+                  const Icon = style.icon;
+                  const pct = total > 0 ? (c.count / total) * 100 : 0;
                   return (
                     <div
-                      key={statusCount.status}
-                      className={`${colors.border} border-2 rounded-lg p-3 ${colors.bg} hover:shadow-md transition-all`}
+                      key={c.status}
+                      className={cn("flex items-center gap-2.5 rounded-xl border px-2.5 py-2", style.tile, c.count === 0 && "opacity-50")}
                     >
-                      <div className={`flex items-center gap-1 mb-2 ${colors.text}`}>
-                        {colors.icon}
-                        <span className="text-xs font-semibold uppercase">{label}</span>
-                      </div>
-                      <div className="space-y-1">
-                        <div className={`text-xl font-bold ${colors.text}`}>
-                          {statusCount.count.toLocaleString()}
-                        </div>
-                        <div className={`text-xs font-medium ${colors.text} opacity-75`}>
-                          {percentage}%
-                        </div>
-                      </div>
+                      <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", style.icon_bg)}>
+                        <Icon className="size-4" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-base font-semibold leading-none tabular-nums">{c.count.toLocaleString()}</span>
+                        <span className="mt-1 block truncate text-[11px] font-medium opacity-75">
+                          {style.label || c.status} · {pct.toFixed(1)}%
+                        </span>
+                      </span>
                     </div>
                   );
                 })}
               </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-      
-      <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-        <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
-          {data.data.date_from && (
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-muted-foreground">From:</span>
-              <span className="font-semibold">{data.data.date_from}</span>
-            </div>
-          )}
-          {data.data.date_to && (
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-muted-foreground">To:</span>
-              <span className="font-semibold">{data.data.date_to}</span>
-            </div>
-          )}
-          {data.data.wilaya && (
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-muted-foreground">Wilaya:</span>
-              <span className="font-semibold">{data.data.wilaya}</span>
-            </div>
-          )}
-          {data.data.shipping_provider && (
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-muted-foreground">Provider:</span>
-              <span className="font-semibold">{data.data.shipping_provider}</span>
-            </div>
-          )}
-        </div>
+            </article>
+          );
+        })}
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
-
-
-
-
-
-
-
-
-

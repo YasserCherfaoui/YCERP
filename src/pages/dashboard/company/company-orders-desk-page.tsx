@@ -97,7 +97,9 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  ClipboardCheck,
   Copy,
+  Hand,
   Layers,
   Loader2,
   MoreHorizontal,
@@ -1021,12 +1023,20 @@ export default function CompanyOrdersDeskPage() {
         </div>
         </CardContent>
         {(isAdministrator || isModerator) && (
-          <Accordion type="single" collapsible className="px-6 pb-4">
-            <AccordionItem value="manager-statistics" className="border-none">
-              <AccordionTrigger className="rounded-lg px-2 py-2 text-sm hover:bg-muted/60 hover:no-underline">
-                Manager statistics
+          <Accordion type="single" collapsible className="space-y-2 px-6 pb-4">
+            <AccordionItem value="manager-statistics" className="rounded-xl border border-indigo-200/70 bg-indigo-50/50 px-3 dark:border-indigo-400/20 dark:bg-indigo-500/10">
+              <AccordionTrigger className="py-2.5 text-sm hover:no-underline">
+                <span className="flex items-center gap-2.5 text-left">
+                  <span className="flex size-8 items-center justify-center rounded-lg bg-indigo-200/80 text-indigo-800 dark:bg-indigo-400/20 dark:text-indigo-100">
+                    <ClipboardCheck className="size-4" />
+                  </span>
+                  <span>
+                    <span className="block font-semibold">Manager statistics</span>
+                    <span className="block text-xs font-normal text-muted-foreground">Orders each manager confirmed, by current status</span>
+                  </span>
+                </span>
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent className="pb-3">
                 <ManagerStatusCards
                   wilaya={selectedWilaya}
                   shippingProvider={selectedShippingProvider}
@@ -1036,11 +1046,19 @@ export default function CompanyOrdersDeskPage() {
                 />
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="taken-by-statistics" className="border-none">
-              <AccordionTrigger className="rounded-lg px-2 py-2 text-sm hover:bg-muted/60 hover:no-underline">
-                Taken-by statistics
+            <AccordionItem value="taken-by-statistics" className="rounded-xl border border-violet-200/70 bg-violet-50/50 px-3 dark:border-violet-400/20 dark:bg-violet-500/10">
+              <AccordionTrigger className="py-2.5 text-sm hover:no-underline">
+                <span className="flex items-center gap-2.5 text-left">
+                  <span className="flex size-8 items-center justify-center rounded-lg bg-violet-200/80 text-violet-800 dark:bg-violet-400/20 dark:text-violet-100">
+                    <Hand className="size-4" />
+                  </span>
+                  <span>
+                    <span className="block font-semibold">Taken-by statistics</span>
+                    <span className="block text-xs font-normal text-muted-foreground">Orders each user took, by current status</span>
+                  </span>
+                </span>
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent className="pb-3">
                 <ManagerStatusCards
                   groupBy="taken_by"
                   wilaya={selectedWilaya}

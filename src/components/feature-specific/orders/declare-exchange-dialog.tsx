@@ -57,8 +57,10 @@ import {
 } from "@/services/order-service";
 import { exchangeWooCommerceOrder } from "@/services/woocommerce-service";
 import { CarrierRadioGroup } from "@/components/feature-specific/orders/carrier-radio-group";
+import { liquidGlass, tile, tone } from "@/components/feature-specific/crm/crm-theme";
+import { cn } from "@/lib/utils";
 import { algerCities, cities } from "@/utils/algeria-cities";
-import { Loader2 } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, Loader2, MapPin, Package, Plus, Receipt, Repeat, Trash2, Truck, User } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -389,87 +391,90 @@ export default function DeclareExchangeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[100rem] w-fit overflow-y-auto max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>Declare Exchange for Order #{order.number}</DialogTitle>
+      <DialogContent className={cn("flex max-h-[92vh] w-full max-w-[100rem] flex-col gap-0 overflow-hidden p-0 sm:p-0", liquidGlass, "bg-white/85 dark:bg-slate-950/85")}>
+        <DialogHeader className="space-y-3 border-b border-white/40 bg-gradient-to-r from-violet-100/80 via-indigo-50/60 to-sky-100/60 px-5 py-4 pr-12 text-left dark:border-white/10 dark:from-violet-500/15 dark:via-indigo-500/10 dark:to-sky-500/10">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/30">
+              <Repeat className="size-5" />
+            </span>
+            <div className="min-w-0 space-y-0.5">
+              <DialogTitle>Declare exchange for order #{order.number}</DialogTitle>
+              <p className="text-sm text-muted-foreground">Pick what the courier collects, what you send back, and how it ships.</p>
+            </div>
+          </div>
         </DialogHeader>
         <Form {...form}>
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-5">
           {/* 1. Customer Details Header */}
-          <section className="mb-4 p-4 border rounded bg-muted">
-            <div className="font-semibold mb-2">Customer Details</div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <span className="font-medium">Name:</span> {order.billing_name}
-              </div>
-              <div>
-                <span className="font-medium">Phone:</span>{" "}
-                {order.customer_phone}
-              </div>
-              <div>
-                <span className="font-medium">City:</span>{" "}
-                {order.woo_shipping?.commune_name || "N/A"}
-              </div>
-              <div>
-                <span className="font-medium">Wilaya:</span>{" "}
-                {order.woo_shipping?.wilaya_name || "N/A"}
-              </div>
-              <div>
-                <span className="font-medium">Address:</span>{" "}
-                {order.billing_address_1}
-              </div>
-              <div>
-                <span className="font-medium">Selected Center:</span>{" "}
-                {order.woo_shipping?.selected_center || "N/A"}
-              </div><div>
-                <span className="font-medium">Selected Commune:</span>{" "}
-                {order.woo_shipping?.commune_name || "N/A"}
-              </div>
-              <div>
-                <span className="font-medium">Delivery Type:</span>{" "}
-                {order.woo_shipping?.delivery_type || "N/A"}
-              </div>
+          <section className="space-y-3 rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+            <h3 className="flex items-center gap-2 text-sm font-semibold">
+              <span className={cn("flex size-7 items-center justify-center rounded-lg", tile.sky.icon)}>
+                <User className="size-4" />
+              </span>
+              Customer
+            </h3>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {[
+                { label: "Name", value: order.billing_name },
+                { label: "Phone", value: order.customer_phone },
+                { label: "Wilaya", value: order.woo_shipping?.wilaya_name },
+                { label: "Commune", value: order.woo_shipping?.commune_name },
+                { label: "Address", value: order.billing_address_1 },
+                { label: "Delivery type", value: order.woo_shipping?.delivery_type },
+                { label: "Selected center", value: order.woo_shipping?.selected_center },
+              ].map((field) => (
+                <div key={field.label} className="space-y-0.5">
+                  <div className="text-xs text-muted-foreground">{field.label}</div>
+                  <div className="truncate text-sm font-medium capitalize">{field.value || "—"}</div>
+                </div>
+              ))}
             </div>
-          </section>
-          {/* 2. Previous Confirmed Items */}
-          <section className="mb-4">
-            <div className="font-semibold mb-2">Previous Confirmed Items</div>
-            {Array.isArray(order.confirmed_order_items) &&
-            order.confirmed_order_items.length > 0 ? (
-              <ul className="list-disc pl-6">
-                {order.confirmed_order_items.map((item: ConfirmedOrderItem) => (
-                  <li key={item.product_variant_id}>
-                    <span className="font-medium">QR:</span>{" "}
-                    {item.product_variant?.qr_code || "N/A"}{" "}
-                    <span className="font-medium">Qty:</span> {item.quantity}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted-foreground">No confirmed items.</div>
-            )}
-          </section>
-          {/* 3 & 4. Collectable Products and Exchange Products side by side */}
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
-            {/* Collectable Products */}
-            <section className="flex-1">
-              <div className="font-semibold mb-2">Collectable Products</div>
+            <div className="flex flex-wrap items-center gap-1.5 border-t border-black/5 pt-3 dark:border-white/10">
+              <span className="mr-1 text-xs font-medium text-muted-foreground">Previously confirmed</span>
               {Array.isArray(order.confirmed_order_items) &&
               order.confirmed_order_items.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full border text-sm">
+                order.confirmed_order_items.map((item: ConfirmedOrderItem) => (
+                  <span
+                    key={item.product_variant_id}
+                    className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-xs text-indigo-800 dark:border-indigo-800 dark:bg-indigo-950 dark:text-indigo-200"
+                  >
+                    <Package className="size-3" />
+                    <span className="font-mono">{item.product_variant?.qr_code || "N/A"}</span>
+                    <span className="font-semibold">×{item.quantity}</span>
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-muted-foreground">No confirmed items.</span>
+              )}
+            </div>
+          </section>
+          {/* 3 & 4. Collectable Products and Exchange Products side by side */}
+          <div className="flex flex-col gap-4 xl:flex-row">
+            {/* Collectable Products */}
+            <section className="flex-1 space-y-3 rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
+                <span className={cn("flex size-7 items-center justify-center rounded-lg", tile.rose.icon)}>
+                  <ArrowDownToLine className="size-4" />
+                </span>
+                Collect from customer
+              </h3>
+              {Array.isArray(order.confirmed_order_items) &&
+              order.confirmed_order_items.length > 0 ? (
+                <div className="overflow-x-auto rounded-lg border border-rose-100 dark:border-rose-500/20">
+                  <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="bg-muted">
-                        <th className="px-3 py-2 text-left">
-                          Product (QR Code)
+                      <tr className="bg-rose-50/80 text-rose-900 dark:bg-rose-500/10 dark:text-rose-100">
+                        <th className="px-3 py-2 text-left font-medium">
+                          Product (QR code)
                         </th>
-                        <th className="px-3 py-2 text-left">Quantity</th>
+                        <th className="px-3 py-2 text-left font-medium">Quantity</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-rose-100 dark:divide-rose-500/20">
                       {returnedItems.map(
                         (item) => (
                           <tr key={item.product_variant_id}>
-                            <td className="px-3 py-2">
+                            <td className="px-3 py-2 font-mono text-xs">
                               {inventoryData?.data?.items.find((i) => i.product_variant_id === item.product_variant_id)?.product_variant?.qr_code || "N/A"}
                             </td>
                             <td className="px-3 py-2">
@@ -477,6 +482,7 @@ export default function DeclareExchangeDialog({
                                 type="number"
                                 min={1}
                                 value={item.quantity ?? 0}
+                                className="h-8 w-20 bg-white/80 dark:bg-white/5"
                                 onChange={(e) => {
                                   setValue("returned_items", returnedItems.map((i) => i.product_variant_id === item.product_variant_id ? { ...i, quantity: Number(e.target.value) } : i));
                                 }}
@@ -489,34 +495,66 @@ export default function DeclareExchangeDialog({
                   </table>
                 </div>
               ) : (
-                <div className="text-muted-foreground">
+                <div className="text-sm text-muted-foreground">
                   No collectable products.
                 </div>
               )}
             </section>
             {/* Exchange Products */}
-            <section className="flex-1">
-              <div className="font-semibold mb-2">Exchange Products</div>
-              {/* TODO: Table for exchange products with ProductVariantCombobox, add/remove row logic */}
-              <div className="overflow-x-auto">
-                <Table className="min-w-full border text-sm">
+            <section className="flex-1 space-y-3 rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="flex items-center gap-2 text-sm font-semibold">
+                  <span className={cn("flex size-7 items-center justify-center rounded-lg", tile.emerald.icon)}>
+                    <ArrowUpFromLine className="size-4" />
+                  </span>
+                  Send to customer
+                </h3>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className={cn("h-8", tone.emerald)}
+                  onClick={() => {
+                    setValue("exchange_items", [
+                      ...watch("exchange_items"),
+                      {
+                        product_variant_id: 0,
+                        quantity: 1,
+                        discount: 0,
+                      },
+                    ]);
+                  }}
+                >
+                  <Plus />
+                  Add product
+                </Button>
+              </div>
+              <div className="overflow-x-auto rounded-lg border border-emerald-100 dark:border-emerald-500/20">
+                <Table className="min-w-full text-sm">
                   <TableHeader>
-                    <TableHead className="px-3 py-2 text-left">
-                      Product
-                    </TableHead>
-                    <TableHead className="px-3 py-2 text-left">
-                      Quantity
-                    </TableHead>
-                    <TableHead className="px-3 py-2 text-left">
-                      Discount
-                    </TableHead>
-                    <TableHead className="px-3 py-2"></TableHead>
+                    <TableRow className="bg-emerald-50/80 hover:bg-emerald-50/80 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/10">
+                      <TableHead className="h-9 px-3 text-left text-emerald-900 dark:text-emerald-100">
+                        Product
+                      </TableHead>
+                      <TableHead className="h-9 px-3 text-left text-emerald-900 dark:text-emerald-100">
+                        Quantity
+                      </TableHead>
+                      <TableHead className="h-9 px-3 text-left text-emerald-900 dark:text-emerald-100">
+                        Discount
+                      </TableHead>
+                      <TableHead className="h-9 px-3"></TableHead>
+                    </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {/* Placeholder for exchange items rows */}
-                    {/* To be replaced with dynamic row logic */}
+                    {watch("exchange_items").length === 0 && (
+                      <TableRow className="hover:bg-transparent">
+                        <TableCell colSpan={4} className="py-6 text-center text-sm text-muted-foreground">
+                          No products yet. Use “Add product”.
+                        </TableCell>
+                      </TableRow>
+                    )}
                     {watch("exchange_items").map((item, idx) => (
-                      <TableRow>
+                      <TableRow key={`exchange-item-${idx}`}>
                         <TableCell
                           className="px-3 py-2"
                           key={`exchange-item-${idx}-product-variant`}
@@ -545,7 +583,7 @@ export default function DeclareExchangeDialog({
                         >
                           <Input
                             type="number"
-                            className="w-16 border rounded px-1"
+                            className="h-8 w-20 bg-white/80 dark:bg-white/5"
                             min={1}
                             value={item.quantity}
                             onChange={(e) => {
@@ -562,7 +600,7 @@ export default function DeclareExchangeDialog({
                         >
                           <Input
                             type="number"
-                            className="w-16 border rounded px-1"
+                            className="h-8 w-20 bg-white/80 dark:bg-white/5"
                             min={0}
                             value={item.discount}
                             onChange={(e) => {
@@ -577,8 +615,12 @@ export default function DeclareExchangeDialog({
                           className="px-3 py-2"
                           key={`exchange-item-${idx}-remove`}
                         >
-                          <button
-                            className="text-red-500"
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-8 text-rose-600 hover:bg-rose-100 hover:text-rose-700 dark:text-rose-300 dark:hover:bg-rose-500/20"
+                            aria-label="Remove product"
                             onClick={() => {
                               setValue(
                                 "exchange_items",
@@ -588,35 +630,24 @@ export default function DeclareExchangeDialog({
                               );
                             }}
                           >
-                            Remove
-                          </button>
+                            <Trash2 className="size-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-                <Button
-                  className="mt-2 px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
-                  onClick={() => {
-                    setValue("exchange_items", [
-                      ...watch("exchange_items"),
-                      {
-                        product_variant_id: 0,
-                        quantity: 1,
-                        discount: 0,
-                      },
-                    ]);
-                  }}
-                >
-                  Add Product
-                </Button>
               </div>
             </section>
             {/* 5. Shipping Section */}
-            <section className="mb-4">
-              <div className="font-semibold mb-2">Shipping</div>
-              {/* Shipping Section */}
-              <section className="border rounded p-4 flex flex-col gap-4 min-w-[320px] xl:w-1/3">
+            <section className="space-y-3 rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] xl:w-[22rem] xl:shrink-0">
+              <h3 className="flex items-center gap-2 text-sm font-semibold">
+                <span className={cn("flex size-7 items-center justify-center rounded-lg", tile.violet.icon)}>
+                  <Truck className="size-4" />
+                </span>
+                Shipping
+              </h3>
+              <section className="flex flex-col gap-4">
                 <Combobox
                   items={
                     watch("shipping_provider") === "noest"
@@ -876,10 +907,19 @@ export default function DeclareExchangeDialog({
                     />
                   )}
                 {watch("shipping_provider") === "noest" && noestFees && (
-                  <div className="border rounded p-2 bg-muted/30 text-sm">
-                    <div>Home {noestFees.home} DZD</div>
-                    <div>Stop desk {noestFees.stopdesk} DZD</div>
-                    <div>Return {noestFees.return} DZD</div>
+                  <div className={cn("grid grid-cols-3 gap-2 rounded-lg border p-2 text-center text-xs", tile.sky.surface)}>
+                    <div>
+                      <div className="opacity-70">Home</div>
+                      <div className="font-semibold tabular-nums">{noestFees.home} DZD</div>
+                    </div>
+                    <div>
+                      <div className="opacity-70">Stop desk</div>
+                      <div className="font-semibold tabular-nums">{noestFees.stopdesk} DZD</div>
+                    </div>
+                    <div>
+                      <div className="opacity-70">Return</div>
+                      <div className="font-semibold tabular-nums">{noestFees.return} DZD</div>
+                    </div>
                   </div>
                 )}
                 {watch("shipping_provider") === "my_companies" && (
@@ -1001,8 +1041,9 @@ export default function DeclareExchangeDialog({
                           }
                         }
                         return communePricing ? (
-                          <div className="border rounded p-2 bg-muted/30">
-                            <div className="font-medium mb-1">
+                          <div className={cn("mt-1 rounded-lg border p-2 text-sm", tile.rose.surface)}>
+                            <div className="mb-1 flex items-center gap-1.5 font-medium">
+                              <MapPin className="size-3.5" />
                               {communePricing.commune_name}
                             </div>
                             <table className="text-sm w-full">
@@ -1104,12 +1145,16 @@ export default function DeclareExchangeDialog({
           </div>
 
           {/* 6. Summary */}
-          <section className="mb-4">
-            <div className="font-semibold mb-2">Summary</div>
-            {/* TODO: Summary calculation and dynamic text */}
-            <div className="mt-4 p-4 bg-muted/40 rounded flex flex-col gap-2">
+          <section className="space-y-3 rounded-xl border border-white/60 bg-white/60 p-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+            <h3 className="flex items-center gap-2 text-sm font-semibold">
+              <span className={cn("flex size-7 items-center justify-center rounded-lg", tile.amber.icon)}>
+                <Receipt className="size-4" />
+              </span>
+              Summary
+            </h3>
+            <div className="flex flex-col gap-2 text-sm">
               <div className="flex justify-between items-center">
-                <span className="font-semibold">Products Total</span>
+                <span className="font-semibold">Products total</span>
                 <span className="font-semibold">
                   {new Intl.NumberFormat("en-US", {
                     style: "currency",
@@ -1125,7 +1170,7 @@ export default function DeclareExchangeDialog({
                 </span>
               </div>
               <div className="flex justify-between items-center">
-                <span>Delivery Fee</span>
+                <span>Delivery fee</span>
                 <FormField
                   control={form.control}
                   name="first_delivery_cost"
@@ -1146,7 +1191,7 @@ export default function DeclareExchangeDialog({
                       <FormControl>
                         <input
                           type="number"
-                          className="max-w-[120px] text-right border rounded px-2 py-1 bg-background"
+                          className="h-8 w-[120px] rounded-md border border-input bg-white/80 px-2 text-right tabular-nums dark:bg-white/5"
                           value={field.value}
                           onChange={(e) => {
                             userEditedSecondDelivery.current = true;
@@ -1174,7 +1219,7 @@ export default function DeclareExchangeDialog({
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
                           }
-                          className="max-w-[120px] text-right"
+                          className="h-8 w-[120px] bg-white/80 text-right tabular-nums dark:bg-white/5"
                         />
                       </FormControl>
                       <FormMessage />
@@ -1182,9 +1227,9 @@ export default function DeclareExchangeDialog({
                   )}
                 />
               </div>
-              <div className="flex justify-between items-center text-lg font-bold mt-2">
+              <div className={cn("mt-1 flex items-center justify-between rounded-lg border px-3 py-2 text-lg font-bold", tile.emerald.surface)}>
                 <span>Total</span>
-                <span>
+                <span className="tabular-nums">
                   {(() => {
                     let returnTotals = returnedItems.reduce(
                       (sum, item) =>
@@ -1220,14 +1265,15 @@ export default function DeclareExchangeDialog({
               </div>
             </div>
           </section>
+          </div>
 
-          {/* TODO: Form submit button */}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="gap-2 border-t border-white/40 px-5 py-3 dark:border-white/10 sm:space-x-0">
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button
-              variant="default"
+              type="button"
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/25 hover:from-violet-500 hover:to-indigo-500"
               onClick={handleSubmit((data) =>
                 exchangeWooCommerceOrderMutation(data), (err) => {
                     console.error(err);
@@ -1236,7 +1282,8 @@ export default function DeclareExchangeDialog({
               )}
               disabled={isPending}
             >
-              {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit"}
+              {isPending ? <Loader2 className="animate-spin" /> : <Repeat />}
+              {isPending ? "Submitting…" : "Declare exchange"}
             </Button>
           </DialogFooter>
         </Form>
