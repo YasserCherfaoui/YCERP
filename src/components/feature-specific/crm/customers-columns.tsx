@@ -139,8 +139,7 @@ export const getCustomersColumns = (companyID?: string, franchiseId?: string): C
           {
             id: "sales_count",
             accessorKey: "sales_count",
-            header: () => <div className="text-right">Store sales</div>,
-            enableSorting: false,
+            header: sortableHeader("Store sales", "right"),
             cell: ({ row }) => (
               <div className="flex justify-end">
                 <span className="inline-flex items-center gap-1.5 rounded-md bg-sky-100 px-2 py-0.5 text-sm font-semibold tabular-nums text-sky-800 dark:bg-sky-500/20 dark:text-sky-100">

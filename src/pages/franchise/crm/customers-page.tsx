@@ -12,7 +12,7 @@ import { Customer } from "@/models/data/customer.model";
 import { createFranchiseCustomer, getFranchiseCustomers, syncFranchiseCustomers } from "@/services/customer-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OnChangeFn, SortingState } from "@tanstack/react-table";
-import { ArrowLeft, Plus, RefreshCw, Search, Users } from "lucide-react";
+import { ArrowLeft, Plus, RefreshCw, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -301,6 +301,7 @@ export default function FranchiseCustomersPage() {
                   <SelectItem value="name">Name</SelectItem>
                   <SelectItem value="phone">Phone</SelectItem>
                   <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="sales_count">Store Sales</SelectItem>
                   <SelectItem value="total_orders">Total Orders</SelectItem>
                   <SelectItem value="delivered_orders">Delivered Orders</SelectItem>
                   <SelectItem value="delivery_rate">Delivery Rate</SelectItem>
