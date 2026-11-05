@@ -1,4 +1,10 @@
 
+export interface FranchiseSoldBreakdown {
+  franchise_id: number;
+  franchise_name: string;
+  quantity: number;
+}
+
 export interface ProductSalesResponse {
   product_id: number;
   name: string;
@@ -6,8 +12,11 @@ export interface ProductSalesResponse {
   total_sold_quantity: number;
   total_sold_warehouse: number;
   total_sold_algiers: number;
+  total_sold_franchises: number;
+  franchise_sales: FranchiseSoldBreakdown[];
   total_delivered_woo_orders_yalidine: number;
   total_delivered_woo_orders_my_companies: number;
+  total_delivered_woo_orders_noest: number;
 }
 
 export interface VariantSalesResponse {
@@ -17,8 +26,11 @@ export interface VariantSalesResponse {
   sold_quantity: number;
   sold_warehouse: number;
   sold_algiers: number;
+  sold_franchises: number;
+  franchise_sales: FranchiseSoldBreakdown[];
   total_delivered_woo_orders_yalidine: number;
   total_delivered_woo_orders_my_companies: number;
+  total_delivered_woo_orders_noest: number;
 }
 export interface PaginationMeta {
   total_items: number;

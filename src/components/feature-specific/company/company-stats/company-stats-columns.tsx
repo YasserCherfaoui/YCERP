@@ -16,6 +16,7 @@ import {
 import { ProductSalesResponse } from "@/models/responses/company-stats.model";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { FranchiseSoldCell, totalDelivered } from "./franchise-sold-dialog";
 
 function SortHeader({
   label,
@@ -51,45 +52,71 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
     header: ({ column }) => <SortHeader label="Product" column={column} />,
     accessorKey: "name",
     id: "name",
+    cell: ({ row }) => (
+      <span className="font-medium">{row.original.name}</span>
+    ),
   },
   {
     header: "Variants",
     accessorKey: "variants",
     enableSorting: false,
     cell: ({ row }) => {
+      const variants = row.original.variants || [];
+      if (variants.length === 0) {
+        return <span className="text-xs text-muted-foreground">No variants</span>;
+      }
       return (
         <Accordion type="single" collapsible>
-          <AccordionItem value={row.original.product_id.toString()}>
-            <AccordionTrigger>{row.original.name}</AccordionTrigger>
+          <AccordionItem
+            value={row.original.product_id.toString()}
+            className="border-none"
+          >
+            <AccordionTrigger className="py-1 text-sm font-medium hover:no-underline">
+              {variants.length} variant{variants.length === 1 ? "" : "s"}
+            </AccordionTrigger>
             <AccordionContent>
-              <Table>
-                <TableHeader>
-                  <TableHead>Color</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>Sold Warehouse</TableHead>
-                  <TableHead>Sold Algiers</TableHead>
-                  <TableHead>Sold Quantity</TableHead>
-                  <TableHead>Delivered Yalidine</TableHead>
-                  <TableHead>Delivered My Companies</TableHead>
-                </TableHeader>
-                <TableBody>
-                  {row.original.variants.map((variant) => (
-                    <TableRow key={variant.product_variant_id}>
-                      <TableCell>{variant.color}</TableCell>
-                      <TableCell>{variant.size}</TableCell>
-                      <TableCell>{variant.sold_warehouse}</TableCell>
-                      <TableCell>{variant.sold_algiers}</TableCell>
-                      <TableCell>{variant.sold_quantity}</TableCell>
-                      <TableCell>
-                        {variant.total_delivered_woo_orders_yalidine}
-                      </TableCell>
-                      <TableCell>
-                        {variant.total_delivered_woo_orders_my_companies}
-                      </TableCell>
+              <div className="rounded-lg border bg-background/60">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Color</TableHead>
+                      <TableHead>Size</TableHead>
+                      <TableHead>Sold Franchises</TableHead>
+                      <TableHead>Delivered Yalidine</TableHead>
+                      <TableHead>Delivered My Companies</TableHead>
+                      <TableHead>Delivered NOEST</TableHead>
+                      <TableHead>Total Delivered</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {variants.map((variant) => (
+                      <TableRow key={variant.product_variant_id}>
+                        <TableCell className="font-medium">{variant.color}</TableCell>
+                        <TableCell>{variant.size}</TableCell>
+                        <TableCell>
+                          <FranchiseSoldCell
+                            total={variant.sold_franchises || 0}
+                            breakdown={variant.franchise_sales}
+                            title={`${row.original.name} · ${variant.color} ${variant.size}`}
+                          />
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          {(variant.total_delivered_woo_orders_yalidine || 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          {(variant.total_delivered_woo_orders_my_companies || 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="tabular-nums">
+                          {(variant.total_delivered_woo_orders_noest || 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="tabular-nums font-semibold">
+                          {totalDelivered(variant).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -98,24 +125,17 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
   },
   {
     header: ({ column }) => (
-      <SortHeader label="Total Sold Warehouse" column={column} />
+      <SortHeader label="Total Sold Franchises" column={column} />
     ),
-    accessorKey: "total_sold_warehouse",
-    id: "total_sold_warehouse",
-  },
-  {
-    header: ({ column }) => (
-      <SortHeader label="Total Sold Algiers" column={column} />
+    accessorKey: "total_sold_franchises",
+    id: "total_sold_franchises",
+    cell: ({ row }) => (
+      <FranchiseSoldCell
+        total={row.original.total_sold_franchises || 0}
+        breakdown={row.original.franchise_sales}
+        title={row.original.name}
+      />
     ),
-    accessorKey: "total_sold_algiers",
-    id: "total_sold_algiers",
-  },
-  {
-    header: ({ column }) => (
-      <SortHeader label="Total Sold Quantity" column={column} />
-    ),
-    accessorKey: "total_sold_quantity",
-    id: "total_sold_quantity",
   },
   {
     header: ({ column }) => (
@@ -123,6 +143,11 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
     ),
     accessorKey: "total_delivered_woo_orders_yalidine",
     id: "total_delivered_woo_orders_yalidine",
+    cell: ({ row }) => (
+      <span className="tabular-nums">
+        {(row.original.total_delivered_woo_orders_yalidine || 0).toLocaleString()}
+      </span>
+    ),
   },
   {
     header: ({ column }) => (
@@ -130,17 +155,34 @@ export const companyStatsColumns: ColumnDef<ProductSalesResponse>[] = [
     ),
     accessorKey: "total_delivered_woo_orders_my_companies",
     id: "total_delivered_woo_orders_my_companies",
+    cell: ({ row }) => (
+      <span className="tabular-nums">
+        {(row.original.total_delivered_woo_orders_my_companies || 0).toLocaleString()}
+      </span>
+    ),
+  },
+  {
+    header: ({ column }) => (
+      <SortHeader label="✅ Total Delivered NOEST" column={column} />
+    ),
+    accessorKey: "total_delivered_woo_orders_noest",
+    id: "total_delivered_woo_orders_noest",
+    cell: ({ row }) => (
+      <span className="tabular-nums">
+        {(row.original.total_delivered_woo_orders_noest || 0).toLocaleString()}
+      </span>
+    ),
   },
   {
     id: "total_delivered",
     header: ({ column }) => (
       <SortHeader label="✅ Total Delivered" column={column} />
     ),
-    accessorFn: (row) =>
-      row.total_delivered_woo_orders_yalidine +
-      row.total_delivered_woo_orders_my_companies,
-    cell: ({ row }) =>
-      row.original.total_delivered_woo_orders_yalidine +
-      row.original.total_delivered_woo_orders_my_companies,
+    accessorFn: (row) => totalDelivered(row),
+    cell: ({ row }) => (
+      <span className="tabular-nums font-semibold">
+        {totalDelivered(row.original).toLocaleString()}
+      </span>
+    ),
   },
 ];
