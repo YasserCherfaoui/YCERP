@@ -30,7 +30,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 const PAGE_SIZES = [20, 50];
-const SORT_KEYS = ["product_name", "name", "quantity", "broken_count"] as const;
+const SORT_KEYS = ["product_name", "name", "quantity", "all_locations", "broken_count", "cost"] as const;
 type StockFilter = "" | "out_of_stock" | "broken";
 
 export type InventoryCostMode = "first-price" | "franchise-price" | "both";
@@ -328,8 +328,7 @@ export default function WarehouseTable({
     if (showAllLocations) {
       defs.push({
         id: "all_locations",
-        header: "All locations",
-        enableSorting: false,
+        header: ({ column }) => <SortableHeader column={column} label="All locations" />,
         accessorFn: (row) => row.location_total,
         cell: ({ row }) => (
           <VariantLocationsDialog
@@ -371,8 +370,7 @@ export default function WarehouseTable({
     if (showFirstPrice) {
       defs.push({
         id: "cost",
-        header: "Cost",
-        enableSorting: false,
+        header: ({ column }) => <SortableHeader column={column} label="Cost" />,
         accessorKey: "cost",
         cell: ({ row }) => (
           <span
