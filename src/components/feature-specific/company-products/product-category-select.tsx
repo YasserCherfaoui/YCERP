@@ -12,12 +12,14 @@ interface ProductCategorySelectProps {
   companyId: number;
   value?: number | null;
   onChange: (value: number | null) => void;
+  id?: string;
 }
 
 export function ProductCategorySelect({
   companyId,
   value,
   onChange,
+  id,
 }: ProductCategorySelectProps) {
   const { data, isLoading } = useQuery({
     queryKey: ["product-categories", companyId],
@@ -32,7 +34,7 @@ export function ProductCategorySelect({
       onValueChange={(next) => onChange(next === "none" ? null : Number(next))}
       disabled={isLoading}
     >
-      <SelectTrigger>
+      <SelectTrigger id={id} className="w-full bg-background">
         <SelectValue placeholder="Uncategorized" />
       </SelectTrigger>
       <SelectContent>
