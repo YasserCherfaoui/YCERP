@@ -171,13 +171,15 @@ export type InventoryRowForPair = {
 export function computePairPromoLineTotals(
   saleItems: SaleLineForPair[],
   inventoryItems: InventoryRowForPair[],
-  franchise: Franchise
+  franchise: Franchise,
+  excludedProductIds?: Set<number>
 ): { active: boolean; lineTotals: number[] } {
   const lineTotals = saleItems.map(() => 0);
   let pairableUnits = 0;
   const co = franchise.company;
   for (let i = 0; i < saleItems.length; i++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
+    if (inv && excludedProductIds?.has(inv.product_id)) continue;
     if (pairableEligibleForFranchiseSale(franchise, co, inv?.product)) {
       pairableUnits += saleItems[i].quantity;
     }
@@ -189,7 +191,7 @@ export function computePairPromoLineTotals(
   for (let li = 0; li < saleItems.length; li++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[li].product_variant_id);
     const p = inv?.product;
-    if (!inv || !pairableEligibleForFranchiseSale(franchise, co, p)) continue;
+    if (!inv || excludedProductIds?.has(inv.product_id) || !pairableEligibleForFranchiseSale(franchise, co, p)) continue;
     const fp = getFranchisePrice(p, franchise);
     for (let u = 0; u < saleItems[li].quantity; u++) {
       pool.push({
@@ -218,13 +220,15 @@ export function computePairPromoLineTotals(
 export function computeCombinableLineTotals(
   franchise: Franchise,
   saleItems: SaleLineForPair[],
-  inventoryItems: InventoryRowForPair[]
+  inventoryItems: InventoryRowForPair[],
+  excludedProductIds?: Set<number>
 ): { active: boolean; lineTotals: number[] } {
   const lineTotals = saleItems.map(() => 0);
   const co = franchise.company;
   let combinableUnits = 0;
   for (let i = 0; i < saleItems.length; i++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
+    if (inv && excludedProductIds?.has(inv.product_id)) continue;
     if (combinableEligibleForFranchiseSale(franchise, co, inv?.product)) {
       combinableUnits += saleItems[i].quantity;
     }
@@ -239,7 +243,7 @@ export function computeCombinableLineTotals(
   for (let i = 0; i < saleItems.length; i++) {
     const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[i].product_variant_id);
     const p = inv?.product;
-    if (!inv || !combinableEligibleForFranchiseSale(franchise, co, p) || saleItems[i].quantity <= 0) continue;
+    if (!inv || excludedProductIds?.has(inv.product_id) || !combinableEligibleForFranchiseSale(franchise, co, p) || saleItems[i].quantity <= 0) continue;
     const fp = p.first_price;
     if (
       !hasAnchor ||
@@ -261,12 +265,12 @@ export function computeCombinableLineTotals(
     const p = inv?.product;
     const qty = saleItems[li].quantity;
     const disc = saleItems[li].discount;
-    if (!combinableEligibleForFranchiseSale(franchise, co, p)) {
+    if (!inv || excludedProductIds?.has(inv.product_id) || !combinableEligibleForFranchiseSale(franchise, co, p)) {
       lineTotals[li] = (saleItems[li].price - disc) * qty;
       continue;
     }
     let promoQty = 0;
-    if (inv!.product_id === anchorPid && !anchorTaken && qty > 0) {
+    if (inv.product_id === anchorPid && !anchorTaken && qty > 0) {
       promoQty = 1;
       anchorTaken = true;
     }
@@ -281,4 +285,160 @@ export function computeCombinableLineTotals(
     lineTotals[li] = net;
   }
   return { active: true, lineTotals };
+}
+
+export function isPackConfigured(product: Product | undefined | null): boolean {
+  return Boolean(
+    product?.is_pack &&
+      (product.pack_quantity ?? 0) >= 2 &&
+      product.pack_price != null &&
+      product.pack_price > 0
+  );
+}
+
+export function isPackEligibleForSale(
+  product: Product | undefined | null,
+  totalQtyForProduct: number
+): boolean {
+  return isPackConfigured(product) && totalQtyForProduct >= (product?.pack_quantity ?? 2);
+}
+
+export function computePackExtraMargin(
+  normalFranchiseTotal: number,
+  marginType: "fixed" | "percent" | string | undefined,
+  marginValue: number | undefined
+): number {
+  const val = marginValue ?? 0;
+  if (val <= 0) return 0;
+  if (marginType === "percent") {
+    if (normalFranchiseTotal <= 0) return 0;
+    return Math.round((normalFranchiseTotal * val) / 100);
+  }
+  return Math.round(val);
+}
+
+export interface PackBreakdown {
+  packQuantity: number;
+  packPrice: number;
+  normalRetailTotal: number;
+  normalFranchiseTotal: number;
+  baseMargin: number;
+  baseMarginPct: number;
+  extraMargin: number;
+  extraMarginPct: number;
+  totalMargin: number;
+  totalMarginPct: number;
+  packFranchiseTotal: number;
+  perUnitSalePrice: number;
+  perUnitFranchisePrice: number;
+}
+
+export function computePackBreakdown(params: {
+  packQuantity: number;
+  packPrice: number;
+  unitPrice: number;
+  unitFranchisePrice: number;
+  marginType?: "fixed" | "percent" | string;
+  marginValue?: number;
+}): PackBreakdown {
+  const packQuantity = Math.max(2, Math.floor(params.packQuantity || 2));
+  const packPrice = Math.max(0, params.packPrice || 0);
+  const normalRetailTotal = packQuantity * (params.unitPrice || 0);
+  const normalFranchiseTotal = packQuantity * (params.unitFranchisePrice || 0);
+  const baseMargin = packPrice - normalFranchiseTotal;
+  const extraMargin = computePackExtraMargin(
+    normalFranchiseTotal,
+    params.marginType,
+    params.marginValue
+  );
+  const packFranchiseTotal = Math.max(0, normalFranchiseTotal - extraMargin);
+  const totalMargin = packPrice - packFranchiseTotal;
+  const pctOf = (amount: number) =>
+    normalFranchiseTotal > 0 ? (amount / normalFranchiseTotal) * 100 : 0;
+
+  return {
+    packQuantity,
+    packPrice,
+    normalRetailTotal,
+    normalFranchiseTotal,
+    baseMargin,
+    baseMarginPct: pctOf(baseMargin),
+    extraMargin,
+    extraMarginPct: pctOf(extraMargin),
+    totalMargin,
+    totalMarginPct: pctOf(totalMargin),
+    packFranchiseTotal,
+    perUnitSalePrice: packPrice / packQuantity,
+    perUnitFranchisePrice: packFranchiseTotal / packQuantity,
+  };
+}
+
+/**
+ * Mirrors backend BuildCartPackSegmentsByLine for customer-side line totals.
+ * Multiples of pack_quantity get pack_price; remainder units use line.price.
+ */
+export function computePackCartTotals(
+  saleItems: SaleLineForPair[],
+  inventoryItems: InventoryRowForPair[]
+): {
+  activeProductIds: Set<number>;
+  lineTotals: number[];
+  productSummary: Map<number, { totalQty: number; numPacks: number; packQty: number; packPrice: number }>;
+} {
+  const lineTotals = saleItems.map((l) => (l.price - l.discount) * l.quantity);
+  const activeProductIds = new Set<number>();
+  const productSummary = new Map<
+    number,
+    { totalQty: number; numPacks: number; packQty: number; packPrice: number }
+  >();
+
+  const lineIndicesByProduct = new Map<number, number[]>();
+  const productById = new Map<number, Product>();
+  const qtyByProduct = new Map<number, number>();
+
+  for (let i = 0; i < saleItems.length; i++) {
+    const inv = inventoryItems.find(
+      (x) => x.product_variant_id === saleItems[i].product_variant_id
+    );
+    if (!inv?.product) continue;
+    const pid = inv.product_id;
+    productById.set(pid, inv.product);
+    if (!lineIndicesByProduct.has(pid)) lineIndicesByProduct.set(pid, []);
+    lineIndicesByProduct.get(pid)!.push(i);
+    qtyByProduct.set(pid, (qtyByProduct.get(pid) ?? 0) + saleItems[i].quantity);
+  }
+
+  for (const [pid, indices] of lineIndicesByProduct.entries()) {
+    const product = productById.get(pid);
+    const totalQty = qtyByProduct.get(pid) ?? 0;
+    if (!product || !isPackEligibleForSale(product, totalQty)) continue;
+
+    const packQty = product.pack_quantity ?? 2;
+    const packPrice = product.pack_price ?? 0;
+    const numPacks = Math.floor(totalQty / packQty);
+    const totalPackUnits = numPacks * packQty;
+    const baseSale = Math.floor(packPrice / packQty);
+    const remSale = packPrice % packQty;
+
+    activeProductIds.add(pid);
+    productSummary.set(pid, { totalQty, numPacks, packQty, packPrice });
+
+    let globalUnitIdx = 0;
+    for (const li of indices) {
+      const line = saleItems[li];
+      let net = 0;
+      for (let u = 0; u < line.quantity; u++) {
+        let unitSalePrice = line.price;
+        if (globalUnitIdx < totalPackUnits) {
+          const posInPack = globalUnitIdx % packQty;
+          unitSalePrice = baseSale + (posInPack === packQty - 1 ? remSale : 0);
+        }
+        net += unitSalePrice - line.discount;
+        globalUnitIdx++;
+      }
+      lineTotals[li] = net;
+    }
+  }
+
+  return { activeProductIds, lineTotals, productSummary };
 }

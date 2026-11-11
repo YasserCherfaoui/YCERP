@@ -18,6 +18,12 @@ export interface Product {
     pairable?: boolean;
     /** When true, unit joins combinable pool (anchor at first_price when 2+ combinable units). */
     combinable?: boolean;
+    /** When true, buying pack_quantity units applies pack_price + extra franchise margin. */
+    is_pack?: boolean;
+    pack_quantity?: number;
+    pack_price?: number | null;
+    pack_margin_type?: "fixed" | "percent";
+    pack_margin_value?: number;
     is_active: boolean;
     franchise_ship_commission?: number;
     product_category_id?: number | null;

@@ -1,15 +1,23 @@
 import { Product } from "@/models/data/product.model";
+import { isPackConfigured } from "@/utils/pricing-utils";
 
 export type ProductSegment =
   | "all"
   | "active"
   | "inactive"
+  | "pack"
   | "bogo"
   | "combinable"
   | "pairable"
   | "no_photos";
 
-export type PromoFilter = "all" | "bogo" | "combinable" | "pairable" | "none";
+export type PromoFilter =
+  | "all"
+  | "pack"
+  | "bogo"
+  | "combinable"
+  | "pairable"
+  | "none";
 export type StatusFilter = "all" | "active" | "inactive";
 export type PhotoFilter = "all" | "with_photos" | "missing_photos";
 
@@ -86,6 +94,7 @@ export function filterProducts(
 
     if (filters.segment === "active" && product.is_active === false) return false;
     if (filters.segment === "inactive" && product.is_active !== false) return false;
+    if (filters.segment === "pack" && !isPackConfigured(product)) return false;
     if (filters.segment === "bogo" && !product.is_bogo) return false;
     if (filters.segment === "combinable" && !product.combinable) return false;
     if (filters.segment === "pairable" && !product.pairable) return false;
@@ -94,12 +103,16 @@ export function filterProducts(
     if (filters.status === "active" && product.is_active === false) return false;
     if (filters.status === "inactive" && product.is_active !== false) return false;
 
+    if (filters.promo === "pack" && !isPackConfigured(product)) return false;
     if (filters.promo === "bogo" && !product.is_bogo) return false;
     if (filters.promo === "combinable" && !product.combinable) return false;
     if (filters.promo === "pairable" && !product.pairable) return false;
     if (
       filters.promo === "none" &&
-      (product.is_bogo || product.combinable || product.pairable)
+      (isPackConfigured(product) ||
+        product.is_bogo ||
+        product.combinable ||
+        product.pairable)
     ) {
       return false;
     }

@@ -1,3 +1,4 @@
+import { PackConfigFields } from "@/components/feature-specific/company-products/pack-config-fields";
 import { ProductCategorySelect } from "@/components/feature-specific/company-products/product-category-select";
 import { liquidGlass } from "@/components/feature-specific/crm/crm-theme";
 import { formatDzd } from "@/components/feature-specific/products/product-ui-utils";
@@ -50,6 +51,14 @@ function getProductFormValues(product: Product): UpdateProductSchema {
     is_bogo: product.is_bogo,
     pairable: product.pairable ?? false,
     combinable: product.combinable ?? false,
+    is_pack: product.is_pack ?? false,
+    pack_quantity:
+      product.pack_quantity && product.pack_quantity >= 2
+        ? product.pack_quantity
+        : 2,
+    pack_price: product.pack_price ?? undefined,
+    pack_margin_type: product.pack_margin_type ?? "fixed",
+    pack_margin_value: product.pack_margin_value ?? 0,
     is_active: product.is_active,
     franchise_ship_commission:
       product.franchise_ship_commission !== undefined
@@ -109,6 +118,8 @@ export default function UpdateProductForm({ product }: Props) {
 
   const firstPrice = form.watch("first_price") ?? product.first_price;
   const franchisePrice = form.watch("franchise_price") ?? product.franchise_price;
+  const vipFranchisePrice =
+    form.watch("vip_franchise_price") ?? product.vip_franchise_price;
   const sellPrice = form.watch("price") ?? product.price;
 
   return (
@@ -380,6 +391,14 @@ export default function UpdateProductForm({ product }: Props) {
                 <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Promotions & settings
                 </legend>
+                <PackConfigFields
+                  control={form.control}
+                  setValue={form.setValue}
+                  unitPrice={sellPrice}
+                  unitFranchisePrice={franchisePrice}
+                  unitVipFranchisePrice={vipFranchisePrice}
+                  unitFirstPrice={firstPrice}
+                />
                 <FormField
                   control={form.control}
                   name="is_bogo"

@@ -7,7 +7,9 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Product } from "@/models/data/product.model";
-import { Camera, Layers2, Link2, Sparkles } from "lucide-react";
+import { isPackConfigured } from "@/utils/pricing-utils";
+import { Camera, Layers2, Link2, PackageCheck, Sparkles } from "lucide-react";
+import { formatDzd } from "./product-ui-utils";
 
 interface ProductPromoBadgesProps {
   product: Product;
@@ -20,7 +22,9 @@ export function ProductPromoBadges({
   showWooPicture = false,
   className,
 }: ProductPromoBadgesProps) {
+  const hasPack = isPackConfigured(product);
   const hasAny =
+    hasPack ||
     product.is_bogo ||
     product.combinable ||
     product.pairable ||
@@ -30,9 +34,34 @@ export function ProductPromoBadges({
     return <span className="text-xs text-muted-foreground">—</span>;
   }
 
+  const marginLabel =
+    (product.pack_margin_value ?? 0) > 0
+      ? product.pack_margin_type === "percent"
+        ? ` (+${product.pack_margin_value}% extra margin)`
+        : ` (+${formatDzd(product.pack_margin_value)} extra margin)`
+      : "";
+
   return (
     <TooltipProvider delayDuration={200}>
       <div className={cn("flex flex-wrap items-center gap-1", className)}>
+        {hasPack && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge
+                variant="outline"
+                className="cursor-default gap-1 border-teal-300 bg-teal-100/90 text-teal-900 dark:border-teal-400/30 dark:bg-teal-500/20 dark:text-teal-100"
+              >
+                <PackageCheck className="h-3 w-3" aria-hidden="true" />
+                Pack {product.pack_quantity}× · {formatDzd(product.pack_price)}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs text-left">
+              Pack mode: {product.pack_quantity} units for {formatDzd(product.pack_price)}
+              {marginLabel}.
+            </TooltipContent>
+          </Tooltip>
+        )}
+
         {product.is_bogo && (
           <Tooltip>
             <TooltipTrigger asChild>

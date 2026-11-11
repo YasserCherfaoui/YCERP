@@ -124,6 +124,7 @@ export function ProductsFilterBar({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All promo rules</SelectItem>
+            <SelectItem value="pack">Pack</SelectItem>
             <SelectItem value="bogo">BOGO</SelectItem>
             <SelectItem value="combinable">Combinable</SelectItem>
             <SelectItem value="pairable">Pairable</SelectItem>

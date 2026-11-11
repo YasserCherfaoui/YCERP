@@ -35,6 +35,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Product } from "@/models/data/product.model";
+import { computePackBreakdown, isPackConfigured } from "@/utils/pricing-utils";
 import {
   Check,
   ChevronLeft,
@@ -360,6 +361,61 @@ export function ProductDetailsDialog({
                 )}
               </CardContent>
             </Card>
+
+            {isPackConfigured(product) && (() => {
+              const packQty = product.pack_quantity ?? 2;
+              const packPrice = product.pack_price ?? 0;
+              const pack = computePackBreakdown({
+                packQuantity: packQty,
+                packPrice,
+                unitPrice: product.price,
+                unitFranchisePrice: franchiseType
+                  ? franchiseCost
+                  : product.franchise_price,
+                marginType: product.pack_margin_type,
+                marginValue: product.pack_margin_value,
+              });
+              return (
+                <Card className="border-teal-300/60 bg-teal-50/50 dark:border-teal-500/30 dark:bg-teal-950/20">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-semibold uppercase tracking-wide text-teal-900 dark:text-teal-200">
+                      Pack pricing ({pack.packQuantity}× bundle)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
+                    <LedgerMetric
+                      label="Pack customer price"
+                      value={formatDzd(pack.packPrice)}
+                      sub={`${formatDzd(Math.round(pack.perUnitSalePrice))}/u vs ${formatDzd(pack.normalRetailTotal)}`}
+                      highlight
+                    />
+                    <LedgerMetric
+                      label="Base pack margin"
+                      value={`${formatDzd(pack.baseMargin)} (${pack.baseMarginPct.toFixed(2)}%)`}
+                      sub={`vs ${formatDzd(pack.normalFranchiseTotal)} franchise`}
+                    />
+                    <LedgerMetric
+                      label="Extra margin"
+                      value={`+${formatDzd(pack.extraMargin)} (+${pack.extraMarginPct.toFixed(2)}%)`}
+                      sub={
+                        product.pack_margin_type === "percent"
+                          ? `${product.pack_margin_value ?? 0}% of franchise`
+                          : "Fixed per pack"
+                      }
+                    />
+                    <LedgerMetric
+                      label="Total franchise margin"
+                      value={`${formatDzd(pack.totalMargin)} (${pack.totalMarginPct.toFixed(2)}%)`}
+                    />
+                    <LedgerMetric
+                      label="Pack franchise price"
+                      value={formatDzd(pack.packFranchiseTotal)}
+                      sub={`${formatDzd(Math.round(pack.perUnitFranchisePrice))}/unit`}
+                    />
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {product.description && (
               <Card className="bg-background/60">

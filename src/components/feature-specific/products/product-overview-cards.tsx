@@ -9,12 +9,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Product } from "@/models/data/product.model";
+import { isPackConfigured } from "@/utils/pricing-utils";
 import {
   CheckCircle2,
   ImageOff,
   Layers2,
   Link2,
   Package,
+  PackageCheck,
   PauseCircle,
   Sparkles,
 } from "lucide-react";
@@ -69,6 +71,18 @@ const SEGMENTS: SegmentConfig[] = [
     selectedClass:
       "bg-slate-200 ring-2 ring-slate-400/80 dark:bg-slate-500/40 dark:ring-slate-300/60",
     count: (products) => products.filter((p) => p.is_active === false).length,
+  },
+  {
+    value: "pack",
+    label: "Packs",
+    icon: PackageCheck,
+    iconClass:
+      "bg-teal-200/80 text-teal-900 dark:bg-teal-400/20 dark:text-teal-100",
+    surfaceClass:
+      "border-teal-200/80 bg-teal-100/80 text-teal-950 hover:bg-teal-100 dark:border-teal-400/30 dark:bg-teal-500/20 dark:text-teal-50 dark:hover:bg-teal-500/30",
+    selectedClass:
+      "bg-teal-200 ring-2 ring-teal-400/80 dark:bg-teal-500/40 dark:ring-teal-300/60",
+    count: (products) => products.filter((p) => isPackConfigured(p)).length,
   },
   {
     value: "bogo",
@@ -146,7 +160,7 @@ export function ProductOverviewCards({
       </CardHeader>
       <CardContent>
         <div
-          className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7"
+          className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8"
           role="tablist"
           aria-label="Product segment"
         >

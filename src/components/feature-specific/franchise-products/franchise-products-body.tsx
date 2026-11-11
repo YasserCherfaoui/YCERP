@@ -32,6 +32,7 @@ const SEGMENT_LABELS: Record<ProductFiltersState["segment"], string> = {
   all: "All products",
   active: "Active products",
   inactive: "Inactive products",
+  pack: "Pack products",
   bogo: "BOGO products",
   combinable: "Combinable products",
   pairable: "Pairable products",

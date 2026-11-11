@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import { PackConfigFields } from "@/components/feature-specific/company-products/pack-config-fields";
 import { ProductCategorySelect } from "@/components/feature-specific/company-products/product-category-select";
 import { liquidGlass } from "@/components/feature-specific/crm/crm-theme";
 import { formatDzd } from "@/components/feature-specific/products/product-ui-utils";
@@ -91,6 +92,7 @@ export default function AddProductForm() {
 
   const firstPrice = form.watch("first_price") || 0;
   const franchisePrice = form.watch("franchise_price") || 0;
+  const vipFranchisePrice = form.watch("vip_franchise_price");
   const sellPrice = form.watch("price") || 0;
   const sizes = form.watch("sizes") ?? [];
   const colors = form.watch("colors") ?? [];
@@ -403,6 +405,14 @@ export default function AddProductForm() {
                 <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Promotions
                 </legend>
+                <PackConfigFields
+                  control={form.control}
+                  setValue={form.setValue}
+                  unitPrice={sellPrice}
+                  unitFranchisePrice={franchisePrice}
+                  unitVipFranchisePrice={vipFranchisePrice}
+                  unitFirstPrice={firstPrice}
+                />
                 <FormField
                   name="is_bogo"
                   control={form.control}
