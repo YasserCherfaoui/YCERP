@@ -1,6 +1,6 @@
 import { baseUrl } from "@/app/constants";
 import { AffiliateFormValues } from "@/components/feature-specific/company-products/set-affiliate-props-dialog";
-import { Product, ProductCategory, ProductVariant } from "@/models/data/product.model";
+import { Product, ProductCategory, ProductPack, ProductVariant } from "@/models/data/product.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CompanyStatsResponse, ProductPurchasesResponse } from "@/models/responses/company-stats.model";
 import { CreateProductSchema, CreateProductVariantSchema, GenerateBarcodePDFSchema, SalesQuantityRequestSchema, UpdateProductSchema } from "@/schemas/product";
@@ -397,6 +397,95 @@ export const deleteProductCategory = async (categoryId: number): Promise<APIResp
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to delete product category.");
+    }
+
+    return await response.json();
+}
+
+export interface ProductPackPayload {
+    name: string;
+    pack_price: number;
+    margin_type: "fixed" | "percent";
+    margin_value: number;
+    is_active: boolean;
+    items: Array<{ product_id: number; quantity: number }>;
+}
+
+export const listProductPacks = async (
+    companyId: number,
+    options?: { activeOnly?: boolean }
+): Promise<APIResponse<ProductPack[]>> => {
+    const qs = options?.activeOnly ? "?active_only=true" : "";
+    const response = await fetch(`${baseUrl}/company/${companyId}/product-packs${qs}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to list product packs.");
+    }
+
+    return await response.json();
+}
+
+export const createProductPack = async (
+    companyId: number,
+    payload: ProductPackPayload
+): Promise<APIResponse<ProductPack>> => {
+    const response = await fetch(`${baseUrl}/company/${companyId}/product-packs`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create product pack.");
+    }
+
+    return await response.json();
+}
+
+export const updateProductPack = async (
+    packId: number,
+    payload: Partial<ProductPackPayload>
+): Promise<APIResponse<ProductPack>> => {
+    const response = await fetch(`${baseUrl}/product-packs/${packId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update product pack.");
+    }
+
+    return await response.json();
+}
+
+export const deleteProductPack = async (packId: number): Promise<APIResponse<void>> => {
+    const response = await fetch(`${baseUrl}/product-packs/${packId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete product pack.");
     }
 
     return await response.json();

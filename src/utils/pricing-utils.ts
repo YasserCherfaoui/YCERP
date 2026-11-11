@@ -1,6 +1,6 @@
 import type { Company } from "@/models/data/company.model";
 import { Franchise, FRANCHISE_TYPES, FranchiseType } from "@/models/data/franchise.model";
-import { Product } from "@/models/data/product.model";
+import { Product, ProductPack } from "@/models/data/product.model";
 
 export function pairableEligibleForFranchiseSale(
   franchise: Franchise,
@@ -290,9 +290,9 @@ export function computeCombinableLineTotals(
 export function isPackConfigured(product: Product | undefined | null): boolean {
   return Boolean(
     product?.is_pack &&
-      (product.pack_quantity ?? 0) >= 2 &&
-      product.pack_price != null &&
-      product.pack_price > 0
+    (product.pack_quantity ?? 0) >= 2 &&
+    product.pack_price != null &&
+    product.pack_price > 0
   );
 }
 
@@ -441,4 +441,371 @@ export function computePackCartTotals(
   }
 
   return { activeProductIds, lineTotals, productSummary };
+}
+
+/**
+ * Largest-remainder proportional integer allocation so sum(out) === total.
+ */
+export function allocateWeightedInteger(total: number, weights: number[]): number[] {
+  const n = weights.length;
+  const out = new Array<number>(n).fill(0);
+  if (n === 0 || total <= 0) return out;
+
+  let weightSum = 0;
+  const effectiveWeights = weights.map((w) => {
+    const val = w > 0 ? w : 0;
+    weightSum += val;
+    return val;
+  });
+  if (weightSum <= 0) {
+    weightSum = n;
+    for (let i = 0; i < n; i++) effectiveWeights[i] = 1;
+  }
+
+  const rems: Array<{ idx: number; rem: number }> = [];
+  let allocated = 0;
+  for (let i = 0; i < n; i++) {
+    const num = total * effectiveWeights[i];
+    const floorVal = Math.floor(num / weightSum);
+    out[i] = floorVal;
+    allocated += floorVal;
+    rems.push({ idx: i, rem: num % weightSum });
+  }
+
+  const leftover = total - allocated;
+  rems.sort((a, b) => (b.rem !== a.rem ? b.rem - a.rem : a.idx - b.idx));
+  for (let i = 0; i < leftover && i < n; i++) {
+    out[rems[i].idx] += 1;
+  }
+
+  return out;
+}
+
+export interface MultiPackBreakdown {
+  totalUnits: number;
+  packPrice: number;
+  normalRetailTotal: number;
+  normalFranchiseTotal: number;
+  baseMargin: number;
+  baseMarginPct: number;
+  extraMargin: number;
+  extraMarginPct: number;
+  totalMargin: number;
+  totalMarginPct: number;
+  packFranchiseTotal: number;
+  allocatedItems: Array<{
+    productId: number;
+    quantity: number;
+    allocatedPriceTotal: number;
+    allocatedFranchiseTotal: number;
+  }>;
+}
+
+export function computeMultiPackBreakdown(params: {
+  packPrice: number;
+  marginType: "fixed" | "percent" | string;
+  marginValue: number;
+  items: Array<{
+    productId: number;
+    quantity: number;
+    unitPrice: number;
+    unitFranchisePrice: number;
+  }>;
+}): MultiPackBreakdown {
+  const totalUnits = params.items.reduce((s, it) => s + Math.max(0, it.quantity), 0);
+  const normalRetailTotal = params.items.reduce(
+    (s, it) => s + Math.max(0, it.quantity) * (it.unitPrice || 0),
+    0
+  );
+  const normalFranchiseTotal = params.items.reduce(
+    (s, it) => s + Math.max(0, it.quantity) * (it.unitFranchisePrice || 0),
+    0
+  );
+  const packPrice = Math.max(0, params.packPrice || 0);
+  const baseMargin = packPrice - normalFranchiseTotal;
+  const extraMargin = computePackExtraMargin(
+    normalFranchiseTotal,
+    params.marginType,
+    params.marginValue
+  );
+  const packFranchiseTotal = Math.max(0, normalFranchiseTotal - extraMargin);
+  const totalMargin = packPrice - packFranchiseTotal;
+  const pctOf = (amount: number) =>
+    normalFranchiseTotal > 0 ? (amount / normalFranchiseTotal) * 100 : 0;
+
+  const saleWeights = params.items.map(
+    (it) => Math.max(0, it.quantity) * (it.unitPrice || 0)
+  );
+  const fpWeights = params.items.map(
+    (it) => Math.max(0, it.quantity) * (it.unitFranchisePrice || 0)
+  );
+  const allocSale = allocateWeightedInteger(packPrice, saleWeights);
+  const allocFP = allocateWeightedInteger(packFranchiseTotal, fpWeights);
+
+  return {
+    totalUnits,
+    packPrice,
+    normalRetailTotal,
+    normalFranchiseTotal,
+    baseMargin,
+    baseMarginPct: pctOf(baseMargin),
+    extraMargin,
+    extraMarginPct: pctOf(extraMargin),
+    totalMargin,
+    totalMarginPct: pctOf(totalMargin),
+    packFranchiseTotal,
+    allocatedItems: params.items.map((it, idx) => ({
+      productId: it.productId,
+      quantity: it.quantity,
+      allocatedPriceTotal: allocSale[idx] ?? 0,
+      allocatedFranchiseTotal: allocFP[idx] ?? 0,
+    })),
+  };
+}
+
+export interface MultiPackLineMatch {
+  packId: number;
+  packName: string;
+  units: number;
+  netTotal: number;
+}
+
+export interface MultiPackCartAllocation {
+  consumedTotalsByLine: number[];
+  remainingSaleItems: SaleLineForPair[];
+  matchesByLine: MultiPackLineMatch[][];
+}
+
+/**
+ * Mirrors backend AllocateMultiProductPacks:
+ * Prioritizes packs by totalUnits desc, customer savings desc, pack.ID asc.
+ */
+export function computeMultiPackCartAllocation(
+  saleItems: SaleLineForPair[],
+  inventoryItems: InventoryRowForPair[],
+  packs: ProductPack[]
+): MultiPackCartAllocation {
+  const consumedTotalsByLine = saleItems.map(() => 0);
+  const matchesByLine: MultiPackLineMatch[][] = saleItems.map(() => []);
+  const remainingSaleItems = saleItems.map((it) => ({ ...it }));
+
+  const activePacks = packs.filter((p) => p.is_active && p.pack_price > 0 && p.items?.length);
+  if (saleItems.length === 0 || activePacks.length === 0) {
+    return { consumedTotalsByLine, remainingSaleItems, matchesByLine };
+  }
+
+  const productById = new Map<number, Product>();
+  type UnitSlot = {
+    lineIndex: number;
+    discountPerUnit: number;
+    consumed: boolean;
+    packId: number;
+    packName: string;
+    price: number;
+  };
+  const slotsByProduct = new Map<number, UnitSlot[]>();
+  const allSlots: UnitSlot[] = [];
+
+  for (let li = 0; li < saleItems.length; li++) {
+    const line = saleItems[li];
+    const inv = inventoryItems.find((x) => x.product_variant_id === line.product_variant_id);
+    if (!inv?.product || line.quantity <= 0) continue;
+    productById.set(inv.product_id, inv.product);
+    if (!slotsByProduct.has(inv.product_id)) slotsByProduct.set(inv.product_id, []);
+    const arr = slotsByProduct.get(inv.product_id)!;
+    for (let u = 0; u < line.quantity; u++) {
+      const slot: UnitSlot = {
+        lineIndex: li,
+        discountPerUnit: line.discount,
+        consumed: false,
+        packId: 0,
+        packName: "",
+        price: 0,
+      };
+      arr.push(slot);
+      allSlots.push(slot);
+    }
+  }
+
+  const scored = activePacks
+    .map((pack) => {
+      const seen = new Set<number>();
+      let totalUnits = 0;
+      let normalRetail = 0;
+      let valid = true;
+      for (const item of pack.items) {
+        const prod = productById.get(item.product_id);
+        if (!prod || item.quantity < 1 || seen.has(item.product_id)) {
+          valid = false;
+          break;
+        }
+        seen.add(item.product_id);
+        totalUnits += item.quantity;
+        normalRetail += item.quantity * prod.price;
+      }
+      if (!valid || totalUnits < 2) return null;
+      return { pack, totalUnits, savings: normalRetail - pack.pack_price };
+    })
+    .filter((x): x is { pack: ProductPack; totalUnits: number; savings: number } => Boolean(x));
+
+  scored.sort((a, b) => {
+    if (b.totalUnits !== a.totalUnits) return b.totalUnits - a.totalUnits;
+    if (b.savings !== a.savings) return b.savings - a.savings;
+    return a.pack.ID - b.pack.ID;
+  });
+
+  const nextCursor = new Map<number, number>();
+  for (const { pack } of scored) {
+    while (true) {
+      let canForm = true;
+      for (const item of pack.items) {
+        const slots = slotsByProduct.get(item.product_id) ?? [];
+        const cur = nextCursor.get(item.product_id) ?? 0;
+        if (slots.length - cur < item.quantity) {
+          canForm = false;
+          break;
+        }
+      }
+      if (!canForm) break;
+
+      const weights = pack.items.map(
+        (it) => it.quantity * (productById.get(it.product_id)?.price ?? 0)
+      );
+      const allocSale = allocateWeightedInteger(pack.pack_price, weights);
+
+      pack.items.forEach((item, idx) => {
+        const itemSale = allocSale[idx] ?? 0;
+        const baseSale = Math.floor(itemSale / item.quantity);
+        const remSale = itemSale % item.quantity;
+        const slots = slotsByProduct.get(item.product_id)!;
+        const cur = nextCursor.get(item.product_id) ?? 0;
+        for (let k = 0; k < item.quantity; k++) {
+          const slot = slots[cur + k];
+          slot.consumed = true;
+          slot.packId = pack.ID;
+          slot.packName = pack.name;
+          slot.price = baseSale + (k === item.quantity - 1 ? remSale : 0);
+        }
+        nextCursor.set(item.product_id, cur + item.quantity);
+      });
+    }
+  }
+
+  const remainingQty = saleItems.map(() => 0);
+  for (const slot of allSlots) {
+    if (!slot.consumed) {
+      remainingQty[slot.lineIndex] += 1;
+      continue;
+    }
+    const netUnit = slot.price - slot.discountPerUnit;
+    consumedTotalsByLine[slot.lineIndex] += netUnit;
+    const lineMatches = matchesByLine[slot.lineIndex];
+    const existing = lineMatches.find((m) => m.packId === slot.packId);
+    if (existing) {
+      existing.units += 1;
+      existing.netTotal += netUnit;
+    } else {
+      lineMatches.push({
+        packId: slot.packId,
+        packName: slot.packName,
+        units: 1,
+        netTotal: netUnit,
+      });
+    }
+  }
+
+  for (let li = 0; li < remainingSaleItems.length; li++) {
+    const inv = inventoryItems.find((x) => x.product_variant_id === saleItems[li].product_variant_id);
+    remainingSaleItems[li].quantity = inv?.product ? remainingQty[li] : saleItems[li].quantity;
+  }
+
+  return { consumedTotalsByLine, remainingSaleItems, matchesByLine };
+}
+
+export function computeCompanyCartTotals(
+  saleItems: SaleLineForPair[],
+  inventoryItems: InventoryRowForPair[],
+  multiPacks: ProductPack[]
+) {
+  const multi = computeMultiPackCartAllocation(saleItems, inventoryItems, multiPacks);
+  const singlePack = computePackCartTotals(multi.remainingSaleItems, inventoryItems);
+  const lineTotals = saleItems.map(
+    (_, idx) => (multi.consumedTotalsByLine[idx] ?? 0) + (singlePack.lineTotals[idx] ?? 0)
+  );
+  const subtotal = lineTotals.reduce((a, b) => a + b, 0);
+  return { multi, singlePack, lineTotals, subtotal };
+}
+
+export function computeFranchiseCartTotals(
+  saleItems: SaleLineForPair[],
+  inventoryItems: InventoryRowForPair[],
+  franchise: Franchise,
+  multiPacks: ProductPack[]
+) {
+  const multi = computeMultiPackCartAllocation(saleItems, inventoryItems, multiPacks);
+  const rem = multi.remainingSaleItems;
+  const singlePack = computePackCartTotals(rem, inventoryItems);
+  const pairTotals = computePairPromoLineTotals(
+    rem,
+    inventoryItems,
+    franchise,
+    singlePack.activeProductIds
+  );
+  const combTotals = computeCombinableLineTotals(
+    franchise,
+    rem,
+    inventoryItems,
+    singlePack.activeProductIds
+  );
+
+  const remainingProductTotalQty: Record<number, number> = {};
+  rem.forEach((curr) => {
+    const inv = inventoryItems.find((s) => s.product_variant_id === curr.product_variant_id);
+    if (inv) {
+      remainingProductTotalQty[inv.product_id] =
+        (remainingProductTotalQty[inv.product_id] ?? 0) + curr.quantity;
+    }
+  });
+
+  const co = franchise.company;
+  const lineTotals = saleItems.map((_, idx) => {
+    const invItem = inventoryItems.find((s) => s.product_variant_id === rem[idx].product_variant_id);
+    const prod = invItem?.product;
+    const pid = invItem?.product_id;
+    const totalQty = pid != null ? remainingProductTotalQty[pid] ?? 0 : 0;
+
+    let remTotal = 0;
+    if (rem[idx].quantity > 0) {
+      if (pid != null && singlePack.activeProductIds.has(pid)) {
+        remTotal = singlePack.lineTotals[idx] ?? 0;
+      } else if (combTotals.active && combinableEligibleForFranchiseSale(franchise, co, prod)) {
+        remTotal = combTotals.lineTotals[idx] ?? 0;
+      } else if (
+        pairTotals.active &&
+        pairableEligibleForFranchiseSale(franchise, co, prod) &&
+        !(combTotals.active && combinableEligibleForFranchiseSale(franchise, co, prod))
+      ) {
+        remTotal = pairTotals.lineTotals[idx] ?? 0;
+      } else if (bogoEligibleForFranchiseSale(franchise, co, prod, totalQty) && prod && totalQty > 0) {
+        remTotal =
+          Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * rem[idx].quantity) -
+          rem[idx].discount * rem[idx].quantity;
+      } else {
+        remTotal = (rem[idx].price - rem[idx].discount) * rem[idx].quantity;
+      }
+    }
+
+    return (multi.consumedTotalsByLine[idx] ?? 0) + remTotal;
+  });
+
+  const subtotal = lineTotals.reduce((a, b) => a + b, 0);
+  return {
+    multi,
+    singlePack,
+    pairTotals,
+    combTotals,
+    remainingProductTotalQty,
+    lineTotals,
+    subtotal,
+  };
 }
