@@ -1,183 +1,259 @@
-import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
+import { ProductPromoBadges } from "@/components/feature-specific/products/product-promo-badges";
+import { ProductThumbnail } from "@/components/feature-specific/products/product-thumbnail";
+import { formatDzd } from "@/components/feature-specific/products/product-ui-utils";
+import { ProductVariantsPopover } from "@/components/feature-specific/products/product-variants-popover";
+import { SortableHeaderButton } from "@/components/feature-specific/products/sortable-header-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Product } from "@/models/data/product.model";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { Eye, MoreHorizontal } from "lucide-react";
 import RemoveProductActionDialog from "./remove-product-action-dialog";
 import { SetAffiliatePropsDialog } from "./set-affiliate-props-dialog";
 import UpdateProductForm from "./update-product-form";
 
-export const columns: ColumnDef<Product>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+interface GetCompanyProductColumnsOptions {
+  isModerator?: boolean;
+  onOpenDetails?: (product: Product) => void;
+}
+
+export function getCompanyProductColumns({
+  isModerator = false,
+  onOpenDetails,
+}: GetCompanyProductColumnsOptions = {}): ColumnDef<Product>[] {
+  const cols: ColumnDef<Product>[] = [
+    {
+      accessorKey: "name",
+      id: "product_name",
+      header: ({ column }) => (
+        <SortableHeaderButton column={column} label="Product" />
+      ),
+      cell: ({ row }) => {
+        const product = row.original;
+        return (
+          <div className="flex min-w-[15rem] items-center gap-3">
+            <ProductThumbnail
+              product={product}
+              onClick={onOpenDetails ? () => onOpenDetails(product) : undefined}
+            />
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                {onOpenDetails ? (
+                  <button
+                    type="button"
+                    onClick={() => onOpenDetails(product)}
+                    className="cursor-pointer truncate text-left text-sm font-semibold tracking-tight hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {product.name}
+                  </button>
+                ) : (
+                  <span className="truncate text-sm font-semibold tracking-tight">
+                    {product.name}
+                  </span>
+                )}
+                <Badge
+                  variant="outline"
+                  className="px-1.5 py-0 font-mono text-[10px] text-muted-foreground tabular-nums"
+                >
+                  #{product.ID}
+                </Badge>
+                {product.is_active === false && (
+                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">
+                    Inactive
+                  </Badge>
+                )}
+              </div>
+              {product.description && (
+                <p className="max-w-[20rem] truncate text-xs text-muted-foreground">
+                  {product.description}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "category",
+      header: ({ column }) => (
+        <SortableHeaderButton column={column} label="Category" />
+      ),
+      accessorFn: (row) => row.product_category?.name ?? "",
+      cell: ({ row }) => {
+        const category = row.original.product_category;
+        if (!category) {
+          return (
+            <span className="text-xs text-muted-foreground">Uncategorized</span>
+          );
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    id: "product_name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+        return (
+          <div className="flex flex-wrap items-center gap-1">
+            <Badge variant="outline" className="font-normal">
+              {category.name}
+            </Badge>
+            {!category.is_active && (
+              <span className="text-[11px] text-muted-foreground">(inactive)</span>
+            )}
+          </div>
+        );
+      },
     },
-    cell: ({ row }) => {
-      const product = row.original;
-      return (
-        <div className="flex flex-wrap items-center gap-2">
-          <span>{product.name}</span>
-          <PairableCombinableProductIcons
-            combinable={product.combinable}
-            pairable={product.pairable}
-          />
-          {product.is_active === false && (
-            <Badge variant="secondary">Inactive</Badge>
-          )}
+    {
+      id: "promos",
+      header: "Promos",
+      cell: ({ row }) => (
+        <ProductPromoBadges product={row.original} showWooPicture />
+      ),
+      enableSorting: false,
+    },
+    {
+      id: "variants",
+      header: "Variants",
+      cell: ({ row }) => <ProductVariantsPopover product={row.original} />,
+      enableSorting: false,
+    },
+  ];
+
+  if (!isModerator) {
+    cols.push({
+      accessorKey: "first_price",
+      id: "first_price",
+      header: ({ column }) => (
+        <SortableHeaderButton column={column} label="First Price" align="right" />
+      ),
+      cell: ({ row }) => (
+        <div className="text-right text-sm font-medium tabular-nums text-muted-foreground">
+          {formatDzd(row.original.first_price)}
         </div>
-      );
-    },
-  },
-  {
-    id: "category",
-    header: "Category",
-    accessorFn: (row) => row.product_category?.name ?? "",
-    cell: ({ row }) => {
-      const category = row.original.product_category;
-      if (!category) {
-        return <span className="text-muted-foreground">Uncategorized</span>;
-      }
-      return (
-        <span>
-          {category.name}
-          {!category.is_active && (
-            <span className="ml-1 text-xs text-muted-foreground">(inactive)</span>
-          )}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "first_price",
-    id: "first_price",
-    header: () => <div className="text-right">First Price</div>,
-    cell: ({ row }) => {
-      const price = parseInt(row.getValue("first_price"));
-      const formatted = new Intl.NumberFormat("en-DZ", {
-        style: "currency",
-        currency: "DZD",
-      }).format(price);
+      ),
+    });
+  }
 
-      return <div className="text-right font-medium"> {formatted} </div>;
+  cols.push(
+    {
+      accessorKey: "franchise_price",
+      id: "franchise_price",
+      header: ({ column }) => (
+        <SortableHeaderButton
+          column={column}
+          label="Franchise Price"
+          align="right"
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="text-right text-sm font-medium tabular-nums">
+          {formatDzd(row.original.franchise_price)}
+        </div>
+      ),
     },
-  },
-  {
-    accessorKey: "franchise_price",
-    id: "franchise_price",
-    header: () => <div className="text-right">Franchise Price</div>,
-    cell: ({ row }) => {
-      const price = parseInt(row.getValue("franchise_price"));
-      const formatted = new Intl.NumberFormat("en-DZ", {
-        style: "currency",
-        currency: "DZD",
-      }).format(price);
+    {
+      id: "vip_franchise_price",
+      accessorFn: (row) => row.vip_franchise_price ?? undefined,
+      sortUndefined: "last",
+      header: ({ column }) => (
+        <SortableHeaderButton column={column} label="VIP Price" align="right" />
+      ),
+      cell: ({ row }) => {
+        const vip = row.original.vip_franchise_price;
+        return (
+          <div
+            className={
+              vip != null
+                ? "text-right text-sm font-medium tabular-nums"
+                : "text-right text-sm tabular-nums text-muted-foreground"
+            }
+          >
+            {formatDzd(vip)}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "price",
+      id: "price",
+      header: ({ column }) => (
+        <SortableHeaderButton column={column} label="Sell Price" align="right" />
+      ),
+      cell: ({ row }) => {
+        const product = row.original;
+        return (
+          <div className="text-right">
+            <div className="text-sm font-semibold tabular-nums">
+              {formatDzd(product.price)}
+            </div>
+            {product.promo_price != null && product.promo_price > 0 && (
+              <div className="text-[11px] text-muted-foreground tabular-nums">
+                Promo: {formatDzd(product.promo_price)}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const product = row.original;
 
-      return <div className="text-right font-medium"> {formatted} </div>;
-    },
-  },
-  {
-    accessorKey: "vip_franchise_price",
-    id: "vip_franchise_price",
-    header: () => <div className="text-right">VIP Franchise Price</div>,
-    cell: ({ row }) => {
-      const price = parseInt(row.getValue("vip_franchise_price") || "0");
-      const formatted = new Intl.NumberFormat("en-DZ", {
-        style: "currency",
-        currency: "DZD",
-      }).format(price);
+        return (
+          <div className="flex items-center justify-end gap-1">
+            {onOpenDetails && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                aria-label={`Inspect ${product.name}`}
+                onClick={() => onOpenDetails(product)}
+              >
+                <Eye className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                {onOpenDetails && (
+                  <DropdownMenuItem onSelect={() => onOpenDetails(product)}>
+                    <Eye className="mr-2 h-4 w-4" aria-hidden="true" />
+                    View details & photos
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() =>
+                    navigator.clipboard.writeText(product.ID.toString())
+                  }
+                >
+                  Copy product ID
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <UpdateProductForm product={product} />
+                <SetAffiliatePropsDialog product={product} />
+                <RemoveProductActionDialog product={product} />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    }
+  );
 
-      return <div className="text-right font-medium"> {formatted} </div>;
-    },
-  },
-  {
-    accessorKey: "price",
-    header: () => <div className="text-right"> Price </div>,
-    cell: ({ row }) => {
-      const price = parseInt(row.getValue("price"));
-      const formatted = new Intl.NumberFormat("en-DZ", {
-        style: "currency",
-        currency: "DZD",
-      }).format(price);
+  return cols;
+}
 
-      return <div className="text-right font-medium"> {formatted} </div>;
-    },
-  },
-  {
-    header: "Description",
-    accessorKey: "description",
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const product = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(product.ID.toString())
-              }
-            >
-              Copy product ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <UpdateProductForm product={product} />
-            <RemoveProductActionDialog product={product} />
-            <SetAffiliatePropsDialog product={product} />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+export const columns: ColumnDef<Product>[] = getCompanyProductColumns();

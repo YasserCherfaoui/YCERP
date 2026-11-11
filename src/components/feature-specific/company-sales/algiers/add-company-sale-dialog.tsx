@@ -27,11 +27,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
+import { SaleLinePackBadge } from "@/components/feature-specific/products/sale-line-pack-badge";
 import { useToast } from "@/hooks/use-toast";
 import { SaleItemEntity } from "@/models/data/sale.model";
 import { CreateSaleSchema, createSaleSchema } from "@/schemas/sale";
 import { getCompanyInventory } from "@/services/inventory-service";
 import { createCompanySale } from "@/services/sale-service";
+import { computePackCartTotals } from "@/utils/pricing-utils";
 import { processSaleBarcode } from "@/utils/process-sale-barcodes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -215,15 +217,22 @@ export default function () {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {saleItems.map((saleItem, idx) => {
-                    const inventoryItem = inventory?.data?.items.find(
+                  {(() => {
+                    const invItems = inventory?.data?.items ?? [];
+                    const packTotals = computePackCartTotals(saleItems, invItems);
+                    return saleItems.map((saleItem, idx) => {
+                    const inventoryItem = invItems.find(
                       (s) =>
                         s.product_variant_id ==
                         saleItem.product_variant_id
                     );
                     const product = inventoryItem?.product;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
-                    
+                    const isPackLine =
+                      inventoryItem != null &&
+                      packTotals.activeProductIds.has(inventoryItem.product_id);
+                    const packLineNet = packTotals.lineTotals[idx] ?? 0;
+
                     return (
                     <TableRow key={idx}>
                       <TableCell>
@@ -238,6 +247,11 @@ export default function () {
                                 }).format(product.promo_price ?? 0)}
                               </Badge>
                             )}
+                            <SaleLinePackBadge
+                              product={product}
+                              isPackActive={isPackLine}
+                              lineTotal={packLineNet}
+                            />
                             <PairableCombinableProductIcons
                               combinable={product?.combinable}
                               pairable={product?.pairable}
@@ -290,7 +304,8 @@ export default function () {
                       </TableCell>
                     </TableRow>
                   );
-                  })}
+                  });
+                  })()}
                 </TableBody>
               </Table>
             </ScrollArea>
@@ -317,63 +332,60 @@ export default function () {
                   </FormItem>
                 )}
               />
-            <div className="grid grid-cols-2 gap-2 w-fit self-end">
-              <div className="text-lg">Amount: </div>
-              <span className="text-lg font-bold">
-                {new Intl.NumberFormat("en-DZ", {
+            {(() => {
+              const packTotals = computePackCartTotals(
+                saleItems,
+                inventory?.data?.items ?? []
+              );
+              const subtotalAmount = packTotals.lineTotals.reduce(
+                (prev, curr) => prev + curr,
+                0
+              );
+              const netTotal = subtotalAmount - form.watch("discount");
+              const formatMoney = (v: number) =>
+                new Intl.NumberFormat("en-DZ", {
                   style: "currency",
                   currency: "DZD",
-                }).format(
-                  saleItems.reduce(
-                    (prev, curr) =>
-                      prev +
-                      (curr.price - curr.discount) *
-                        curr.quantity,
-                    0
-                  )
-                )}
-              </span>
-              
-              <div className="flex gap-2 items-center text-lg">Discount:</div>
-              <FormField
-                name={`discount`}
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        className="w-20"
-                        {...field}
-                        value={Number.isNaN(field.value) ? 0 : field.value}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          form.setValue(
-                            "discount",
-                            Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
-                          );
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="text-lg">Total:</div>
-              <span className="text-lg font-bold">
-                {new Intl.NumberFormat("en-DZ", {
-                  style: "currency",
-                  currency: "DZD",
-                }).format(
-                  saleItems.reduce(
-                    (prev, curr) =>
-                      prev +
-                      (curr.price - curr.discount) *
-                        curr.quantity,
-                    0
-                  ) - form.watch("discount")
-                )}
-              </span>
-            </div>
+                }).format(v);
+
+              return (
+                <div className="grid grid-cols-2 gap-2 w-fit self-end">
+                  <div className="text-lg">Amount: </div>
+                  <span className="text-lg font-bold">
+                    {formatMoney(subtotalAmount)}
+                  </span>
+
+                  <div className="flex gap-2 items-center text-lg">Discount:</div>
+                  <FormField
+                    name={`discount`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            className="w-20"
+                            {...field}
+                            value={Number.isNaN(field.value) ? 0 : field.value}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              form.setValue(
+                                "discount",
+                                Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
+                              );
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="text-lg">Total:</div>
+                  <span className="text-lg font-bold">
+                    {formatMoney(netTotal)}
+                  </span>
+                </div>
+              );
+            })()}
           </Form>
         </div>
         <DialogFooter>

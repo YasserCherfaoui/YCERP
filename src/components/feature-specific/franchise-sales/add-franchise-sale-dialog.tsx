@@ -2,6 +2,7 @@ import { RootState } from "@/app/store";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
+import { SaleLinePackBadge } from "@/components/feature-specific/products/sale-line-pack-badge";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -44,6 +45,7 @@ import {
   bogoEligibleForFranchiseSale,
   combinableEligibleForFranchiseSale,
   computeCombinableLineTotals,
+  computePackCartTotals,
   computePairPromoLineTotals,
   getBOGOLineTotal,
   pairableEligibleForFranchiseSale,
@@ -423,25 +425,29 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                 </TableHeader>
                 <TableBody>
                   {(() => {
+                    const invItems = inventory?.data?.items ?? [];
                     const productTotalQty: Record<number, number> = {};
                     saleItems.forEach((curr) => {
-                      const inv = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
+                      const inv = invItems.find((s) => s.product_variant_id === curr.product_variant_id);
                       if (inv) {
                         productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + curr.quantity;
                       }
                     });
+                    const packTotals = computePackCartTotals(saleItems, invItems);
                     const pairTotals = computePairPromoLineTotals(
                       saleItems,
-                      inventory?.data?.items ?? [],
-                      franchise
+                      invItems,
+                      franchise,
+                      packTotals.activeProductIds
                     );
                     const combTotals = computeCombinableLineTotals(
                       franchise,
                       saleItems,
-                      inventory?.data?.items ?? []
+                      invItems,
+                      packTotals.activeProductIds
                     );
                     return saleItems.map((saleItem, idx) => {
-                    const inventoryItem = inventory?.data?.items.find(
+                    const inventoryItem = invItems.find(
                       (s) =>
                         s.product_variant_id ==
                         saleItem.product_variant_id
@@ -451,10 +457,14 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                     const totalQtyForProduct = productId != null ? (productTotalQty[productId] ?? 0) : 0;
                     const co = franchise.company;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
+                    const isPackLine =
+                      productId != null && packTotals.activeProductIds.has(productId);
                     const isCombLine =
+                      !isPackLine &&
                       combTotals.active &&
                       combinableEligibleForFranchiseSale(franchise, co, product);
                     const isPairLine =
+                      !isPackLine &&
                       pairTotals.active &&
                       pairableEligibleForFranchiseSale(franchise, co, product) &&
                       !(
@@ -462,6 +472,7 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                         combinableEligibleForFranchiseSale(franchise, co, product)
                       );
                     const isBOGO =
+                      !isPackLine &&
                       !isPairLine &&
                       !isCombLine &&
                       bogoEligibleForFranchiseSale(franchise, co, product, totalQtyForProduct);
@@ -470,6 +481,7 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                       isPairLine ? pairTotals.lineTotals[idx] ?? 0 : 0;
                     const combLineNet =
                       isCombLine ? combTotals.lineTotals[idx] ?? 0 : 0;
+                    const packLineNet = packTotals.lineTotals[idx] ?? 0;
 
                     return (
                     <TableRow key={idx}>
@@ -485,6 +497,11 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                                 }).format(product.promo_price ?? 0)}
                               </Badge>
                             )}
+                            <SaleLinePackBadge
+                              product={product}
+                              isPackActive={isPackLine}
+                              lineTotal={packLineNet}
+                            />
                             {isPairLine && (
                               <Badge variant="secondary" className="w-fit">
                                 Pair:{" "}
@@ -596,151 +613,111 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-2 gap-2 w-fit self-end">
-              <div className="text-lg">Amount: </div>
-              <span className="text-lg font-bold">
-                {new Intl.NumberFormat("en-DZ", {
+            {(() => {
+              const invItems = inventory?.data?.items ?? [];
+              const productTotalQty: Record<number, number> = {};
+              saleItems.forEach((c) => {
+                const inv = invItems.find((s) => s.product_variant_id === c.product_variant_id);
+                if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
+              });
+              const packTotals = computePackCartTotals(saleItems, invItems);
+              const pairTotals = computePairPromoLineTotals(
+                saleItems,
+                invItems,
+                franchise,
+                packTotals.activeProductIds
+              );
+              const combTotals = computeCombinableLineTotals(
+                franchise,
+                saleItems,
+                invItems,
+                packTotals.activeProductIds
+              );
+              const co = franchise.company;
+              const subtotalAmount = saleItems.reduce((prev, curr, idx) => {
+                const invItem = invItems.find((s) => s.product_variant_id === curr.product_variant_id);
+                const prod = invItem?.product;
+                const pid = invItem?.product_id;
+                const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
+                if (pid != null && packTotals.activeProductIds.has(pid)) {
+                  return prev + (packTotals.lineTotals[idx] ?? 0);
+                }
+                if (
+                  combTotals.active &&
+                  combinableEligibleForFranchiseSale(franchise, co, prod)
+                ) {
+                  return prev + (combTotals.lineTotals[idx] ?? 0);
+                }
+                if (
+                  pairTotals.active &&
+                  pairableEligibleForFranchiseSale(franchise, co, prod) &&
+                  !(
+                    combTotals.active &&
+                    combinableEligibleForFranchiseSale(franchise, co, prod)
+                  )
+                ) {
+                  return prev + (pairTotals.lineTotals[idx] ?? 0);
+                }
+                const lineTotal =
+                  bogoEligibleForFranchiseSale(franchise, co, prod, totalQty) && prod
+                    ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
+                    : (curr.price - curr.discount) * curr.quantity;
+                return prev + lineTotal;
+              }, 0);
+              const netTotal = subtotalAmount - form.watch("discount");
+              const formatMoney = (v: number) =>
+                new Intl.NumberFormat("en-DZ", {
                   style: "currency",
                   currency: "DZD",
-                }                ).format(
-                  (() => {
-                    const productTotalQty: Record<number, number> = {};
-                    saleItems.forEach((c) => {
-                      const inv = inventory?.data?.items.find((s) => s.product_variant_id === c.product_variant_id);
-                      if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
-                    });
-                    const pairTotals = computePairPromoLineTotals(
-                      saleItems,
-                      inventory?.data?.items ?? [],
-                      franchise
-                    );
-                    const combTotals = computeCombinableLineTotals(
-                      franchise,
-                      saleItems,
-                      inventory?.data?.items ?? []
-                    );
-                    const co = franchise.company;
-                    return saleItems.reduce((prev, curr, idx) => {
-                      const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
-                      const prod = invItem?.product;
-                      const pid = invItem?.product_id;
-                      const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
-                      if (
-                        combTotals.active &&
-                        combinableEligibleForFranchiseSale(franchise, co, prod)
-                      ) {
-                        return prev + (combTotals.lineTotals[idx] ?? 0);
-                      }
-                      if (
-                        pairTotals.active &&
-                        pairableEligibleForFranchiseSale(franchise, co, prod) &&
-                        !(
-                          combTotals.active &&
-                          combinableEligibleForFranchiseSale(franchise, co, prod)
-                        )
-                      ) {
-                        return prev + (pairTotals.lineTotals[idx] ?? 0);
-                      }
-                      const lineTotal =
-                        bogoEligibleForFranchiseSale(franchise, co, prod, totalQty) && prod
-                          ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
-                          : (curr.price - curr.discount) * curr.quantity;
-                      return prev + lineTotal;
-                    }, 0);
-                  })()
-                )}
-              </span>
+                }).format(v);
 
-              {initialFromDeposit && (
-                <>
-                  <div className="text-lg text-muted-foreground">Deposit:</div>
-                  <span className="text-lg font-medium text-muted-foreground">
-                    {new Intl.NumberFormat("en-DZ", {
-                      style: "currency",
-                      currency: "DZD",
-                    }).format(initialFromDeposit.deposit.amount_paid)}
+              return (
+                <div className="grid grid-cols-2 gap-2 w-fit self-end">
+                  <div className="text-lg">Amount: </div>
+                  <span className="text-lg font-bold">
+                    {formatMoney(subtotalAmount)}
                   </span>
-                </>
-              )}
 
-              <div className="flex gap-2 items-center text-lg">Discount:</div>
-              <FormField
-                name={`discount`}
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        className="w-28"
-                        {...field}
-                        value={Number.isNaN(field.value) ? 0 : field.value}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          form.setValue(
-                            "discount",
-                            Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
-                          );
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="text-lg">Total:</div>
-              <span className="text-lg font-bold">
-                {new Intl.NumberFormat("en-DZ", {
-                  style: "currency",
-                  currency: "DZD",
-                }                ).format(
-                  (() => {
-                    const productTotalQty: Record<number, number> = {};
-                    saleItems.forEach((c) => {
-                      const inv = inventory?.data?.items.find((s) => s.product_variant_id === c.product_variant_id);
-                      if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
-                    });
-                    const pairTotals = computePairPromoLineTotals(
-                      saleItems,
-                      inventory?.data?.items ?? [],
-                      franchise
-                    );
-                    const combTotals = computeCombinableLineTotals(
-                      franchise,
-                      saleItems,
-                      inventory?.data?.items ?? []
-                    );
-                    const co = franchise.company;
-                    return saleItems.reduce((prev, curr, idx) => {
-                      const invItem = inventory?.data?.items.find((s) => s.product_variant_id === curr.product_variant_id);
-                      const prod = invItem?.product;
-                      const pid = invItem?.product_id;
-                      const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
-                      if (
-                        combTotals.active &&
-                        combinableEligibleForFranchiseSale(franchise, co, prod)
-                      ) {
-                        return prev + (combTotals.lineTotals[idx] ?? 0);
-                      }
-                      if (
-                        pairTotals.active &&
-                        pairableEligibleForFranchiseSale(franchise, co, prod) &&
-                        !(
-                          combTotals.active &&
-                          combinableEligibleForFranchiseSale(franchise, co, prod)
-                        )
-                      ) {
-                        return prev + (pairTotals.lineTotals[idx] ?? 0);
-                      }
-                      const lineTotal =
-                        bogoEligibleForFranchiseSale(franchise, co, prod, totalQty) && prod
-                          ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
-                          : (curr.price - curr.discount) * curr.quantity;
-                      return prev + lineTotal;
-                    }, 0) - form.watch("discount");
-                  })()
-                )}
-              </span>
-            </div>
+                  {initialFromDeposit && (
+                    <>
+                      <div className="text-lg text-muted-foreground">Deposit:</div>
+                      <span className="text-lg font-medium text-muted-foreground">
+                        {formatMoney(initialFromDeposit.deposit.amount_paid)}
+                      </span>
+                    </>
+                  )}
+
+                  <div className="flex gap-2 items-center text-lg">Discount:</div>
+                  <FormField
+                    name={`discount`}
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            className="w-28"
+                            {...field}
+                            value={Number.isNaN(field.value) ? 0 : field.value}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              form.setValue(
+                                "discount",
+                                Number.isNaN(parseInt(value)) ? 0 : parseInt(value)
+                              );
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="text-lg">Total:</div>
+                  <span className="text-lg font-bold">
+                    {formatMoney(netTotal)}
+                  </span>
+                </div>
+              );
+            })()}
           </Form>
         </div>
         <DialogFooter>

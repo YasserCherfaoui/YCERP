@@ -15,10 +15,32 @@ export const createProductSchema = z.object({
     is_bogo: z.boolean().optional(),
     pairable: z.boolean().optional(),
     combinable: z.boolean().optional(),
+    is_pack: z.boolean().optional(),
+    pack_quantity: z.number().int().min(2, { message: "Pack quantity must be at least 2" }).optional(),
+    pack_price: z.number().min(0, { message: "Pack price must be positive" }).nullable().optional(),
+    pack_margin_type: z.enum(["fixed", "percent"]).optional(),
+    pack_margin_value: z.number().min(0, { message: "Extra margin cannot be negative" }).optional(),
     is_active: z.boolean().optional(),
     franchise_ship_commission: z.number().min(0).optional(),
     product_category_id: z.number().nullable().optional(),
-})
+}).superRefine((data, ctx) => {
+    if (data.is_pack) {
+        if (!data.pack_quantity || data.pack_quantity < 2) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["pack_quantity"],
+                message: "Pack quantity must be at least 2",
+            });
+        }
+        if (data.pack_price == null || data.pack_price <= 0) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["pack_price"],
+                message: "Pack price must be greater than 0",
+            });
+        }
+    }
+});
 
 
 export const productDefaultValues = {
@@ -34,6 +56,11 @@ export const productDefaultValues = {
     is_bogo: false,
     pairable: false,
     combinable: false,
+    is_pack: false,
+    pack_quantity: 2,
+    pack_price: undefined as number | undefined,
+    pack_margin_type: "fixed" as "fixed" | "percent",
+    pack_margin_value: 0,
     is_active: true,
     product_category_id: null,
 }
@@ -81,9 +108,31 @@ export const updateProductSchema = z.object({
     is_bogo: z.boolean().optional(),
     pairable: z.boolean().optional(),
     combinable: z.boolean().optional(),
+    is_pack: z.boolean().optional(),
+    pack_quantity: z.number().int().min(2, { message: "Pack quantity must be at least 2" }).optional(),
+    pack_price: z.number().min(0, { message: "Pack price must be positive" }).nullable().optional(),
+    pack_margin_type: z.enum(["fixed", "percent"]).optional(),
+    pack_margin_value: z.number().min(0, { message: "Extra margin cannot be negative" }).optional(),
     is_active: z.boolean().optional(),
     franchise_ship_commission: z.coerce.number().min(0).optional(),
     product_category_id: z.number().nullable().optional(),
+}).superRefine((data, ctx) => {
+    if (data.is_pack) {
+        if (!data.pack_quantity || data.pack_quantity < 2) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["pack_quantity"],
+                message: "Pack quantity must be at least 2",
+            });
+        }
+        if (data.pack_price == null || data.pack_price <= 0) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["pack_price"],
+                message: "Pack price must be greater than 0",
+            });
+        }
+    }
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>

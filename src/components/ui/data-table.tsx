@@ -421,14 +421,19 @@ export function DataTable<TData, TValue>({
           emptyState={emptyState}
         />
       </div>
-      <div className="hidden min-h-0 flex-1 overflow-auto rounded-md border md:block">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Data table"
+        className="hidden min-h-0 flex-1 overflow-auto rounded-md border md:block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup, headerGroupIdx) => (
               <TableRow key={headerGroup.id}>
                 {/* Selection checkbox header only for first header row */}
                 {selectionEnabled && headerGroupIdx === 0 && (
-                  <TableHead key="select-all" style={{ width: 36 }}>
+                  <TableHead key="select-all" scope="col" style={{ width: 36 }}>
                     <input
                       ref={selectAllRef}
                       type="checkbox"
@@ -440,11 +445,18 @@ export function DataTable<TData, TValue>({
                 )}
                 {/* If not first header row but selection enabled, add empty cell for alignment */}
                 {selectionEnabled && headerGroupIdx !== 0 && (
-                  <TableHead key="select-all-empty" style={{ width: 36 }} />
+                  <TableHead key="select-all-empty" scope="col" style={{ width: 36 }} />
                 )}
                 {headerGroup.headers.map((header) => {
+                  const sorted = header.column.getIsSorted();
+                  const ariaSort =
+                    sorted === "asc"
+                      ? "ascending"
+                      : sorted === "desc"
+                        ? "descending"
+                        : undefined;
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} scope="col" aria-sort={ariaSort}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
