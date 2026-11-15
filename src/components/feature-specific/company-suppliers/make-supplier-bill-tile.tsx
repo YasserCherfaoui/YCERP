@@ -12,9 +12,22 @@ interface Props {
 }
 
 export default function ({ billItem, billItems, setBillItems, items }: Props) {
+  const matchedItem = items.find(
+    (e) => e.product_variant?.ID == billItem.product_variant_id
+  );
+  const qrCode = matchedItem?.product_variant?.qr_code || billItem.qr_code;
+  const unitPrice = matchedItem?.product?.first_price ?? 0;
+
   return (
-    <li className="flex text-xl justify-between items-center p-2">
-      <span className="text-white">{billItem.variant_name}</span>
+    <li className="flex text-xl justify-between items-center p-2 gap-2">
+      <div className="flex flex-col min-w-0">
+        <span className="text-white truncate">{billItem.variant_name}</span>
+        {qrCode && (
+          <span className="text-lg font-semibold text-white font-mono">
+            {qrCode}
+          </span>
+        )}
+      </div>
       <div className="flex gap-2    ">
         <span className="flex gap-2 items-center">
           Qty:{" "}
@@ -27,11 +40,7 @@ export default function ({ billItem, billItems, setBillItems, items }: Props) {
                 const updatedBillItems = [...billItems];
                 if (updatedBillItems[existingItemIndex].quantity > 1) {
                   updatedBillItems[existingItemIndex].quantity -= 1;
-                  updatedBillItems[existingItemIndex].price -=
-                    items.find(
-                      (e) =>
-                        e.product_variant?.ID == billItem.product_variant_id
-                    )?.product?.first_price ?? 0;
+                  updatedBillItems[existingItemIndex].price -= unitPrice;
                   setBillItems(updatedBillItems);
                 } else {
                   setBillItems(
@@ -63,12 +72,6 @@ export default function ({ billItem, billItems, setBillItems, items }: Props) {
                   updatedBillItems[existingItemIndex].quantity;
                 updatedBillItems[existingItemIndex].quantity = newQuantity;
 
-                // Recalculate price based on quantity difference
-                const unitPrice =
-                  items.find(
-                    (e) => e.product_variant?.ID == billItem.product_variant_id
-                  )?.product?.first_price ?? 0;
-
                 updatedBillItems[existingItemIndex].price +=
                   unitPrice * (newQuantity - oldQuantity);
                 setBillItems(updatedBillItems);
@@ -83,10 +86,7 @@ export default function ({ billItem, billItems, setBillItems, items }: Props) {
               if (existingItemIndex !== -1) {
                 const updatedBillItems = [...billItems];
                 updatedBillItems[existingItemIndex].quantity += 1;
-                updatedBillItems[existingItemIndex].price +=
-                  items.find(
-                    (e) => e.product_variant?.ID == billItem.product_variant_id
-                  )?.product?.first_price ?? 0;
+                updatedBillItems[existingItemIndex].price += unitPrice;
                 setBillItems(updatedBillItems);
               }
             }}

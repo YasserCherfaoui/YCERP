@@ -28,7 +28,7 @@ import { createExitBillFromMissingVariants } from "@/services/missing-variants-s
 import { getAllProductsWithVariantsByCompany } from "@/services/product-service";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -113,32 +113,46 @@ export default function CreateExitBillDialog({
     }))
   });
 
-  // Reset form when dialog opens
+  // Sync franchise, company, and selected requests when dialog opens without wiping additional_items or comment
   useEffect(() => {
-    if (open) {
-      form.reset({
-        franchise_id: franchiseId,
-        company_id: companyId,
-        request_ids: selectedRequests.length > 0 ? selectedRequests.map(req => req.id) : undefined,
-        comment: "",
-        quantity_adjustments: selectedRequests.length > 0 ? selectedRequests.map(req => ({
-          request_id: req.id,
-          quantity: req.requested_quantity,
-        })) : undefined,
-        additional_items: [],
-      });
-      console.log('Form reset with values:', {
-        franchise_id: franchiseId,
-        company_id: companyId,
-        request_ids: selectedRequests.length > 0 ? selectedRequests.map(req => req.id) : undefined,
-        quantity_adjustments: selectedRequests.length > 0 ? selectedRequests.map(req => ({
-          request_id: req.id,
-          quantity: req.requested_quantity,
-        })) : undefined,
-        additional_items: []
-      });
-    }
+    if (!open) return;
+
+    form.setValue("franchise_id", franchiseId);
+    form.setValue("company_id", companyId);
+    form.setValue(
+      "request_ids",
+      selectedRequests.length > 0 ? selectedRequests.map((req) => req.id) : undefined
+    );
+
+    const existingAdjustments = form.getValues("quantity_adjustments") ?? [];
+    const existingByRequestId = new Map(
+      existingAdjustments.map((adj) => [adj.request_id, adj.quantity])
+    );
+
+    form.setValue(
+      "quantity_adjustments",
+      selectedRequests.length > 0
+        ? selectedRequests.map((req) => ({
+            request_id: req.id,
+            quantity: existingByRequestId.get(req.id) ?? req.requested_quantity,
+          }))
+        : undefined
+    );
   }, [open, franchiseId, companyId, selectedRequests, form]);
+
+  const handleResetList = () => {
+    form.setValue("additional_items", []);
+    form.setValue("comment", "");
+    form.setValue(
+      "quantity_adjustments",
+      selectedRequests.length > 0
+        ? selectedRequests.map((req) => ({
+            request_id: req.id,
+            quantity: req.requested_quantity,
+          }))
+        : undefined
+    );
+  };
 
   const { mutate: createExitBillMutation, isPending } = useMutation({
     mutationFn: createExitBillFromMissingVariants,
@@ -169,7 +183,7 @@ export default function CreateExitBillDialog({
       queryClient.invalidateQueries({ queryKey: ["company-missing-variants"] });
       queryClient.invalidateQueries({ queryKey: ["exit_bills"] });
       queryClient.invalidateQueries({ queryKey: ["preparing-exit-bills"] });
-      // Don't reset the form - just close the dialog
+      handleResetList();
       onOpenChange(false);
     },
     onError: (error: Error & { apiError?: { code?: string; details?: { shortfalls?: InventoryShortfallItem[] } } }) => {
@@ -374,14 +388,15 @@ export default function CreateExitBillDialog({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => appendAdditionalItem({ product_variant_id: 0, quantity: 1 })}
+                      disabled={additionalItemsFields.length === 0 && !form.watch("comment")}
+                      onClick={handleResetList}
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Item
+                      <RotateCcw className="h-4 w-4 mr-2" />
+                      Reset List
                     </Button>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   {additionalItemsFields.length === 0 ? (
                     <p className="text-muted-foreground text-sm">No additional items. Click "Add Item" to include items not related to missing variant requests.</p>
                   ) : (
@@ -458,6 +473,16 @@ export default function CreateExitBillDialog({
                       })}
                     </div>
                   )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => appendAdditionalItem({ product_variant_id: 0, quantity: 1 })}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Item
+                  </Button>
                 </CardContent>
               </Card>
 
