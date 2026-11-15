@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import AddProductForm from "./add-product-form";
 import { ManageProductCategoriesDialog } from "./manage-product-categories-dialog";
+import { ManageProductPacksDialog } from "./manage-product-packs-dialog";
 import PrintProductsLabelsDialog from "./print-products-labels-dialog";
 
 interface CompanyProductsAppBarProps {
@@ -90,6 +91,7 @@ export default function CompanyProductsAppBar({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
+        <ManageProductPacksDialog companyId={company.ID} />
         <ManageProductCategoriesDialog companyId={company.ID} />
         <Button
           type="button"

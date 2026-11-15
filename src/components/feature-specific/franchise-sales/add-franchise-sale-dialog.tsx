@@ -1,8 +1,8 @@
 import { RootState } from "@/app/store";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { PairableCombinableProductIcons } from "@/components/feature-specific/products/pairable-combinable-product-icons";
 import { SaleLinePackBadge } from "@/components/feature-specific/products/sale-line-pack-badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -21,8 +21,8 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { StarRatingInput } from "@/components/ui/star-rating-input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { StarRatingInput } from "@/components/ui/star-rating-input";
 import {
     Table,
     TableBody,
@@ -41,12 +41,11 @@ import {
     getFranchiseInventory,
 } from "@/services/franchise-service";
 import { fulfillVariantDeposit } from "@/services/variant-deposits-service";
+import { listProductPacks } from "@/services/product-service";
 import {
   bogoEligibleForFranchiseSale,
   combinableEligibleForFranchiseSale,
-  computeCombinableLineTotals,
-  computePackCartTotals,
-  computePairPromoLineTotals,
+  computeFranchiseCartTotals,
   getBOGOLineTotal,
   pairableEligibleForFranchiseSale,
 } from "@/utils/pricing-utils";
@@ -108,6 +107,12 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
     queryKey: ["franchise-inventory", franchise.ID],
     queryFn: () => getFranchiseInventory(franchise.ID),
   });
+  const { data: packsData } = useQuery({
+    queryKey: ["product-packs", franchise.company_id, "active"],
+    queryFn: () => listProductPacks(franchise.company_id, { activeOnly: true }),
+    enabled: Boolean(franchise.company_id) && open,
+  });
+  const activePacks = packsData?.data ?? [];
 
   // Prefill from deposit when dialog opens with initialFromDeposit and inventory is loaded
   useEffect(() => {
@@ -426,25 +431,11 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                 <TableBody>
                   {(() => {
                     const invItems = inventory?.data?.items ?? [];
-                    const productTotalQty: Record<number, number> = {};
-                    saleItems.forEach((curr) => {
-                      const inv = invItems.find((s) => s.product_variant_id === curr.product_variant_id);
-                      if (inv) {
-                        productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + curr.quantity;
-                      }
-                    });
-                    const packTotals = computePackCartTotals(saleItems, invItems);
-                    const pairTotals = computePairPromoLineTotals(
+                    const cart = computeFranchiseCartTotals(
                       saleItems,
                       invItems,
                       franchise,
-                      packTotals.activeProductIds
-                    );
-                    const combTotals = computeCombinableLineTotals(
-                      franchise,
-                      saleItems,
-                      invItems,
-                      packTotals.activeProductIds
+                      activePacks
                     );
                     return saleItems.map((saleItem, idx) => {
                     const inventoryItem = invItems.find(
@@ -454,34 +445,43 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                     );
                     const product = inventoryItem?.product;
                     const productId = inventoryItem?.product_id;
-                    const totalQtyForProduct = productId != null ? (productTotalQty[productId] ?? 0) : 0;
+                    const remQty = cart.multi.remainingSaleItems[idx]?.quantity ?? 0;
+                    const totalQtyForProduct =
+                      productId != null ? (cart.remainingProductTotalQty[productId] ?? 0) : 0;
                     const co = franchise.company;
                     const hasPromo = product?.promo_price != null && product.promo_price > 0;
-                    const isPackLine =
-                      productId != null && packTotals.activeProductIds.has(productId);
+                    const multiMatches = cart.multi.matchesByLine[idx] ?? [];
+                    const isSinglePackLine =
+                      remQty > 0 &&
+                      productId != null &&
+                      cart.singlePack.activeProductIds.has(productId);
                     const isCombLine =
-                      !isPackLine &&
-                      combTotals.active &&
+                      remQty > 0 &&
+                      !isSinglePackLine &&
+                      cart.combTotals.active &&
                       combinableEligibleForFranchiseSale(franchise, co, product);
                     const isPairLine =
-                      !isPackLine &&
-                      pairTotals.active &&
+                      remQty > 0 &&
+                      !isSinglePackLine &&
+                      cart.pairTotals.active &&
                       pairableEligibleForFranchiseSale(franchise, co, product) &&
                       !(
-                        combTotals.active &&
+                        cart.combTotals.active &&
                         combinableEligibleForFranchiseSale(franchise, co, product)
                       );
                     const isBOGO =
-                      !isPackLine &&
+                      remQty > 0 &&
+                      !isSinglePackLine &&
                       !isPairLine &&
                       !isCombLine &&
                       bogoEligibleForFranchiseSale(franchise, co, product, totalQtyForProduct);
-                    const bogoProductTotal = isBOGO && product ? getBOGOLineTotal(product.price, totalQtyForProduct) : 0;
+                    const bogoProductTotal =
+                      isBOGO && product ? getBOGOLineTotal(product.price, totalQtyForProduct) : 0;
                     const pairLineNet =
-                      isPairLine ? pairTotals.lineTotals[idx] ?? 0 : 0;
+                      isPairLine ? cart.pairTotals.lineTotals[idx] ?? 0 : 0;
                     const combLineNet =
-                      isCombLine ? combTotals.lineTotals[idx] ?? 0 : 0;
-                    const packLineNet = packTotals.lineTotals[idx] ?? 0;
+                      isCombLine ? cart.combTotals.lineTotals[idx] ?? 0 : 0;
+                    const packLineNet = cart.singlePack.lineTotals[idx] ?? 0;
 
                     return (
                     <TableRow key={idx}>
@@ -499,8 +499,9 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
                             )}
                             <SaleLinePackBadge
                               product={product}
-                              isPackActive={isPackLine}
+                              isPackActive={isSinglePackLine}
                               lineTotal={packLineNet}
+                              multiPackMatches={multiMatches}
                             />
                             {isPairLine && (
                               <Badge variant="secondary" className="w-fit">
@@ -615,55 +616,13 @@ export default function AddFranchiseSaleDialog(props?: AddFranchiseSaleDialogPro
             />
             {(() => {
               const invItems = inventory?.data?.items ?? [];
-              const productTotalQty: Record<number, number> = {};
-              saleItems.forEach((c) => {
-                const inv = invItems.find((s) => s.product_variant_id === c.product_variant_id);
-                if (inv) productTotalQty[inv.product_id] = (productTotalQty[inv.product_id] ?? 0) + c.quantity;
-              });
-              const packTotals = computePackCartTotals(saleItems, invItems);
-              const pairTotals = computePairPromoLineTotals(
+              const cart = computeFranchiseCartTotals(
                 saleItems,
                 invItems,
                 franchise,
-                packTotals.activeProductIds
+                activePacks
               );
-              const combTotals = computeCombinableLineTotals(
-                franchise,
-                saleItems,
-                invItems,
-                packTotals.activeProductIds
-              );
-              const co = franchise.company;
-              const subtotalAmount = saleItems.reduce((prev, curr, idx) => {
-                const invItem = invItems.find((s) => s.product_variant_id === curr.product_variant_id);
-                const prod = invItem?.product;
-                const pid = invItem?.product_id;
-                const totalQty = pid != null ? (productTotalQty[pid] ?? 0) : 0;
-                if (pid != null && packTotals.activeProductIds.has(pid)) {
-                  return prev + (packTotals.lineTotals[idx] ?? 0);
-                }
-                if (
-                  combTotals.active &&
-                  combinableEligibleForFranchiseSale(franchise, co, prod)
-                ) {
-                  return prev + (combTotals.lineTotals[idx] ?? 0);
-                }
-                if (
-                  pairTotals.active &&
-                  pairableEligibleForFranchiseSale(franchise, co, prod) &&
-                  !(
-                    combTotals.active &&
-                    combinableEligibleForFranchiseSale(franchise, co, prod)
-                  )
-                ) {
-                  return prev + (pairTotals.lineTotals[idx] ?? 0);
-                }
-                const lineTotal =
-                  bogoEligibleForFranchiseSale(franchise, co, prod, totalQty) && prod
-                    ? Math.round((getBOGOLineTotal(prod.price, totalQty) / totalQty) * curr.quantity) - curr.discount * curr.quantity
-                    : (curr.price - curr.discount) * curr.quantity;
-                return prev + lineTotal;
-              }, 0);
+              const subtotalAmount = cart.subtotal;
               const netTotal = subtotalAmount - form.watch("discount");
               const formatMoney = (v: number) =>
                 new Intl.NumberFormat("en-DZ", {

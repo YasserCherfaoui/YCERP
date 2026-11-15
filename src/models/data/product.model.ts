@@ -44,6 +44,28 @@ export interface ProductCategory {
     is_active: boolean;
 }
 
+export interface ProductPackItem {
+    ID?: number;
+    pack_id?: number;
+    product_id: number;
+    product?: Product;
+    quantity: number;
+}
+
+export interface ProductPack {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+    DeletedAt?: string;
+    company_id: number;
+    name: string;
+    pack_price: number;
+    margin_type: "fixed" | "percent";
+    margin_value: number;
+    is_active: boolean;
+    items: ProductPackItem[];
+}
+
 export interface ProductImage {
     ID: number;
     CreatedAt: string;
