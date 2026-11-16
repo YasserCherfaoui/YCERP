@@ -4,24 +4,25 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import type { InventoryShortfallItem } from "@/models/data/missing-variant.model";
 import { MissingVariantRequestResponse } from "@/models/data/missing-variant.model";
 import { CreateExitBillFromMissingVariantsSchema, createExitBillFromMissingVariantsSchema } from "@/schemas/missing-variant";
 import { createExitBillFromMissingVariants } from "@/services/missing-variants-service";
@@ -35,7 +36,6 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { ProductVariantCombobox } from "../company-products/product-variant-combobox";
 import ExitBillInsufficientInventoryDialog from "./exit-bill-insufficient-inventory-dialog";
-import type { InventoryShortfallItem } from "@/models/data/missing-variant.model";
 
 interface CreateExitBillDialogProps {
   open: boolean;
@@ -361,8 +361,7 @@ export default function CreateExitBillDialog({
                                     <Input
                                       type="number"
                                       min="0"
-                                      max={request.requested_quantity}
-                                      placeholder={`Max: ${request.requested_quantity}`}
+                                      placeholder={`Requested: ${request.requested_quantity}`}
                                       {...field}
                                       onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                                     />

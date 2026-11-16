@@ -199,3 +199,40 @@ export const bulkCreateMissingVariantRequests = async (
   await handleApiError(response);
   return response.json();
 };
+
+export interface VariantNeedsAutomationSummary {
+  total_franchises_processed: number;
+  total_sales_processed: number;
+  total_variants_processed: number;
+  total_requests_created: number;
+  total_requests_updated: number;
+  total_errors: number;
+}
+
+export interface VariantNeedsAutomationFranchiseResult {
+  FranchiseID: number;
+  FranchiseName: string;
+  AlreadyProcessed: boolean;
+  LogsProcessed: number;
+  VariantsProcessed: number;
+  RequestsCreated: number;
+  RequestsUpdated: number;
+  Errors: string[];
+}
+
+export interface ProcessAllVariantNeedsResponse {
+  summary: VariantNeedsAutomationSummary;
+  results: VariantNeedsAutomationFranchiseResult[];
+}
+
+export const processAllVariantNeedsAutomation = async (): Promise<
+  APIResponse<ProcessAllVariantNeedsResponse>
+> => {
+  const response = await fetch(`${baseUrl}/api/automation/variant-needs/process-all`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+
+  await handleApiError(response);
+  return response.json();
+};
