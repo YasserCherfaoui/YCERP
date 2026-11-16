@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import {
   Dialog,
   DialogContent,
@@ -357,7 +358,7 @@ export default function CreateStockMovementDialog({
                   </TableCell>
                 </TableRow>
               ) : (
-                lines.map((line) => {
+                sortByQrCode(lines, (line) => line.barcode).map((line) => {
                   const actual = itemsByVariant.get(line.product_variant_id)?.quantity ?? 0;
                   return (
                     <TableRow key={line.product_variant_id}>

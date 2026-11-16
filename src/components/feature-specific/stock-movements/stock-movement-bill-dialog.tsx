@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { StockMovementBill, StockMovementBillItem } from "@/models/data/stock-movement.model";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Printer } from "lucide-react";
 
 function itemTitle(item: StockMovementBillItem): string {
@@ -59,7 +60,10 @@ export default function StockMovementBillDialog({
         </DialogHeader>
         <ScrollArea className="max-h-[360px] pr-3">
           <div className="flex flex-col gap-2">
-            {(bill?.items ?? []).map((item) => (
+            {sortByQrCode(
+              bill?.items,
+              (item) => item.product_variant?.qr_code
+            ).map((item) => (
               <div key={item.ID} className="flex items-start justify-between gap-3 text-sm">
                 <div>
                   <div>{itemTitle(item)}</div>

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExitBill } from "@/models/data/bill.model";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { downloadExitBillPDF } from "@/services/bill-service";
 import { CircleX, LucideTicket, Printer } from "lucide-react";
 import { useState } from "react";
@@ -49,7 +50,10 @@ export default function ({ bill }: Props) {
             </p>
           </div>
           <ScrollArea className="max-h-[400px]">
-            {bill.bill_items.map((billItem) => (
+            {sortByQrCode(
+              bill.bill_items,
+              (billItem) => billItem.product_variant?.qr_code
+            ).map((billItem) => (
               <div
                 key={`bill-item-${billItem.id}`}
                 className="flex justify-between"

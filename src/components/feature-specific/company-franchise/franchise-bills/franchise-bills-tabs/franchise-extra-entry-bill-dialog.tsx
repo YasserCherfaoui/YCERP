@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BillItem, EntryBill } from "@/models/data/bill.model";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { APIResponse } from "@/models/responses/api-response.model";
 import { CreateEntryBillSchema } from "@/schemas/bill";
 import { UseMutateFunction } from "@tanstack/react-query";
@@ -58,7 +59,7 @@ export default function ({
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="flex flex-col gap-2 max-h-[400px]">
-          {extraItems.map((item) => (
+          {sortByQrCode(extraItems, (item) => item.qr_code).map((item) => (
             <div key={item.product_variant_id} className="flex justify-between">
               <span className="text-white">{item.qr_code}</span>
               <span className="text-bold">Qty: {item.quantity}</span>

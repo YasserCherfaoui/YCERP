@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -209,7 +210,13 @@ export default function ({ supplierID }: Props) {
           />
           <ScrollArea>
             <ul className="flex flex-col gap-2 p-2 max-h-72">
-              {billItems.map((billItem) => (
+              {sortByQrCode(
+                billItems,
+                (billItem) =>
+                  inventory?.data?.items.find(
+                    (e) => e.product_variant?.ID == billItem.product_variant_id
+                  )?.product_variant?.qr_code || billItem.qr_code
+              ).map((billItem) => (
                 <MakeSupplierBillTile
                   key={billItem.product_variant_id}
                   billItem={billItem}

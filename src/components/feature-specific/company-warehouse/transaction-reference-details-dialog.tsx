@@ -1,4 +1,5 @@
 import OrderDetailsDialog from "@/components/feature-specific/orders/order-details-dialog";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -99,7 +100,8 @@ function LineItemsTable({
 }
 
 function billItemRows(items?: BillItemModel[] | null) {
-  return (items ?? []).map((item, idx) => ({
+  return sortByQrCode(items, (item) => item.product_variant?.qr_code).map(
+    (item, idx) => ({
     key: item.id ?? idx,
     label: variantLabel(item.product_variant, item.product_variant?.product?.name),
     qty: item.quantity,
@@ -126,7 +128,10 @@ function SaleDetails({ sale }: { sale: Sale }) {
         <MetaRow label="Total" value={formatMoney(sale.total)} />
       </div>
       <LineItemsTable
-        rows={(sale.sale_items ?? []).map((item) => ({
+        rows={sortByQrCode(
+          sale.sale_items,
+          (item) => item.product_variant?.qr_code
+        ).map((item) => ({
           key: item.ID,
           label: variantLabel(item.product_variant, item.product?.name),
           qty: item.quantity,
@@ -189,7 +194,10 @@ function ReturnDetails({ ret }: { ret: Return }) {
         />
       </div>
       <LineItemsTable
-        rows={(ret.items ?? []).map((item) => ({
+        rows={sortByQrCode(
+          ret.items,
+          (item) => item.product_variant?.qr_code
+        ).map((item) => ({
           key: item.ID,
           label: variantLabel(item.product_variant, item.product_variant?.product?.name),
           qty: item.quantity,

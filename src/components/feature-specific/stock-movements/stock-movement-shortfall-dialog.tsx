@@ -18,6 +18,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { InventoryShortfallItem } from "@/models/data/missing-variant.model";
 import { alignStockMovementSource } from "@/services/stock-movement-service";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { useState } from "react";
 
 interface StockMovementShortfallDialogProps {
@@ -92,7 +93,7 @@ export default function StockMovementShortfallDialog({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {shortfalls.map((row) => {
+            {sortByQrCode(shortfalls, (row) => row.barcode).map((row) => {
               const key = `${row.product_variant_id}-${row.inventory_item_id}`;
               return (
                 <TableRow key={key}>
