@@ -1,4 +1,5 @@
 import RemoveProductActionDialog from "@/components/feature-specific/company-products/remove-product-action-dialog";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { SetAffiliatePropsDialog } from "@/components/feature-specific/company-products/set-affiliate-props-dialog";
 import UpdateProductForm from "@/components/feature-specific/company-products/update-product-form";
 import { liquidGlass } from "@/components/feature-specific/crm/crm-theme";
@@ -455,7 +456,7 @@ export function ProductDetailsDialog({
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {variants.map((variant) => (
+                        {sortByQrCode(variants, (variant) => variant.qr_code).map((variant) => (
                           <TableRow key={variant.ID}>
                             <TableCell className="font-medium">
                               {variant.color || "—"}

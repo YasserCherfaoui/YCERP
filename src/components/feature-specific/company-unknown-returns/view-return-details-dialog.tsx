@@ -18,6 +18,7 @@ import {
     TableHeader,
 } from "@/components/ui/table";
 import { Return } from "@/models/data/return.model";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Search } from "lucide-react";
 
 interface Props {
@@ -51,7 +52,10 @@ export default function ({ returnModel }: Props) {
               <TableHead>Total</TableHead>
             </TableHeader>
             <TableBody>
-              {returnModel.items.map((item, index) => (
+              {sortByQrCode(
+                returnModel.items,
+                (item) => item.product_variant?.qr_code
+              ).map((item, index) => (
                 <tr key={index} className="border-b">
                   <td className="p-4">{item.product_variant?.qr_code}</td>
                   <td className="p-4">{item.quantity}</td>

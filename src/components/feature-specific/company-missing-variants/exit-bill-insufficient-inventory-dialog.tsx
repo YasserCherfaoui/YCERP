@@ -1,4 +1,5 @@
 import UpdateInventoryItemDialog from "@/components/feature-specific/company-warehouse/update-inventory-item-dialog";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -81,7 +82,7 @@ export default function ExitBillInsufficientInventoryDialog({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {shortfalls.map((row) => (
+              {sortByQrCode(shortfalls, (row) => row.barcode).map((row) => (
                 <TableRow key={`${row.product_variant_id}-${row.inventory_item_id}`}>
                   <TableCell className="font-mono text-sm">
                     {row.barcode?.trim() ? row.barcode : "—"}

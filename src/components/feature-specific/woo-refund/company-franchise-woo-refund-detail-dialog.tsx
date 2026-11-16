@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FranchiseWooRefund } from "@/models/data/franchise-woo-refund.model";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { format } from "date-fns";
 import { CheckCircle2 } from "lucide-react";
 import {
@@ -130,7 +131,10 @@ export function CompanyFranchiseWooRefundDetailDialog({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {refund.items!.map((item) => (
+                {sortByQrCode(
+                  refund.items,
+                  (item) => item.product_variant?.qr_code
+                ).map((item) => (
                   <TableRow key={item.ID}>
                     <TableCell className="text-sm">
                       {formatRefundVariantLabel(
@@ -166,7 +170,10 @@ export function CompanyFranchiseWooRefundDetailDialog({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {refund.exchange_items!.map((item) => (
+                {sortByQrCode(
+                  refund.exchange_items,
+                  (item) => item.product_variant?.qr_code
+                ).map((item) => (
                   <TableRow key={item.ID}>
                     <TableCell className="text-sm">
                       {formatRefundVariantLabel(

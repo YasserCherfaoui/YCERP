@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -134,7 +135,10 @@ export default function ApproveTransferDialog({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transfer.items?.map((item) => (
+                  {sortByQrCode(
+                    transfer.items,
+                    (item) => item.broken_item?.product_variant?.qr_code
+                  ).map((item) => (
                     <TableRow key={item.ID}>
                       <TableCell className="font-mono">
                         {item.broken_item?.product_variant?.qr_code || "N/A"}

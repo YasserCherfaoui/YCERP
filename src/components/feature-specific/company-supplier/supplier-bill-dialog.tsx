@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SupplierBill } from "@/models/data/supplier.model";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Ticket } from "lucide-react";
 
 interface Props {
@@ -43,7 +44,10 @@ export default function ({ bill }: Props) {
                 <TableHead>Total</TableHead>
               </TableHeader>
               <TableBody>
-                {bill.items.map((item, idx) => (
+                {sortByQrCode(
+                  bill.items,
+                  (item) => item.product_variant?.qr_code
+                ).map((item, idx) => (
                   <TableRow key={idx}>
                     <TableCell>{item.product_variant?.qr_code}</TableCell>
                     <TableCell>{item.quantity}</TableCell>

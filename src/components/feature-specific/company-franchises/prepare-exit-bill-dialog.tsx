@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { BillItem, ExitBill } from "@/models/data/bill.model";
 import { COMPANY_EXIT_BILLS_MAX_LIMIT, getCompanyExitBills, prepareExitBill } from "@/services/bill-service";
 import { processPrepareBarcode } from "@/utils/process-prepare-barcode";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import {
   validateExtraEntryExitBill,
   validateMissingEntryExitBill,
@@ -167,7 +168,7 @@ export default function PrepareExitBillDialog({
 
   const remainingItems = useMemo(() => {
     if (!localBill) return [];
-    return localBill.bill_items
+    const items = localBill.bill_items
       .map((exitItem) => {
         const checked =
           checkedItems.find(
@@ -177,6 +178,7 @@ export default function PrepareExitBillDialog({
         return { exitItem, remaining };
       })
       .filter(({ remaining }) => remaining > 0);
+    return sortByQrCode(items, ({ exitItem }) => exitItem.product_variant?.qr_code);
   }, [localBill, checkedItems]);
 
   const remainingByVariant = useMemo(() => {
@@ -443,7 +445,14 @@ export default function PrepareExitBillDialog({
                         Scan items to start checking
                       </li>
                     ) : (
-                      checkedItems.map((item) => (
+                      sortByQrCode(
+                        checkedItems,
+                        (item) =>
+                          item.qr_code ||
+                          localBill?.bill_items.find(
+                            (b) => b.product_variant_id === item.product_variant_id
+                          )?.product_variant?.qr_code
+                      ).map((item) => (
                         <li
                           key={item.product_variant_id}
                           className="flex justify-between items-center gap-2 rounded border px-3 py-2 text-sm"

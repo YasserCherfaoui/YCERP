@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import {
     Accordion,
     AccordionContent,
@@ -64,7 +65,10 @@ export default function FranchiseEntryBillDetailsDialog({ bill }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bill.confirmed_bill_items?.map((item, idx) => (
+                    {sortByQrCode(
+                      bill.confirmed_bill_items,
+                      (item) => item.product_variant?.qr_code
+                    ).map((item, idx) => (
                       <TableRow key={idx}>
                         <TableCell>{item.product_variant?.qr_code}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
@@ -105,7 +109,10 @@ export default function FranchiseEntryBillDetailsDialog({ bill }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bill.bill_issue?.broken_items?.map((item, idx) => (
+                    {sortByQrCode(
+                      bill.bill_issue?.broken_items,
+                      (item) => item.product_variant?.qr_code
+                    ).map((item, idx) => (
                       <TableRow key={idx}>
                         <TableCell>{item.product_variant?.qr_code}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
@@ -127,7 +134,10 @@ export default function FranchiseEntryBillDetailsDialog({ bill }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bill.bill_issue?.missing_items?.map((item, idx) => (
+                    {sortByQrCode(
+                      bill.bill_issue?.missing_items,
+                      (item) => item.product_variant?.qr_code
+                    ).map((item, idx) => (
                       <TableRow key={idx}>
                         <TableCell>{item.product_variant?.qr_code}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
@@ -149,7 +159,10 @@ export default function FranchiseEntryBillDetailsDialog({ bill }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {bill.bill_issue?.extra_items?.map((item, idx) => (
+                    {sortByQrCode(
+                      bill.bill_issue?.extra_items,
+                      (item) => item.product_variant?.qr_code
+                    ).map((item, idx) => (
                       <TableRow key={idx}>
                         <TableCell>{item.product_variant?.qr_code}</TableCell>
                         <TableCell>{item.quantity}</TableCell>

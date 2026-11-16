@@ -1,4 +1,5 @@
 import { RootState } from "@/app/store";
+import { sortByQrCode } from "@/utils/sort-by-qr-code";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -183,7 +184,10 @@ export default function BrokenItemsTransferDialog() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {brokenItems.map((item) => (
+                    {sortByQrCode(
+                      brokenItems,
+                      (item) => item.product_variant?.qr_code
+                    ).map((item) => (
                       <TableRow key={item.ID}>
                         <TableCell>
                           <Checkbox
