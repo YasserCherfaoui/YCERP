@@ -1,17 +1,17 @@
 import { baseUrl } from "@/app/constants";
 import {
-    CreateExitBillFromMissingVariantsResponse,
-    MissingVariantByFranchiseResponse,
-    MissingVariantListResponse,
-    MissingVariantRequest
+  CreateExitBillFromMissingVariantsResponse,
+  MissingVariantByFranchiseResponse,
+  MissingVariantListResponse,
+  MissingVariantRequest
 } from "@/models/data/missing-variant.model";
 import type { APIError } from "@/models/responses/api-response.model";
 import { APIResponse } from "@/models/responses/api-response.model";
 import {
-    CreateExitBillFromMissingVariantsSchema,
-    CreateMissingVariantRequestSchema,
-    MissingVariantFiltersSchema,
-    UpdateMissingVariantRequestSchema,
+  CreateExitBillFromMissingVariantsSchema,
+  CreateMissingVariantRequestSchema,
+  MissingVariantFiltersSchema,
+  UpdateMissingVariantRequestSchema,
 } from "@/schemas/missing-variant";
 
 const getAuthHeaders = () => {
@@ -54,13 +54,13 @@ export const getFranchiseMissingVariantRequests = async (
   filters?: Partial<MissingVariantFiltersSchema>
 ): Promise<APIResponse<MissingVariantListResponse>> => {
   const params = new URLSearchParams();
-  
+
   if (filters?.status) params.append("status", filters.status);
   if (filters?.page) params.append("page", filters.page.toString());
   if (filters?.limit) params.append("limit", filters.limit.toString());
 
   const url = `${baseUrl}/franchises/missing-variants${params.toString() ? `?${params.toString()}` : ""}`;
-  
+
   const response = await fetch(url, {
     method: "GET",
     headers: getAuthHeaders(),
@@ -102,7 +102,7 @@ export const getAllMissingVariantRequests = async (
   filters?: Partial<MissingVariantFiltersSchema>
 ): Promise<APIResponse<MissingVariantListResponse>> => {
   const params = new URLSearchParams();
-  
+
   if (filters?.franchise_id) params.append("franchise_id", filters.franchise_id.toString());
   if (filters?.company_id) params.append("company_id", filters.company_id.toString());
   if (filters?.status) params.append("status", filters.status);
@@ -110,7 +110,7 @@ export const getAllMissingVariantRequests = async (
   if (filters?.limit) params.append("limit", filters.limit.toString());
 
   const url = `${baseUrl}/admin/missing-variants${params.toString() ? `?${params.toString()}` : ""}`;
-  
+
   const response = await fetch(url, {
     method: "GET",
     headers: getAuthHeaders(),
@@ -125,14 +125,14 @@ export const getMissingVariantRequestsByFranchise = async (
   filters?: Partial<MissingVariantFiltersSchema>
 ): Promise<APIResponse<MissingVariantByFranchiseResponse>> => {
   const params = new URLSearchParams();
-  
+
   if (filters?.company_id) params.append("company_id", filters.company_id.toString());
   if (filters?.status) params.append("status", filters.status);
   if (filters?.page) params.append("page", filters.page.toString());
   if (filters?.limit) params.append("limit", filters.limit.toString());
 
   const url = `${baseUrl}/admin/missing-variants/franchise/${franchiseId}${params.toString() ? `?${params.toString()}` : ""}`;
-  
+
   const response = await fetch(url, {
     method: "GET",
     headers: getAuthHeaders(),
@@ -146,7 +146,7 @@ export const createExitBillFromMissingVariants = async (
   data: CreateExitBillFromMissingVariantsSchema
 ): Promise<APIResponse<CreateExitBillFromMissingVariantsResponse>> => {
   console.log('Service received data:', data);
-  
+
   // Filter out items with 0 quantity from quantity_adjustments
   const filteredQuantityAdjustments = data.quantity_adjustments?.filter(
     adjustment => adjustment.quantity > 0
@@ -159,16 +159,16 @@ export const createExitBillFromMissingVariants = async (
     company_id: data.company_id,
     comment: data.comment,
     // Include request_ids only if provided and not empty
-    ...(data.request_ids && data.request_ids.length > 0 && { 
-      request_ids: data.request_ids 
+    ...(data.request_ids && data.request_ids.length > 0 && {
+      request_ids: data.request_ids
     }),
     // Include quantity adjustments only if there are items with quantity > 0
-    ...(filteredQuantityAdjustments && filteredQuantityAdjustments.length > 0 && { 
-      quantity_adjustments: filteredQuantityAdjustments 
+    ...(filteredQuantityAdjustments && filteredQuantityAdjustments.length > 0 && {
+      quantity_adjustments: filteredQuantityAdjustments
     }),
     // Include additional_items if provided
-    ...(data.additional_items && data.additional_items.length > 0 && { 
-      additional_items: data.additional_items 
+    ...(data.additional_items && data.additional_items.length > 0 && {
+      additional_items: data.additional_items
     }),
   };
 
@@ -194,6 +194,43 @@ export const bulkCreateMissingVariantRequests = async (
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(data),
+  });
+
+  await handleApiError(response);
+  return response.json();
+};
+
+export interface VariantNeedsAutomationSummary {
+  total_franchises_processed: number;
+  total_sales_processed: number;
+  total_variants_processed: number;
+  total_requests_created: number;
+  total_requests_updated: number;
+  total_errors: number;
+}
+
+export interface VariantNeedsAutomationFranchiseResult {
+  FranchiseID: number;
+  FranchiseName: string;
+  AlreadyProcessed: boolean;
+  LogsProcessed: number;
+  VariantsProcessed: number;
+  RequestsCreated: number;
+  RequestsUpdated: number;
+  Errors: string[];
+}
+
+export interface ProcessAllVariantNeedsResponse {
+  summary: VariantNeedsAutomationSummary;
+  results: VariantNeedsAutomationFranchiseResult[];
+}
+
+export const processAllVariantNeedsAutomation = async (): Promise<
+  APIResponse<ProcessAllVariantNeedsResponse>
+> => {
+  const response = await fetch(`${baseUrl}/api/automation/variant-needs/process-all`, {
+    method: "POST",
+    headers: getAuthHeaders(),
   });
 
   await handleApiError(response);
